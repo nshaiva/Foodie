@@ -1,0 +1,104 @@
+{
+  "id": "JP",
+  "name": "Japan",
+  "capital": "Tokyo",
+  "continent": "Asia",
+  "region": "East Asia",
+
+  "foodCulture": {
+    "overview": "Japanese cuisine (washoku) is UNESCO-recognized for its emphasis on seasonality, balance, and presentation. Food is approached with reverence—the phrase 'itadakimasu' (I humbly receive) spoken before meals reflects gratitude for the ingredients, the cook, and nature itself.\n\nAesthetics matter as much as taste. Dishes are composed with attention to color, texture, and arrangement. Seasonal ingredients (shun) are prized at their peak, and menus change throughout the year to reflect what's freshest.\n\nSpecialization runs deep in Japanese food culture. Chefs often dedicate entire careers to mastering a single dish—sushi, ramen, tempura, or soba. This pursuit of perfection (shokunin spirit) elevates even humble dishes to art forms.",
+
+    "mealStructure": "Traditional meals follow ichiju-sansai: one soup, three sides, plus rice and pickles. Breakfast might include rice, miso soup, grilled fish, and pickled vegetables. Lunch is often a set meal (teishoku) or bowl dish. Dinner is the largest meal.",
+
+    "diningCustoms": "Slurping noodles is acceptable and shows appreciation. Chopsticks should never be stuck upright in rice (funeral association). Many restaurants specialize in one dish. Saying 'gochisousama' after eating thanks the preparer.",
+
+    "historicalInfluences": "Buddhist influence led to centuries of minimal meat consumption, developing the vegetable, tofu, and seafood traditions. Chinese influence brought ramen, gyoza, and stir-frying. Post-WWII American influence created yoshoku (Western-Japanese fusion) dishes like tonkatsu curry."
+  },
+
+  "cuisineProfile": {
+    "summary": "Japanese cuisine emphasizes clean, pure flavors that showcase ingredients at their peak, with umami as the defining taste underpinning most dishes.",
+    "flavorProfile": [
+      "umami-rich",
+      "subtle",
+      "clean",
+      "delicate",
+      "savory-sweet",
+      "oceanic"
+    ],
+    "keyIngredients": [
+      "short-grain rice",
+      "soy sauce (shoyu)",
+      "dashi (seaweed and bonito stock)",
+      "miso",
+      "mirin",
+      "sake",
+      "tofu",
+      "seafood",
+      "nori (seaweed)"
+    ],
+    "cookingTechniques": [
+      "raw preparation (sashimi)",
+      "grilling (yakitori, robata)",
+      "deep-frying (tempura, tonkatsu)",
+      "simmering (nimono)",
+      "steaming"
+    ],
+    "spicesAndSeasonings": [
+      "wasabi",
+      "ginger",
+      "shichimi togarashi",
+      "sesame (seeds and oil)",
+      "shiso",
+      "mitsuba",
+      "yuzu",
+      "sancho pepper"
+    ]
+  },
+
+  "popularDishes": [
+    {
+      "name": "Sushi",
+      "description": "Vinegared rice paired with fresh raw fish, seafood, or vegetables. Ranges from casual conveyor-belt shops to exclusive omakase counters where chefs serve piece by piece.",
+      "category": "main"
+    },
+    {
+      "name": "Ramen",
+      "description": "Wheat noodles in rich broth—tonkotsu (pork bone), shoyu (soy), miso, or shio (salt)—topped with chashu pork, eggs, nori, and scallions. Regional styles vary dramatically.",
+      "category": "soup",
+      "isStreetFood": true
+    },
+    {
+      "name": "Tempura",
+      "description": "Lightly battered and deep-fried vegetables and seafood, served with tentsuyu dipping sauce. The batter is kept ice-cold for maximum crispness.",
+      "category": "main"
+    },
+    {
+      "name": "Tonkatsu",
+      "description": "Breaded and deep-fried pork cutlet, served with shredded cabbage, rice, and tangy tonkatsu sauce. A comfort food staple.",
+      "category": "main"
+    },
+    {
+      "name": "Okonomiyaki",
+      "englishName": "Savory Pancake",
+      "description": "Cabbage-based savory pancake with various fillings, topped with mayo, okonomiyaki sauce, bonito flakes, and seaweed. Osaka and Hiroshima have distinct styles.",
+      "category": "main",
+      "regionalOrigin": "Osaka / Hiroshima"
+    },
+    {
+      "name": "Yakitori",
+      "description": "Skewered and grilled chicken pieces—thigh, breast, skin, organs—seasoned with salt or sweet tare sauce. Quintessential izakaya (pub) food.",
+      "category": "appetizer",
+      "isStreetFood": true
+    },
+    {
+      "name": "Miso Soup",
+      "description": "Dashi broth with dissolved miso paste, tofu, wakame seaweed, and scallions. Served with nearly every traditional meal.",
+      "category": "soup"
+    },
+    {
+      "name": "Matcha",
+      "description": "Powdered green tea whisked into hot water, central to Japanese tea ceremony. Also used in desserts, lattes, and sweets.",
+      "category": "beverage"
+    }
+  ]
+}

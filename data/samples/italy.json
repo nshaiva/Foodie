@@ -1,0 +1,106 @@
+{
+  "id": "IT",
+  "name": "Italy",
+  "capital": "Rome",
+  "continent": "Europe",
+  "region": "Southern Europe",
+
+  "foodCulture": {
+    "overview": "Italian cuisine is fundamentally regional—there is no single 'Italian food' but rather a mosaic of local traditions shaped by geography, history, and climate. A dish authentic in Bologna may be unrecognizable in Naples. Italians take fierce pride in their local specialties and often view other regions' versions with skepticism.\n\nSimplicity and ingredient quality define the philosophy. Recipes often have few components, making the quality of each essential. A caprese salad is only as good as its tomatoes, mozzarella, and olive oil. This restraint requires confidence—letting ingredients speak rather than masking them.\n\nMeals are structured rituals. A proper Italian meal moves through courses: antipasto, primo (pasta or rice), secondo (meat or fish), contorno (vegetables), and dolce (dessert). While everyday eating is simpler, Sunday lunch and holidays often follow this progression.",
+
+    "mealStructure": "Breakfast (colazione) is light—espresso and a pastry. Lunch (pranzo) was traditionally the main meal, though this is shifting. Dinner (cena) is eaten late (8-9 PM) and can be the largest meal. Aperitivo (pre-dinner drinks with snacks) is a social institution.",
+
+    "diningCustoms": "Pasta is a first course, not a main. Cheese is never added to seafood pasta. Cappuccino is a morning drink only. Bread is for wiping sauce, not dipping in olive oil (that's American). Eating while walking is frowned upon.",
+
+    "historicalInfluences": "Ancient Roman cuisine laid foundations with olive oil, wine, and bread. Arab influence in Sicily brought citrus, rice, and sugar. The tomato (from the Americas) didn't become central until the 18th-19th centuries. Regional fragmentation until 1861 preserved distinct local traditions."
+  },
+
+  "cuisineProfile": {
+    "summary": "Italian cuisine celebrates simplicity and regional tradition, relying on high-quality ingredients prepared with restraint to achieve bright, balanced flavors.",
+    "flavorProfile": [
+      "bright (tomato, lemon)",
+      "savory (aged cheese, cured meats)",
+      "herbaceous",
+      "olive oil-rich",
+      "balanced",
+      "subtle"
+    ],
+    "keyIngredients": [
+      "olive oil",
+      "tomatoes (fresh and canned San Marzano)",
+      "Parmigiano-Reggiano",
+      "pasta (dozens of shapes)",
+      "cured pork (guanciale, pancetta, prosciutto)",
+      "garlic",
+      "white beans",
+      "arborio rice"
+    ],
+    "cookingTechniques": [
+      "sautéing in olive oil",
+      "slow-simmering sauces (ragù)",
+      "roasting",
+      "grilling",
+      "curing and aging meats/cheeses"
+    ],
+    "spicesAndSeasonings": [
+      "basil",
+      "oregano",
+      "rosemary",
+      "sage",
+      "flat-leaf parsley",
+      "garlic",
+      "red pepper flakes (peperoncino)",
+      "fennel seeds",
+      "black pepper"
+    ]
+  },
+
+  "popularDishes": [
+    {
+      "name": "Pasta alla Carbonara",
+      "description": "Rigatoni or spaghetti tossed with guanciale, egg yolks, Pecorino Romano, and black pepper. No cream—the silky sauce comes from emulsifying eggs with pasta water.",
+      "category": "main",
+      "regionalOrigin": "Rome"
+    },
+    {
+      "name": "Margherita Pizza",
+      "description": "Neapolitan pizza with San Marzano tomatoes, fresh mozzarella, basil, and olive oil on a charred, chewy crust. The standard by which all pizza is measured.",
+      "category": "main",
+      "regionalOrigin": "Naples"
+    },
+    {
+      "name": "Risotto alla Milanese",
+      "description": "Creamy arborio rice slowly cooked with saffron, white wine, and butter, finished with Parmigiano. Golden-hued and luxurious.",
+      "category": "main",
+      "regionalOrigin": "Milan"
+    },
+    {
+      "name": "Ossobuco",
+      "description": "Braised veal shanks with vegetables, white wine, and broth, traditionally served with risotto alla Milanese. The marrow is prized.",
+      "category": "main",
+      "regionalOrigin": "Milan"
+    },
+    {
+      "name": "Lasagna Bolognese",
+      "description": "Layers of fresh pasta sheets, slow-cooked meat ragù, béchamel, and Parmigiano, baked until golden. A labor-intensive celebration dish.",
+      "category": "main",
+      "regionalOrigin": "Bologna"
+    },
+    {
+      "name": "Gelato",
+      "description": "Italian ice cream with less air and fat than American versions, resulting in denser, more intense flavors. Pistachio, stracciatella, and hazelnut are classics.",
+      "category": "dessert"
+    },
+    {
+      "name": "Prosciutto e Melone",
+      "description": "Paper-thin aged prosciutto draped over ripe cantaloupe. A perfect summer antipasto balancing salty, sweet, and savory.",
+      "category": "appetizer"
+    },
+    {
+      "name": "Tiramisu",
+      "description": "Layered dessert of espresso-soaked ladyfingers and mascarpone cream, dusted with cocoa. Originated in the Veneto region in the 1960s-80s.",
+      "category": "dessert",
+      "regionalOrigin": "Veneto"
+    }
+  ]
+}

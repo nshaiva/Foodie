@@ -1,0 +1,105 @@
+{
+  "id": "MX",
+  "name": "Mexico",
+  "capital": "Mexico City",
+  "continent": "North America",
+  "region": "Central America",
+
+  "foodCulture": {
+    "overview": "Mexican cuisine is recognized by UNESCO as an Intangible Cultural Heritage of Humanity, reflecting thousands of years of culinary tradition stretching back to ancient Mesoamerican civilizations. Food is inseparable from Mexican identity—recipes are passed down through generations, and regional pride in local dishes runs deep.\n\nMeals are social anchors. The comida, typically eaten between 2-4 PM, is the main meal of the day and often a family affair lasting an hour or more. Street food is equally vital—taquerias, market stalls, and roving vendors serve everything from tacos to tamales at all hours.\n\nMexican cooking is labor-intensive and deeply respected. The preparation of moles, which can contain 20+ ingredients and require hours of work, exemplifies the cuisine's complexity. Even everyday dishes like fresh tortillas demand skill and care.",
+
+    "mealStructure": "Breakfast (desayuno) is often hearty—eggs, beans, tortillas, chilaquiles. The main meal (comida) happens mid-afternoon and may include soup, a main dish, and dessert. Dinner (cena) is lighter, often antojitos (snacks) or leftovers.",
+
+    "diningCustoms": "Tortillas serve as both utensil and staple—used to scoop food, wrap ingredients, or accompany dishes. Sharing plates of tacos or antojitos is common. Lime, salsa, and fresh cilantro are ubiquitous table condiments.",
+
+    "historicalInfluences": "The foundation is Mesoamerican—corn, beans, squash, and chilies cultivated for millennia. Spanish colonization introduced pork, beef, dairy, rice, and wheat. This fusion created iconic dishes like tacos al pastor (Lebanese-influenced) and the complex moles blending indigenous and European techniques."
+  },
+
+  "cuisineProfile": {
+    "summary": "Mexican cuisine layers complex, earthy flavors built on corn, chilies, and beans, with regional variations ranging from coastal seafood to highland stews.",
+    "flavorProfile": [
+      "earthy",
+      "smoky",
+      "spicy (ranging from mild to fiery)",
+      "tangy (lime, tomatillo)",
+      "rich",
+      "herbaceous"
+    ],
+    "keyIngredients": [
+      "corn (maize)",
+      "dried and fresh chilies",
+      "black beans",
+      "tomatoes",
+      "tomatillos",
+      "avocado",
+      "lime",
+      "queso fresco",
+      "crema"
+    ],
+    "cookingTechniques": [
+      "nixtamalization (corn processing)",
+      "dry-roasting chilies and spices",
+      "braising and stewing",
+      "grilling (al carbon)",
+      "frying"
+    ],
+    "spicesAndSeasonings": [
+      "cumin",
+      "oregano (Mexican)",
+      "epazote",
+      "cilantro",
+      "cinnamon",
+      "cloves",
+      "achiote (annatto)",
+      "dried chilies (ancho, guajillo, chipotle, pasilla)"
+    ]
+  },
+
+  "popularDishes": [
+    {
+      "name": "Tacos",
+      "description": "Soft corn tortillas filled with endless variations—carne asada, carnitas, al pastor, barbacoa, fish—topped with onion, cilantro, salsa, and lime.",
+      "category": "main",
+      "isStreetFood": true
+    },
+    {
+      "name": "Mole Poblano",
+      "description": "Complex sauce of dried chilies, chocolate, nuts, spices, and more, typically served over chicken or turkey. Originated in Puebla and requires hours of preparation.",
+      "category": "main",
+      "regionalOrigin": "Puebla"
+    },
+    {
+      "name": "Pozole",
+      "description": "Hearty hominy soup with pork or chicken in a red or green chili broth, garnished with cabbage, radish, oregano, and lime. Traditional for celebrations.",
+      "category": "soup"
+    },
+    {
+      "name": "Chiles en Nogada",
+      "description": "Poblano peppers stuffed with picadillo (meat and fruit mixture), covered in walnut cream sauce and pomegranate seeds. A patriotic dish eaten in September.",
+      "category": "main",
+      "regionalOrigin": "Puebla"
+    },
+    {
+      "name": "Tamales",
+      "description": "Corn masa filled with meats, cheese, or sweet fillings, wrapped in corn husks or banana leaves and steamed. A labor of love often made communally.",
+      "category": "main"
+    },
+    {
+      "name": "Guacamole",
+      "description": "Mashed avocado with lime, cilantro, onion, tomato, and chili. Simple but essential, served with tortilla chips or as a taco accompaniment.",
+      "category": "appetizer"
+    },
+    {
+      "name": "Elote",
+      "description": "Grilled corn on the cob slathered with mayonnaise, cotija cheese, chili powder, and lime. Iconic Mexican street food.",
+      "category": "street-food",
+      "isStreetFood": true
+    },
+    {
+      "name": "Churros",
+      "description": "Fried dough pastry coated in cinnamon sugar, often served with chocolate sauce for dipping. A beloved street dessert.",
+      "category": "dessert",
+      "isStreetFood": true
+    }
+  ]
+}

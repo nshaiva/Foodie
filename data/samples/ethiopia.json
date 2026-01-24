@@ -1,0 +1,103 @@
+{
+  "id": "ET",
+  "name": "Ethiopia",
+  "capital": "Addis Ababa",
+  "continent": "Africa",
+  "region": "East Africa",
+
+  "foodCulture": {
+    "overview": "Ethiopian cuisine is one of the world's most distinctive and communal food traditions. Meals are served on a single large platter lined with injera (spongy flatbread), with various stews and dishes arranged on top. Diners tear off pieces of injera and use them to scoop up food—no utensils needed.\n\nFood and spirituality are intertwined. The Ethiopian Orthodox Church prescribes over 200 fasting days per year when meat and dairy are forbidden, leading to an extraordinarily rich tradition of vegan dishes. Wednesday and Friday are regular fasting days for observant Christians.\n\nCoffee holds sacred status—Ethiopia is the birthplace of arabica coffee, and the coffee ceremony (buna) is an hours-long ritual of roasting, grinding, and brewing performed for guests. Refusing coffee is considered impolite.",
+
+    "mealStructure": "Meals center on the communal platter. Lunch is typically the largest meal. The injera serves as both plate and utensil. Dishes are eaten in no particular order—diners graze across the platter. Coffee ceremony often follows meals.",
+
+    "diningCustoms": "Eating from a shared platter using hands only (right hand). Gursha—hand-feeding someone else a morsel—is a gesture of respect and affection. The person who tears the last piece of injera should not eat it alone.",
+
+    "historicalInfluences": "Ancient trade routes brought spices from Arabia and India. Unique highland climate allowed cultivation of teff (the grain for injera) found almost nowhere else. Italian occupation (1936-41) left minimal culinary impact, unlike in Eritrea. Indigenous traditions remained remarkably intact."
+  },
+
+  "cuisineProfile": {
+    "summary": "Ethiopian cuisine features complex spice blends, hearty stews, and the iconic injera flatbread, with an extensive tradition of flavorful vegan dishes alongside rich meat preparations.",
+    "flavorProfile": [
+      "warmly spiced",
+      "earthy",
+      "tangy (from injera fermentation)",
+      "rich",
+      "peppery",
+      "aromatic"
+    ],
+    "keyIngredients": [
+      "teff flour (for injera)",
+      "berbere spice blend",
+      "niter kibbeh (spiced clarified butter)",
+      "lentils",
+      "chickpeas",
+      "collard greens",
+      "beef",
+      "lamb",
+      "chicken"
+    ],
+    "cookingTechniques": [
+      "slow-simmering stews (wots)",
+      "dry-frying spices",
+      "fermenting (injera batter)",
+      "clarifying and spicing butter",
+      "raw meat preparation (kitfo, gored gored)"
+    ],
+    "spicesAndSeasonings": [
+      "berbere (chili, fenugreek, coriander, cardamom, and more)",
+      "mitmita (chili powder blend)",
+      "korarima (Ethiopian cardamom)",
+      "black cumin",
+      "fenugreek",
+      "bishop's weed (ajwain)",
+      "rue"
+    ]
+  },
+
+  "popularDishes": [
+    {
+      "name": "Injera",
+      "description": "Spongy, tangy flatbread made from fermented teff batter. The foundation of every Ethiopian meal—serving as plate, utensil, and staple carbohydrate.",
+      "category": "side",
+      "isVegetarian": true
+    },
+    {
+      "name": "Doro Wot",
+      "description": "Spicy chicken stew simmered for hours in berbere and niter kibbeh, served with hard-boiled eggs. The national dish, reserved for special occasions and holidays.",
+      "category": "main"
+    },
+    {
+      "name": "Kitfo",
+      "description": "Minced raw beef seasoned with mitmita and niter kibbeh. Can be served leb leb (lightly warmed) or fully cooked. Ethiopia's steak tartare equivalent.",
+      "category": "main"
+    },
+    {
+      "name": "Misir Wot",
+      "description": "Red lentils simmered in berbere spice blend until thick and flavorful. A fasting-day staple and one of the world's great vegan dishes.",
+      "category": "main",
+      "isVegetarian": true
+    },
+    {
+      "name": "Shiro",
+      "description": "Smooth, thick stew of ground chickpeas or broad beans with garlic, onion, and spices. Humble, comforting, and ubiquitous on fasting days.",
+      "category": "main",
+      "isVegetarian": true
+    },
+    {
+      "name": "Tibs",
+      "description": "Sautéed meat (beef or lamb) with onions, peppers, and spices. Ranges from mild (alicha tibs) to fiery. Often served sizzling in a clay pot.",
+      "category": "main"
+    },
+    {
+      "name": "Gomen",
+      "description": "Collard greens sautéed with garlic, ginger, and spices. A standard component of the vegetarian combination platter.",
+      "category": "side",
+      "isVegetarian": true
+    },
+    {
+      "name": "Ethiopian Coffee (Buna)",
+      "description": "Coffee roasted, ground, and brewed tableside in a jebena (clay pot). Served in three rounds of decreasing strength. A ceremony, not just a drink.",
+      "category": "beverage"
+    }
+  ]
+}

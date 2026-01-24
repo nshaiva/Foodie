@@ -1,0 +1,104 @@
+{
+  "id": "PE",
+  "name": "Peru",
+  "capital": "Lima",
+  "continent": "South America",
+  "region": "Western South America",
+
+  "foodCulture": {
+    "overview": "Peruvian cuisine has emerged as one of the world's most celebrated, built on 5,000 years of indigenous tradition fused with Spanish, African, Chinese, and Japanese influences. Lima is now considered a global culinary capital, home to multiple restaurants on the World's 50 Best list.\n\nGeographic diversity shapes the cuisine dramatically. The coast (costa) emphasizes seafood and ceviche. The highlands (sierra) feature hearty dishes with potatoes, corn, and meat. The Amazon (selva) contributes exotic fruits, fish, and ingredients found nowhere else.\n\nPeru is the origin of the potato—over 3,000 varieties grow here—and this biodiversity extends to corn (55 varieties), peppers (ají), and countless other ingredients. The cuisine celebrates this abundance.",
+
+    "mealStructure": "Lunch (almuerzo) is the main meal, often a multi-course set menu at restaurants. Ceviche is traditionally a lunch dish (the citrus is thought to aid afternoon energy). Dinner is lighter. Street food and snacks are eaten throughout the day.",
+
+    "diningCustoms": "Ceviche is eaten with a spoon; the citrus 'leche de tigre' liquid is sipped or drunk as a hangover cure. Sharing anticuchos (skewers) at street carts is a social activity. Pisco sour before meals is customary.",
+
+    "historicalInfluences": "Inca and pre-Inca civilizations developed sophisticated preservation and cooking techniques. Spanish colonization brought new ingredients and livestock. Chinese immigrants (chifa) and Japanese immigrants (Nikkei) created distinct fusion cuisines now integral to Peruvian food."
+  },
+
+  "cuisineProfile": {
+    "summary": "Peruvian cuisine blends indigenous ingredients with global influences, featuring bold use of ají peppers, citrus, and an unparalleled diversity of potatoes, corn, and seafood.",
+    "flavorProfile": [
+      "citrus-bright",
+      "ají pepper heat (fruity, not just hot)",
+      "tangy",
+      "savory",
+      "earthy (highland dishes)",
+      "fresh"
+    ],
+    "keyIngredients": [
+      "ají amarillo (yellow pepper)",
+      "lime",
+      "potatoes (thousands of varieties)",
+      "corn (choclo)",
+      "seafood",
+      "quinoa",
+      "cilantro",
+      "ají panca",
+      "huacatay (black mint)"
+    ],
+    "cookingTechniques": [
+      "curing in citrus (ceviche)",
+      "stir-frying (from chifa influence)",
+      "braising and stewing",
+      "grilling (anticuchos)",
+      "pachamanca (earth oven cooking)"
+    ],
+    "spicesAndSeasonings": [
+      "ají amarillo",
+      "ají panca",
+      "ají rocoto",
+      "cumin",
+      "garlic",
+      "cilantro",
+      "huacatay",
+      "chincho",
+      "palillo (Peruvian turmeric)"
+    ]
+  },
+
+  "popularDishes": [
+    {
+      "name": "Ceviche",
+      "description": "Fresh raw fish cured in lime juice with ají, red onion, and cilantro. Served with sweet potato and cancha (toasted corn). Peru's national dish and point of pride.",
+      "category": "main"
+    },
+    {
+      "name": "Lomo Saltado",
+      "description": "Stir-fried beef with onions, tomatoes, and ají amarillo, served over rice with French fries. The quintessential chifa (Chinese-Peruvian) fusion dish.",
+      "category": "main"
+    },
+    {
+      "name": "Ají de Gallina",
+      "description": "Shredded chicken in a creamy sauce of ají amarillo, bread, walnuts, and cheese, served over rice with potatoes and olives.",
+      "category": "main"
+    },
+    {
+      "name": "Anticuchos",
+      "description": "Grilled beef heart skewers marinated in vinegar, cumin, and ají panca. Beloved street food with pre-Columbian origins, served with potatoes and corn.",
+      "category": "street-food",
+      "isStreetFood": true
+    },
+    {
+      "name": "Causa",
+      "description": "Layered cold dish of seasoned mashed yellow potato with ají amarillo, filled with chicken, tuna, or crab salad. Striking presentation.",
+      "category": "appetizer"
+    },
+    {
+      "name": "Rocoto Relleno",
+      "description": "Stuffed rocoto pepper (extremely spicy) with ground beef, onions, eggs, and cheese, baked until golden. A specialty of Arequipa.",
+      "category": "main",
+      "regionalOrigin": "Arequipa"
+    },
+    {
+      "name": "Picarones",
+      "description": "Sweet potato and squash doughnuts drizzled with chancaca (raw sugar syrup). A beloved street dessert dating to colonial times.",
+      "category": "dessert",
+      "isStreetFood": true
+    },
+    {
+      "name": "Pisco Sour",
+      "description": "Cocktail of pisco (grape brandy), lime juice, simple syrup, egg white, and bitters. Peru's national drink, with contested Chilean origins.",
+      "category": "beverage"
+    }
+  ]
+}

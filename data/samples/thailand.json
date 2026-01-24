@@ -1,0 +1,114 @@
+{
+  "id": "TH",
+  "name": "Thailand",
+  "capital": "Bangkok",
+  "continent": "Asia",
+  "region": "Southeast Asia",
+
+  "foodCulture": {
+    "overview": "Thai cuisine is deeply woven into the country's social fabric, with food serving as a centerpiece of family gatherings, religious ceremonies, and everyday life. Meals are communal affairs—dishes are placed at the center of the table and shared among everyone, with each person taking small portions of multiple dishes alongside rice.\n\nStreet food culture is ubiquitous and essential to understanding Thai food. From bustling night markets in Bangkok to roadside vendors in small villages, Thais eat out frequently, often multiple times per day. The line between restaurant and street stall is blurred, with some of the country's most celebrated dishes served from humble carts.\n\nThe Thai approach to food emphasizes balance—not just of flavors within a dish, but across an entire meal. A proper Thai meal includes contrasting dishes: something spicy balanced by something mild, something rich offset by something light and refreshing.",
+
+    "mealStructure": "Meals typically center around rice (khao), with multiple dishes served simultaneously rather than in courses. Breakfast might be rice porridge (jok) or noodle soup, lunch a single-plate dish, and dinner the most elaborate meal with several shared dishes.",
+
+    "diningCustoms": "Food is eaten with a spoon (main utensil) and fork (used to push food onto the spoon). Chopsticks are reserved for noodle dishes. It's common to order more dishes than people at the table, ensuring variety.",
+
+    "historicalInfluences": "Thai cuisine reflects centuries of trade and cultural exchange—Chinese influences in noodle dishes and stir-frying techniques, Indian influences in curries, and Portuguese introduction of chilies in the 16th century that transformed the cuisine."
+  },
+
+  "cuisineProfile": {
+    "summary": "Thai cuisine is defined by its bold, harmonious balance of spicy, sour, sweet, and salty flavors, with an emphasis on fresh herbs and aromatic ingredients.",
+    "flavorProfile": [
+      "spicy (phet)",
+      "sour (priao)",
+      "sweet (wan)",
+      "salty (kem)",
+      "aromatic",
+      "herbaceous"
+    ],
+    "keyIngredients": [
+      "jasmine rice",
+      "fish sauce (nam pla)",
+      "coconut milk",
+      "palm sugar",
+      "tamarind",
+      "lime",
+      "shrimp paste",
+      "rice noodles"
+    ],
+    "cookingTechniques": [
+      "stir-frying (pad)",
+      "grilling (yang)",
+      "boiling/simmering curries",
+      "pounding in mortar and pestle",
+      "deep-frying"
+    ],
+    "spicesAndSeasonings": [
+      "Thai chilies",
+      "galangal",
+      "lemongrass",
+      "kaffir lime leaves",
+      "Thai basil",
+      "cilantro (roots, stems, leaves)",
+      "garlic",
+      "shallots",
+      "turmeric",
+      "coriander seeds",
+      "cumin"
+    ]
+  },
+
+  "popularDishes": [
+    {
+      "name": "Pad Thai",
+      "description": "Stir-fried rice noodles with eggs, tofu or shrimp, bean sprouts, and peanuts in a sweet-sour tamarind sauce. Thailand's most internationally recognized dish.",
+      "category": "main",
+      "isStreetFood": true
+    },
+    {
+      "name": "Tom Yum Goong",
+      "englishName": "Spicy Shrimp Soup",
+      "description": "Hot and sour soup with shrimp, mushrooms, lemongrass, galangal, kaffir lime leaves, and chilies. The quintessential Thai soup.",
+      "category": "soup"
+    },
+    {
+      "name": "Som Tum",
+      "englishName": "Green Papaya Salad",
+      "description": "Shredded unripe papaya pounded with tomatoes, green beans, peanuts, dried shrimp, and chilies in a lime and fish sauce dressing. Originates from the Isan region.",
+      "category": "salad",
+      "isStreetFood": true,
+      "regionalOrigin": "Isan (Northeastern Thailand)"
+    },
+    {
+      "name": "Gaeng Keow Wan",
+      "englishName": "Green Curry",
+      "description": "Creamy coconut curry with green chili paste, Thai eggplant, bamboo shoots, and Thai basil, typically made with chicken or beef.",
+      "category": "main"
+    },
+    {
+      "name": "Khao Pad",
+      "englishName": "Thai Fried Rice",
+      "description": "Wok-fried jasmine rice with egg, onion, and choice of protein, seasoned with fish sauce and served with lime and cucumber.",
+      "category": "main",
+      "isStreetFood": true
+    },
+    {
+      "name": "Massaman Curry",
+      "description": "Rich, mild curry with Muslim influences, featuring potatoes, peanuts, and warm spices like cardamom, cinnamon, and star anise. Often made with beef or chicken.",
+      "category": "main",
+      "regionalOrigin": "Southern Thailand"
+    },
+    {
+      "name": "Pad Krapow Moo Saap",
+      "englishName": "Basil Pork",
+      "description": "Stir-fried minced pork with holy basil, chilies, and garlic, served over rice with a fried egg. A beloved everyday lunch dish.",
+      "category": "main",
+      "isStreetFood": true
+    },
+    {
+      "name": "Mango Sticky Rice",
+      "englishName": "Khao Niao Mamuang",
+      "description": "Sweet glutinous rice soaked in coconut cream, served with ripe mango slices. A beloved seasonal dessert during mango season.",
+      "category": "dessert"
+    }
+  ]
+}
