@@ -44,6 +44,28 @@ export function useRestaurants() {
     return restaurants.filter(r => r.countryId === countryId);
   };
 
+  const findRestaurantByName = (countryId: string, name: string) => {
+    const normalizedName = name.trim().toLowerCase();
+    return restaurants.find(
+      r => r.countryId === countryId && r.name.toLowerCase() === normalizedName
+    );
+  };
+
+  const findOrCreateRestaurant = (countryId: string, name: string, dateVisited?: string) => {
+    // Check if restaurant already exists
+    const existing = findRestaurantByName(countryId, name);
+    if (existing) {
+      return existing;
+    }
+
+    // Create new restaurant
+    return addRestaurant({
+      countryId,
+      name: name.trim(),
+      dateVisited,
+    });
+  };
+
   const addVisit = (restaurantId: string, date: string, notes?: string) => {
     const newVisit: RestaurantVisit = {
       id: crypto.randomUUID(),
@@ -96,6 +118,8 @@ export function useRestaurants() {
     updateRestaurant,
     deleteRestaurant,
     getRestaurantsByCountry,
+    findRestaurantByName,
+    findOrCreateRestaurant,
     addVisit,
     updateVisit,
     deleteVisit,

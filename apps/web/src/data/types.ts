@@ -57,6 +57,9 @@ export interface Dish {
   // Popularity/authenticity
   popularity?: DishPopularity;
 
+  // Cooking difficulty
+  difficulty?: DishDifficulty;
+
   // Legacy fields (kept for backward compatibility)
   isVegetarian?: boolean;
   isStreetFood?: boolean;
@@ -96,6 +99,25 @@ export type DishCategory =
   | "breakfast"
   | "condiment";
 
+export type DishDifficulty = 'easy' | 'medium' | 'hard';
+
+export interface RestaurantTry {
+  id: string;
+  restaurantId?: string;    // Optional link to logged restaurant
+  restaurantName?: string;  // Name if not linking to a logged restaurant
+  date: string;
+  rating?: number;          // 1-5
+  notes?: string;
+}
+
+export interface CookingAttempt {
+  id: string;
+  date: string;
+  successRating?: number;   // 1-5
+  recipeSource?: string;
+  notes?: string;
+}
+
 export interface RestaurantVisit {
   id: string;
   date: string;
@@ -121,6 +143,18 @@ export interface UserDish {
   region?: string;
   name: string;
   notes?: string;
+  tasteRating?: number;  // 1-5: How much you enjoyed eating this dish
+  restaurantTries?: RestaurantTry[];
+  cookingAttempts?: CookingAttempt[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface WishlistItem {
+  id: string;
+  countryId: string;
+  dishName: string;
+  englishName?: string;
+  notes?: string;
+  createdAt: string;
 }

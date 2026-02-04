@@ -4,13 +4,24 @@ import { useDishes } from '../hooks/useDishes';
 import { useRestaurants } from '../hooks/useRestaurants';
 import { countries } from '../data/countries';
 import { DishCard } from '../components/DishCard';
-import type { Continent } from '../data/types';
+import type { Continent, RestaurantTry, CookingAttempt } from '../data/types';
 
-type SortOption = 'date-desc' | 'date-asc' | 'name' | 'country' | 'updated';
+type SortOption = 'date-desc' | 'date-asc' | 'name' | 'country' | 'updated' | 'most-tried' | 'most-cooked';
 
 export function Dishes() {
-  const { dishes, addDish, updateDish, deleteDish, getRestaurantLinksForDish, linkDishToRestaurant } = useDishes();
-  const { restaurants } = useRestaurants();
+  const {
+    dishes,
+    addDish,
+    updateDish,
+    deleteDish,
+    addRestaurantTry,
+    updateRestaurantTry,
+    deleteRestaurantTry,
+    addCookingAttempt,
+    updateCookingAttempt,
+    deleteCookingAttempt,
+  } = useDishes();
+  const { restaurants, findOrCreateRestaurant } = useRestaurants();
   const [filterCountry, setFilterCountry] = useState<string>('all');
   const [filterContinent, setFilterContinent] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('date-desc');
@@ -21,7 +32,24 @@ export function Dishes() {
   const [formName, setFormName] = useState('');
   const [formRegion, setFormRegion] = useState('');
   const [formNotes, setFormNotes] = useState('');
-  const [formSelectedRestaurants, setFormSelectedRestaurants] = useState<string[]>([]);
+
+  // Initial try type for form
+  type InitialTryType = 'none' | 'restaurant' | 'cooked';
+  const [initialTryType, setInitialTryType] = useState<InitialTryType>('none');
+
+  // Restaurant try fields
+  const [useLinkedRestaurant, setUseLinkedRestaurant] = useState(true);
+  const [restaurantId, setRestaurantId] = useState('');
+  const [restaurantName, setRestaurantName] = useState('');
+  const [restaurantDate, setRestaurantDate] = useState(new Date().toISOString().split('T')[0]);
+  const [restaurantRating, setRestaurantRating] = useState('');
+  const [restaurantNotes, setRestaurantNotes] = useState('');
+
+  // Cooking attempt fields
+  const [cookingDate, setCookingDate] = useState(new Date().toISOString().split('T')[0]);
+  const [cookingRating, setCookingRating] = useState('');
+  const [recipeSource, setRecipeSource] = useState('');
+  const [cookingNotes, setCookingNotes] = useState('');
 
   const getCountry = (countryId: string) => {
     return countries.find(c => c.id === countryId);
@@ -49,7 +77,17 @@ export function Dishes() {
     setFormName('');
     setFormRegion('');
     setFormNotes('');
-    setFormSelectedRestaurants([]);
+    setInitialTryType('none');
+    setUseLinkedRestaurant(true);
+    setRestaurantId('');
+    setRestaurantName('');
+    setRestaurantDate(new Date().toISOString().split('T')[0]);
+    setRestaurantRating('');
+    setRestaurantNotes('');
+    setCookingDate(new Date().toISOString().split('T')[0]);
+    setCookingRating('');
+    setRecipeSource('');
+    setCookingNotes('');
     setShowAddForm(false);
   };
 
@@ -57,37 +95,75 @@ export function Dishes() {
     e.preventDefault();
     if (!formCountryId || !formName.trim()) return;
 
-    const newDish = addDish({
+    // Validate restaurant try if selected
+    if (initialTryType === 'restaurant') {
+      if (useLinkedRestaurant && !restaurantId) return;
+      if (!useLinkedRestaurant && !restaurantName.trim()) return;
+    }
+
+    let initialRestaurantTry: RestaurantTry | undefined;
+    let initialCookingAttempt: CookingAttempt | undefined;
+
+    if (initialTryType === 'restaurant') {
+      const tryDate = new Date(restaurantDate).toISOString();
+
+      // Auto-create restaurant if name provided without ID
+      let finalRestaurantId = useLinkedRestaurant ? restaurantId : undefined;
+      if (!useLinkedRestaurant && restaurantName.trim()) {
+        const restaurant = findOrCreateRestaurant(formCountryId, restaurantName.trim(), tryDate);
+        finalRestaurantId = restaurant.id;
+      }
+
+      initialRestaurantTry = {
+        id: crypto.randomUUID(),
+        restaurantId: finalRestaurantId,
+        restaurantName: undefined, // Always link to restaurant now
+        date: tryDate,
+        rating: restaurantRating ? parseInt(restaurantRating, 10) : undefined,
+        notes: restaurantNotes.trim() || undefined,
+      };
+    } else if (initialTryType === 'cooked') {
+      initialCookingAttempt = {
+        id: crypto.randomUUID(),
+        date: new Date(cookingDate).toISOString(),
+        successRating: cookingRating ? parseInt(cookingRating, 10) : undefined,
+        recipeSource: recipeSource.trim() || undefined,
+        notes: cookingNotes.trim() || undefined,
+      };
+    }
+
+    addDish({
       countryId: formCountryId,
       region: formRegion || undefined,
       name: formName.trim(),
       notes: formNotes.trim() || undefined,
-    });
-
-    formSelectedRestaurants.forEach(restaurantId => {
-      linkDishToRestaurant(newDish.id, restaurantId);
+      restaurantTries: initialRestaurantTry ? [initialRestaurantTry] : [],
+      cookingAttempts: initialCookingAttempt ? [initialCookingAttempt] : [],
     });
 
     resetForm();
   };
 
-  const toggleRestaurant = (restaurantId: string) => {
-    setFormSelectedRestaurants(prev =>
-      prev.includes(restaurantId)
-        ? prev.filter(id => id !== restaurantId)
-        : [...prev, restaurantId]
-    );
+  // Wrapper for addRestaurantTry that auto-creates restaurants
+  const handleAddRestaurantTry = (dishId: string, data: Omit<RestaurantTry, 'id'>) => {
+    const dish = dishes.find(d => d.id === dishId);
+    if (!dish) return;
+
+    // Auto-create restaurant if name provided without ID
+    if (data.restaurantName && !data.restaurantId) {
+      const restaurant = findOrCreateRestaurant(dish.countryId, data.restaurantName, data.date);
+      addRestaurantTry(dishId, {
+        ...data,
+        restaurantId: restaurant.id,
+        restaurantName: undefined,
+      });
+    } else {
+      addRestaurantTry(dishId, data);
+    }
   };
 
   const selectedCountryRegions = formCountryId ? getRegionsForCountry(formCountryId) : [];
   const selectedCountryRestaurants = formCountryId ? getRestaurantsForCountry(formCountryId) : [];
-
-  const getLinkedRestaurantsForDish = (dishId: string) => {
-    const links = getRestaurantLinksForDish(dishId);
-    return links
-      .map(link => restaurants.find(r => r.id === link.restaurantId))
-      .filter((r): r is NonNullable<typeof r> => r !== undefined);
-  };
 
   const filteredDishes = dishes
     .filter(d => filterCountry === 'all' || d.countryId === filterCountry)
@@ -107,6 +183,10 @@ export function Dishes() {
           return getCountryName(a.countryId).localeCompare(getCountryName(b.countryId));
         case 'updated':
           return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        case 'most-tried':
+          return (b.restaurantTries?.length || 0) - (a.restaurantTries?.length || 0);
+        case 'most-cooked':
+          return (b.cookingAttempts?.length || 0) - (a.cookingAttempts?.length || 0);
         default:
           return 0;
       }
@@ -162,7 +242,8 @@ export function Dishes() {
                     onChange={(e) => {
                       setFormCountryId(e.target.value);
                       setFormRegion('');
-                      setFormSelectedRestaurants([]);
+                      setRestaurantId('');
+                      setUseLinkedRestaurant(getRestaurantsForCountry(e.target.value).length > 0);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     required
@@ -223,32 +304,221 @@ export function Dishes() {
                   id="formNotes"
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
-                  rows={3}
+                  rows={2}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="How was it? Any thoughts?"
+                  placeholder="General notes about this dish..."
                 />
               </div>
 
-              {selectedCountryRestaurants.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tried at these restaurants (optional)
-                  </label>
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {selectedCountryRestaurants.map((restaurant) => (
-                      <label
-                        key={restaurant.id}
-                        className="flex items-center gap-2 cursor-pointer"
-                      >
+              {/* Initial try type selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  How did you try this dish?
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setInitialTryType('none')}
+                    className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+                      initialTryType === 'none'
+                        ? 'bg-gray-700 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Just logging
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInitialTryType('restaurant')}
+                    className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+                      initialTryType === 'restaurant'
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                    }`}
+                  >
+                    At a restaurant
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInitialTryType('cooked')}
+                    className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+                      initialTryType === 'cooked'
+                        ? 'bg-violet-600 text-white'
+                        : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
+                    }`}
+                  >
+                    I cooked it
+                  </button>
+                </div>
+              </div>
+
+              {/* Restaurant try form */}
+              {initialTryType === 'restaurant' && (
+                <div className="bg-amber-50 rounded-lg border border-amber-200 p-3 space-y-3">
+                  {selectedCountryRestaurants.length > 0 && (
+                    <div className="flex gap-4 mb-2">
+                      <label className="flex items-center gap-2 cursor-pointer">
                         <input
-                          type="checkbox"
-                          checked={formSelectedRestaurants.includes(restaurant.id)}
-                          onChange={() => toggleRestaurant(restaurant.id)}
-                          className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                          type="radio"
+                          checked={useLinkedRestaurant}
+                          onChange={() => setUseLinkedRestaurant(true)}
+                          className="text-amber-600"
                         />
-                        <span className="text-sm text-gray-700">{restaurant.name}</span>
+                        <span className="text-sm text-gray-700">My restaurants</span>
                       </label>
-                    ))}
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          checked={!useLinkedRestaurant}
+                          onChange={() => setUseLinkedRestaurant(false)}
+                          className="text-amber-600"
+                        />
+                        <span className="text-sm text-gray-700">Enter name</span>
+                      </label>
+                    </div>
+                  )}
+
+                  {useLinkedRestaurant && selectedCountryRestaurants.length > 0 ? (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Restaurant *
+                      </label>
+                      <select
+                        value={restaurantId}
+                        onChange={(e) => setRestaurantId(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        required
+                      >
+                        <option value="">Select a restaurant</option>
+                        {selectedCountryRestaurants.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Restaurant Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={restaurantName}
+                        onChange={(e) => setRestaurantName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        placeholder="e.g., Little Bangkok"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Date
+                      </label>
+                      <input
+                        type="date"
+                        value={restaurantDate}
+                        onChange={(e) => setRestaurantDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Rating
+                      </label>
+                      <select
+                        value={restaurantRating}
+                        onChange={(e) => setRestaurantRating(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      >
+                        <option value="">No rating</option>
+                        <option value="5">5 - Excellent</option>
+                        <option value="4">4 - Very Good</option>
+                        <option value="3">3 - Good</option>
+                        <option value="2">2 - Fair</option>
+                        <option value="1">1 - Poor</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Notes
+                    </label>
+                    <textarea
+                      value={restaurantNotes}
+                      onChange={(e) => setRestaurantNotes(e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      placeholder="How was it at this restaurant?"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Cooking attempt form */}
+              {initialTryType === 'cooked' && (
+                <div className="bg-violet-50 rounded-lg border border-violet-200 p-3 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Date
+                      </label>
+                      <input
+                        type="date"
+                        value={cookingDate}
+                        onChange={(e) => setCookingDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        How did it turn out?
+                      </label>
+                      <select
+                        value={cookingRating}
+                        onChange={(e) => setCookingRating(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      >
+                        <option value="">No rating</option>
+                        <option value="5">5 - Nailed it!</option>
+                        <option value="4">4 - Pretty good</option>
+                        <option value="3">3 - Decent</option>
+                        <option value="2">2 - Needs work</option>
+                        <option value="1">1 - Disaster</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Recipe Source
+                    </label>
+                    <input
+                      type="text"
+                      value={recipeSource}
+                      onChange={(e) => setRecipeSource(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      placeholder="e.g., YouTube, cookbook, family recipe..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Notes
+                    </label>
+                    <textarea
+                      value={cookingNotes}
+                      onChange={(e) => setCookingNotes(e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      placeholder="What worked? What would you change?"
+                    />
                   </div>
                 </div>
               )}
@@ -336,6 +606,8 @@ export function Dishes() {
                   <option value="updated">Recently Updated</option>
                   <option value="country">Country A-Z</option>
                   <option value="name">Name A-Z</option>
+                  <option value="most-tried">Most Restaurant Tries</option>
+                  <option value="most-cooked">Most Cooking Attempts</option>
                 </select>
               </div>
             </div>
@@ -354,9 +626,15 @@ export function Dishes() {
                   </div>
                   <DishCard
                     dish={dish}
-                    linkedRestaurants={getLinkedRestaurantsForDish(dish.id)}
+                    restaurants={getRestaurantsForCountry(dish.countryId)}
                     onUpdate={updateDish}
                     onDelete={deleteDish}
+                    onAddRestaurantTry={handleAddRestaurantTry}
+                    onUpdateRestaurantTry={updateRestaurantTry}
+                    onDeleteRestaurantTry={deleteRestaurantTry}
+                    onAddCookingAttempt={addCookingAttempt}
+                    onUpdateCookingAttempt={updateCookingAttempt}
+                    onDeleteCookingAttempt={deleteCookingAttempt}
                   />
                 </div>
               ))}

@@ -3,17 +3,32 @@ import { useParams, Link } from 'react-router-dom';
 import { getCountryById } from '../data/countries';
 import { useRestaurants } from '../hooks/useRestaurants';
 import { useDishes } from '../hooks/useDishes';
+import { useWishlist } from '../hooks/useWishlist';
 import { RestaurantForm } from '../components/RestaurantForm';
 import { DishForm } from '../components/DishForm';
 import { RestaurantCard } from '../components/RestaurantCard';
 import { DishCard } from '../components/DishCard';
+import { WantToTryButton } from '../components/WantToTryButton';
+import type { RestaurantTry, CookingAttempt } from '../data/types';
 
 export function CountryDetail() {
   const { id } = useParams<{ id: string }>();
   const country = id ? getCountryById(id) : undefined;
 
-  const { restaurants, addRestaurant, updateRestaurant, deleteRestaurant, getRestaurantsByCountry, addVisit, updateVisit, deleteVisit } = useRestaurants();
-  const { addDish, updateDish, deleteDish, getDishesByCountry, linkDishToRestaurant, getRestaurantLinksForDish } = useDishes();
+  const { addRestaurant, updateRestaurant, deleteRestaurant, getRestaurantsByCountry, findOrCreateRestaurant, addVisit, updateVisit, deleteVisit } = useRestaurants();
+  const {
+    addDish,
+    updateDish,
+    deleteDish,
+    getDishesByCountry,
+    addRestaurantTry,
+    updateRestaurantTry,
+    deleteRestaurantTry,
+    addCookingAttempt,
+    updateCookingAttempt,
+    deleteCookingAttempt,
+  } = useDishes();
+  const { addToWishlist, removeFromWishlist, isOnWishlist, findWishlistItem } = useWishlist();
 
   const [showRestaurantForm, setShowRestaurantForm] = useState(false);
   const [showDishForm, setShowDishForm] = useState(false);
@@ -39,26 +54,55 @@ export function CountryDetail() {
     setShowRestaurantForm(false);
   };
 
-  const handleAddDish = (data: { countryId: string; region?: string; name: string; notes?: string; restaurantIds?: string[] }) => {
+  const handleAddDish = (data: {
+    countryId: string;
+    region?: string;
+    name: string;
+    notes?: string;
+    tasteRating?: number;
+    initialRestaurantTry?: Omit<RestaurantTry, 'id'>;
+    initialCookingAttempt?: Omit<CookingAttempt, 'id'>;
+  }) => {
+    // Auto-create restaurant if name provided without ID
+    let processedTry = data.initialRestaurantTry;
+    if (processedTry?.restaurantName && !processedTry.restaurantId) {
+      const restaurant = findOrCreateRestaurant(data.countryId, processedTry.restaurantName, processedTry.date);
+      processedTry = {
+        ...processedTry,
+        restaurantId: restaurant.id,
+        restaurantName: undefined,
+      };
+    }
+
     const newDish = addDish({
       countryId: data.countryId,
       region: data.region,
       name: data.name,
       notes: data.notes,
+      tasteRating: data.tasteRating,
+      restaurantTries: processedTry ? [{ ...processedTry, id: crypto.randomUUID() }] : [],
+      cookingAttempts: data.initialCookingAttempt ? [{ ...data.initialCookingAttempt, id: crypto.randomUUID() }] : [],
     });
-    if (data.restaurantIds) {
-      data.restaurantIds.forEach(restaurantId => {
-        linkDishToRestaurant(newDish.id, restaurantId);
-      });
-    }
     setShowDishForm(false);
+    return newDish;
   };
 
-  const getLinkedRestaurantsForDish = (dishId: string) => {
-    const links = getRestaurantLinksForDish(dishId);
-    return links
-      .map(link => restaurants.find(r => r.id === link.restaurantId))
-      .filter((r): r is NonNullable<typeof r> => r !== undefined);
+  // Wrapper for addRestaurantTry that auto-creates restaurants
+  const handleAddRestaurantTry = (dishId: string, data: Omit<RestaurantTry, 'id'>) => {
+    const dish = countryDishes.find(d => d.id === dishId);
+    if (!dish) return;
+
+    // Auto-create restaurant if name provided without ID
+    if (data.restaurantName && !data.restaurantId) {
+      const restaurant = findOrCreateRestaurant(dish.countryId, data.restaurantName, data.date);
+      addRestaurantTry(dishId, {
+        ...data,
+        restaurantId: restaurant.id,
+        restaurantName: undefined,
+      });
+    } else {
+      addRestaurantTry(dishId, data);
+    }
   };
 
   return (
@@ -166,6 +210,8 @@ export function CountryDetail() {
                 countryId={country.id}
                 countryName={country.name}
                 regions={country.regionalVariations?.map(r => r.name)}
+                regionalVariations={country.regionalVariations}
+                popularDishes={country.popularDishes}
                 restaurants={countryRestaurants}
                 onSubmit={handleAddDish}
                 onCancel={() => setShowDishForm(false)}
@@ -179,9 +225,15 @@ export function CountryDetail() {
                 <DishCard
                   key={dish.id}
                   dish={dish}
-                  linkedRestaurants={getLinkedRestaurantsForDish(dish.id)}
+                  restaurants={countryRestaurants}
                   onUpdate={updateDish}
                   onDelete={deleteDish}
+                  onAddRestaurantTry={handleAddRestaurantTry}
+                  onUpdateRestaurantTry={updateRestaurantTry}
+                  onDeleteRestaurantTry={deleteRestaurantTry}
+                  onAddCookingAttempt={addCookingAttempt}
+                  onUpdateCookingAttempt={updateCookingAttempt}
+                  onDeleteCookingAttempt={deleteCookingAttempt}
                 />
               ))}
             </div>
@@ -381,6 +433,22 @@ export function CountryDetail() {
                         Very Hot
                       </span>
                     )}
+                    {/* Difficulty */}
+                    {dish.difficulty === 'easy' && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
+                        Easy
+                      </span>
+                    )}
+                    {dish.difficulty === 'medium' && (
+                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
+                        Medium
+                      </span>
+                    )}
+                    {dish.difficulty === 'hard' && (
+                      <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">
+                        Hard
+                      </span>
+                    )}
                     {/* Street Food */}
                     {dish.isStreetFood && (
                       <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
@@ -432,6 +500,22 @@ export function CountryDetail() {
                       Region: {dish.regionalOrigin}
                     </span>
                   )}
+                </div>
+
+                {/* Want to Try Button */}
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <WantToTryButton
+                    isOnWishlist={isOnWishlist(country.id, dish.name)}
+                    onAdd={() => addToWishlist({
+                      countryId: country.id,
+                      dishName: dish.name,
+                      englishName: dish.englishName,
+                    })}
+                    onRemove={() => {
+                      const item = findWishlistItem(country.id, dish.name);
+                      if (item) removeFromWishlist(item.id);
+                    }}
+                  />
                 </div>
               </div>
             ))}

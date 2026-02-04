@@ -3,14 +3,17 @@ import { countries } from '../data/countries';
 import { CountryCard } from '../components/CountryCard';
 import { useRestaurants } from '../hooks/useRestaurants';
 import { useDishes } from '../hooks/useDishes';
+import { useWishlist } from '../hooks/useWishlist';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { CuisinePreferences } from '../components/CuisinePreferences';
 
 export function Home() {
   const { restaurants } = useRestaurants();
   const { dishes } = useDishes();
+  const { wishlist } = useWishlist();
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('foodie-view-mode', 'grid');
   const isMobile = useMediaQuery('(max-width: 767px)');
 
@@ -45,12 +48,28 @@ export function Home() {
                 </span>
                 Dishes
               </Link>
+              <Link
+                to="/wishlist"
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full font-medium">
+                  {wishlist.length}
+                </span>
+                Wishlist
+              </Link>
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Cuisine Preferences - shown when user has rated dishes */}
+        {dishes.length > 0 && (
+          <div className="mb-8">
+            <CuisinePreferences />
+          </div>
+        )}
+
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-medium text-gray-900">
             {countries.length} Countries
