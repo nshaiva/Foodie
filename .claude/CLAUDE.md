@@ -8,10 +8,10 @@ Foodie is a world cuisine exploration and logging app. Users browse countries, l
 
 ## Tech Stack
 
-- **Web**: React, TypeScript, Tailwind CSS
+- **Web**: React, TypeScript, Tailwind CSS, Vite
 - **Mobile**: React Native (iOS first, not yet started)
-- **Maps**: Leaflet.js (Phase 1)
-- **Database**: Supabase (PostgreSQL)
+- **Maps**: Leaflet.js
+- **Storage**: localStorage (Supabase planned for future)
 - **Hosting**: Vercel
 - **Content**: Pre-generated country profiles via Claude/OpenAI
 
@@ -20,51 +20,72 @@ Foodie is a world cuisine exploration and logging app. Users browse countries, l
 ```
 foodie/
 ├── apps/
-│   ├── web/              # React web app (not yet initialized)
-│   └── mobile/           # React Native iOS app (not yet initialized)
-├── packages/
-│   ├── shared/           # Shared types, utils, API logic
-│   └── ui/               # Shared UI components
-├── data/
-│   ├── schema.ts         # TypeScript interfaces for all data types
-│   └── samples/          # Pre-generated country JSON files (6 countries)
-└── docs/
-    └── phases/           # Development phase specifications
+│   └── web/
+│       └── src/
+│           ├── components/     # Reusable UI components
+│           ├── data/           # Types and country data
+│           ├── hooks/          # Custom React hooks
+│           └── pages/          # Route pages
+├── docs/
+│   ├── phases/                 # Development phase specs
+│   └── roadmap/                # Feature icebox
+└── .claude/                    # Claude Code configuration
 ```
+
+## Key Features
+
+### Dish Logging
+- Log dishes with taste ratings (1-5 stars)
+- Track restaurant tries with per-visit ratings
+- Track cooking attempts with success ratings
+- Auto-detect region from dish name
+- Auto-create restaurants when logging dishes
+
+### Wishlist
+- Save dishes from Popular Dishes to "Want to Try" list
+- Rose-themed UI with heart icons
+- Filter by country/continent
+
+### Cuisine Preferences
+- Separate rankings: "Favorite to Eat" vs "Favorite to Cook"
+- Algorithm: `score = (avgRating * 0.7) + (engagementBonus * 0.3)`
+- Displayed on home page when user has rated dishes
 
 ## Data Architecture
 
-**Static Data** (pre-generated, stored as JSON):
+**Static Data** (pre-generated JSON):
 - Country profiles with food culture, cuisine profiles, and popular dishes
 - Uses ISO 3166-1 alpha-2 codes as country IDs (e.g., "TH" for Thailand)
-- Schema defined in `data/schema.ts`
+- Schema defined in `apps/web/src/data/types.ts`
 
-**User Data** (Supabase):
-- Restaurants: linked to countries, with ratings (1-5), Google Maps links, notes
-- UserDish: dishes tried, linked to countries
-- DishRestaurantLink: optional junction table linking dishes to restaurants
+**User Data** (localStorage):
+- `foodie-restaurants`: Restaurant entries with visits
+- `foodie-dishes`: Dishes with restaurant tries and cooking attempts
+- `foodie-wishlist`: Saved dishes to try
 
-## Current Development Phase
-
-**Phase 0: Functional Prototype** - See `docs/phases/phase-0.md` for full spec.
-
-Key deliverables:
-- Country list/grid navigation (no map yet)
-- Country detail view with AI-generated content
-- Restaurant and dish logging forms
-- Basic database view with country filtering
-
-## Routing Structure (Web)
+## Routing Structure
 
 ```
-/                     → Country list (homepage)
-/country/:id          → Country detail
-/country/:id/add      → Add restaurant or dish to this country
+/                     → Home (country grid + cuisine preferences)
+/country/:id          → Country detail (culture, dishes, user logs)
 /restaurants          → All restaurants list
 /dishes               → All dishes list
-/add                  → Add restaurant or dish (country selectable)
+/wishlist             → Want to Try list
 ```
+
+## Color Theme by Feature
+
+- **Blue** - Restaurants
+- **Emerald** - Dishes (logged)
+- **Amber** - Restaurant tries
+- **Violet** - Cooking attempts
+- **Rose** - Wishlist
 
 ## Build Commands
 
-*Not yet configured - web app needs initialization with React + TypeScript + Tailwind.*
+```bash
+cd apps/web
+npm install
+npm run dev      # Development server
+npm run build    # Production build
+```

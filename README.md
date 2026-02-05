@@ -32,19 +32,34 @@ Each country includes:
   - Spice level (none, mild, medium, hot, very hot)
   - Popularity tags (local favorite vs tourist classic)
   - Category and regional origin
+  - "Want to Try" button to save to wishlist
 
 **Currently profiled countries:** Thailand, Mexico, Japan, Italy, Ethiopia, Peru
+
+### Dish Logging
+- **Taste rating**: Star ratings (1-5) for how much you liked it
+- **Restaurant tries**: Track where you ate with per-visit ratings and notes
+- **Cooking attempts**: Log home cooking with success ratings and recipe sources
+- **Auto-detect region**: Region automatically detected from dish name
+- **Auto-create restaurants**: Entering a new restaurant name automatically adds it to your list
 
 ### Restaurant Logging
 - Name, Google Maps link, star rating (1-5), notes
 - Date visited with multiple visit tracking
 - Regional cuisine tagging (for countries with regional variations)
-- Add from country detail page or main Restaurants page
+- Auto-populated when logging dishes at new restaurants
 
-### Dish Logging
-- Name, notes, regional cuisine tagging
-- Link dishes to restaurants where you tried them
-- Add from country detail page or main Dishes page
+### Wishlist ("Want to Try")
+- Save dishes from Popular Dishes section
+- Rose-themed UI with heart icons
+- Filter by country or continent
+- Sort by date added, country, or name
+
+### Cuisine Preferences
+- **Favorite to Eat**: Rankings based on taste ratings from dishes and restaurant tries
+- **Favorite to Cook**: Rankings based on cooking attempt success ratings
+- Algorithm: `score = (avgRating * 0.7) + (engagementBonus * 0.3)`
+- Displayed on home page when user has rated dishes
 
 ### Database Views
 **Restaurants page** (`/restaurants`):
@@ -53,15 +68,15 @@ Each country includes:
 
 **Dishes page** (`/dishes`):
 - Filter by continent, country
-- Sort by newest, oldest, recently updated, country A-Z, name A-Z
+- Sort by newest, oldest, recently updated, most tried, most cooked, country A-Z, name A-Z
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Web | React 19, TypeScript, Tailwind CSS |
+| Web | React 19, TypeScript, Tailwind CSS, Vite |
 | Routing | React Router |
-| Maps | react-simple-maps |
+| Maps | react-simple-maps, Leaflet.js |
 | Storage | localStorage (Supabase planned for V1) |
 | Hosting | Vercel (planned) |
 | AI Content | Pre-generated country profiles via Claude |
@@ -71,94 +86,41 @@ Each country includes:
 ```
 foodie/
 ├── apps/
-│   ├── web/                    # React web app
-│   │   └── src/
-│   │       ├── components/
-│   │       │   ├── map/        # WorldMap, MapPreviewCard, MapLegend
-│   │       │   ├── CountryCard, RestaurantCard, DishCard
-│   │       │   ├── RestaurantForm, DishForm
-│   │       │   ├── StarRating, ViewToggle
-│   │       │   └── ...
-│   │       ├── pages/
-│   │       │   ├── Home        # Grid/Map view toggle
-│   │       │   ├── CountryDetail
-│   │       │   ├── Restaurants
-│   │       │   └── Dishes
-│   │       ├── hooks/
-│   │       │   ├── useRestaurants, useDishes
-│   │       │   ├── useLocalStorage
-│   │       │   ├── useCountryActivity
-│   │       │   └── useMediaQuery
-│   │       └── data/
-│   │           ├── types.ts
-│   │           ├── countries.ts
-│   │           └── countryGeoMapping.ts
-│   └── mobile/                 # React Native iOS app (not started)
-├── packages/
-│   ├── shared/                 # Shared types, utils (planned)
-│   └── ui/                     # Shared UI components (planned)
+│   └── web/
+│       └── src/
+│           ├── components/
+│           │   ├── map/              # WorldMap, MapPreviewCard, MapLegend
+│           │   ├── CountryCard, RestaurantCard, DishCard, WishlistCard
+│           │   ├── RestaurantForm, DishForm
+│           │   ├── RestaurantTryForm, CookingAttemptForm
+│           │   ├── WantToTryButton, CuisinePreferences
+│           │   ├── StarRating, ViewToggle
+│           │   └── ...
+│           ├── pages/
+│           │   ├── Home              # Grid/Map view + cuisine preferences
+│           │   ├── CountryDetail
+│           │   ├── Restaurants
+│           │   ├── Dishes
+│           │   └── Wishlist
+│           ├── hooks/
+│           │   ├── useRestaurants, useDishes, useWishlist
+│           │   ├── useCuisinePreferences
+│           │   ├── useLocalStorage, useCountryActivity
+│           │   └── useMediaQuery
+│           └── data/
+│               ├── types.ts
+│               ├── countries.ts
+│               └── countryGeoMapping.ts
 ├── docs/
 │   ├── phases/
 │   └── roadmap/
-│       └── icebox.md           # Future feature ideas
+│       └── icebox.md               # Future feature ideas
 └── README.md
 ```
 
 ## Data Model
 
-### Countries (pre-generated, static)
-```typescript
-interface Country {
-  id: string;                    // ISO alpha-2 code (e.g., "TH")
-  name: string;
-  capital: string;
-  continent: Continent;
-  region: string;
-  foodCulture: FoodCulture;
-  cuisineProfile: CuisineProfile;
-  regionalVariations?: RegionalCuisine[];
-  popularDishes: Dish[];
-}
-
-interface Dish {
-  name: string;
-  englishName?: string;
-  description: string;
-  category: DishCategory;
-  regionalOrigin?: string;
-  dietary?: DietaryInfo;
-  spiceLevel?: SpiceLevel;
-  popularity?: DishPopularity;
-}
-
-interface DietaryInfo {
-  isVegan?: boolean;
-  isVegetarian?: boolean;
-  isVegetarianFriendly?: boolean;
-  isDairyFree?: boolean;
-  isGlutenFree?: boolean;
-  isNutFree?: boolean;
-  isHalal?: boolean;
-}
-```
-
-### Restaurants (user-generated, localStorage)
-```typescript
-interface Restaurant {
-  id: string;
-  countryId: string;
-  region?: string;
-  name: string;
-  googleMapsLink?: string;
-  rating?: number;              // 1-5
-  notes?: string;
-  visits: RestaurantVisit[];
-  createdAt: string;
-  updatedAt: string;
-}
-```
-
-### UserDishes (user-generated, localStorage)
+### User Dishes
 ```typescript
 interface UserDish {
   id: string;
@@ -166,21 +128,61 @@ interface UserDish {
   region?: string;
   name: string;
   notes?: string;
+  tasteRating?: number;           // 1-5: How much you enjoyed eating it
+  restaurantTries?: RestaurantTry[];
+  cookingAttempts?: CookingAttempt[];
   createdAt: string;
   updatedAt: string;
 }
+
+interface RestaurantTry {
+  id: string;
+  restaurantId?: string;          // Link to logged restaurant
+  restaurantName?: string;        // Or just the name
+  date: string;
+  rating?: number;                // 1-5: How it was at this restaurant
+  notes?: string;
+}
+
+interface CookingAttempt {
+  id: string;
+  date: string;
+  successRating?: number;         // 1-5: How well you cooked it
+  recipeSource?: string;
+  notes?: string;
+}
 ```
 
-### DishRestaurantLinks
-Links dishes to restaurants where they were tried.
+### Wishlist
+```typescript
+interface WishlistItem {
+  id: string;
+  countryId: string;
+  dishName: string;
+  englishName?: string;
+  notes?: string;
+  createdAt: string;
+}
+```
+
+## Color Theme
+
+| Feature | Color |
+|---------|-------|
+| Restaurants | Blue |
+| Dishes (logged) | Emerald |
+| Restaurant tries | Amber |
+| Cooking attempts | Violet |
+| Wishlist | Rose |
 
 ## Routes
 
 ```
-/                     → Home (Grid/Map view)
+/                     → Home (Grid/Map view + cuisine preferences)
 /country/:id          → Country detail
 /restaurants          → All restaurants with filters
 /dishes               → All dishes with filters
+/wishlist             → Want to Try list
 ```
 
 ## Development Roadmap
@@ -197,9 +199,7 @@ Links dishes to restaurants where they were tried.
 ### Icebox
 See `docs/roadmap/icebox.md` for future feature ideas including:
 - Cuisine similarity mapping
-- Home cooking log
 - City-level restaurant data
-- Taste profile analysis
 - Dietary and spice filters
 - Drink sections by country
 - Historical/cultural context for dishes
