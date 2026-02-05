@@ -11,6 +11,8 @@ import { RestaurantCard } from '../components/RestaurantCard';
 import { DishCard } from '../components/DishCard';
 import { WantToTryButton } from '../components/WantToTryButton';
 import { RegionalMap } from '../components/RegionalMap';
+import { FlavorRadarChart } from '../components/FlavorRadarChart';
+import { IngredientBubbles } from '../components/IngredientBubbles';
 import type { RestaurantTry, CookingAttempt, RegionalCuisine, Dish } from '../data/types';
 
 // Helper to detect region from dish name by matching against regional signature dishes
@@ -381,7 +383,7 @@ export function CountryDetail() {
           </div>
         </section>
 
-        {/* Cuisine Profile - Color-coded tag cloud */}
+        {/* Cuisine Profile - Radar Chart + Tag Cloud */}
         <section>
           <h2
             className="text-xl font-semibold mb-4"
@@ -391,68 +393,26 @@ export function CountryDetail() {
           </h2>
 
           <div className="bg-white rounded-lg border border-gray-200 p-5">
-            {/* Legend */}
-            <div className="flex flex-wrap gap-4 mb-4 text-xs text-gray-500">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: systemColors.tomato }} />
-                Flavors
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: systemColors.herb }} />
-                Ingredients
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: systemColors.navy }} />
-                Techniques
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: systemColors.saffron }} />
-                Spices
-              </span>
-            </div>
+            {/* 2-column layout on desktop */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Radar Chart */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Flavor Fingerprint</h3>
+                <FlavorRadarChart
+                  flavorIntensity={country.cuisineProfile.flavorIntensity}
+                  colors={colors}
+                />
+              </div>
 
-            {/* Tag cloud */}
-            <div className="flex flex-wrap gap-2">
-              {/* Flavors - Tomato */}
-              {country.cuisineProfile.flavorProfile.map((flavor) => (
-                <span
-                  key={`flavor-${flavor}`}
-                  className="text-sm px-3 py-1 rounded-full"
-                  style={{ backgroundColor: systemColors.tomatoLight, color: systemColors.tomato }}
-                >
-                  {flavor}
-                </span>
-              ))}
-              {/* Ingredients - Herb */}
-              {country.cuisineProfile.keyIngredients.map((ingredient) => (
-                <span
-                  key={`ingredient-${ingredient}`}
-                  className="text-sm px-3 py-1 rounded-full"
-                  style={{ backgroundColor: systemColors.herbLight, color: systemColors.herb }}
-                >
-                  {ingredient}
-                </span>
-              ))}
-              {/* Techniques - Navy */}
-              {country.cuisineProfile.cookingTechniques.map((technique) => (
-                <span
-                  key={`technique-${technique}`}
-                  className="text-sm px-3 py-1 rounded-full"
-                  style={{ backgroundColor: `${systemColors.navy}15`, color: systemColors.navy }}
-                >
-                  {technique}
-                </span>
-              ))}
-              {/* Spices - Saffron */}
-              {country.cuisineProfile.spicesAndSeasonings.map((spice) => (
-                <span
-                  key={`spice-${spice}`}
-                  className="text-sm px-3 py-1 rounded-full"
-                  style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}
-                >
-                  {spice}
-                </span>
-              ))}
+              {/* Ingredient Bubbles */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Ingredients & Spices</h3>
+                <IngredientBubbles
+                  keyIngredients={country.cuisineProfile.keyIngredients}
+                  spicesAndSeasonings={country.cuisineProfile.spicesAndSeasonings}
+                  colors={colors}
+                />
+              </div>
             </div>
           </div>
         </section>

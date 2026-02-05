@@ -10,6 +10,7 @@ Foodie is a world cuisine exploration and logging app. Users browse countries, l
 
 - **Web**: React, TypeScript, Tailwind CSS, Vite
 - **Mobile**: React Native (iOS first, not yet started)
+- **Charts**: Recharts (radar), D3.js (force layouts)
 - **Maps**: Leaflet.js
 - **Storage**: localStorage (Supabase planned for future)
 - **Hosting**: Vercel
@@ -80,6 +81,29 @@ foodie/
 - **Amber** - Restaurant tries
 - **Violet** - Cooking attempts
 - **Rose** - Wishlist
+
+## Cuisine Profile Visualizations
+
+The Country Detail page includes two visualizations in the Cuisine Profile section:
+
+### Flavor Radar Chart
+- Hexagonal radar chart showing flavor intensity (1-10 scale)
+- Axes: Heat, Acidity, Sweet, Umami, Aromatic, Smoke/Earth
+- Uses Recharts library
+- Country color palette for styling
+
+### Kitchen Constellation (Ingredients)
+- D3.js force-directed layout showing ingredients and spices
+- Emoji icons by category:
+  - 🥣 Spices (dried spices, specialty)
+  - 🌿 Herbs (fresh herbs)
+  - 🥓 Proteins (meat, seafood, plant-based)
+  - 🌾 Vegetables (produce)
+  - 🍚 Starches (rice, noodles, grains)
+  - 🍶 Sauces (fermented, condiments)
+- Signature ingredients shown larger than supporting ingredients
+- Dashed lines connect commonly paired ingredients (e.g., "fish sauce + lime + cilantro")
+- Ingredient taxonomy with pattern-based classification in `data/ingredientTaxonomy.ts`
 
 ## Build Commands
 
