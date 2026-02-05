@@ -6,12 +6,21 @@ export interface RegionalCuisine {
   distinctiveTraits?: string[];
 }
 
+export interface ColorPalette {
+  primary: string;      // Main accent color (muted flag color)
+  secondary: string;    // Secondary accent
+  accent: string;       // Highlight/warm tone
+  background: string;   // Light background
+  text: string;         // Text on colored backgrounds
+}
+
 export interface Country {
   id: string;
   name: string;
   capital: string;
   continent: Continent;
   region: string;
+  colorPalette: ColorPalette;
   foodCulture: FoodCulture;
   cuisineProfile: CuisineProfile;
   regionalVariations?: RegionalCuisine[];

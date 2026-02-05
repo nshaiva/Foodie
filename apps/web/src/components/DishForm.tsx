@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { Restaurant, RestaurantTry, CookingAttempt, RegionalCuisine, Dish } from '../data/types';
+import { systemColors } from '../data/systemColors';
 
 type TryType = 'none' | 'restaurant' | 'cooked';
 
@@ -164,7 +165,7 @@ export function DishForm({
             id="dishName"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb focus:border-transparent"
             placeholder="e.g., Pad Thai"
             required
           />
@@ -181,11 +182,10 @@ export function DishForm({
                 key={star}
                 type="button"
                 onClick={() => setTasteRating(tasteRating === star.toString() ? '' : star.toString())}
-                className={`text-2xl transition-colors ${
-                  parseInt(tasteRating) >= star
-                    ? 'text-amber-400'
-                    : 'text-gray-300 hover:text-amber-200'
-                }`}
+                className="text-2xl transition-colors"
+                style={{
+                  color: parseInt(tasteRating) >= star ? systemColors.saffron : '#d1d5db'
+                }}
               >
                 ★
               </button>
@@ -212,7 +212,7 @@ export function DishForm({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb focus:border-transparent"
             placeholder="Your thoughts, where you had it, what made it special..."
           />
         </div>
@@ -237,22 +237,22 @@ export function DishForm({
             <button
               type="button"
               onClick={() => setTryType('restaurant')}
-              className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                tryType === 'restaurant'
-                  ? 'bg-amber-600 text-white'
-                  : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-              }`}
+              className="px-3 py-1.5 rounded-md text-sm transition-colors"
+              style={{
+                backgroundColor: tryType === 'restaurant' ? systemColors.saffron : systemColors.saffronLight,
+                color: tryType === 'restaurant' ? 'white' : systemColors.navy
+              }}
             >
               At a restaurant
             </button>
             <button
               type="button"
               onClick={() => setTryType('cooked')}
-              className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                tryType === 'cooked'
-                  ? 'bg-violet-600 text-white'
-                  : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
-              }`}
+              className="px-3 py-1.5 rounded-md text-sm transition-colors"
+              style={{
+                backgroundColor: tryType === 'cooked' ? systemColors.herb : systemColors.herbLight,
+                color: tryType === 'cooked' ? 'white' : systemColors.navy
+              }}
             >
               I cooked it
             </button>
@@ -261,7 +261,7 @@ export function DishForm({
 
         {/* Restaurant details */}
         {tryType === 'restaurant' && (
-          <div className="bg-amber-50 rounded-lg border border-amber-200 p-3 space-y-2">
+          <div className="rounded-lg p-3 space-y-2" style={{ backgroundColor: systemColors.saffronLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.saffron }}>
             {restaurants.length > 0 && (
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -269,7 +269,7 @@ export function DishForm({
                     type="radio"
                     checked={useLinkedRestaurant}
                     onChange={() => setUseLinkedRestaurant(true)}
-                    className="text-amber-600"
+                    style={{ accentColor: systemColors.saffron }}
                   />
                   <span className="text-sm text-gray-700">My restaurants</span>
                 </label>
@@ -278,7 +278,7 @@ export function DishForm({
                     type="radio"
                     checked={!useLinkedRestaurant}
                     onChange={() => setUseLinkedRestaurant(false)}
-                    className="text-amber-600"
+                    style={{ accentColor: systemColors.saffron }}
                   />
                   <span className="text-sm text-gray-700">New restaurant</span>
                 </label>
@@ -292,7 +292,7 @@ export function DishForm({
                   <select
                     value={restaurantId}
                     onChange={(e) => setRestaurantId(e.target.value)}
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                     required
                   >
                     <option value="">Select restaurant</option>
@@ -308,7 +308,7 @@ export function DishForm({
                     type="text"
                     value={restaurantName}
                     onChange={(e) => setRestaurantName(e.target.value)}
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                     placeholder="e.g., Little Bangkok"
                     required
                   />
@@ -321,7 +321,7 @@ export function DishForm({
                   type="date"
                   value={restaurantDate}
                   onChange={(e) => setRestaurantDate(e.target.value)}
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                 />
               </div>
             </div>
@@ -332,7 +332,7 @@ export function DishForm({
                 type="text"
                 value={restaurantNotes}
                 onChange={(e) => setRestaurantNotes(e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                 placeholder="How was it here?"
               />
             </div>
@@ -341,7 +341,7 @@ export function DishForm({
 
         {/* Cooking details */}
         {tryType === 'cooked' && (
-          <div className="bg-violet-50 rounded-lg border border-violet-200 p-3 space-y-2">
+          <div className="rounded-lg p-3 space-y-2" style={{ backgroundColor: systemColors.herbLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.herb }}>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
@@ -349,7 +349,7 @@ export function DishForm({
                   type="date"
                   value={cookingDate}
                   onChange={(e) => setCookingDate(e.target.value)}
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                 />
               </div>
 
@@ -358,7 +358,7 @@ export function DishForm({
                 <select
                   value={cookingRating}
                   onChange={(e) => setCookingRating(e.target.value)}
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                 >
                   <option value="">No rating</option>
                   <option value="5">Nailed it!</option>
@@ -375,7 +375,7 @@ export function DishForm({
                   type="text"
                   value={recipeSource}
                   onChange={(e) => setRecipeSource(e.target.value)}
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                   placeholder="YouTube, cookbook..."
                 />
               </div>
@@ -387,7 +387,7 @@ export function DishForm({
                 type="text"
                 value={cookingNotes}
                 onChange={(e) => setCookingNotes(e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                 placeholder="What worked? What would you change?"
               />
             </div>
@@ -410,7 +410,7 @@ export function DishForm({
                 <label htmlFor="dishRegion" className="block text-sm font-medium text-gray-700 mb-1">
                   Region
                   {detectedRegion && (
-                    <span className="ml-2 font-normal text-emerald-600">
+                    <span className="ml-2 font-normal" style={{ color: systemColors.herb }}>
                       (auto-detected)
                     </span>
                   )}
@@ -419,7 +419,7 @@ export function DishForm({
                   id="dishRegion"
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb focus:border-transparent"
                 >
                   <option value="">Select a region (optional)</option>
                   {regions.map((r) => (
@@ -435,7 +435,8 @@ export function DishForm({
       <div className="flex gap-3 mt-6">
         <button
           type="submit"
-          className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 transition-colors"
+          className="flex-1 text-white py-2 px-4 rounded-md transition-colors"
+          style={{ backgroundColor: systemColors.herb }}
         >
           Save Dish
         </button>

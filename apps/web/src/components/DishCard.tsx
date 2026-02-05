@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { UserDish, Restaurant, RestaurantTry, CookingAttempt } from '../data/types';
 import { RestaurantTryForm } from './RestaurantTryForm';
 import { CookingAttemptForm } from './CookingAttemptForm';
+import { systemColors } from '../data/systemColors';
 
 interface DishCardProps {
   dish: UserDish;
@@ -26,7 +27,7 @@ function formatDate(dateString: string): string {
 
 function RatingStars({ rating }: { rating: number }) {
   return (
-    <span className="text-amber-500">
+    <span style={{ color: systemColors.saffron }}>
       {'★'.repeat(rating)}
       {'☆'.repeat(5 - rating)}
     </span>
@@ -103,7 +104,7 @@ export function DishCard({
 
   if (isEditing) {
     return (
-      <div className="bg-white rounded-lg border border-emerald-300 p-4">
+      <div className="bg-white rounded-lg p-4" style={{ borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.herb }}>
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Dish Name</label>
@@ -111,7 +112,8 @@ export function DishCard({
               type="text"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': systemColors.herb } as React.CSSProperties}
             />
           </div>
 
@@ -121,7 +123,8 @@ export function DishCard({
               value={editNotes}
               onChange={(e) => setEditNotes(e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': systemColors.herb } as React.CSSProperties}
               placeholder="Your thoughts on this dish..."
             />
           </div>
@@ -129,7 +132,8 @@ export function DishCard({
           <div className="flex gap-2">
             <button
               onClick={handleSaveEdit}
-              className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 transition-colors"
+              className="flex-1 text-white py-2 px-4 rounded-md transition-colors"
+              style={{ backgroundColor: systemColors.herb }}
             >
               Save
             </button>
@@ -152,7 +156,7 @@ export function DishCard({
         <div>
           <h4 className="font-medium text-gray-900">{dish.name}</h4>
           {dish.region && (
-            <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded">
+            <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>
               {dish.region}
             </span>
           )}
@@ -160,7 +164,9 @@ export function DishCard({
         <div className="flex gap-2">
           <button
             onClick={() => setIsEditing(true)}
-            className="text-gray-400 hover:text-emerald-500 transition-colors"
+            className="text-gray-400 transition-colors"
+            onMouseEnter={(e) => (e.currentTarget.style.color = systemColors.herb)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '')}
             title="Edit"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,7 +192,7 @@ export function DishCard({
       {/* Restaurant Tries Section */}
       <div className="mb-3">
         <div className="flex items-center justify-between mb-2">
-          <h5 className="text-sm font-medium text-amber-700 flex items-center gap-1">
+          <h5 className="text-sm font-medium flex items-center gap-1" style={{ color: systemColors.saffron }}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
@@ -195,7 +201,8 @@ export function DishCard({
           {!showAddTry && !editingTryId && (
             <button
               onClick={() => setShowAddTry(true)}
-              className="text-xs text-amber-600 hover:text-amber-700 transition-colors"
+              className="text-xs transition-colors"
+              style={{ color: systemColors.saffron }}
             >
               + Add Try
             </button>
@@ -224,7 +231,7 @@ export function DishCard({
                     onCancel={() => setEditingTryId(null)}
                   />
                 ) : (
-                  <div className="bg-amber-50 rounded-md p-2 text-sm">
+                  <div className="rounded-md p-2 text-sm" style={{ backgroundColor: systemColors.saffronLight }}>
                     <div className="flex items-start justify-between">
                       <div>
                         <span className="font-medium text-gray-800">
@@ -237,7 +244,9 @@ export function DishCard({
                       <div className="flex gap-1">
                         <button
                           onClick={() => setEditingTryId(tryItem.id)}
-                          className="text-gray-400 hover:text-amber-600 transition-colors p-1"
+                          className="text-gray-400 transition-colors p-1"
+                          onMouseEnter={(e) => (e.currentTarget.style.color = systemColors.saffron)}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = '')}
                           title="Edit"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,7 +287,7 @@ export function DishCard({
       {/* Cooking Attempts Section */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h5 className="text-sm font-medium text-violet-700 flex items-center gap-1">
+          <h5 className="text-sm font-medium flex items-center gap-1" style={{ color: systemColors.herb }}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -287,7 +296,8 @@ export function DishCard({
           {!showAddAttempt && !editingAttemptId && (
             <button
               onClick={() => setShowAddAttempt(true)}
-              className="text-xs text-violet-600 hover:text-violet-700 transition-colors"
+              className="text-xs transition-colors"
+              style={{ color: systemColors.herb }}
             >
               + Add Attempt
             </button>
@@ -314,14 +324,14 @@ export function DishCard({
                     onCancel={() => setEditingAttemptId(null)}
                   />
                 ) : (
-                  <div className="bg-violet-50 rounded-md p-2 text-sm">
+                  <div className="rounded-md p-2 text-sm" style={{ backgroundColor: systemColors.herbLight }}>
                     <div className="flex items-start justify-between">
                       <div>
                         <span className="text-gray-500">
                           {formatDate(attempt.date)}
                         </span>
                         {attempt.recipeSource && (
-                          <span className="text-violet-600 ml-2">
+                          <span className="ml-2" style={{ color: systemColors.herb }}>
                             from {attempt.recipeSource}
                           </span>
                         )}
@@ -329,7 +339,9 @@ export function DishCard({
                       <div className="flex gap-1">
                         <button
                           onClick={() => setEditingAttemptId(attempt.id)}
-                          className="text-gray-400 hover:text-violet-600 transition-colors p-1"
+                          className="text-gray-400 transition-colors p-1"
+                          onMouseEnter={(e) => (e.currentTarget.style.color = systemColors.herb)}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = '')}
                           title="Edit"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -349,7 +361,7 @@ export function DishCard({
                     </div>
                     {attempt.successRating && (
                       <div className="mt-1">
-                        <span className="text-violet-600">
+                        <span style={{ color: systemColors.herb }}>
                           {'★'.repeat(attempt.successRating)}
                           {'☆'.repeat(5 - attempt.successRating)}
                         </span>

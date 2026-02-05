@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { countries } from '../data/countries';
+import { systemColors } from '../data/systemColors';
 import { CountryCard } from '../components/CountryCard';
 import { useRestaurants } from '../hooks/useRestaurants';
 import { useDishes } from '../hooks/useDishes';
@@ -21,38 +22,54 @@ export function Home() {
   const effectiveView = isMobile ? 'grid' : viewMode;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
+      <header style={{ backgroundColor: systemColors.navy }}>
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Foodie</h1>
-              <p className="text-gray-600 mt-1">Explore cuisines from around the world</p>
+              <h1 className="text-2xl font-bold" style={{ color: systemColors.seaSalt }}>
+                Foodie
+              </h1>
+              <p className="mt-1" style={{ color: `${systemColors.seaSalt}99` }}>
+                Explore cuisines from around the world
+              </p>
             </div>
             <div className="flex gap-4">
               <Link
                 to="/restaurants"
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
+                style={{ color: systemColors.seaSalt }}
               >
-                <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium">
+                <span
+                  className="px-2 py-0.5 rounded-full font-medium"
+                  style={{ backgroundColor: `${systemColors.saffron}30`, color: systemColors.saffron }}
+                >
                   {restaurants.length}
                 </span>
                 Restaurants
               </Link>
               <Link
                 to="/dishes"
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
+                style={{ color: systemColors.seaSalt }}
               >
-                <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-medium">
+                <span
+                  className="px-2 py-0.5 rounded-full font-medium"
+                  style={{ backgroundColor: `${systemColors.herb}30`, color: systemColors.herb }}
+                >
                   {dishes.length}
                 </span>
                 Dishes
               </Link>
               <Link
                 to="/wishlist"
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
+                style={{ color: systemColors.seaSalt }}
               >
-                <span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full font-medium">
+                <span
+                  className="px-2 py-0.5 rounded-full font-medium"
+                  style={{ backgroundColor: `${systemColors.tomato}30`, color: systemColors.tomato }}
+                >
                   {wishlist.length}
                 </span>
                 Wishlist
@@ -71,7 +88,7 @@ export function Home() {
         )}
 
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-900">
+          <h2 className="text-lg font-medium" style={{ color: systemColors.navy }}>
             {countries.length} Countries
           </h2>
           {!isMobile && (

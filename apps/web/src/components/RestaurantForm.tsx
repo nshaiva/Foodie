@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StarRating } from './StarRating';
+import { systemColors } from '../data/systemColors';
 
 interface RestaurantFormProps {
   countryId: string;
@@ -54,7 +55,7 @@ export function RestaurantForm({ countryId, countryName, regions, onSubmit, onCa
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
             placeholder="e.g., Siam Garden"
             required
           />
@@ -69,7 +70,7 @@ export function RestaurantForm({ countryId, countryName, regions, onSubmit, onCa
               id="region"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
             >
               <option value="">Select a region (optional)</option>
               {regions.map((r) => (
@@ -90,7 +91,7 @@ export function RestaurantForm({ countryId, countryName, regions, onSubmit, onCa
             id="googleMapsLink"
             value={googleMapsLink}
             onChange={(e) => setGoogleMapsLink(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
             placeholder="https://maps.google.com/..."
           />
         </div>
@@ -111,7 +112,7 @@ export function RestaurantForm({ countryId, countryName, regions, onSubmit, onCa
             id="dateVisited"
             value={dateVisited}
             onChange={(e) => setDateVisited(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
           />
         </div>
 
@@ -124,7 +125,7 @@ export function RestaurantForm({ countryId, countryName, regions, onSubmit, onCa
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent"
             placeholder="What did you enjoy? Any recommendations?"
           />
         </div>
@@ -133,7 +134,8 @@ export function RestaurantForm({ countryId, countryName, regions, onSubmit, onCa
       <div className="flex gap-3 mt-6">
         <button
           type="submit"
-          className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+          className="flex-1 text-white py-2 px-4 rounded-md transition-colors"
+          style={{ backgroundColor: systemColors.navy }}
         >
           Save Restaurant
         </button>

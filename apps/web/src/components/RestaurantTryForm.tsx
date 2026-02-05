@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Restaurant, RestaurantTry } from '../data/types';
+import { systemColors } from '../data/systemColors';
 
 interface RestaurantTryFormProps {
   restaurants: Restaurant[];
@@ -38,7 +39,7 @@ export function RestaurantTryForm({ restaurants, existingTry, onSubmit, onCancel
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-amber-50 rounded-lg border border-amber-200 p-4">
+    <form onSubmit={handleSubmit} className="rounded-lg p-4" style={{ backgroundColor: systemColors.saffronLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.saffron }}>
       <h4 className="font-medium text-gray-900 mb-3">
         {existingTry ? 'Edit Restaurant Try' : 'Add Restaurant Try'}
       </h4>
@@ -51,7 +52,7 @@ export function RestaurantTryForm({ restaurants, existingTry, onSubmit, onCancel
                 type="radio"
                 checked={useLinkedRestaurant}
                 onChange={() => setUseLinkedRestaurant(true)}
-                className="text-amber-600"
+                style={{ accentColor: systemColors.saffron }}
               />
               <span className="text-sm text-gray-700">Choose from my restaurants</span>
             </label>
@@ -60,7 +61,7 @@ export function RestaurantTryForm({ restaurants, existingTry, onSubmit, onCancel
                 type="radio"
                 checked={!useLinkedRestaurant}
                 onChange={() => setUseLinkedRestaurant(false)}
-                className="text-amber-600"
+                style={{ accentColor: systemColors.saffron }}
               />
               <span className="text-sm text-gray-700">Enter name manually</span>
             </label>
@@ -75,7 +76,7 @@ export function RestaurantTryForm({ restaurants, existingTry, onSubmit, onCancel
             <select
               value={restaurantId}
               onChange={(e) => setRestaurantId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
               required
             >
               <option value="">Select a restaurant</option>
@@ -95,7 +96,7 @@ export function RestaurantTryForm({ restaurants, existingTry, onSubmit, onCancel
               type="text"
               value={restaurantName}
               onChange={(e) => setRestaurantName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
               placeholder="e.g., Little Bangkok"
               required
             />
@@ -111,7 +112,7 @@ export function RestaurantTryForm({ restaurants, existingTry, onSubmit, onCancel
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
             />
           </div>
 
@@ -122,7 +123,7 @@ export function RestaurantTryForm({ restaurants, existingTry, onSubmit, onCancel
             <select
               value={rating}
               onChange={(e) => setRating(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
             >
               <option value="">No rating</option>
               <option value="5">5 - Excellent</option>
@@ -142,7 +143,7 @@ export function RestaurantTryForm({ restaurants, existingTry, onSubmit, onCancel
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
             placeholder="How was it at this restaurant?"
           />
         </div>
@@ -151,7 +152,8 @@ export function RestaurantTryForm({ restaurants, existingTry, onSubmit, onCancel
       <div className="flex gap-2 mt-4">
         <button
           type="submit"
-          className="flex-1 bg-amber-600 text-white py-2 px-4 rounded-md hover:bg-amber-700 transition-colors"
+          className="flex-1 text-white py-2 px-4 rounded-md transition-colors"
+          style={{ backgroundColor: systemColors.saffron }}
         >
           {existingTry ? 'Save' : 'Add Try'}
         </button>

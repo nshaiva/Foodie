@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Restaurant, RestaurantVisit } from '../data/types';
 import { StarRating } from './StarRating';
+import { systemColors } from '../data/systemColors';
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -81,7 +82,7 @@ export function RestaurantCard({
 
   if (isEditing) {
     return (
-      <div className="bg-white rounded-lg border border-blue-300 p-4">
+      <div className="bg-white rounded-lg p-4" style={{ borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.navy }}>
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
@@ -89,7 +90,8 @@ export function RestaurantCard({
               type="text"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': systemColors.navy } as React.CSSProperties}
             />
           </div>
 
@@ -99,7 +101,8 @@ export function RestaurantCard({
               type="url"
               value={editGoogleMapsLink}
               onChange={(e) => setEditGoogleMapsLink(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': systemColors.navy } as React.CSSProperties}
             />
           </div>
 
@@ -114,14 +117,16 @@ export function RestaurantCard({
               value={editNotes}
               onChange={(e) => setEditNotes(e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': systemColors.navy } as React.CSSProperties}
             />
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={handleSaveEdit}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+              className="flex-1 text-white py-2 px-4 rounded-md transition-colors"
+              style={{ backgroundColor: systemColors.navy }}
             >
               Save
             </button>
@@ -144,7 +149,7 @@ export function RestaurantCard({
           <h4 className="font-medium text-gray-900">{restaurant.name}</h4>
           <div className="flex items-center gap-2">
             {restaurant.region && (
-              <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded">
+              <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>
                 {restaurant.region}
               </span>
             )}
@@ -158,7 +163,10 @@ export function RestaurantCard({
         <div className="flex gap-2">
           <button
             onClick={() => setIsEditing(true)}
-            className="text-gray-400 hover:text-blue-500 transition-colors"
+            className="text-gray-400 transition-colors"
+            style={{ '--hover-color': systemColors.navy } as React.CSSProperties}
+            onMouseEnter={(e) => (e.currentTarget.style.color = systemColors.navy)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '')}
             title="Edit"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +200,8 @@ export function RestaurantCard({
           href={restaurant.googleMapsLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline mb-3"
+          className="inline-flex items-center gap-1 text-sm hover:underline mb-3"
+          style={{ color: systemColors.navy }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -209,7 +218,8 @@ export function RestaurantCard({
           {!showAddVisit && (
             <button
               onClick={() => setShowAddVisit(true)}
-              className="text-xs text-blue-600 hover:underline"
+              className="text-xs hover:underline"
+              style={{ color: systemColors.navy }}
             >
               + Add Visit
             </button>
@@ -223,20 +233,23 @@ export function RestaurantCard({
                 type="date"
                 value={newVisitDate}
                 onChange={(e) => setNewVisitDate(e.target.value)}
-                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1"
+                style={{ '--tw-ring-color': systemColors.navy } as React.CSSProperties}
               />
               <textarea
                 value={newVisitNotes}
                 onChange={(e) => setNewVisitNotes(e.target.value)}
                 placeholder="Notes for this visit (optional)"
                 rows={2}
-                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1"
+                style={{ '--tw-ring-color': systemColors.navy } as React.CSSProperties}
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleAddVisit}
                   disabled={!newVisitDate}
-                  className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-xs text-white px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: systemColors.navy }}
                 >
                   Add
                 </button>
@@ -268,13 +281,15 @@ export function RestaurantCard({
                         value={editVisitNotes}
                         onChange={(e) => setEditVisitNotes(e.target.value)}
                         rows={2}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1"
+                        style={{ '--tw-ring-color': systemColors.navy } as React.CSSProperties}
                         placeholder="Notes for this visit"
                       />
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleSaveVisitEdit(visit.id)}
-                          className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                          className="text-xs text-white px-2 py-1 rounded"
+                          style={{ backgroundColor: systemColors.navy }}
                         >
                           Save
                         </button>
@@ -297,7 +312,9 @@ export function RestaurantCard({
                       <div className="flex gap-1">
                         <button
                           onClick={() => handleStartEditVisit(visit)}
-                          className="text-gray-400 hover:text-blue-500"
+                          className="text-gray-400"
+                          onMouseEnter={(e) => (e.currentTarget.style.color = systemColors.navy)}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = '')}
                           title="Edit visit"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

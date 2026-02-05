@@ -7,6 +7,13 @@ export const countries: Country[] = [
     capital: "Bangkok",
     continent: "Asia",
     region: "Southeast Asia",
+    colorPalette: {
+      primary: "#1e4d6b",      // Muted navy blue (from flag)
+      secondary: "#c44536",    // Muted red (from flag)
+      accent: "#d4a574",       // Warm gold
+      background: "#f8f6f2",   // Cream white
+      text: "#1e3a4f"          // Dark blue-gray
+    },
     foodCulture: {
       overview: "Thai cuisine is deeply woven into the country's social fabric, with food serving as a centerpiece of family gatherings, religious ceremonies, and everyday life. Meals are communal affairs—dishes are placed at the center of the table and shared among everyone, with each person taking small portions of multiple dishes alongside rice.\n\nStreet food culture is ubiquitous and essential to understanding Thai food. From bustling night markets in Bangkok to roadside vendors in small villages, Thais eat out frequently, often multiple times per day. The line between restaurant and street stall is blurred, with some of the country's most celebrated dishes served from humble carts.\n\nThe Thai approach to food emphasizes balance—not just of flavors within a dish, but across an entire meal. A proper Thai meal includes contrasting dishes: something spicy balanced by something mild, something rich offset by something light and refreshing.",
       mealStructure: "Meals typically center around rice (khao), with multiple dishes served simultaneously rather than in courses. Breakfast might be rice porridge (jok) or noodle soup, lunch a single-plate dish, and dinner the most elaborate meal with several shared dishes.",
@@ -135,6 +142,13 @@ export const countries: Country[] = [
     capital: "Mexico City",
     continent: "North America",
     region: "Central America",
+    colorPalette: {
+      primary: "#355e3b",      // Muted forest green (from flag)
+      secondary: "#a63d40",    // Muted red (from flag)
+      accent: "#d4a574",       // Warm terracotta
+      background: "#faf8f5",   // Warm cream
+      text: "#2d3a2e"          // Dark green-gray
+    },
     foodCulture: {
       overview: "Mexican cuisine is recognized by UNESCO as an Intangible Cultural Heritage of Humanity, reflecting thousands of years of culinary tradition stretching back to ancient Mesoamerican civilizations. Food is inseparable from Mexican identity—recipes are passed down through generations, and regional pride in local dishes runs deep.\n\nMeals are social anchors. The comida, typically eaten between 2-4 PM, is the main meal of the day and often a family affair lasting an hour or more. Street food is equally vital—taquerias, market stalls, and roving vendors serve everything from tacos to tamales at all hours.\n\nMexican cooking is labor-intensive and deeply respected. The preparation of moles, which can contain 20+ ingredients and require hours of work, exemplifies the cuisine's complexity. Even everyday dishes like fresh tortillas demand skill and care.",
       mealStructure: "Breakfast (desayuno) is often hearty—eggs, beans, tortillas, chilaquiles. The main meal (comida) happens mid-afternoon and may include soup, a main dish, and dessert. Dinner (cena) is lighter, often antojitos (snacks) or leftovers.",
@@ -263,6 +277,13 @@ export const countries: Country[] = [
     capital: "Tokyo",
     continent: "Asia",
     region: "East Asia",
+    colorPalette: {
+      primary: "#8b2942",      // Muted crimson (from flag)
+      secondary: "#4a5568",    // Slate gray (zen aesthetic)
+      accent: "#c9a86c",       // Gold (imperial)
+      background: "#faf9f7",   // Off-white (washi paper)
+      text: "#2d2d2d"          // Soft black
+    },
     foodCulture: {
       overview: "Japanese cuisine (washoku) is UNESCO-recognized for its emphasis on seasonality, balance, and presentation. Food is approached with reverence—the phrase 'itadakimasu' (I humbly receive) spoken before meals reflects gratitude for the ingredients, the cook, and nature itself.\n\nAesthetics matter as much as taste. Dishes are composed with attention to color, texture, and arrangement. Seasonal ingredients (shun) are prized at their peak, and menus change throughout the year to reflect what's freshest.\n\nSpecialization runs deep in Japanese food culture. Chefs often dedicate entire careers to mastering a single dish—sushi, ramen, tempura, or soba. This pursuit of perfection (shokunin spirit) elevates even humble dishes to art forms.",
       mealStructure: "Traditional meals follow ichiju-sansai: one soup, three sides, plus rice and pickles. Breakfast might include rice, miso soup, grilled fish, and pickled vegetables. Lunch is often a set meal (teishoku) or bowl dish. Dinner is the largest meal.",
@@ -353,6 +374,13 @@ export const countries: Country[] = [
     capital: "Rome",
     continent: "Europe",
     region: "Southern Europe",
+    colorPalette: {
+      primary: "#3d5c45",      // Muted olive green (from flag)
+      secondary: "#8b3a3a",    // Muted burgundy red (from flag)
+      accent: "#c9a227",       // Tuscan gold
+      background: "#fdfbf7",   // Warm ivory
+      text: "#2f3630"          // Dark olive
+    },
     foodCulture: {
       overview: "Italian cuisine is fundamentally regional—there is no single 'Italian food' but rather a mosaic of local traditions shaped by geography, history, and climate. A dish authentic in Bologna may be unrecognizable in Naples. Italians take fierce pride in their local specialties and often view other regions' versions with skepticism.\n\nSimplicity and ingredient quality define the philosophy. Recipes often have few components, making the quality of each essential. A caprese salad is only as good as its tomatoes, mozzarella, and olive oil. This restraint requires confidence—letting ingredients speak rather than masking them.\n\nMeals are structured rituals. A proper Italian meal moves through courses: antipasto, primo (pasta or rice), secondo (meat or fish), contorno (vegetables), and dolce (dessert). While everyday eating is simpler, Sunday lunch and holidays often follow this progression.",
       mealStructure: "Breakfast (colazione) is light—espresso and a pastry. Lunch (pranzo) was traditionally the main meal, though this is shifting. Dinner (cena) is eaten late (8-9 PM) and can be the largest meal. Aperitivo (pre-dinner drinks with snacks) is a social institution.",
@@ -468,6 +496,13 @@ export const countries: Country[] = [
     capital: "Addis Ababa",
     continent: "Africa",
     region: "East Africa",
+    colorPalette: {
+      primary: "#2d5a27",      // Muted green (from flag)
+      secondary: "#c9a227",    // Muted gold/yellow (from flag)
+      accent: "#a63d40",       // Muted red (from flag)
+      background: "#faf8f3",   // Warm cream
+      text: "#2a3a2a"          // Dark green-gray
+    },
     foodCulture: {
       overview: "Ethiopian cuisine is one of the world's most distinctive and communal food traditions. Meals are served on a single large platter lined with injera (spongy flatbread), with various stews and dishes arranged on top. Diners tear off pieces of injera and use them to scoop up food—no utensils needed.\n\nFood and spirituality are intertwined. The Ethiopian Orthodox Church prescribes over 200 fasting days per year when meat and dairy are forbidden, leading to an extraordinarily rich tradition of vegan dishes. Wednesday and Friday are regular fasting days for observant Christians.\n\nCoffee holds sacred status—Ethiopia is the birthplace of arabica coffee, and the coffee ceremony (buna) is an hours-long ritual of roasting, grinding, and brewing performed for guests. Refusing coffee is considered impolite.",
       mealStructure: "Meals center on the communal platter. Lunch is typically the largest meal. The injera serves as both plate and utensil. Dishes are eaten in no particular order—diners graze across the platter. Coffee ceremony often follows meals.",
@@ -558,6 +593,13 @@ export const countries: Country[] = [
     capital: "Lima",
     continent: "South America",
     region: "Western South America",
+    colorPalette: {
+      primary: "#8b2942",      // Muted red (from flag)
+      secondary: "#5c4033",    // Earthy brown (Incan)
+      accent: "#c9a227",       // Incan gold
+      background: "#fdfaf6",   // Warm cream
+      text: "#3d2a2a"          // Dark burgundy
+    },
     foodCulture: {
       overview: "Peruvian cuisine has emerged as one of the world's most celebrated, built on 5,000 years of indigenous tradition fused with Spanish, African, Chinese, and Japanese influences. Lima is now considered a global culinary capital, home to multiple restaurants on the World's 50 Best list.\n\nGeographic diversity shapes the cuisine dramatically. The coast (costa) emphasizes seafood and ceviche. The highlands (sierra) feature hearty dishes with potatoes, corn, and meat. The Amazon (selva) contributes exotic fruits, fish, and ingredients found nowhere else.\n\nPeru is the origin of the potato—over 3,000 varieties grow here—and this biodiversity extends to corn (55 varieties), peppers (ají), and countless other ingredients. The cuisine celebrates this abundance.",
       mealStructure: "Lunch (almuerzo) is the main meal, often a multi-course set menu at restaurants. Ceviche is traditionally a lunch dish (the citrus is thought to aid afternoon energy). Dinner is lighter. Street food and snacks are eaten throughout the day.",

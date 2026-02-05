@@ -14,6 +14,7 @@ import { useCountryActivity } from '../../hooks/useCountryActivity';
 import { getCountryFillColor, MAP_STROKE } from './mapUtils';
 import { MapPreviewCard } from './MapPreviewCard';
 import { MapLegend } from './MapLegend';
+import { systemColors } from '../../data/systemColors';
 
 // Use jsDelivr CDN for world-atlas TopoJSON
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
@@ -94,7 +95,7 @@ export const WorldMap = memo(function WorldMap() {
   }, [navigate, profiledCountryIds]);
 
   return (
-    <div className="map-container relative w-full bg-blue-50/30 rounded-lg overflow-hidden border border-gray-200">
+    <div className="map-container relative w-full rounded-lg overflow-hidden border border-gray-200" style={{ backgroundColor: `${systemColors.seaSalt}` }}>
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
           <div className="text-gray-500">Loading map...</div>

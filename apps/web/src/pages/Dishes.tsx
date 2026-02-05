@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDishes } from '../hooks/useDishes';
 import { useRestaurants } from '../hooks/useRestaurants';
 import { countries } from '../data/countries';
+import { systemColors } from '../data/systemColors';
 import { DishCard } from '../components/DishCard';
 import type { Continent, RestaurantTry, CookingAttempt } from '../data/types';
 
@@ -200,23 +201,30 @@ export function Dishes() {
   )];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
+      <header style={{ backgroundColor: systemColors.navy }}>
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link to="/" className="text-sm text-gray-500 hover:text-gray-700 mb-2 inline-block">
+          <Link
+            to="/"
+            className="text-sm mb-2 inline-block opacity-80 hover:opacity-100 transition-opacity"
+            style={{ color: systemColors.seaSalt }}
+          >
             ← Back to countries
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Dishes I've Tried</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-3xl font-bold" style={{ color: systemColors.seaSalt }}>
+                Dishes I've Tried
+              </h1>
+              <p className="mt-1" style={{ color: `${systemColors.seaSalt}99` }}>
                 {dishes.length} dish{dishes.length !== 1 ? 'es' : ''} logged
               </p>
             </div>
             {!showAddForm && (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition-colors"
+                className="px-4 py-2 rounded-md transition-colors"
+                style={{ backgroundColor: systemColors.herb, color: systemColors.seaSalt }}
               >
                 + Add Dish
               </button>
@@ -228,7 +236,7 @@ export function Dishes() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Add Dish Form */}
         {showAddForm && (
-          <form onSubmit={handleAddDish} className="bg-white rounded-lg border border-emerald-300 p-4 mb-6">
+          <form onSubmit={handleAddDish} className="bg-white rounded-lg p-4 mb-6" style={{ borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.herb }}>
             <h3 className="font-medium text-gray-900 mb-4">Log a Dish</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -245,7 +253,7 @@ export function Dishes() {
                       setRestaurantId('');
                       setUseLinkedRestaurant(getRestaurantsForCountry(e.target.value).length > 0);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                     required
                   >
                     <option value="">Select a country</option>
@@ -268,7 +276,7 @@ export function Dishes() {
                       id="formRegion"
                       value={formRegion}
                       onChange={(e) => setFormRegion(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                     >
                       <option value="">Select a region (optional)</option>
                       {selectedCountryRegions.map((r) => (
@@ -290,7 +298,7 @@ export function Dishes() {
                   id="formName"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                   placeholder="e.g., Pad Thai"
                   required
                 />
@@ -305,7 +313,7 @@ export function Dishes() {
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                   placeholder="General notes about this dish..."
                 />
               </div>
@@ -330,22 +338,22 @@ export function Dishes() {
                   <button
                     type="button"
                     onClick={() => setInitialTryType('restaurant')}
-                    className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                      initialTryType === 'restaurant'
-                        ? 'bg-amber-600 text-white'
-                        : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                    }`}
+                    className="px-3 py-1.5 rounded-md text-sm transition-colors"
+                    style={{
+                      backgroundColor: initialTryType === 'restaurant' ? systemColors.saffron : systemColors.saffronLight,
+                      color: initialTryType === 'restaurant' ? 'white' : systemColors.navy
+                    }}
                   >
                     At a restaurant
                   </button>
                   <button
                     type="button"
                     onClick={() => setInitialTryType('cooked')}
-                    className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                      initialTryType === 'cooked'
-                        ? 'bg-violet-600 text-white'
-                        : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
-                    }`}
+                    className="px-3 py-1.5 rounded-md text-sm transition-colors"
+                    style={{
+                      backgroundColor: initialTryType === 'cooked' ? systemColors.herb : systemColors.herbLight,
+                      color: initialTryType === 'cooked' ? 'white' : systemColors.navy
+                    }}
                   >
                     I cooked it
                   </button>
@@ -354,7 +362,7 @@ export function Dishes() {
 
               {/* Restaurant try form */}
               {initialTryType === 'restaurant' && (
-                <div className="bg-amber-50 rounded-lg border border-amber-200 p-3 space-y-3">
+                <div className="rounded-lg p-3 space-y-3" style={{ backgroundColor: systemColors.saffronLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.saffron }}>
                   {selectedCountryRestaurants.length > 0 && (
                     <div className="flex gap-4 mb-2">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -362,7 +370,7 @@ export function Dishes() {
                           type="radio"
                           checked={useLinkedRestaurant}
                           onChange={() => setUseLinkedRestaurant(true)}
-                          className="text-amber-600"
+                          style={{ accentColor: systemColors.saffron }}
                         />
                         <span className="text-sm text-gray-700">My restaurants</span>
                       </label>
@@ -371,7 +379,7 @@ export function Dishes() {
                           type="radio"
                           checked={!useLinkedRestaurant}
                           onChange={() => setUseLinkedRestaurant(false)}
-                          className="text-amber-600"
+                          style={{ accentColor: systemColors.saffron }}
                         />
                         <span className="text-sm text-gray-700">Enter name</span>
                       </label>
@@ -386,7 +394,7 @@ export function Dishes() {
                       <select
                         value={restaurantId}
                         onChange={(e) => setRestaurantId(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                         required
                       >
                         <option value="">Select a restaurant</option>
@@ -406,7 +414,7 @@ export function Dishes() {
                         type="text"
                         value={restaurantName}
                         onChange={(e) => setRestaurantName(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                         placeholder="e.g., Little Bangkok"
                         required
                       />
@@ -422,7 +430,7 @@ export function Dishes() {
                         type="date"
                         value={restaurantDate}
                         onChange={(e) => setRestaurantDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                       />
                     </div>
 
@@ -433,7 +441,7 @@ export function Dishes() {
                       <select
                         value={restaurantRating}
                         onChange={(e) => setRestaurantRating(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                       >
                         <option value="">No rating</option>
                         <option value="5">5 - Excellent</option>
@@ -453,7 +461,7 @@ export function Dishes() {
                       value={restaurantNotes}
                       onChange={(e) => setRestaurantNotes(e.target.value)}
                       rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                       placeholder="How was it at this restaurant?"
                     />
                   </div>
@@ -462,7 +470,7 @@ export function Dishes() {
 
               {/* Cooking attempt form */}
               {initialTryType === 'cooked' && (
-                <div className="bg-violet-50 rounded-lg border border-violet-200 p-3 space-y-3">
+                <div className="rounded-lg p-3 space-y-3" style={{ backgroundColor: systemColors.herbLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.herb }}>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -472,7 +480,7 @@ export function Dishes() {
                         type="date"
                         value={cookingDate}
                         onChange={(e) => setCookingDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                       />
                     </div>
 
@@ -483,7 +491,7 @@ export function Dishes() {
                       <select
                         value={cookingRating}
                         onChange={(e) => setCookingRating(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                       >
                         <option value="">No rating</option>
                         <option value="5">5 - Nailed it!</option>
@@ -503,7 +511,7 @@ export function Dishes() {
                       type="text"
                       value={recipeSource}
                       onChange={(e) => setRecipeSource(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                       placeholder="e.g., YouTube, cookbook, family recipe..."
                     />
                   </div>
@@ -516,7 +524,7 @@ export function Dishes() {
                       value={cookingNotes}
                       onChange={(e) => setCookingNotes(e.target.value)}
                       rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                       placeholder="What worked? What would you change?"
                     />
                   </div>
@@ -528,7 +536,8 @@ export function Dishes() {
               <button
                 type="submit"
                 disabled={!formCountryId || !formName.trim()}
-                className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 text-white py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: systemColors.herb }}
               >
                 Save Dish
               </button>
@@ -558,7 +567,7 @@ export function Dishes() {
                     setFilterContinent(e.target.value);
                     setFilterCountry('all');
                   }}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                 >
                   <option value="all">All Regions</option>
                   {continentsWithDishes.map(continent => (
@@ -577,7 +586,7 @@ export function Dishes() {
                   id="filterCountry"
                   value={filterCountry}
                   onChange={(e) => setFilterCountry(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                 >
                   <option value="all">All Countries</option>
                   {countriesWithDishes
@@ -599,7 +608,7 @@ export function Dishes() {
                   id="sortBy"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
                 >
                   <option value="date-desc">Newest First</option>
                   <option value="date-asc">Oldest First</option>
@@ -619,7 +628,8 @@ export function Dishes() {
                   <div className="mb-1">
                     <Link
                       to={`/country/${dish.countryId}`}
-                      className="text-sm text-emerald-600 hover:underline"
+                      className="text-sm hover:underline"
+                      style={{ color: systemColors.herb }}
                     >
                       {getCountryName(dish.countryId)}
                     </Link>
@@ -653,7 +663,8 @@ export function Dishes() {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition-colors"
+                  className="text-white px-4 py-2 rounded-md transition-colors"
+                  style={{ backgroundColor: systemColors.herb }}
                 >
                   + Add Dish
                 </button>

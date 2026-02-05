@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWishlist } from '../hooks/useWishlist';
 import { getCountryById } from '../data/countries';
+import { systemColors } from '../data/systemColors';
 import { WishlistCard } from '../components/WishlistCard';
 import type { Continent } from '../data/types';
 
@@ -50,19 +51,25 @@ export function Wishlist() {
   )];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
+      <header style={{ backgroundColor: systemColors.navy }}>
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link to="/" className="text-sm text-gray-500 hover:text-gray-700 mb-2 inline-block">
+          <Link
+            to="/"
+            className="text-sm mb-2 inline-block opacity-80 hover:opacity-100 transition-opacity"
+            style={{ color: systemColors.seaSalt }}
+          >
             ← Back to countries
           </Link>
           <div className="flex items-center gap-3">
-            <svg className="w-8 h-8 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8" fill={systemColors.tomato} viewBox="0 0 24 24">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Want to Try</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-3xl font-bold" style={{ color: systemColors.seaSalt }}>
+                Want to Try
+              </h1>
+              <p className="mt-1" style={{ color: `${systemColors.seaSalt}99` }}>
                 {wishlist.length} dish{wishlist.length !== 1 ? 'es' : ''} saved
               </p>
             </div>
@@ -157,16 +164,17 @@ export function Wishlist() {
           </>
         ) : (
           <div className="text-center py-16">
-            <svg className="w-16 h-16 text-rose-200 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-16 h-16 mx-auto mb-4" style={{ color: `${systemColors.tomato}40` }} fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
-            <p className="text-gray-500 mb-4">Your wishlist is empty.</p>
-            <p className="text-sm text-gray-400 mb-6">
+            <p style={{ color: systemColors.navy }} className="mb-4">Your wishlist is empty.</p>
+            <p className="text-sm mb-6" style={{ color: systemColors.navyMuted }}>
               Browse countries and save dishes you want to try!
             </p>
             <Link
               to="/"
-              className="inline-block bg-rose-600 text-white px-4 py-2 rounded-md hover:bg-rose-700 transition-colors"
+              className="inline-block px-4 py-2 rounded-md transition-colors"
+              style={{ backgroundColor: systemColors.tomato, color: systemColors.seaSalt }}
             >
               Browse Countries
             </Link>

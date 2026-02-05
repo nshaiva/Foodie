@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { CookingAttempt } from '../data/types';
+import { systemColors } from '../data/systemColors';
 
 interface CookingAttemptFormProps {
   existingAttempt?: CookingAttempt;
@@ -29,7 +30,7 @@ export function CookingAttemptForm({ existingAttempt, onSubmit, onCancel }: Cook
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-violet-50 rounded-lg border border-violet-200 p-4">
+    <form onSubmit={handleSubmit} className="rounded-lg p-4" style={{ backgroundColor: systemColors.herbLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.herb }}>
       <h4 className="font-medium text-gray-900 mb-3">
         {existingAttempt ? 'Edit Cooking Attempt' : 'Add Cooking Attempt'}
       </h4>
@@ -44,7 +45,7 @@ export function CookingAttemptForm({ existingAttempt, onSubmit, onCancel }: Cook
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
             />
           </div>
 
@@ -55,7 +56,7 @@ export function CookingAttemptForm({ existingAttempt, onSubmit, onCancel }: Cook
             <select
               value={successRating}
               onChange={(e) => setSuccessRating(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
             >
               <option value="">No rating</option>
               <option value="5">5 - Nailed it!</option>
@@ -75,7 +76,7 @@ export function CookingAttemptForm({ existingAttempt, onSubmit, onCancel }: Cook
             type="text"
             value={recipeSource}
             onChange={(e) => setRecipeSource(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
             placeholder="e.g., YouTube, cookbook, family recipe..."
           />
         </div>
@@ -88,7 +89,7 @@ export function CookingAttemptForm({ existingAttempt, onSubmit, onCancel }: Cook
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
             placeholder="What worked? What would you change?"
           />
         </div>
@@ -97,7 +98,8 @@ export function CookingAttemptForm({ existingAttempt, onSubmit, onCancel }: Cook
       <div className="flex gap-2 mt-4">
         <button
           type="submit"
-          className="flex-1 bg-violet-600 text-white py-2 px-4 rounded-md hover:bg-violet-700 transition-colors"
+          className="flex-1 text-white py-2 px-4 rounded-md transition-colors"
+          style={{ backgroundColor: systemColors.herb }}
         >
           {existingAttempt ? 'Save' : 'Add Attempt'}
         </button>

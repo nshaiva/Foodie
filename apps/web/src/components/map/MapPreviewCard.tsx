@@ -1,6 +1,7 @@
 import { memo, useRef, useEffect, useState } from 'react';
 import type { Country } from '../../data/types';
 import type { CountryActivity } from '../../hooks/useCountryActivity';
+import { systemColors } from '../../data/systemColors';
 
 interface MapPreviewCardProps {
   countryId: string;
@@ -65,9 +66,21 @@ export const MapPreviewCard = memo(function MapPreviewCard({
               <span className="text-xs text-gray-500">{country.region}</span>
             </div>
 
-            <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-              {country.cuisineProfile.summary}
-            </p>
+            <div className="text-xs text-gray-500 mb-2">
+              Capital: {country.capital}
+            </div>
+
+            <div className="flex flex-wrap gap-1 mb-2">
+              {country.cuisineProfile.flavorProfile.slice(0, 4).map((flavor) => (
+                <span
+                  key={flavor}
+                  className="px-1.5 py-0.5 text-xs rounded"
+                  style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}
+                >
+                  {flavor}
+                </span>
+              ))}
+            </div>
 
             {(restaurantCount > 0 || dishCount > 0) && (
               <div className="flex gap-3 text-xs text-gray-500 mb-2">
@@ -80,7 +93,7 @@ export const MapPreviewCard = memo(function MapPreviewCard({
               </div>
             )}
 
-            <div className="text-xs text-blue-600 font-medium">
+            <div className="text-xs font-medium" style={{ color: systemColors.navy }}>
               Click to explore
             </div>
           </>

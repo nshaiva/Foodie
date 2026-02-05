@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCountryById } from '../data/countries';
+import { systemColors } from '../data/systemColors';
 import { useRestaurants } from '../hooks/useRestaurants';
 import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
@@ -9,7 +10,55 @@ import { DishForm } from '../components/DishForm';
 import { RestaurantCard } from '../components/RestaurantCard';
 import { DishCard } from '../components/DishCard';
 import { WantToTryButton } from '../components/WantToTryButton';
-import type { RestaurantTry, CookingAttempt } from '../data/types';
+import { RegionalMap } from '../components/RegionalMap';
+import type { RestaurantTry, CookingAttempt, RegionalCuisine, Dish } from '../data/types';
+
+// Helper to detect region from dish name by matching against regional signature dishes
+function detectRegionForDish(
+  dish: Dish,
+  regionalVariations?: RegionalCuisine[]
+): string | undefined {
+  // If dish already has regionalOrigin set, use that
+  if (dish.regionalOrigin) {
+    return dish.regionalOrigin;
+  }
+
+  // If no regional variations, can't detect
+  if (!regionalVariations || regionalVariations.length === 0) {
+    return undefined;
+  }
+
+  // Check each region's signature dishes for a match
+  const dishNameLower = dish.name.toLowerCase();
+  for (const region of regionalVariations) {
+    for (const signatureDish of region.signatureDishes) {
+      // Check if dish name contains the signature dish name or vice versa
+      const signatureLower = signatureDish.toLowerCase();
+      if (
+        dishNameLower.includes(signatureLower) ||
+        signatureLower.includes(dishNameLower)
+      ) {
+        return region.name;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+// Get a shortened region name for display
+function getShortRegionName(regionName: string): string {
+  // Remove parenthetical descriptions and simplify
+  if (regionName.includes('(')) {
+    return regionName.split('(')[0].trim();
+  }
+  // Shorten common patterns
+  if (regionName.includes(' & ')) {
+    const parts = regionName.split(' & ');
+    return parts[0];
+  }
+  return regionName;
+}
 
 export function CountryDetail() {
   const { id } = useParams<{ id: string }>();
@@ -32,13 +81,14 @@ export function CountryDetail() {
 
   const [showRestaurantForm, setShowRestaurantForm] = useState(false);
   const [showDishForm, setShowDishForm] = useState(false);
+  const [expandedDishes, setExpandedDishes] = useState<Set<string>>(new Set());
 
   if (!country) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Country not found</h1>
-          <Link to="/" className="text-blue-600 hover:underline">
+          <Link to="/" className="hover:underline" style={{ color: systemColors.navy }}>
             Back to all countries
           </Link>
         </div>
@@ -48,6 +98,7 @@ export function CountryDetail() {
 
   const countryRestaurants = getRestaurantsByCountry(country.id);
   const countryDishes = getDishesByCountry(country.id);
+  const colors = country.colorPalette;
 
   const handleAddRestaurant = (data: Parameters<typeof addRestaurant>[0]) => {
     addRestaurant(data);
@@ -63,7 +114,6 @@ export function CountryDetail() {
     initialRestaurantTry?: Omit<RestaurantTry, 'id'>;
     initialCookingAttempt?: Omit<CookingAttempt, 'id'>;
   }) => {
-    // Auto-create restaurant if name provided without ID
     let processedTry = data.initialRestaurantTry;
     if (processedTry?.restaurantName && !processedTry.restaurantId) {
       const restaurant = findOrCreateRestaurant(data.countryId, processedTry.restaurantName, processedTry.date);
@@ -87,12 +137,10 @@ export function CountryDetail() {
     return newDish;
   };
 
-  // Wrapper for addRestaurantTry that auto-creates restaurants
   const handleAddRestaurantTry = (dishId: string, data: Omit<RestaurantTry, 'id'>) => {
     const dish = countryDishes.find(d => d.id === dishId);
     if (!dish) return;
 
-    // Auto-create restaurant if name provided without ID
     if (data.restaurantName && !data.restaurantId) {
       const restaurant = findOrCreateRestaurant(dish.countryId, data.restaurantName, data.date);
       addRestaurantTry(dishId, {
@@ -106,150 +154,177 @@ export function CountryDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link to="/" className="text-sm text-gray-500 hover:text-gray-700 mb-2 inline-block">
+    <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
+      {/* Header with country colors */}
+      <header
+        className="border-b"
+        style={{
+          backgroundColor: colors.primary,
+          borderColor: `${colors.primary}40`
+        }}
+      >
+        <div className="max-w-5xl mx-auto px-4 py-6">
+          <Link
+            to="/"
+            className="text-sm mb-2 inline-block opacity-80 hover:opacity-100 transition-opacity"
+            style={{ color: colors.background }}
+          >
             ← Back to all countries
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">{country.name}</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold" style={{ color: colors.background }}>
+            {country.name}
+          </h1>
+          <p className="mt-1 opacity-90" style={{ color: colors.background }}>
             {country.capital} · {country.region}
           </p>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-10">
-        {/* Cuisine Summary */}
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-10">
+        {/* Cuisine Summary - brief intro */}
         <section>
-          <p className="text-lg text-gray-700 leading-relaxed">
+          <p className="text-lg leading-relaxed" style={{ color: colors.text }}>
             {country.cuisineProfile.summary}
           </p>
         </section>
 
-        {/* My Restaurants */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              My Restaurants
-              {countryRestaurants.length > 0 && (
-                <span className="ml-2 text-sm font-normal text-gray-500">
-                  ({countryRestaurants.length})
-                </span>
+        {/* My Activity: Restaurants & Dishes - 2 column layout */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Restaurants Column */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: systemColors.navy }} />
+                My Restaurants
+                {countryRestaurants.length > 0 && (
+                  <span className="text-sm font-normal text-gray-500">
+                    ({countryRestaurants.length})
+                  </span>
+                )}
+              </h2>
+              {!showRestaurantForm && (
+                <button
+                  onClick={() => setShowRestaurantForm(true)}
+                  className="text-sm text-white px-3 py-1.5 rounded-md transition-colors"
+                  style={{ backgroundColor: systemColors.navy }}
+                >
+                  + Add
+                </button>
               )}
-            </h2>
-            {!showRestaurantForm && (
-              <button
-                onClick={() => setShowRestaurantForm(true)}
-                className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors"
-              >
-                + Add Restaurant
-              </button>
-            )}
-          </div>
-
-          {showRestaurantForm && (
-            <div className="mb-4">
-              <RestaurantForm
-                countryId={country.id}
-                countryName={country.name}
-                regions={country.regionalVariations?.map(r => r.name)}
-                onSubmit={handleAddRestaurant}
-                onCancel={() => setShowRestaurantForm(false)}
-              />
             </div>
-          )}
 
-          {countryRestaurants.length > 0 ? (
-            <div className="space-y-3">
-              {countryRestaurants.map((restaurant) => (
-                <RestaurantCard
-                  key={restaurant.id}
-                  restaurant={restaurant}
-                  onUpdate={updateRestaurant}
-                  onDelete={deleteRestaurant}
-                  onAddVisit={addVisit}
-                  onUpdateVisit={updateVisit}
-                  onDeleteVisit={deleteVisit}
+            {showRestaurantForm && (
+              <div className="mb-4">
+                <RestaurantForm
+                  countryId={country.id}
+                  countryName={country.name}
+                  regions={country.regionalVariations?.map(r => r.name)}
+                  onSubmit={handleAddRestaurant}
+                  onCancel={() => setShowRestaurantForm(false)}
                 />
-              ))}
-            </div>
-          ) : (
-            !showRestaurantForm && (
-              <p className="text-gray-500 text-sm">
-                No restaurants logged yet. Add your first one!
-              </p>
-            )
-          )}
-        </section>
+              </div>
+            )}
 
-        {/* My Dishes */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Dishes I've Tried
-              {countryDishes.length > 0 && (
-                <span className="ml-2 text-sm font-normal text-gray-500">
-                  ({countryDishes.length})
-                </span>
-              )}
-            </h2>
-            {!showDishForm && (
-              <button
-                onClick={() => setShowDishForm(true)}
-                className="text-sm bg-emerald-600 text-white px-3 py-1.5 rounded-md hover:bg-emerald-700 transition-colors"
-              >
-                + Add Dish
-              </button>
+            {countryRestaurants.length > 0 ? (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {countryRestaurants.map((restaurant) => (
+                  <RestaurantCard
+                    key={restaurant.id}
+                    restaurant={restaurant}
+                    onUpdate={updateRestaurant}
+                    onDelete={deleteRestaurant}
+                    onAddVisit={addVisit}
+                    onUpdateVisit={updateVisit}
+                    onDeleteVisit={deleteVisit}
+                  />
+                ))}
+              </div>
+            ) : (
+              !showRestaurantForm && (
+                <p className="text-gray-500 text-sm py-4 text-center">
+                  No restaurants logged yet
+                </p>
+              )
             )}
           </div>
 
-          {showDishForm && (
-            <div className="mb-4">
-              <DishForm
-                countryId={country.id}
-                countryName={country.name}
-                regions={country.regionalVariations?.map(r => r.name)}
-                regionalVariations={country.regionalVariations}
-                popularDishes={country.popularDishes}
-                restaurants={countryRestaurants}
-                onSubmit={handleAddDish}
-                onCancel={() => setShowDishForm(false)}
-              />
+          {/* Dishes Column */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: systemColors.herb }} />
+                Dishes I've Tried
+                {countryDishes.length > 0 && (
+                  <span className="text-sm font-normal text-gray-500">
+                    ({countryDishes.length})
+                  </span>
+                )}
+              </h2>
+              {!showDishForm && (
+                <button
+                  onClick={() => setShowDishForm(true)}
+                  className="text-sm text-white px-3 py-1.5 rounded-md transition-colors"
+                  style={{ backgroundColor: systemColors.herb }}
+                >
+                  + Add
+                </button>
+              )}
             </div>
-          )}
 
-          {countryDishes.length > 0 ? (
-            <div className="space-y-3">
-              {countryDishes.map((dish) => (
-                <DishCard
-                  key={dish.id}
-                  dish={dish}
+            {showDishForm && (
+              <div className="mb-4">
+                <DishForm
+                  countryId={country.id}
+                  countryName={country.name}
+                  regions={country.regionalVariations?.map(r => r.name)}
+                  regionalVariations={country.regionalVariations}
+                  popularDishes={country.popularDishes}
                   restaurants={countryRestaurants}
-                  onUpdate={updateDish}
-                  onDelete={deleteDish}
-                  onAddRestaurantTry={handleAddRestaurantTry}
-                  onUpdateRestaurantTry={updateRestaurantTry}
-                  onDeleteRestaurantTry={deleteRestaurantTry}
-                  onAddCookingAttempt={addCookingAttempt}
-                  onUpdateCookingAttempt={updateCookingAttempt}
-                  onDeleteCookingAttempt={deleteCookingAttempt}
+                  onSubmit={handleAddDish}
+                  onCancel={() => setShowDishForm(false)}
                 />
-              ))}
-            </div>
-          ) : (
-            !showDishForm && (
-              <p className="text-gray-500 text-sm">
-                No dishes logged yet. Add the first dish you've tried!
-              </p>
-            )
-          )}
+              </div>
+            )}
+
+            {countryDishes.length > 0 ? (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {countryDishes.map((dish) => (
+                  <DishCard
+                    key={dish.id}
+                    dish={dish}
+                    restaurants={countryRestaurants}
+                    onUpdate={updateDish}
+                    onDelete={deleteDish}
+                    onAddRestaurantTry={handleAddRestaurantTry}
+                    onUpdateRestaurantTry={updateRestaurantTry}
+                    onDeleteRestaurantTry={deleteRestaurantTry}
+                    onAddCookingAttempt={addCookingAttempt}
+                    onUpdateCookingAttempt={updateCookingAttempt}
+                    onDeleteCookingAttempt={deleteCookingAttempt}
+                  />
+                ))}
+              </div>
+            ) : (
+              !showDishForm && (
+                <p className="text-gray-500 text-sm py-4 text-center">
+                  No dishes logged yet
+                </p>
+              )
+            )}
+          </div>
         </section>
 
-        {/* Food Culture */}
+        {/* Food Culture - Overview + 3 cards */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Food Culture</h2>
-          <div className="prose prose-gray max-w-none">
+          <h2
+            className="text-xl font-semibold mb-4"
+            style={{ color: colors.text }}
+          >
+            Food Culture
+          </h2>
+
+          {/* Overview prose */}
+          <div className="prose prose-gray max-w-none mb-6">
             {country.foodCulture.overview.split('\n\n').map((paragraph, i) => (
               <p key={i} className="text-gray-700 mb-4 leading-relaxed">
                 {paragraph}
@@ -257,270 +332,309 @@ export function CountryDetail() {
             ))}
           </div>
 
-          {country.foodCulture.mealStructure && (
-            <div className="mt-6 bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="font-medium text-gray-900 mb-2">Meal Structure</h3>
-              <p className="text-gray-700 text-sm">{country.foodCulture.mealStructure}</p>
-            </div>
-          )}
+          {/* 3-column details */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {country.foodCulture.mealStructure && (
+              <div
+                className="rounded-lg p-4"
+                style={{ backgroundColor: `${colors.primary}10` }}
+              >
+                <h3
+                  className="font-medium mb-2 text-sm"
+                  style={{ color: colors.primary }}
+                >
+                  Meal Structure
+                </h3>
+                <p className="text-gray-700 text-sm">{country.foodCulture.mealStructure}</p>
+              </div>
+            )}
 
-          {country.foodCulture.diningCustoms && (
-            <div className="mt-4 bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="font-medium text-gray-900 mb-2">Dining Customs</h3>
-              <p className="text-gray-700 text-sm">{country.foodCulture.diningCustoms}</p>
-            </div>
-          )}
+            {country.foodCulture.diningCustoms && (
+              <div
+                className="rounded-lg p-4"
+                style={{ backgroundColor: `${colors.secondary}10` }}
+              >
+                <h3
+                  className="font-medium mb-2 text-sm"
+                  style={{ color: colors.secondary }}
+                >
+                  Dining Customs
+                </h3>
+                <p className="text-gray-700 text-sm">{country.foodCulture.diningCustoms}</p>
+              </div>
+            )}
 
-          {country.foodCulture.historicalInfluences && (
-            <div className="mt-4 bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="font-medium text-gray-900 mb-2">Historical Influences</h3>
-              <p className="text-gray-700 text-sm">{country.foodCulture.historicalInfluences}</p>
-            </div>
-          )}
+            {country.foodCulture.historicalInfluences && (
+              <div
+                className="rounded-lg p-4"
+                style={{ backgroundColor: `${colors.accent}20` }}
+              >
+                <h3
+                  className="font-medium mb-2 text-sm"
+                  style={{ color: colors.text }}
+                >
+                  Historical Influences
+                </h3>
+                <p className="text-gray-700 text-sm">{country.foodCulture.historicalInfluences}</p>
+              </div>
+            )}
+          </div>
         </section>
 
-        {/* Regional Cuisines */}
-        {country.regionalVariations && country.regionalVariations.length > 0 && (
-          <section>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Regional Cuisines</h2>
-            <div className="space-y-6">
-              {country.regionalVariations.map((region) => (
-                <div key={region.name} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 border-b border-gray-200">
-                    <h3 className="font-semibold text-gray-900">{region.name}</h3>
-                  </div>
-                  <div className="p-4 space-y-4">
-                    <p className="text-gray-700 text-sm leading-relaxed">{region.description}</p>
+        {/* Cuisine Profile - Color-coded tag cloud */}
+        <section>
+          <h2
+            className="text-xl font-semibold mb-4"
+            style={{ color: colors.text }}
+          >
+            Cuisine Profile
+          </h2>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Signature Dishes</h4>
-                        <div className="flex flex-wrap gap-1.5">
-                          {region.signatureDishes.map((dish) => (
-                            <span key={dish} className="bg-rose-50 text-rose-700 text-xs px-2 py-1 rounded">
-                              {dish}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-5">
+            {/* Legend */}
+            <div className="flex flex-wrap gap-4 mb-4 text-xs text-gray-500">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: systemColors.tomato }} />
+                Flavors
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: systemColors.herb }} />
+                Ingredients
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: systemColors.navy }} />
+                Techniques
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: systemColors.saffron }} />
+                Spices
+              </span>
+            </div>
 
-                      <div>
-                        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Key Ingredients</h4>
-                        <div className="flex flex-wrap gap-1.5">
-                          {region.keyIngredients.map((ingredient) => (
-                            <span key={ingredient} className="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded">
-                              {ingredient}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {region.distinctiveTraits && region.distinctiveTraits.length > 0 && (
-                      <div>
-                        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">What Makes It Distinctive</h4>
-                        <div className="flex flex-wrap gap-1.5">
-                          {region.distinctiveTraits.map((trait) => (
-                            <span key={trait} className="bg-purple-50 text-purple-700 text-xs px-2 py-1 rounded">
-                              {trait}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+            {/* Tag cloud */}
+            <div className="flex flex-wrap gap-2">
+              {/* Flavors - Tomato */}
+              {country.cuisineProfile.flavorProfile.map((flavor) => (
+                <span
+                  key={`flavor-${flavor}`}
+                  className="text-sm px-3 py-1 rounded-full"
+                  style={{ backgroundColor: systemColors.tomatoLight, color: systemColors.tomato }}
+                >
+                  {flavor}
+                </span>
+              ))}
+              {/* Ingredients - Herb */}
+              {country.cuisineProfile.keyIngredients.map((ingredient) => (
+                <span
+                  key={`ingredient-${ingredient}`}
+                  className="text-sm px-3 py-1 rounded-full"
+                  style={{ backgroundColor: systemColors.herbLight, color: systemColors.herb }}
+                >
+                  {ingredient}
+                </span>
+              ))}
+              {/* Techniques - Navy */}
+              {country.cuisineProfile.cookingTechniques.map((technique) => (
+                <span
+                  key={`technique-${technique}`}
+                  className="text-sm px-3 py-1 rounded-full"
+                  style={{ backgroundColor: `${systemColors.navy}15`, color: systemColors.navy }}
+                >
+                  {technique}
+                </span>
+              ))}
+              {/* Spices - Saffron */}
+              {country.cuisineProfile.spicesAndSeasonings.map((spice) => (
+                <span
+                  key={`spice-${spice}`}
+                  className="text-sm px-3 py-1 rounded-full"
+                  style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}
+                >
+                  {spice}
+                </span>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Popular Dishes - Compact accordion rows */}
+        <section>
+          <h2
+            className="text-xl font-semibold mb-4"
+            style={{ color: colors.text }}
+          >
+            Popular Dishes
+          </h2>
+
+          <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+            {country.popularDishes.map((dish) => {
+              const detectedRegion = detectRegionForDish(dish, country.regionalVariations);
+              const isExpanded = expandedDishes.has(dish.name);
+
+              const toggleExpanded = () => {
+                setExpandedDishes(prev => {
+                  const next = new Set(prev);
+                  if (next.has(dish.name)) {
+                    next.delete(dish.name);
+                  } else {
+                    next.add(dish.name);
+                  }
+                  return next;
+                });
+              };
+
+              return (
+                <div key={dish.name}>
+                  {/* Collapsed row */}
+                  <div
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={toggleExpanded}
+                  >
+                    {/* Expand chevron */}
+                    <svg
+                      className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+
+                    {/* Dish name */}
+                    <div className="flex-1 min-w-0">
+                      <span className="font-medium text-gray-900">{dish.name}</span>
+                      {dish.englishName && (
+                        <span className="text-gray-400 text-sm ml-2">({dish.englishName})</span>
+                      )}
+                    </div>
+
+                    {/* Tags */}
+                    <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0">
+                      {detectedRegion && (
+                        <span
+                          className="text-xs px-2 py-0.5 rounded-full"
+                          style={{
+                            backgroundColor: `${colors.primary}15`,
+                            color: colors.primary,
+                          }}
+                        >
+                          {getShortRegionName(detectedRegion)}
+                        </span>
+                      )}
+                      {dish.spiceLevel && dish.spiceLevel !== 'none' && (
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          dish.spiceLevel === 'mild' ? 'bg-yellow-100 text-yellow-800' :
+                          dish.spiceLevel === 'medium' ? 'bg-orange-100 text-orange-800' :
+                          dish.spiceLevel === 'hot' ? 'bg-red-100 text-red-800' :
+                          'bg-red-200 text-red-900'
+                        }`}>
+                          {dish.spiceLevel === 'very-hot' ? 'Very Hot' : dish.spiceLevel.charAt(0).toUpperCase() + dish.spiceLevel.slice(1)}
+                        </span>
+                      )}
+                      {dish.isStreetFood && (
+                        <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>Street</span>
+                      )}
+                    </div>
+
+                    {/* Want to Try button */}
+                    <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <WantToTryButton
+                        isOnWishlist={isOnWishlist(country.id, dish.name)}
+                        onAdd={() => addToWishlist({
+                          countryId: country.id,
+                          dishName: dish.name,
+                          englishName: dish.englishName,
+                        })}
+                        onRemove={() => {
+                          const item = findWishlistItem(country.id, dish.name);
+                          if (item) removeFromWishlist(item.id);
+                        }}
+                        compact
+                      />
+                    </div>
+                  </div>
+
+                  {/* Expanded content */}
+                  {isExpanded && (
+                    <div className="px-4 pb-4 pt-1 pl-11 bg-gray-50">
+                      <p className="text-gray-600 text-sm mb-3">{dish.description}</p>
+
+                      {/* Mobile tags (shown on expand) */}
+                      <div className="flex flex-wrap gap-1.5 sm:hidden mb-3">
+                        {detectedRegion && (
+                          <span
+                            className="text-xs px-2 py-0.5 rounded-full"
+                            style={{
+                              backgroundColor: `${colors.primary}15`,
+                              color: colors.primary,
+                            }}
+                          >
+                            {getShortRegionName(detectedRegion)}
+                          </span>
+                        )}
+                        {dish.spiceLevel && dish.spiceLevel !== 'none' && (
+                          <span className={`text-xs px-2 py-0.5 rounded ${
+                            dish.spiceLevel === 'mild' ? 'bg-yellow-100 text-yellow-800' :
+                            dish.spiceLevel === 'medium' ? 'bg-orange-100 text-orange-800' :
+                            dish.spiceLevel === 'hot' ? 'bg-red-100 text-red-800' :
+                            'bg-red-200 text-red-900'
+                          }`}>
+                            {dish.spiceLevel === 'very-hot' ? 'Very Hot' : dish.spiceLevel.charAt(0).toUpperCase() + dish.spiceLevel.slice(1)}
+                          </span>
+                        )}
+                        {dish.isStreetFood && (
+                          <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>Street Food</span>
+                        )}
+                      </div>
+
+                      {/* Category and dietary info */}
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded capitalize">
+                          {dish.category}
+                        </span>
+                        {dish.dietary?.isVegan && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegan</span>
+                        )}
+                        {dish.dietary?.isVegetarian && !dish.dietary?.isVegan && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegetarian</span>
+                        )}
+                        {dish.dietary?.isVegetarianFriendly && !dish.dietary?.isVegetarian && !dish.dietary?.isVegan && (
+                          <span className="text-xs bg-lime-100 text-lime-800 px-2 py-0.5 rounded">Veg-Friendly</span>
+                        )}
+                        {dish.dietary?.isGlutenFree && (
+                          <span className="text-xs bg-sky-100 text-sky-800 px-2 py-0.5 rounded">GF</span>
+                        )}
+                        {dish.dietary?.isDairyFree && (
+                          <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">DF</span>
+                        )}
+                        {dish.dietary?.isHalal && (
+                          <span className="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded">Halal</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Regional Cuisines - Stylized Map */}
+        {country.regionalVariations && country.regionalVariations.length > 0 && (
+          <section>
+            <h2
+              className="text-xl font-semibold mb-4"
+              style={{ color: colors.text }}
+            >
+              Regional Cuisines
+            </h2>
+            <RegionalMap
+              countryId={country.id}
+              regions={country.regionalVariations}
+              colors={colors}
+            />
           </section>
         )}
-
-        {/* Cuisine Profile */}
-        <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Cuisine Profile</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="font-medium text-gray-900 mb-3">Flavor Profile</h3>
-              <div className="flex flex-wrap gap-2">
-                {country.cuisineProfile.flavorProfile.map((flavor) => (
-                  <span key={flavor} className="bg-rose-100 text-rose-800 text-sm px-3 py-1 rounded-full">
-                    {flavor}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="font-medium text-gray-900 mb-3">Key Ingredients</h3>
-              <div className="flex flex-wrap gap-2">
-                {country.cuisineProfile.keyIngredients.map((ingredient) => (
-                  <span key={ingredient} className="bg-emerald-100 text-emerald-800 text-sm px-3 py-1 rounded-full">
-                    {ingredient}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="font-medium text-gray-900 mb-3">Cooking Techniques</h3>
-              <div className="flex flex-wrap gap-2">
-                {country.cuisineProfile.cookingTechniques.map((technique) => (
-                  <span key={technique} className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                    {technique}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="font-medium text-gray-900 mb-3">Spices & Seasonings</h3>
-              <div className="flex flex-wrap gap-2">
-                {country.cuisineProfile.spicesAndSeasonings.map((spice) => (
-                  <span key={spice} className="bg-amber-100 text-amber-800 text-sm px-3 py-1 rounded-full">
-                    {spice}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Popular Dishes */}
-        <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Popular Dishes</h2>
-
-          <div className="space-y-4">
-            {country.popularDishes.map((dish) => (
-              <div key={dish.name} className="bg-white rounded-lg border border-gray-200 p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h3 className="font-medium text-gray-900">{dish.name}</h3>
-                    {dish.englishName && (
-                      <p className="text-sm text-gray-500">{dish.englishName}</p>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 justify-end">
-                    {/* Popularity */}
-                    {dish.popularity === 'local-favorite' && (
-                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded">
-                        Local Favorite
-                      </span>
-                    )}
-                    {dish.popularity === 'tourist-classic' && (
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                        Tourist Classic
-                      </span>
-                    )}
-                    {/* Spice Level */}
-                    {dish.spiceLevel === 'mild' && (
-                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
-                        Mild
-                      </span>
-                    )}
-                    {dish.spiceLevel === 'medium' && (
-                      <span className="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded">
-                        Medium
-                      </span>
-                    )}
-                    {dish.spiceLevel === 'hot' && (
-                      <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">
-                        Hot
-                      </span>
-                    )}
-                    {dish.spiceLevel === 'very-hot' && (
-                      <span className="text-xs bg-red-200 text-red-900 px-2 py-0.5 rounded">
-                        Very Hot
-                      </span>
-                    )}
-                    {/* Difficulty */}
-                    {dish.difficulty === 'easy' && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
-                        Easy
-                      </span>
-                    )}
-                    {dish.difficulty === 'medium' && (
-                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
-                        Medium
-                      </span>
-                    )}
-                    {dish.difficulty === 'hard' && (
-                      <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">
-                        Hard
-                      </span>
-                    )}
-                    {/* Street Food */}
-                    {dish.isStreetFood && (
-                      <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
-                        Street Food
-                      </span>
-                    )}
-                    {/* Category */}
-                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded capitalize">
-                      {dish.category}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-gray-700 text-sm">{dish.description}</p>
-
-                {/* Dietary Info & Region */}
-                <div className="flex flex-wrap items-center gap-2 mt-3">
-                  {dish.dietary?.isVegan && (
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
-                      Vegan
-                    </span>
-                  )}
-                  {dish.dietary?.isVegetarian && !dish.dietary?.isVegan && (
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
-                      Vegetarian
-                    </span>
-                  )}
-                  {dish.dietary?.isVegetarianFriendly && !dish.dietary?.isVegetarian && !dish.dietary?.isVegan && (
-                    <span className="text-xs bg-lime-100 text-lime-800 px-2 py-0.5 rounded">
-                      Veg-Friendly
-                    </span>
-                  )}
-                  {dish.dietary?.isGlutenFree && (
-                    <span className="text-xs bg-sky-100 text-sky-800 px-2 py-0.5 rounded">
-                      GF
-                    </span>
-                  )}
-                  {dish.dietary?.isDairyFree && (
-                    <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">
-                      DF
-                    </span>
-                  )}
-                  {dish.dietary?.isHalal && (
-                    <span className="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded">
-                      Halal
-                    </span>
-                  )}
-                  {dish.regionalOrigin && (
-                    <span className="text-xs text-gray-500">
-                      Region: {dish.regionalOrigin}
-                    </span>
-                  )}
-                </div>
-
-                {/* Want to Try Button */}
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <WantToTryButton
-                    isOnWishlist={isOnWishlist(country.id, dish.name)}
-                    onAdd={() => addToWishlist({
-                      countryId: country.id,
-                      dishName: dish.name,
-                      englishName: dish.englishName,
-                    })}
-                    onRemove={() => {
-                      const item = findWishlistItem(country.id, dish.name);
-                      if (item) removeFromWishlist(item.id);
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
       </main>
     </div>
   );

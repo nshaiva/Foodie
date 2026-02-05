@@ -1,15 +1,38 @@
+import { systemColors } from '../data/systemColors';
+
 interface WantToTryButtonProps {
   isOnWishlist: boolean;
   onAdd: () => void;
   onRemove: () => void;
+  compact?: boolean;
 }
 
-export function WantToTryButton({ isOnWishlist, onAdd, onRemove }: WantToTryButtonProps) {
+export function WantToTryButton({ isOnWishlist, onAdd, onRemove, compact = false }: WantToTryButtonProps) {
+  if (compact) {
+    // Compact version: just heart icon
+    return (
+      <button
+        onClick={isOnWishlist ? onRemove : onAdd}
+        className="p-2 rounded-full transition-colors"
+        style={{
+          backgroundColor: isOnWishlist ? systemColors.tomato : systemColors.tomatoLight,
+          color: isOnWishlist ? 'white' : systemColors.tomato
+        }}
+        title={isOnWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+      >
+        <svg className="w-4 h-4" fill={isOnWishlist ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </button>
+    );
+  }
+
   if (isOnWishlist) {
     return (
       <button
         onClick={onRemove}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-500 text-white text-xs rounded-md hover:bg-rose-600 transition-colors"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-white text-xs rounded-md transition-colors"
+        style={{ backgroundColor: systemColors.tomato }}
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -22,7 +45,8 @@ export function WantToTryButton({ isOnWishlist, onAdd, onRemove }: WantToTryButt
   return (
     <button
       onClick={onAdd}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-600 text-xs rounded-md hover:bg-rose-100 transition-colors"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors"
+      style={{ backgroundColor: systemColors.tomatoLight, color: systemColors.tomato }}
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />

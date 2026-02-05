@@ -1,17 +1,19 @@
 import { Link } from 'react-router-dom';
 import type { Country } from '../data/types';
+import { systemColors } from '../data/systemColors';
 
 interface CountryCardProps {
   country: Country;
 }
 
-const continentColors: Record<string, string> = {
-  'Africa': 'bg-amber-100 text-amber-800',
-  'Asia': 'bg-rose-100 text-rose-800',
-  'Europe': 'bg-blue-100 text-blue-800',
-  'North America': 'bg-emerald-100 text-emerald-800',
-  'South America': 'bg-purple-100 text-purple-800',
-  'Oceania': 'bg-cyan-100 text-cyan-800',
+// Using system colors for continent badges
+const continentColors: Record<string, { bg: string; text: string }> = {
+  'Africa': { bg: systemColors.saffronLight, text: systemColors.navy },
+  'Asia': { bg: systemColors.tomatoLight, text: systemColors.navy },
+  'Europe': { bg: `${systemColors.navy}15`, text: systemColors.navy },
+  'North America': { bg: systemColors.herbLight, text: systemColors.navy },
+  'South America': { bg: `${systemColors.tomato}20`, text: systemColors.navy },
+  'Oceania': { bg: `${systemColors.herb}20`, text: systemColors.navy },
 };
 
 export function CountryCard({ country }: CountryCardProps) {
@@ -23,7 +25,13 @@ export function CountryCard({ country }: CountryCardProps) {
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
           <h3 className="text-lg font-semibold text-gray-900">{country.name}</h3>
-          <span className={`text-xs px-2 py-1 rounded-full ${continentColors[country.continent] || 'bg-gray-100 text-gray-800'}`}>
+          <span
+            className="text-xs px-2 py-1 rounded-full"
+            style={{
+              backgroundColor: continentColors[country.continent]?.bg || '#f3f4f6',
+              color: continentColors[country.continent]?.text || systemColors.navy
+            }}
+          >
             {country.continent}
           </span>
         </div>
