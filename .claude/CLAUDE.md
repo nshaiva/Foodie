@@ -89,17 +89,32 @@ foodie/
 - **Violet** - Cooking attempts
 - **Rose** - Wishlist
 
-## Cuisine Profile Visualizations
+## Country Detail Carousel
 
-The Country Detail page includes three visualizations in the Cuisine Profile section:
+The Country Detail page uses a carousel with three slides:
 
-### Flavor Radar Chart
+### Tab 1: Culture & Regions
+- Combined slide showing food culture and regional cuisines
+- **Left panel**: Interactive regional map with clickable bubbles
+  - Uses react-simple-maps for country geography
+  - Region bubbles show short names, click to select
+  - Click map background to return to Overview
+  - Label badge shows current selection ("Overview" or region name)
+- **Right panel**: Swaps between two views:
+  - **Overview** (default): Meal Structure, Dining Customs, Historical Influences
+  - **Region detail**: Overview, Signature Dishes, Key Ingredients, Distinctive Traits
+- Countries without regional data show only the culture overview
+
+### Tab 2: Profile (Cuisine Visualizations)
+Three visualizations for the cuisine profile:
+
+#### Flavor Radar Chart
 - Hexagonal radar chart showing flavor intensity (1-10 scale)
 - Axes: Heat, Acidity, Sweet, Umami, Aromatic, Smoke/Earth
 - Uses Recharts library
 - Country color palette for styling
 
-### Kitchen Constellation (Ingredients)
+#### Kitchen Constellation (Ingredients)
 - D3.js force-directed layout showing ingredients and spices
 - Emoji icons by category:
   - 🥣 Spices (dried spices, specialty)
@@ -112,12 +127,17 @@ The Country Detail page includes three visualizations in the Cuisine Profile sec
 - Dashed lines connect commonly paired ingredients (e.g., "fish sauce + lime + cilantro")
 - Ingredient taxonomy with pattern-based classification in `data/ingredientTaxonomy.ts`
 
-### Cooking Flow
+#### Cooking Flow
 - Visual flow showing typical cooking progression for each cuisine
 - Emoji-labeled steps connected by arrows
 - Example: "Pound aromatics → Fry paste → Simmer curry → Finish with herbs"
 - Data stored in `cuisineProfile.cookingFlow` as array of `CookingStep` objects
-- Makes cooking techniques feel alive, not just labels
+
+### Tab 3: Dishes
+- Expandable list of popular dishes
+- Each dish shows: name, key traits, region, spice level
+- Expand to see description, category, dietary info
+- Favorite (heart) and Want to Try (bookmark) buttons
 
 ## Build Commands
 
