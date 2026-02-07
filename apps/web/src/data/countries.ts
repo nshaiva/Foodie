@@ -29,7 +29,8 @@ export const countries: Country[] = [
         sweetness: 7,
         umami: 7,
         aromatic: 9,
-        smokeEarth: 3
+        smokeEarth: 3,
+        interpretation: "Bold and aromatic with bright balance of heat and sour, creating signature Thai flavor harmony."
       },
       keyIngredients: ["jasmine rice", "fish sauce (nam pla)", "coconut milk", "palm sugar", "tamarind", "lime", "shrimp paste", "rice noodles"],
       cookingTechniques: ["stir-frying (pad)", "grilling (yang)", "boiling/simmering curries", "pounding in mortar and pestle", "deep-frying"],
@@ -43,31 +44,31 @@ export const countries: Country[] = [
       spicesAndSeasonings: ["Thai chilies", "galangal", "lemongrass", "kaffir lime leaves", "Thai basil", "cilantro (roots, stems, leaves)", "garlic", "shallots", "turmeric", "coriander seeds", "cumin"],
       ingredientTiers: {
         foundation: [
-          { name: "Fish Sauce", emoji: "🐟" },
-          { name: "Coconut Milk", emoji: "🥥" },
-          { name: "Thai Chilies", emoji: "🌶️" },
-          { name: "Lime", emoji: "🍋" }
+          { name: "Fish Sauce", emoji: "🐟", description: "Fermented anchovy extract providing deep umami—the backbone of Thai cooking." },
+          { name: "Coconut Milk", emoji: "🥥", description: "Rich, creamy base for curries, soups, and desserts." },
+          { name: "Thai Chilies", emoji: "🌶️", description: "Small but intensely hot bird's eye chilies for signature Thai heat." },
+          { name: "Lime", emoji: "🍋", description: "Bright, sour notes essential for balancing Thai dishes." }
         ],
         aromaticCore: [
-          { name: "Lemongrass", emoji: "🌿" },
-          { name: "Galangal", emoji: "🫚" },
-          { name: "Kaffir Lime", emoji: "🍃" },
-          { name: "Thai Basil", emoji: "🌿" },
-          { name: "Cilantro", emoji: "🌱" }
+          { name: "Lemongrass", emoji: "🌿", description: "Citrusy, floral stalk bruised for soups and curries." },
+          { name: "Galangal", emoji: "🫚", description: "Sharp, piney rhizome essential in tom yum and curry pastes." },
+          { name: "Kaffir Lime", emoji: "🍃", description: "Intensely aromatic leaves with distinctive citrus perfume." },
+          { name: "Thai Basil", emoji: "🌿", description: "Purple-stemmed basil with anise-like flavor for stir-fries." },
+          { name: "Cilantro", emoji: "🌱", description: "Used root to leaf—roots in pastes, leaves as garnish." }
         ],
         flavorBuilders: [
-          { name: "Shallots", emoji: "🧅" },
-          { name: "Garlic", emoji: "🧄" },
-          { name: "Palm Sugar", emoji: "🍯" },
-          { name: "Tamarind", emoji: "🫘" },
-          { name: "Shrimp Paste", emoji: "🦐" },
-          { name: "Coriander Seeds", emoji: "🫛" },
-          { name: "Turmeric", emoji: "🟡" }
+          { name: "Shallots", emoji: "🧅", description: "Mild, sweet onion used raw, fried crispy, or in pastes." },
+          { name: "Garlic", emoji: "🧄", description: "Used generously, often fried golden or pounded into pastes." },
+          { name: "Palm Sugar", emoji: "🍯", description: "Caramel-flavored sweetness that balances sour and spicy." },
+          { name: "Tamarind", emoji: "🫘", description: "Sour fruit paste for authentic sweet-sour balance." },
+          { name: "Shrimp Paste", emoji: "🦐", description: "Pungent fermented paste adding deep savory depth." },
+          { name: "Coriander Seeds", emoji: "🫛", description: "Toasted for curry pastes, warm citrusy base notes." },
+          { name: "Turmeric", emoji: "🟡", description: "Earthy root for color and warmth in southern dishes." }
         ],
         staples: [
-          { name: "Jasmine Rice", emoji: "🍚" },
-          { name: "Rice Noodles", emoji: "🍜" },
-          { name: "Tofu", emoji: "🧈" }
+          { name: "Jasmine Rice", emoji: "🍚", description: "Fragrant long-grain rice served with every meal." },
+          { name: "Rice Noodles", emoji: "🍜", description: "Chewy noodles for pad Thai and stir-fries." },
+          { name: "Tofu", emoji: "🧈", description: "Versatile protein fried golden or silken in soups." }
         ]
       }
     },
@@ -216,7 +217,8 @@ export const countries: Country[] = [
         sweetness: 4,
         umami: 6,
         aromatic: 7,
-        smokeEarth: 9
+        smokeEarth: 9,
+        interpretation: "Rich layers of smoky chilies, earthy spices, and bright citrus with moderate heat."
       },
       keyIngredients: ["corn (maize)", "dried and fresh chilies", "black beans", "tomatoes", "tomatillos", "avocado", "lime", "queso fresco", "crema"],
       cookingTechniques: ["nixtamalization (corn processing)", "dry-roasting chilies and spices", "braising and stewing", "grilling (al carbon)", "frying"],
@@ -230,32 +232,32 @@ export const countries: Country[] = [
       spicesAndSeasonings: ["cumin", "oregano (Mexican)", "epazote", "cilantro", "cinnamon", "cloves", "achiote (annatto)", "dried chilies (ancho, guajillo, chipotle, pasilla)"],
       ingredientTiers: {
         foundation: [
-          { name: "Corn", emoji: "🌽" },
-          { name: "Dried Chilies", emoji: "🌶️" },
-          { name: "Lime", emoji: "🍋" },
-          { name: "Black Beans", emoji: "🫘" }
+          { name: "Corn", emoji: "🌽", description: "Sacred crop nixtamalized into masa for tortillas and tamales." },
+          { name: "Dried Chilies", emoji: "🌶️", description: "Dozens of varieties toasted and rehydrated for sauces and moles." },
+          { name: "Lime", emoji: "🍋", description: "Essential brightness squeezed over tacos and into salsas." },
+          { name: "Black Beans", emoji: "🫘", description: "Creamy, earthy legume served whole or refried." }
         ],
         aromaticCore: [
-          { name: "Cilantro", emoji: "🌿" },
-          { name: "Epazote", emoji: "🌱" },
-          { name: "Cumin", emoji: "🫛" },
-          { name: "Mexican Oregano", emoji: "🍃" },
-          { name: "Cinnamon", emoji: "🪵" }
+          { name: "Cilantro", emoji: "🌿", description: "Fresh, citrusy herb defining Mexican freshness." },
+          { name: "Epazote", emoji: "🌱", description: "Pungent herb essential in black beans, aids digestion." },
+          { name: "Cumin", emoji: "🫛", description: "Earthy warmth for meat rubs and northern dishes." },
+          { name: "Mexican Oregano", emoji: "🍃", description: "Citrusy oregano for salsas, moles, and beans." },
+          { name: "Cinnamon", emoji: "🪵", description: "Ceylon cinnamon adding warmth to moles and chocolate." }
         ],
         flavorBuilders: [
-          { name: "Tomatoes", emoji: "🍅" },
-          { name: "Tomatillos", emoji: "🟢" },
-          { name: "Onion", emoji: "🧅" },
-          { name: "Garlic", emoji: "🧄" },
-          { name: "Avocado", emoji: "🥑" },
-          { name: "Achiote", emoji: "🟠" },
-          { name: "Chocolate", emoji: "🍫" }
+          { name: "Tomatoes", emoji: "🍅", description: "Charred or fresh, foundation of red salsas." },
+          { name: "Tomatillos", emoji: "🟢", description: "Tangy base for salsa verde and green moles." },
+          { name: "Onion", emoji: "🧅", description: "White onions charred, pickled, or raw on tacos." },
+          { name: "Garlic", emoji: "🧄", description: "Roasted or charred for adobos and moles." },
+          { name: "Avocado", emoji: "🥑", description: "Creamy richness mashed into guacamole." },
+          { name: "Achiote", emoji: "🟠", description: "Earthy annatto paste coloring Yucatecan dishes." },
+          { name: "Chocolate", emoji: "🍫", description: "Unsweetened, adding depth to complex moles." }
         ],
         staples: [
-          { name: "Tortillas", emoji: "🫓" },
-          { name: "Queso Fresco", emoji: "🧀" },
-          { name: "Crema", emoji: "🥛" },
-          { name: "Rice", emoji: "🍚" }
+          { name: "Tortillas", emoji: "🫓", description: "Fresh corn or flour flatbreads—plate, utensil, wrapper." },
+          { name: "Queso Fresco", emoji: "🧀", description: "Mild, crumbly cheese that softens but doesn't melt." },
+          { name: "Crema", emoji: "🥛", description: "Tangy cream drizzled over tacos and enchiladas." },
+          { name: "Rice", emoji: "🍚", description: "Red rice cooked in tomato broth." }
         ]
       }
     },
@@ -404,7 +406,8 @@ export const countries: Country[] = [
         sweetness: 5,
         umami: 10,
         aromatic: 5,
-        smokeEarth: 4
+        smokeEarth: 4,
+        interpretation: "Subtle umami depth with delicate aromatics and minimal heat, emphasizing pure ingredient flavors."
       },
       keyIngredients: ["short-grain rice", "soy sauce (shoyu)", "dashi (seaweed and bonito stock)", "miso", "mirin", "sake", "tofu", "seafood", "nori (seaweed)"],
       cookingTechniques: ["raw preparation (sashimi)", "grilling (yakitori, robata)", "deep-frying (tempura, tonkatsu)", "simmering (nimono)", "steaming"],
@@ -418,31 +421,31 @@ export const countries: Country[] = [
       spicesAndSeasonings: ["wasabi", "ginger", "shichimi togarashi", "sesame (seeds and oil)", "shiso", "mitsuba", "yuzu", "sancho pepper"],
       ingredientTiers: {
         foundation: [
-          { name: "Soy Sauce", emoji: "🫘" },
-          { name: "Dashi", emoji: "🍵" },
-          { name: "Miso", emoji: "🥣" },
-          { name: "Rice", emoji: "🍚" }
+          { name: "Soy Sauce", emoji: "🫘", description: "Fermented soybean sauce providing salt and umami." },
+          { name: "Dashi", emoji: "🍵", description: "Kombu and bonito stock—the umami foundation." },
+          { name: "Miso", emoji: "🥣", description: "Fermented soybean paste for soups and glazes." },
+          { name: "Rice", emoji: "🍚", description: "Short-grain japonica served with every meal." }
         ],
         aromaticCore: [
-          { name: "Wasabi", emoji: "🟢" },
-          { name: "Ginger", emoji: "🫚" },
-          { name: "Shiso", emoji: "🌿" },
-          { name: "Nori", emoji: "🍙" },
-          { name: "Yuzu", emoji: "🍋" }
+          { name: "Wasabi", emoji: "🟢", description: "Pungent horseradish with floral heat for sushi." },
+          { name: "Ginger", emoji: "🫚", description: "Fresh or pickled pink, bright spicy-sweet notes." },
+          { name: "Shiso", emoji: "🌿", description: "Aromatic mint-basil leaves used fresh or pickled." },
+          { name: "Nori", emoji: "🍙", description: "Dried seaweed sheets with ocean umami." },
+          { name: "Yuzu", emoji: "🍋", description: "Floral citrus for ponzu and dressings." }
         ],
         flavorBuilders: [
-          { name: "Mirin", emoji: "🍶" },
-          { name: "Sake", emoji: "🍶" },
-          { name: "Sesame", emoji: "🫛" },
-          { name: "Bonito", emoji: "🐟" },
-          { name: "Kombu", emoji: "🌊" },
-          { name: "Tofu", emoji: "🧈" },
-          { name: "Scallion", emoji: "🧅" }
+          { name: "Mirin", emoji: "🍶", description: "Sweet rice wine adding sheen to glazes." },
+          { name: "Sake", emoji: "🍶", description: "Rice wine that tenderizes and removes fishiness." },
+          { name: "Sesame", emoji: "🫛", description: "Toasted seeds, paste, or oil for nutty richness." },
+          { name: "Bonito", emoji: "🐟", description: "Smoked tuna flakes, primary umami source." },
+          { name: "Kombu", emoji: "🌊", description: "Glutamate-rich kelp simmered for dashi." },
+          { name: "Tofu", emoji: "🧈", description: "Silken or firm soybean curd, versatile protein." },
+          { name: "Scallion", emoji: "🧅", description: "Green onions for garnish and hot pots." }
         ],
         staples: [
-          { name: "Short-grain Rice", emoji: "🍚" },
-          { name: "Udon", emoji: "🍜" },
-          { name: "Soba", emoji: "🍝" }
+          { name: "Short-grain Rice", emoji: "🍚", description: "Sticky rice for meals, onigiri, and sushi." },
+          { name: "Udon", emoji: "🍜", description: "Thick, chewy wheat noodles in broth." },
+          { name: "Soba", emoji: "🍝", description: "Nutty buckwheat noodles, chilled or hot." }
         ]
       }
     },
@@ -553,7 +556,8 @@ export const countries: Country[] = [
         sweetness: 3,
         umami: 8,
         aromatic: 6,
-        smokeEarth: 4
+        smokeEarth: 4,
+        interpretation: "Strong umami from aged cheeses and tomatoes, balanced acidity, aromatic herbs."
       },
       keyIngredients: ["olive oil", "tomatoes (fresh and canned San Marzano)", "Parmigiano-Reggiano", "pasta (dozens of shapes)", "cured pork (guanciale, pancetta, prosciutto)", "garlic", "white beans", "arborio rice"],
       cookingTechniques: ["sautéing in olive oil", "slow-simmering sauces (ragù)", "roasting", "grilling", "curing and aging meats/cheeses"],
@@ -567,32 +571,32 @@ export const countries: Country[] = [
       spicesAndSeasonings: ["basil", "oregano", "rosemary", "sage", "flat-leaf parsley", "garlic", "red pepper flakes (peperoncino)", "fennel seeds", "black pepper"],
       ingredientTiers: {
         foundation: [
-          { name: "Olive Oil", emoji: "🫒" },
-          { name: "Tomatoes", emoji: "🍅" },
-          { name: "Parmigiano", emoji: "🧀" },
-          { name: "Garlic", emoji: "🧄" }
+          { name: "Olive Oil", emoji: "🫒", description: "Extra virgin for finishing, the fat of Italian cuisine." },
+          { name: "Tomatoes", emoji: "🍅", description: "San Marzano for sauces, fresh for salads." },
+          { name: "Parmigiano", emoji: "🧀", description: "Aged 24+ months, crystalline umami for pasta." },
+          { name: "Garlic", emoji: "🧄", description: "Used with restraint, often cooked then removed." }
         ],
         aromaticCore: [
-          { name: "Basil", emoji: "🌿" },
-          { name: "Oregano", emoji: "🌿" },
-          { name: "Rosemary", emoji: "🌲" },
-          { name: "Sage", emoji: "🍃" },
-          { name: "Parsley", emoji: "🌱" }
+          { name: "Basil", emoji: "🌿", description: "Sweet herb for pesto and caprese, never cooked long." },
+          { name: "Oregano", emoji: "🌿", description: "Dried, for southern dishes and pizza." },
+          { name: "Rosemary", emoji: "🌲", description: "Piney herb for roasted meats and focaccia." },
+          { name: "Sage", emoji: "🍃", description: "Earthy, fried in butter for gnocchi and ravioli." },
+          { name: "Parsley", emoji: "🌱", description: "Flat-leaf, fresh garnish and gremolata." }
         ],
         flavorBuilders: [
-          { name: "White Wine", emoji: "🍷" },
-          { name: "Pecorino", emoji: "🧀" },
-          { name: "Guanciale", emoji: "🥓" },
-          { name: "Anchovies", emoji: "🐟" },
-          { name: "Capers", emoji: "🫒" },
-          { name: "Peperoncino", emoji: "🌶️" },
-          { name: "Black Pepper", emoji: "⚫" }
+          { name: "White Wine", emoji: "🍷", description: "Dry wine for deglazing and risotto." },
+          { name: "Pecorino", emoji: "🧀", description: "Sharp sheep's cheese for Roman pastas." },
+          { name: "Guanciale", emoji: "🥓", description: "Cured pork jowl for carbonara and amatriciana." },
+          { name: "Anchovies", emoji: "🐟", description: "Salt-cured, melts into sauces for umami." },
+          { name: "Capers", emoji: "🫒", description: "Briny buds adding piquant brightness." },
+          { name: "Peperoncino", emoji: "🌶️", description: "Dried chili flakes for gentle heat." },
+          { name: "Black Pepper", emoji: "⚫", description: "Star ingredient in cacio e pepe." }
         ],
         staples: [
-          { name: "Pasta", emoji: "🍝" },
-          { name: "Arborio Rice", emoji: "🍚" },
-          { name: "Bread", emoji: "🥖" },
-          { name: "Prosciutto", emoji: "🥓" }
+          { name: "Pasta", emoji: "🍝", description: "Dozens of shapes matched to specific sauces." },
+          { name: "Arborio Rice", emoji: "🍚", description: "High-starch rice for creamy risotto." },
+          { name: "Bread", emoji: "🥖", description: "Regional styles for mopping sauce." },
+          { name: "Prosciutto", emoji: "🥓", description: "Dry-cured ham, paper-thin slices." }
         ]
       }
     },
@@ -728,7 +732,8 @@ export const countries: Country[] = [
         sweetness: 2,
         umami: 7,
         aromatic: 9,
-        smokeEarth: 7
+        smokeEarth: 7,
+        interpretation: "Intense heat and complex spice from berbere, deep earthy notes from legumes and grains."
       },
       keyIngredients: ["teff flour (for injera)", "berbere spice blend", "niter kibbeh (spiced clarified butter)", "lentils", "chickpeas", "collard greens", "beef", "lamb", "chicken"],
       cookingTechniques: ["slow-simmering stews (wots)", "dry-frying spices", "fermenting (injera batter)", "clarifying and spicing butter", "raw meat preparation (kitfo, gored gored)"],
@@ -742,32 +747,32 @@ export const countries: Country[] = [
       spicesAndSeasonings: ["berbere (chili, fenugreek, coriander, cardamom, and more)", "mitmita (chili powder blend)", "korarima (Ethiopian cardamom)", "black cumin", "fenugreek", "bishop's weed (ajwain)", "rue"],
       ingredientTiers: {
         foundation: [
-          { name: "Berbere", emoji: "🌶️" },
-          { name: "Niter Kibbeh", emoji: "🧈" },
-          { name: "Teff", emoji: "🌾" },
-          { name: "Onions", emoji: "🧅" }
+          { name: "Berbere", emoji: "🌶️", description: "Complex chili-spice blend defining Ethiopian flavor." },
+          { name: "Niter Kibbeh", emoji: "🧈", description: "Spiced clarified butter for rich, aromatic depth." },
+          { name: "Teff", emoji: "🌾", description: "Tiny grain ground into flour for injera." },
+          { name: "Onions", emoji: "🧅", description: "Slowly caramelized, the base of every wot." }
         ],
         aromaticCore: [
-          { name: "Korarima", emoji: "🫛" },
-          { name: "Fenugreek", emoji: "🌿" },
-          { name: "Black Cumin", emoji: "⚫" },
-          { name: "Ginger", emoji: "🫚" },
-          { name: "Garlic", emoji: "🧄" }
+          { name: "Korarima", emoji: "🫛", description: "Ethiopian cardamom with eucalyptus notes." },
+          { name: "Fenugreek", emoji: "🌿", description: "Slightly bitter, maple-like aroma in berbere." },
+          { name: "Black Cumin", emoji: "⚫", description: "Earthy, onion-like nigella seeds." },
+          { name: "Ginger", emoji: "🫚", description: "Fresh warmth in niter kibbeh and wots." },
+          { name: "Garlic", emoji: "🧄", description: "Used abundantly with ginger for depth." }
         ],
         flavorBuilders: [
-          { name: "Red Lentils", emoji: "🟠" },
-          { name: "Chickpeas", emoji: "🫘" },
-          { name: "Collard Greens", emoji: "🥬" },
-          { name: "Tomatoes", emoji: "🍅" },
-          { name: "Mitmita", emoji: "🔴" },
-          { name: "Cardamom", emoji: "🫛" },
-          { name: "Coriander", emoji: "🌱" }
+          { name: "Red Lentils", emoji: "🟠", description: "Quick-cooking protein for misir wot." },
+          { name: "Chickpeas", emoji: "🫘", description: "Ground into shiro or cooked whole." },
+          { name: "Collard Greens", emoji: "🥬", description: "Gomen, sautéed with garlic and ginger." },
+          { name: "Tomatoes", emoji: "🍅", description: "Acidity and color in wots and sauces." },
+          { name: "Mitmita", emoji: "🔴", description: "Fiery chili powder for kitfo and tibs." },
+          { name: "Cardamom", emoji: "🫛", description: "Floral sweetness in berbere and coffee." },
+          { name: "Coriander", emoji: "🌱", description: "Toasted seeds for warm, citrusy notes." }
         ],
         staples: [
-          { name: "Injera", emoji: "🫓" },
-          { name: "Beef", emoji: "🥩" },
-          { name: "Lamb", emoji: "🍖" },
-          { name: "Chicken", emoji: "🍗" }
+          { name: "Injera", emoji: "🫓", description: "Spongy, sour flatbread—plate and utensil." },
+          { name: "Beef", emoji: "🥩", description: "In wots, tibs, or raw as kitfo." },
+          { name: "Lamb", emoji: "🍖", description: "Fattier, flavorful meat for wots and tibs." },
+          { name: "Chicken", emoji: "🍗", description: "Special occasion doro wot with eggs." }
         ]
       }
     },
@@ -878,7 +883,8 @@ export const countries: Country[] = [
         sweetness: 3,
         umami: 5,
         aromatic: 6,
-        smokeEarth: 5
+        smokeEarth: 5,
+        interpretation: "Bright acidity from lime and ají peppers, balanced heat, subtle umami from seafood."
       },
       keyIngredients: ["ají amarillo (yellow pepper)", "lime", "potatoes (thousands of varieties)", "corn (choclo)", "seafood", "quinoa", "cilantro", "ají panca", "huacatay (black mint)"],
       cookingTechniques: ["curing in citrus (ceviche)", "stir-frying (from chifa influence)", "braising and stewing", "grilling (anticuchos)", "pachamanca (earth oven cooking)"],
@@ -892,31 +898,31 @@ export const countries: Country[] = [
       spicesAndSeasonings: ["ají amarillo", "ají panca", "ají rocoto", "cumin", "garlic", "cilantro", "huacatay", "chincho", "palillo (Peruvian turmeric)"],
       ingredientTiers: {
         foundation: [
-          { name: "Ají Amarillo", emoji: "🌶️" },
-          { name: "Lime", emoji: "🍋" },
-          { name: "Potatoes", emoji: "🥔" },
-          { name: "Corn", emoji: "🌽" }
+          { name: "Ají Amarillo", emoji: "🌶️", description: "Fruity yellow pepper, backbone of Peruvian cuisine." },
+          { name: "Lime", emoji: "🍋", description: "Bright acidity for ceviche and everything else." },
+          { name: "Potatoes", emoji: "🥔", description: "Over 3,000 varieties in every color." },
+          { name: "Corn", emoji: "🌽", description: "Giant choclo with ceviche, dried for cancha." }
         ],
         aromaticCore: [
-          { name: "Cilantro", emoji: "🌿" },
-          { name: "Huacatay", emoji: "🌱" },
-          { name: "Ají Panca", emoji: "🔴" },
-          { name: "Ají Rocoto", emoji: "🫑" },
-          { name: "Cumin", emoji: "🫛" }
+          { name: "Cilantro", emoji: "🌿", description: "Fresh herb essential in ceviche and sauces." },
+          { name: "Huacatay", emoji: "🌱", description: "Black mint with anise-tarragon flavor." },
+          { name: "Ají Panca", emoji: "🔴", description: "Mild, fruity dried pepper for adobos." },
+          { name: "Ají Rocoto", emoji: "🫑", description: "Apple-shaped pepper with intense heat." },
+          { name: "Cumin", emoji: "🫛", description: "Earthy warmth in anticuchos and sauces." }
         ],
         flavorBuilders: [
-          { name: "Red Onion", emoji: "🧅" },
-          { name: "Garlic", emoji: "🧄" },
-          { name: "Soy Sauce", emoji: "🫘" },
-          { name: "Vinegar", emoji: "🫙" },
-          { name: "Sweet Potato", emoji: "🍠" },
-          { name: "Cancha", emoji: "🌽" },
-          { name: "Palillo", emoji: "🟡" }
+          { name: "Red Onion", emoji: "🧅", description: "Thin-sliced and lime-soaked for ceviche." },
+          { name: "Garlic", emoji: "🧄", description: "Generous in escabeches and ají sauces." },
+          { name: "Soy Sauce", emoji: "🫘", description: "Chifa influence, umami in lomo saltado." },
+          { name: "Vinegar", emoji: "🫙", description: "Tangy in escabeches and anticucho marinade." },
+          { name: "Sweet Potato", emoji: "🍠", description: "Orange camote for sweetness with ceviche." },
+          { name: "Cancha", emoji: "🌽", description: "Toasted corn kernels for crunchy contrast." },
+          { name: "Palillo", emoji: "🟡", description: "Mild Peruvian turmeric for golden color." }
         ],
         staples: [
-          { name: "Fresh Fish", emoji: "🐟" },
-          { name: "Rice", emoji: "🍚" },
-          { name: "Quinoa", emoji: "🌾" }
+          { name: "Fresh Fish", emoji: "🐟", description: "Pacific corvina and sea bass for ceviche." },
+          { name: "Rice", emoji: "🍚", description: "Served alongside most main dishes." },
+          { name: "Quinoa", emoji: "🌾", description: "Ancient Andean grain, protein-rich." }
         ]
       }
     },

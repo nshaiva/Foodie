@@ -49,6 +49,7 @@ export interface FlavorIntensity {
   umami: number;      // 1-10
   aromatic: number;   // 1-10
   smokeEarth: number; // 1-10
+  interpretation?: string;  // One-sentence summary of the flavor profile
 }
 
 export interface CookingStep {
@@ -59,6 +60,7 @@ export interface CookingStep {
 export interface TieredIngredient {
   name: string;
   emoji: string;
+  description?: string;  // 1-2 sentence description for modal
 }
 
 export interface IngredientTiers {

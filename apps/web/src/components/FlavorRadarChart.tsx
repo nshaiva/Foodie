@@ -15,7 +15,10 @@ interface FlavorRadarChartProps {
   size?: number;
 }
 
-const axisDescriptions: Record<keyof FlavorIntensity, string> = {
+// Flavor axes are the numeric properties (excluding interpretation)
+type FlavorAxis = 'heat' | 'acidity' | 'sweetness' | 'umami' | 'aromatic' | 'smokeEarth';
+
+const axisDescriptions: Record<FlavorAxis, string> = {
   heat: 'Spiciness and chili intensity',
   acidity: 'Sour, tangy, citrus brightness',
   sweetness: 'Sweet notes in savory dishes',
@@ -24,7 +27,7 @@ const axisDescriptions: Record<keyof FlavorIntensity, string> = {
   smokeEarth: 'Smoky, earthy, charred notes',
 };
 
-const axisLabels: Record<keyof FlavorIntensity, string> = {
+const axisLabels: Record<FlavorAxis, string> = {
   heat: 'Heat',
   acidity: 'Acidity',
   sweetness: 'Sweet',
@@ -43,7 +46,7 @@ export function FlavorRadarChart({ flavorIntensity, colors }: FlavorRadarChartPr
     { axis: 'Smoke', value: flavorIntensity.smokeEarth, fullMark: 10, key: 'smokeEarth' },
   ];
 
-  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: { axis: string; value: number; key: keyof FlavorIntensity } }> }) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: { axis: string; value: number; key: FlavorAxis } }> }) => {
     if (active && payload && payload.length) {
       const item = payload[0].payload;
       return (
@@ -67,38 +70,45 @@ export function FlavorRadarChart({ flavorIntensity, colors }: FlavorRadarChartPr
   };
 
   return (
-    <div className="w-full h-64 md:h-72">
-      <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-          <PolarGrid
-            stroke={`${colors.text}20`}
-            strokeWidth={1}
-          />
-          <PolarAngleAxis
-            dataKey="axis"
-            tick={{
-              fill: colors.text,
-              fontSize: 12,
-            }}
-            tickLine={false}
-          />
-          <PolarRadiusAxis
-            angle={90}
-            domain={[0, 10]}
-            tick={false}
-            axisLine={false}
-          />
-          <Radar
-            name="Flavor Intensity"
-            dataKey="value"
-            stroke={colors.primary}
-            fill={colors.primary}
-            fillOpacity={0.3}
-            strokeWidth={2}
-          />
-          <Tooltip content={<CustomTooltip />} />
-        </RadarChart>
-      </ResponsiveContainer>
+    <div className="w-full">
+      <div className="h-64 md:h-72">
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+            <PolarGrid
+              stroke={`${colors.text}20`}
+              strokeWidth={1}
+            />
+            <PolarAngleAxis
+              dataKey="axis"
+              tick={{
+                fill: colors.text,
+                fontSize: 12,
+              }}
+              tickLine={false}
+            />
+            <PolarRadiusAxis
+              angle={90}
+              domain={[0, 10]}
+              tick={false}
+              axisLine={false}
+            />
+            <Radar
+              name="Flavor Intensity"
+              dataKey="value"
+              stroke={colors.primary}
+              fill={colors.primary}
+              fillOpacity={0.3}
+              strokeWidth={2}
+            />
+            <Tooltip content={<CustomTooltip />} />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
+      {flavorIntensity.interpretation && (
+        <p className="text-sm text-gray-600 text-center mt-3 italic max-w-xs mx-auto">
+          {flavorIntensity.interpretation}
+        </p>
+      )}
     </div>
   );
 }

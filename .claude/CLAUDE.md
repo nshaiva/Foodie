@@ -108,29 +108,31 @@ The Country Detail page uses a carousel with three slides:
 ### Tab 2: Profile (Cuisine Visualizations)
 Three visualizations for the cuisine profile:
 
-#### Flavor Radar Chart
+#### Flavor Radar Chart (Flavor Fingerprint)
 - Hexagonal radar chart showing flavor intensity (1-10 scale)
 - Axes: Heat, Acidity, Sweet, Umami, Aromatic, Smoke/Earth
 - Uses Recharts library
 - Country color palette for styling
+- Interpretive text below chart summarizing the cuisine's flavor profile
+- Data: `flavorIntensity.interpretation` field
 
-#### Kitchen Constellation (Ingredients)
-- D3.js force-directed layout showing ingredients and spices
-- Emoji icons by category:
-  - 🥣 Spices (dried spices, specialty)
-  - 🌿 Herbs (fresh herbs)
-  - 🥓 Proteins (meat, seafood, plant-based)
-  - 🌾 Vegetables (produce)
-  - 🍚 Starches (rice, noodles, grains)
-  - 🍶 Sauces (fermented, condiments)
-- Signature ingredients shown larger than supporting ingredients
-- Dashed lines connect commonly paired ingredients (e.g., "fish sauce + lime + cilantro")
-- Ingredient taxonomy with pattern-based classification in `data/ingredientTaxonomy.ts`
+#### Ingredient Pyramid (Kitchen Constellation)
+- Tiered layout showing ingredients by importance:
+  - **Foundation**: Essential ingredients you can't cook without
+  - **Aromatic Core**: Signature aromatics defining the cuisine
+  - **Flavor Builders**: Supporting ingredients for depth
+  - **Staples**: Base starches and proteins
+- Tier labels with hover tooltips (desktop) or tap info icons (mobile)
+- Each ingredient has hover tooltip showing description
+- Data: `ingredientTiers` with `TieredIngredient` objects containing `name`, `emoji`, `description`
 
 #### Cooking Flow
 - Visual flow showing typical cooking progression for each cuisine
 - Emoji-labeled steps connected by arrows
-- Example: "Pound aromatics → Fry paste → Simmer curry → Finish with herbs"
+- Responsive layout:
+  - Desktop (lg+): Horizontal wrap
+  - Tablet (sm-lg): Horizontal scroll with fade indicators
+  - Mobile (<sm): Vertical stack with down arrows
 - Data stored in `cuisineProfile.cookingFlow` as array of `CookingStep` objects
 
 ### Tab 3: Dishes

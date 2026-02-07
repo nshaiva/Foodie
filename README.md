@@ -25,7 +25,10 @@ A world cuisine exploration and logging app. Users browse an interactive world m
 Each country includes:
 - Basic info (capital, region, continent)
 - Food culture overview with meal structure, dining customs, historical influences
-- Cuisine profile (flavor profiles, key ingredients, cooking techniques, spices)
+- Cuisine profile with interactive visualizations:
+  - **Flavor Fingerprint**: Radar chart (1-10 scale) with interpretive summary
+  - **Ingredient Pyramid**: Tiered ingredients with hover tooltips
+  - **Cooking Flow**: Responsive step-by-step cooking progression
 - Regional cuisine variations (e.g., Northern vs Southern Thailand)
 - Popular dishes with:
   - Dietary info (vegan, vegetarian, veg-friendly, gluten-free, dairy-free, halal)
