@@ -42,10 +42,15 @@ foodie/
 - Auto-detect region from dish name
 - Auto-create restaurants when logging dishes
 
-### Wishlist
+### Favorites
+- Mark dishes as favorites with heart icon
+- Stored in localStorage (`foodie-favorites`)
+- Rose/tomato themed UI
+
+### Wishlist (Want to Try)
 - Save dishes from Popular Dishes to "Want to Try" list
-- Rose-themed UI with heart icons
-- Filter by country/continent
+- Bookmark icon (amber/saffron themed)
+- Stored in localStorage (`foodie-wishlist`)
 
 ### Cuisine Preferences
 - Separate rankings: "Favorite to Eat" vs "Favorite to Cook"
@@ -58,11 +63,13 @@ foodie/
 - Country profiles with food culture, cuisine profiles, and popular dishes
 - Uses ISO 3166-1 alpha-2 codes as country IDs (e.g., "TH" for Thailand)
 - Schema defined in `apps/web/src/data/types.ts`
+- Dishes can have `keyTraits`: 2-3 dominant flavor/ingredient/technique tags
 
 **User Data** (localStorage):
 - `foodie-restaurants`: Restaurant entries with visits
 - `foodie-dishes`: Dishes with restaurant tries and cooking attempts
-- `foodie-wishlist`: Saved dishes to try
+- `foodie-wishlist`: Saved dishes to try (bookmark icon)
+- `foodie-favorites`: Favorite dishes (heart icon)
 
 ## Routing Structure
 

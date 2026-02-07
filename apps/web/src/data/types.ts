@@ -42,9 +42,19 @@ export interface FoodCulture {
   historicalInfluences?: string;
 }
 
+export interface FlavorIntensity {
+  heat: number;       // 1-10
+  acidity: number;    // 1-10
+  sweetness: number;  // 1-10
+  umami: number;      // 1-10
+  aromatic: number;   // 1-10
+  smokeEarth: number; // 1-10
+}
+
 export interface CuisineProfile {
   summary: string;
   flavorProfile: string[];
+  flavorIntensity: FlavorIntensity;
   keyIngredients: string[];
   cookingTechniques: string[];
   spicesAndSeasonings: string[];
@@ -56,6 +66,9 @@ export interface Dish {
   description: string;
   category: DishCategory;
   regionalOrigin?: string;
+
+  // Key traits: 2-3 dominant flavor/ingredient/technique/spice tags
+  keyTraits?: string[];
 
   // Dietary information
   dietary?: DietaryInfo;
@@ -160,6 +173,15 @@ export interface UserDish {
 }
 
 export interface WishlistItem {
+  id: string;
+  countryId: string;
+  dishName: string;
+  englishName?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface FavoriteItem {
   id: string;
   countryId: string;
   dishName: string;

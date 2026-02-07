@@ -23,6 +23,14 @@ export const countries: Country[] = [
     cuisineProfile: {
       summary: "Thai cuisine is defined by its bold, harmonious balance of spicy, sour, sweet, and salty flavors, with an emphasis on fresh herbs and aromatic ingredients.",
       flavorProfile: ["spicy (phet)", "sour (priao)", "sweet (wan)", "salty (kem)", "aromatic", "herbaceous"],
+      flavorIntensity: {
+        heat: 8,
+        acidity: 8,
+        sweetness: 7,
+        umami: 7,
+        aromatic: 9,
+        smokeEarth: 3
+      },
       keyIngredients: ["jasmine rice", "fish sauce (nam pla)", "coconut milk", "palm sugar", "tamarind", "lime", "shrimp paste", "rice noodles"],
       cookingTechniques: ["stir-frying (pad)", "grilling (yang)", "boiling/simmering curries", "pounding in mortar and pestle", "deep-frying"],
       spicesAndSeasonings: ["Thai chilies", "galangal", "lemongrass", "kaffir lime leaves", "Thai basil", "cilantro (roots, stems, leaves)", "garlic", "shallots", "turmeric", "coriander seeds", "cumin"]
@@ -62,6 +70,7 @@ export const countries: Country[] = [
         name: "Pad Thai",
         description: "Stir-fried rice noodles with eggs, tofu or shrimp, bean sprouts, and peanuts in a sweet-sour tamarind sauce. Thailand's most internationally recognized dish.",
         category: "main",
+        keyTraits: ["wok-fried", "tamarind", "rice noodles"],
         isStreetFood: true,
         popularity: "tourist-classic",
         spiceLevel: "mild",
@@ -72,6 +81,7 @@ export const countries: Country[] = [
         englishName: "Spicy Shrimp Soup",
         description: "Hot and sour soup with shrimp, mushrooms, lemongrass, galangal, kaffir lime leaves, and chilies. The quintessential Thai soup.",
         category: "soup",
+        keyTraits: ["lemongrass", "hot & sour", "galangal"],
         popularity: "both",
         spiceLevel: "hot",
         dietary: { isDairyFree: true, isGlutenFree: true }
@@ -81,6 +91,7 @@ export const countries: Country[] = [
         englishName: "Green Papaya Salad",
         description: "Shredded unripe papaya pounded with tomatoes, green beans, peanuts, dried shrimp, and chilies in a lime and fish sauce dressing. Originates from the Isan region.",
         category: "salad",
+        keyTraits: ["pounded", "lime", "fish sauce"],
         isStreetFood: true,
         regionalOrigin: "Isan (Northeastern Thailand)",
         popularity: "local-favorite",
@@ -92,6 +103,7 @@ export const countries: Country[] = [
         englishName: "Green Curry",
         description: "Creamy coconut curry with green chili paste, Thai eggplant, bamboo shoots, and Thai basil, typically made with chicken or beef.",
         category: "main",
+        keyTraits: ["coconut milk", "Thai basil", "green chili"],
         popularity: "tourist-classic",
         spiceLevel: "hot",
         dietary: { isVegetarianFriendly: true, isDairyFree: true, isGlutenFree: true }
@@ -101,6 +113,7 @@ export const countries: Country[] = [
         englishName: "Thai Fried Rice",
         description: "Wok-fried jasmine rice with egg, onion, and choice of protein, seasoned with fish sauce and served with lime and cucumber.",
         category: "main",
+        keyTraits: ["wok-fried", "jasmine rice", "fish sauce"],
         isStreetFood: true,
         popularity: "both",
         spiceLevel: "mild",
@@ -110,6 +123,7 @@ export const countries: Country[] = [
         name: "Massaman Curry",
         description: "Rich, mild curry with Muslim influences, featuring potatoes, peanuts, and warm spices like cardamom, cinnamon, and star anise. Often made with beef or chicken.",
         category: "main",
+        keyTraits: ["coconut", "warm spices", "peanuts"],
         regionalOrigin: "Southern Thailand",
         popularity: "tourist-classic",
         spiceLevel: "mild",
@@ -120,6 +134,7 @@ export const countries: Country[] = [
         englishName: "Basil Pork",
         description: "Stir-fried minced pork with holy basil, chilies, and garlic, served over rice with a fried egg. A beloved everyday lunch dish.",
         category: "main",
+        keyTraits: ["holy basil", "garlic", "stir-fried"],
         isStreetFood: true,
         popularity: "local-favorite",
         spiceLevel: "hot",
@@ -130,6 +145,7 @@ export const countries: Country[] = [
         englishName: "Khao Niao Mamuang",
         description: "Sweet glutinous rice soaked in coconut cream, served with ripe mango slices. A beloved seasonal dessert during mango season.",
         category: "dessert",
+        keyTraits: ["coconut cream", "glutinous rice", "sweet"],
         popularity: "both",
         spiceLevel: "none",
         dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
@@ -158,6 +174,14 @@ export const countries: Country[] = [
     cuisineProfile: {
       summary: "Mexican cuisine layers complex, earthy flavors built on corn, chilies, and beans, with regional variations ranging from coastal seafood to highland stews.",
       flavorProfile: ["earthy", "smoky", "spicy (ranging from mild to fiery)", "tangy (lime, tomatillo)", "rich", "herbaceous"],
+      flavorIntensity: {
+        heat: 7,
+        acidity: 7,
+        sweetness: 4,
+        umami: 6,
+        aromatic: 7,
+        smokeEarth: 9
+      },
       keyIngredients: ["corn (maize)", "dried and fresh chilies", "black beans", "tomatoes", "tomatillos", "avocado", "lime", "queso fresco", "crema"],
       cookingTechniques: ["nixtamalization (corn processing)", "dry-roasting chilies and spices", "braising and stewing", "grilling (al carbon)", "frying"],
       spicesAndSeasonings: ["cumin", "oregano (Mexican)", "epazote", "cilantro", "cinnamon", "cloves", "achiote (annatto)", "dried chilies (ancho, guajillo, chipotle, pasilla)"]
@@ -204,6 +228,7 @@ export const countries: Country[] = [
         name: "Tacos",
         description: "Soft corn tortillas filled with endless variations—carne asada, carnitas, al pastor, barbacoa, fish—topped with onion, cilantro, salsa, and lime.",
         category: "main",
+        keyTraits: ["corn tortilla", "cilantro", "salsa"],
         isStreetFood: true,
         popularity: "both",
         spiceLevel: "medium",
@@ -213,6 +238,7 @@ export const countries: Country[] = [
         name: "Mole Poblano",
         description: "Complex sauce of dried chilies, chocolate, nuts, spices, and more, typically served over chicken or turkey. Originated in Puebla and requires hours of preparation.",
         category: "main",
+        keyTraits: ["chocolate", "dried chilies", "complex"],
         regionalOrigin: "Puebla",
         popularity: "both",
         spiceLevel: "medium",
@@ -222,6 +248,7 @@ export const countries: Country[] = [
         name: "Pozole",
         description: "Hearty hominy soup with pork or chicken in a red or green chili broth, garnished with cabbage, radish, oregano, and lime. Traditional for celebrations.",
         category: "soup",
+        keyTraits: ["hominy", "chili broth", "pork"],
         popularity: "local-favorite",
         spiceLevel: "medium",
         dietary: { isDairyFree: true, isGlutenFree: true }
@@ -230,6 +257,7 @@ export const countries: Country[] = [
         name: "Chiles en Nogada",
         description: "Poblano peppers stuffed with picadillo (meat and fruit mixture), covered in walnut cream sauce and pomegranate seeds. A patriotic dish eaten in September.",
         category: "main",
+        keyTraits: ["walnut cream", "poblano", "picadillo"],
         regionalOrigin: "Puebla",
         popularity: "local-favorite",
         spiceLevel: "mild",
@@ -239,6 +267,7 @@ export const countries: Country[] = [
         name: "Tamales",
         description: "Corn masa filled with meats, cheese, or sweet fillings, wrapped in corn husks or banana leaves and steamed. A labor of love often made communally.",
         category: "main",
+        keyTraits: ["masa", "steamed", "corn husk"],
         popularity: "both",
         spiceLevel: "mild",
         dietary: { isVegetarianFriendly: true, isGlutenFree: true }
@@ -247,6 +276,7 @@ export const countries: Country[] = [
         name: "Guacamole",
         description: "Mashed avocado with lime, cilantro, onion, tomato, and chili. Simple but essential, served with tortilla chips or as a taco accompaniment.",
         category: "appetizer",
+        keyTraits: ["avocado", "lime", "cilantro"],
         popularity: "both",
         spiceLevel: "mild",
         dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
@@ -255,6 +285,7 @@ export const countries: Country[] = [
         name: "Elote",
         description: "Grilled corn on the cob slathered with mayonnaise, cotija cheese, chili powder, and lime. Iconic Mexican street food.",
         category: "street-food",
+        keyTraits: ["grilled corn", "cotija", "chili lime"],
         isStreetFood: true,
         popularity: "both",
         spiceLevel: "mild",
@@ -264,6 +295,7 @@ export const countries: Country[] = [
         name: "Churros",
         description: "Fried dough pastry coated in cinnamon sugar, often served with chocolate sauce for dipping. A beloved street dessert.",
         category: "dessert",
+        keyTraits: ["fried dough", "cinnamon sugar", "chocolate"],
         isStreetFood: true,
         popularity: "tourist-classic",
         spiceLevel: "none",
@@ -293,6 +325,14 @@ export const countries: Country[] = [
     cuisineProfile: {
       summary: "Japanese cuisine emphasizes clean, pure flavors that showcase ingredients at their peak, with umami as the defining taste underpinning most dishes.",
       flavorProfile: ["umami-rich", "subtle", "clean", "delicate", "savory-sweet", "oceanic"],
+      flavorIntensity: {
+        heat: 2,
+        acidity: 3,
+        sweetness: 5,
+        umami: 10,
+        aromatic: 5,
+        smokeEarth: 4
+      },
       keyIngredients: ["short-grain rice", "soy sauce (shoyu)", "dashi (seaweed and bonito stock)", "miso", "mirin", "sake", "tofu", "seafood", "nori (seaweed)"],
       cookingTechniques: ["raw preparation (sashimi)", "grilling (yakitori, robata)", "deep-frying (tempura, tonkatsu)", "simmering (nimono)", "steaming"],
       spicesAndSeasonings: ["wasabi", "ginger", "shichimi togarashi", "sesame (seeds and oil)", "shiso", "mitsuba", "yuzu", "sancho pepper"]
@@ -302,6 +342,7 @@ export const countries: Country[] = [
         name: "Sushi",
         description: "Vinegared rice paired with fresh raw fish, seafood, or vegetables. Ranges from casual conveyor-belt shops to exclusive omakase counters where chefs serve piece by piece.",
         category: "main",
+        keyTraits: ["vinegared rice", "raw fish", "nori"],
         popularity: "both",
         spiceLevel: "none",
         dietary: { isVegetarianFriendly: true, isDairyFree: true }
@@ -310,6 +351,7 @@ export const countries: Country[] = [
         name: "Ramen",
         description: "Wheat noodles in rich broth—tonkotsu (pork bone), shoyu (soy), miso, or shio (salt)—topped with chashu pork, eggs, nori, and scallions. Regional styles vary dramatically.",
         category: "soup",
+        keyTraits: ["rich broth", "wheat noodles", "chashu"],
         isStreetFood: true,
         popularity: "both",
         spiceLevel: "mild",
@@ -319,6 +361,7 @@ export const countries: Country[] = [
         name: "Tempura",
         description: "Lightly battered and deep-fried vegetables and seafood, served with tentsuyu dipping sauce. The batter is kept ice-cold for maximum crispness.",
         category: "main",
+        keyTraits: ["light batter", "deep-fried", "dashi"],
         popularity: "tourist-classic",
         spiceLevel: "none",
         dietary: { isVegetarianFriendly: true, isDairyFree: true }
@@ -327,6 +370,7 @@ export const countries: Country[] = [
         name: "Tonkatsu",
         description: "Breaded and deep-fried pork cutlet, served with shredded cabbage, rice, and tangy tonkatsu sauce. A comfort food staple.",
         category: "main",
+        keyTraits: ["panko-breaded", "pork cutlet", "tonkatsu sauce"],
         popularity: "both",
         spiceLevel: "none",
         dietary: { isDairyFree: true }
@@ -336,6 +380,7 @@ export const countries: Country[] = [
         englishName: "Savory Pancake",
         description: "Cabbage-based savory pancake with various fillings, topped with mayo, okonomiyaki sauce, bonito flakes, and seaweed. Osaka and Hiroshima have distinct styles.",
         category: "main",
+        keyTraits: ["cabbage", "savory pancake", "bonito flakes"],
         regionalOrigin: "Osaka / Hiroshima",
         popularity: "local-favorite",
         spiceLevel: "none",
@@ -345,6 +390,7 @@ export const countries: Country[] = [
         name: "Yakitori",
         description: "Skewered and grilled chicken pieces—thigh, breast, skin, organs—seasoned with salt or sweet tare sauce. Quintessential izakaya (pub) food.",
         category: "appetizer",
+        keyTraits: ["charcoal-grilled", "tare sauce", "skewered"],
         isStreetFood: true,
         popularity: "local-favorite",
         spiceLevel: "none",
@@ -354,6 +400,7 @@ export const countries: Country[] = [
         name: "Miso Soup",
         description: "Dashi broth with dissolved miso paste, tofu, wakame seaweed, and scallions. Served with nearly every traditional meal.",
         category: "soup",
+        keyTraits: ["dashi", "fermented miso", "tofu"],
         popularity: "both",
         spiceLevel: "none",
         dietary: { isVegetarianFriendly: true, isDairyFree: true }
@@ -362,6 +409,7 @@ export const countries: Country[] = [
         name: "Matcha",
         description: "Powdered green tea whisked into hot water, central to Japanese tea ceremony. Also used in desserts, lattes, and sweets.",
         category: "beverage",
+        keyTraits: ["green tea", "ceremonial", "umami"],
         popularity: "both",
         spiceLevel: "none",
         dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
@@ -390,6 +438,14 @@ export const countries: Country[] = [
     cuisineProfile: {
       summary: "Italian cuisine celebrates simplicity and regional tradition, relying on high-quality ingredients prepared with restraint to achieve bright, balanced flavors.",
       flavorProfile: ["bright (tomato, lemon)", "savory (aged cheese, cured meats)", "herbaceous", "olive oil-rich", "balanced", "subtle"],
+      flavorIntensity: {
+        heat: 2,
+        acidity: 6,
+        sweetness: 3,
+        umami: 8,
+        aromatic: 6,
+        smokeEarth: 4
+      },
       keyIngredients: ["olive oil", "tomatoes (fresh and canned San Marzano)", "Parmigiano-Reggiano", "pasta (dozens of shapes)", "cured pork (guanciale, pancetta, prosciutto)", "garlic", "white beans", "arborio rice"],
       cookingTechniques: ["sautéing in olive oil", "slow-simmering sauces (ragù)", "roasting", "grilling", "curing and aging meats/cheeses"],
       spicesAndSeasonings: ["basil", "oregano", "rosemary", "sage", "flat-leaf parsley", "garlic", "red pepper flakes (peperoncino)", "fennel seeds", "black pepper"]
@@ -422,6 +478,7 @@ export const countries: Country[] = [
         name: "Pasta alla Carbonara",
         description: "Rigatoni or spaghetti tossed with guanciale, egg yolks, Pecorino Romano, and black pepper. No cream—the silky sauce comes from emulsifying eggs with pasta water.",
         category: "main",
+        keyTraits: ["guanciale", "egg yolk", "pecorino"],
         regionalOrigin: "Rome",
         popularity: "both",
         spiceLevel: "mild",
@@ -431,6 +488,7 @@ export const countries: Country[] = [
         name: "Margherita Pizza",
         description: "Neapolitan pizza with San Marzano tomatoes, fresh mozzarella, basil, and olive oil on a charred, chewy crust. The standard by which all pizza is measured.",
         category: "main",
+        keyTraits: ["San Marzano", "fresh mozzarella", "wood-fired"],
         regionalOrigin: "Naples",
         popularity: "both",
         spiceLevel: "none",
@@ -440,6 +498,7 @@ export const countries: Country[] = [
         name: "Risotto alla Milanese",
         description: "Creamy arborio rice slowly cooked with saffron, white wine, and butter, finished with Parmigiano. Golden-hued and luxurious.",
         category: "main",
+        keyTraits: ["saffron", "arborio rice", "butter"],
         regionalOrigin: "Milan",
         popularity: "local-favorite",
         spiceLevel: "none",
@@ -449,6 +508,7 @@ export const countries: Country[] = [
         name: "Ossobuco",
         description: "Braised veal shanks with vegetables, white wine, and broth, traditionally served with risotto alla Milanese. The marrow is prized.",
         category: "main",
+        keyTraits: ["braised", "veal shank", "gremolata"],
         regionalOrigin: "Milan",
         popularity: "local-favorite",
         spiceLevel: "none",
@@ -458,6 +518,7 @@ export const countries: Country[] = [
         name: "Lasagna Bolognese",
         description: "Layers of fresh pasta sheets, slow-cooked meat ragù, béchamel, and Parmigiano, baked until golden. A labor-intensive celebration dish.",
         category: "main",
+        keyTraits: ["ragù", "béchamel", "layered"],
         regionalOrigin: "Bologna",
         popularity: "tourist-classic",
         spiceLevel: "none",
@@ -467,6 +528,7 @@ export const countries: Country[] = [
         name: "Gelato",
         description: "Italian ice cream with less air and fat than American versions, resulting in denser, more intense flavors. Pistachio, stracciatella, and hazelnut are classics.",
         category: "dessert",
+        keyTraits: ["dense", "pistachio", "artisanal"],
         popularity: "both",
         spiceLevel: "none",
         dietary: { isVegetarian: true, isGlutenFree: true }
@@ -475,6 +537,7 @@ export const countries: Country[] = [
         name: "Prosciutto e Melone",
         description: "Paper-thin aged prosciutto draped over ripe cantaloupe. A perfect summer antipasto balancing salty, sweet, and savory.",
         category: "appetizer",
+        keyTraits: ["cured ham", "cantaloupe", "sweet-savory"],
         popularity: "tourist-classic",
         spiceLevel: "none",
         dietary: { isDairyFree: true, isGlutenFree: true }
@@ -483,6 +546,7 @@ export const countries: Country[] = [
         name: "Tiramisu",
         description: "Layered dessert of espresso-soaked ladyfingers and mascarpone cream, dusted with cocoa. Originated in the Veneto region in the 1960s-80s.",
         category: "dessert",
+        keyTraits: ["espresso", "mascarpone", "cocoa"],
         regionalOrigin: "Veneto",
         popularity: "both",
         spiceLevel: "none",
@@ -512,6 +576,14 @@ export const countries: Country[] = [
     cuisineProfile: {
       summary: "Ethiopian cuisine features complex spice blends, hearty stews, and the iconic injera flatbread, with an extensive tradition of flavorful vegan dishes alongside rich meat preparations.",
       flavorProfile: ["warmly spiced", "earthy", "tangy (from injera fermentation)", "rich", "peppery", "aromatic"],
+      flavorIntensity: {
+        heat: 8,
+        acidity: 6,
+        sweetness: 2,
+        umami: 7,
+        aromatic: 9,
+        smokeEarth: 7
+      },
       keyIngredients: ["teff flour (for injera)", "berbere spice blend", "niter kibbeh (spiced clarified butter)", "lentils", "chickpeas", "collard greens", "beef", "lamb", "chicken"],
       cookingTechniques: ["slow-simmering stews (wots)", "dry-frying spices", "fermenting (injera batter)", "clarifying and spicing butter", "raw meat preparation (kitfo, gored gored)"],
       spicesAndSeasonings: ["berbere (chili, fenugreek, coriander, cardamom, and more)", "mitmita (chili powder blend)", "korarima (Ethiopian cardamom)", "black cumin", "fenugreek", "bishop's weed (ajwain)", "rue"]
@@ -521,6 +593,7 @@ export const countries: Country[] = [
         name: "Injera",
         description: "Spongy, tangy flatbread made from fermented teff batter. The foundation of every Ethiopian meal—serving as plate, utensil, and staple carbohydrate.",
         category: "side",
+        keyTraits: ["fermented teff", "spongy", "tangy"],
         isVegetarian: true,
         popularity: "local-favorite",
         spiceLevel: "none",
@@ -530,6 +603,7 @@ export const countries: Country[] = [
         name: "Doro Wot",
         description: "Spicy chicken stew simmered for hours in berbere and niter kibbeh, served with hard-boiled eggs. The national dish, reserved for special occasions and holidays.",
         category: "main",
+        keyTraits: ["berbere", "niter kibbeh", "slow-simmered"],
         popularity: "both",
         spiceLevel: "hot",
         dietary: { isGlutenFree: true, isHalal: true }
@@ -538,6 +612,7 @@ export const countries: Country[] = [
         name: "Kitfo",
         description: "Minced raw beef seasoned with mitmita and niter kibbeh. Can be served leb leb (lightly warmed) or fully cooked. Ethiopia's steak tartare equivalent.",
         category: "main",
+        keyTraits: ["raw beef", "mitmita", "niter kibbeh"],
         popularity: "local-favorite",
         spiceLevel: "hot",
         dietary: { isGlutenFree: true }
@@ -546,6 +621,7 @@ export const countries: Country[] = [
         name: "Misir Wot",
         description: "Red lentils simmered in berbere spice blend until thick and flavorful. A fasting-day staple and one of the world's great vegan dishes.",
         category: "main",
+        keyTraits: ["red lentils", "berbere", "vegan"],
         isVegetarian: true,
         popularity: "both",
         spiceLevel: "medium",
@@ -555,6 +631,7 @@ export const countries: Country[] = [
         name: "Shiro",
         description: "Smooth, thick stew of ground chickpeas or broad beans with garlic, onion, and spices. Humble, comforting, and ubiquitous on fasting days.",
         category: "main",
+        keyTraits: ["chickpea", "creamy", "garlic"],
         isVegetarian: true,
         popularity: "local-favorite",
         spiceLevel: "mild",
@@ -564,6 +641,7 @@ export const countries: Country[] = [
         name: "Tibs",
         description: "Sautéed meat (beef or lamb) with onions, peppers, and spices. Ranges from mild (alicha tibs) to fiery. Often served sizzling in a clay pot.",
         category: "main",
+        keyTraits: ["sautéed", "onions", "peppers"],
         popularity: "local-favorite",
         spiceLevel: "medium",
         dietary: { isGlutenFree: true, isHalal: true }
@@ -572,6 +650,7 @@ export const countries: Country[] = [
         name: "Gomen",
         description: "Collard greens sautéed with garlic, ginger, and spices. A standard component of the vegetarian combination platter.",
         category: "side",
+        keyTraits: ["collard greens", "garlic", "ginger"],
         isVegetarian: true,
         popularity: "both",
         spiceLevel: "mild",
@@ -581,6 +660,7 @@ export const countries: Country[] = [
         name: "Ethiopian Coffee (Buna)",
         description: "Coffee roasted, ground, and brewed tableside in a jebena (clay pot). Served in three rounds of decreasing strength. A ceremony, not just a drink.",
         category: "beverage",
+        keyTraits: ["fresh-roasted", "ceremonial", "jebena"],
         popularity: "both",
         spiceLevel: "none",
         dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
@@ -609,6 +689,14 @@ export const countries: Country[] = [
     cuisineProfile: {
       summary: "Peruvian cuisine blends indigenous ingredients with global influences, featuring bold use of ají peppers, citrus, and an unparalleled diversity of potatoes, corn, and seafood.",
       flavorProfile: ["citrus-bright", "ají pepper heat (fruity, not just hot)", "tangy", "savory", "earthy (highland dishes)", "fresh"],
+      flavorIntensity: {
+        heat: 6,
+        acidity: 9,
+        sweetness: 3,
+        umami: 5,
+        aromatic: 6,
+        smokeEarth: 5
+      },
       keyIngredients: ["ají amarillo (yellow pepper)", "lime", "potatoes (thousands of varieties)", "corn (choclo)", "seafood", "quinoa", "cilantro", "ají panca", "huacatay (black mint)"],
       cookingTechniques: ["curing in citrus (ceviche)", "stir-frying (from chifa influence)", "braising and stewing", "grilling (anticuchos)", "pachamanca (earth oven cooking)"],
       spicesAndSeasonings: ["ají amarillo", "ají panca", "ají rocoto", "cumin", "garlic", "cilantro", "huacatay", "chincho", "palillo (Peruvian turmeric)"]
@@ -618,6 +706,7 @@ export const countries: Country[] = [
         name: "Ceviche",
         description: "Fresh raw fish cured in lime juice with ají, red onion, and cilantro. Served with sweet potato and cancha (toasted corn). Peru's national dish and point of pride.",
         category: "main",
+        keyTraits: ["lime-cured", "ají amarillo", "red onion"],
         popularity: "both",
         spiceLevel: "medium",
         dietary: { isDairyFree: true, isGlutenFree: true }
@@ -626,6 +715,7 @@ export const countries: Country[] = [
         name: "Lomo Saltado",
         description: "Stir-fried beef with onions, tomatoes, and ají amarillo, served over rice with French fries. The quintessential chifa (Chinese-Peruvian) fusion dish.",
         category: "main",
+        keyTraits: ["stir-fried", "chifa fusion", "soy sauce"],
         popularity: "both",
         spiceLevel: "medium",
         dietary: { isDairyFree: true }
@@ -634,6 +724,7 @@ export const countries: Country[] = [
         name: "Ají de Gallina",
         description: "Shredded chicken in a creamy sauce of ají amarillo, bread, walnuts, and cheese, served over rice with potatoes and olives.",
         category: "main",
+        keyTraits: ["creamy", "ají amarillo", "walnuts"],
         popularity: "local-favorite",
         spiceLevel: "medium",
         dietary: {}
@@ -642,6 +733,7 @@ export const countries: Country[] = [
         name: "Anticuchos",
         description: "Grilled beef heart skewers marinated in vinegar, cumin, and ají panca. Beloved street food with pre-Columbian origins, served with potatoes and corn.",
         category: "street-food",
+        keyTraits: ["grilled", "beef heart", "ají panca"],
         isStreetFood: true,
         popularity: "local-favorite",
         spiceLevel: "medium",
@@ -651,6 +743,7 @@ export const countries: Country[] = [
         name: "Causa",
         description: "Layered cold dish of seasoned mashed yellow potato with ají amarillo, filled with chicken, tuna, or crab salad. Striking presentation.",
         category: "appetizer",
+        keyTraits: ["layered potato", "ají amarillo", "cold"],
         popularity: "both",
         spiceLevel: "mild",
         dietary: { isVegetarianFriendly: true, isDairyFree: true, isGlutenFree: true }
@@ -659,6 +752,7 @@ export const countries: Country[] = [
         name: "Rocoto Relleno",
         description: "Stuffed rocoto pepper (extremely spicy) with ground beef, onions, eggs, and cheese, baked until golden. A specialty of Arequipa.",
         category: "main",
+        keyTraits: ["stuffed pepper", "rocoto", "baked"],
         regionalOrigin: "Arequipa",
         popularity: "local-favorite",
         spiceLevel: "very-hot",
@@ -668,6 +762,7 @@ export const countries: Country[] = [
         name: "Picarones",
         description: "Sweet potato and squash doughnuts drizzled with chancaca (raw sugar syrup). A beloved street dessert dating to colonial times.",
         category: "dessert",
+        keyTraits: ["sweet potato", "chancaca syrup", "fried"],
         isStreetFood: true,
         popularity: "both",
         spiceLevel: "none",
@@ -677,6 +772,7 @@ export const countries: Country[] = [
         name: "Pisco Sour",
         description: "Cocktail of pisco (grape brandy), lime juice, simple syrup, egg white, and bitters. Peru's national drink, with contested Chilean origins.",
         category: "beverage",
+        keyTraits: ["pisco", "lime", "egg white foam"],
         popularity: "tourist-classic",
         spiceLevel: "none",
         dietary: { isDairyFree: true, isGlutenFree: true }

@@ -5,11 +5,13 @@ import { systemColors } from '../data/systemColors';
 import { useRestaurants } from '../hooks/useRestaurants';
 import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
+import { useFavorites } from '../hooks/useFavorites';
 import { RestaurantForm } from '../components/RestaurantForm';
 import { DishForm } from '../components/DishForm';
 import { RestaurantCard } from '../components/RestaurantCard';
 import { DishCard } from '../components/DishCard';
 import { WantToTryButton } from '../components/WantToTryButton';
+import { FavoriteButton } from '../components/FavoriteButton';
 import { RegionalMap } from '../components/RegionalMap';
 import { FlavorRadarChart } from '../components/FlavorRadarChart';
 import { IngredientBubbles } from '../components/IngredientBubbles';
@@ -80,6 +82,7 @@ export function CountryDetail() {
     deleteCookingAttempt,
   } = useDishes();
   const { addToWishlist, removeFromWishlist, isOnWishlist, findWishlistItem } = useWishlist();
+  const { addToFavorites, removeFromFavorites, isFavorite, findFavoriteItem } = useFavorites();
 
   const [showRestaurantForm, setShowRestaurantForm] = useState(false);
   const [showDishForm, setShowDishForm] = useState(false);
@@ -470,6 +473,19 @@ export function CountryDetail() {
 
                     {/* Tags */}
                     <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0">
+                      {/* Key traits */}
+                      {dish.keyTraits?.slice(0, 2).map((trait) => (
+                        <span
+                          key={trait}
+                          className="text-xs px-2 py-0.5 rounded-full"
+                          style={{
+                            backgroundColor: `${colors.secondary}20`,
+                            color: colors.secondary,
+                          }}
+                        >
+                          {trait}
+                        </span>
+                      ))}
                       {detectedRegion && (
                         <span
                           className="text-xs px-2 py-0.5 rounded-full"
@@ -496,8 +512,21 @@ export function CountryDetail() {
                       )}
                     </div>
 
-                    {/* Want to Try button */}
-                    <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                    {/* Favorite & Want to Try buttons */}
+                    <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <FavoriteButton
+                        isFavorite={isFavorite(country.id, dish.name)}
+                        onAdd={() => addToFavorites({
+                          countryId: country.id,
+                          dishName: dish.name,
+                          englishName: dish.englishName,
+                        })}
+                        onRemove={() => {
+                          const item = findFavoriteItem(country.id, dish.name);
+                          if (item) removeFromFavorites(item.id);
+                        }}
+                        compact
+                      />
                       <WantToTryButton
                         isOnWishlist={isOnWishlist(country.id, dish.name)}
                         onAdd={() => addToWishlist({
@@ -521,6 +550,19 @@ export function CountryDetail() {
 
                       {/* Mobile tags (shown on expand) */}
                       <div className="flex flex-wrap gap-1.5 sm:hidden mb-3">
+                        {/* Key traits */}
+                        {dish.keyTraits?.map((trait) => (
+                          <span
+                            key={trait}
+                            className="text-xs px-2 py-0.5 rounded-full"
+                            style={{
+                              backgroundColor: `${colors.secondary}20`,
+                              color: colors.secondary,
+                            }}
+                          >
+                            {trait}
+                          </span>
+                        ))}
                         {detectedRegion && (
                           <span
                             className="text-xs px-2 py-0.5 rounded-full"
