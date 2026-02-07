@@ -51,13 +51,32 @@ export interface FlavorIntensity {
   smokeEarth: number; // 1-10
 }
 
+export interface CookingStep {
+  action: string;      // e.g., "Pound aromatics"
+  emoji?: string;      // e.g., "🥄"
+}
+
+export interface TieredIngredient {
+  name: string;
+  emoji: string;
+}
+
+export interface IngredientTiers {
+  foundation: TieredIngredient[];      // 4-5 items - Essential, can't do this cuisine without
+  aromaticCore: TieredIngredient[];    // 5-7 items - Signature flavors that define the cuisine
+  flavorBuilders: TieredIngredient[];  // 8-10 items - Common supporting ingredients
+  staples: TieredIngredient[];         // 3-5 items - Base ingredients and essentials
+}
+
 export interface CuisineProfile {
   summary: string;
   flavorProfile: string[];
   flavorIntensity: FlavorIntensity;
   keyIngredients: string[];
   cookingTechniques: string[];
+  cookingFlow?: CookingStep[];  // Ordered steps showing typical cooking progression
   spicesAndSeasonings: string[];
+  ingredientTiers?: IngredientTiers;  // Hierarchical ingredient pyramid
 }
 
 export interface Dish {

@@ -33,7 +33,43 @@ export const countries: Country[] = [
       },
       keyIngredients: ["jasmine rice", "fish sauce (nam pla)", "coconut milk", "palm sugar", "tamarind", "lime", "shrimp paste", "rice noodles"],
       cookingTechniques: ["stir-frying (pad)", "grilling (yang)", "boiling/simmering curries", "pounding in mortar and pestle", "deep-frying"],
-      spicesAndSeasonings: ["Thai chilies", "galangal", "lemongrass", "kaffir lime leaves", "Thai basil", "cilantro (roots, stems, leaves)", "garlic", "shallots", "turmeric", "coriander seeds", "cumin"]
+      cookingFlow: [
+        { action: "Pound aromatics", emoji: "🪨" },
+        { action: "Fry paste", emoji: "🍳" },
+        { action: "Add coconut", emoji: "🥥" },
+        { action: "Simmer curry", emoji: "🍲" },
+        { action: "Finish with herbs", emoji: "🌿" }
+      ],
+      spicesAndSeasonings: ["Thai chilies", "galangal", "lemongrass", "kaffir lime leaves", "Thai basil", "cilantro (roots, stems, leaves)", "garlic", "shallots", "turmeric", "coriander seeds", "cumin"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Fish Sauce", emoji: "🐟" },
+          { name: "Coconut Milk", emoji: "🥥" },
+          { name: "Thai Chilies", emoji: "🌶️" },
+          { name: "Lime", emoji: "🍋" }
+        ],
+        aromaticCore: [
+          { name: "Lemongrass", emoji: "🌿" },
+          { name: "Galangal", emoji: "🫚" },
+          { name: "Kaffir Lime", emoji: "🍃" },
+          { name: "Thai Basil", emoji: "🌿" },
+          { name: "Cilantro", emoji: "🌱" }
+        ],
+        flavorBuilders: [
+          { name: "Shallots", emoji: "🧅" },
+          { name: "Garlic", emoji: "🧄" },
+          { name: "Palm Sugar", emoji: "🍯" },
+          { name: "Tamarind", emoji: "🫘" },
+          { name: "Shrimp Paste", emoji: "🦐" },
+          { name: "Coriander Seeds", emoji: "🫛" },
+          { name: "Turmeric", emoji: "🟡" }
+        ],
+        staples: [
+          { name: "Jasmine Rice", emoji: "🍚" },
+          { name: "Rice Noodles", emoji: "🍜" },
+          { name: "Tofu", emoji: "🧈" }
+        ]
+      }
     },
     regionalVariations: [
       {
@@ -184,7 +220,44 @@ export const countries: Country[] = [
       },
       keyIngredients: ["corn (maize)", "dried and fresh chilies", "black beans", "tomatoes", "tomatillos", "avocado", "lime", "queso fresco", "crema"],
       cookingTechniques: ["nixtamalization (corn processing)", "dry-roasting chilies and spices", "braising and stewing", "grilling (al carbon)", "frying"],
-      spicesAndSeasonings: ["cumin", "oregano (Mexican)", "epazote", "cilantro", "cinnamon", "cloves", "achiote (annatto)", "dried chilies (ancho, guajillo, chipotle, pasilla)"]
+      cookingFlow: [
+        { action: "Toast dried chilies", emoji: "🌶️" },
+        { action: "Blend sauce", emoji: "🫙" },
+        { action: "Fry paste", emoji: "🍳" },
+        { action: "Braise meat", emoji: "🍖" },
+        { action: "Garnish fresh", emoji: "🌿" }
+      ],
+      spicesAndSeasonings: ["cumin", "oregano (Mexican)", "epazote", "cilantro", "cinnamon", "cloves", "achiote (annatto)", "dried chilies (ancho, guajillo, chipotle, pasilla)"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Corn", emoji: "🌽" },
+          { name: "Dried Chilies", emoji: "🌶️" },
+          { name: "Lime", emoji: "🍋" },
+          { name: "Black Beans", emoji: "🫘" }
+        ],
+        aromaticCore: [
+          { name: "Cilantro", emoji: "🌿" },
+          { name: "Epazote", emoji: "🌱" },
+          { name: "Cumin", emoji: "🫛" },
+          { name: "Mexican Oregano", emoji: "🍃" },
+          { name: "Cinnamon", emoji: "🪵" }
+        ],
+        flavorBuilders: [
+          { name: "Tomatoes", emoji: "🍅" },
+          { name: "Tomatillos", emoji: "🟢" },
+          { name: "Onion", emoji: "🧅" },
+          { name: "Garlic", emoji: "🧄" },
+          { name: "Avocado", emoji: "🥑" },
+          { name: "Achiote", emoji: "🟠" },
+          { name: "Chocolate", emoji: "🍫" }
+        ],
+        staples: [
+          { name: "Tortillas", emoji: "🫓" },
+          { name: "Queso Fresco", emoji: "🧀" },
+          { name: "Crema", emoji: "🥛" },
+          { name: "Rice", emoji: "🍚" }
+        ]
+      }
     },
     regionalVariations: [
       {
@@ -335,7 +408,43 @@ export const countries: Country[] = [
       },
       keyIngredients: ["short-grain rice", "soy sauce (shoyu)", "dashi (seaweed and bonito stock)", "miso", "mirin", "sake", "tofu", "seafood", "nori (seaweed)"],
       cookingTechniques: ["raw preparation (sashimi)", "grilling (yakitori, robata)", "deep-frying (tempura, tonkatsu)", "simmering (nimono)", "steaming"],
-      spicesAndSeasonings: ["wasabi", "ginger", "shichimi togarashi", "sesame (seeds and oil)", "shiso", "mitsuba", "yuzu", "sancho pepper"]
+      cookingFlow: [
+        { action: "Prepare dashi", emoji: "🍵" },
+        { action: "Season precisely", emoji: "🧂" },
+        { action: "Cook gently", emoji: "♨️" },
+        { action: "Arrange beautifully", emoji: "🎨" },
+        { action: "Garnish with care", emoji: "🌸" }
+      ],
+      spicesAndSeasonings: ["wasabi", "ginger", "shichimi togarashi", "sesame (seeds and oil)", "shiso", "mitsuba", "yuzu", "sancho pepper"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Soy Sauce", emoji: "🫘" },
+          { name: "Dashi", emoji: "🍵" },
+          { name: "Miso", emoji: "🥣" },
+          { name: "Rice", emoji: "🍚" }
+        ],
+        aromaticCore: [
+          { name: "Wasabi", emoji: "🟢" },
+          { name: "Ginger", emoji: "🫚" },
+          { name: "Shiso", emoji: "🌿" },
+          { name: "Nori", emoji: "🍙" },
+          { name: "Yuzu", emoji: "🍋" }
+        ],
+        flavorBuilders: [
+          { name: "Mirin", emoji: "🍶" },
+          { name: "Sake", emoji: "🍶" },
+          { name: "Sesame", emoji: "🫛" },
+          { name: "Bonito", emoji: "🐟" },
+          { name: "Kombu", emoji: "🌊" },
+          { name: "Tofu", emoji: "🧈" },
+          { name: "Scallion", emoji: "🧅" }
+        ],
+        staples: [
+          { name: "Short-grain Rice", emoji: "🍚" },
+          { name: "Udon", emoji: "🍜" },
+          { name: "Soba", emoji: "🍝" }
+        ]
+      }
     },
     popularDishes: [
       {
@@ -448,7 +557,44 @@ export const countries: Country[] = [
       },
       keyIngredients: ["olive oil", "tomatoes (fresh and canned San Marzano)", "Parmigiano-Reggiano", "pasta (dozens of shapes)", "cured pork (guanciale, pancetta, prosciutto)", "garlic", "white beans", "arborio rice"],
       cookingTechniques: ["sautéing in olive oil", "slow-simmering sauces (ragù)", "roasting", "grilling", "curing and aging meats/cheeses"],
-      spicesAndSeasonings: ["basil", "oregano", "rosemary", "sage", "flat-leaf parsley", "garlic", "red pepper flakes (peperoncino)", "fennel seeds", "black pepper"]
+      cookingFlow: [
+        { action: "Sauté aromatics", emoji: "🧄" },
+        { action: "Toast base", emoji: "🍞" },
+        { action: "Deglaze", emoji: "🍷" },
+        { action: "Simmer slow", emoji: "🍝" },
+        { action: "Finish with cheese", emoji: "🧀" }
+      ],
+      spicesAndSeasonings: ["basil", "oregano", "rosemary", "sage", "flat-leaf parsley", "garlic", "red pepper flakes (peperoncino)", "fennel seeds", "black pepper"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Olive Oil", emoji: "🫒" },
+          { name: "Tomatoes", emoji: "🍅" },
+          { name: "Parmigiano", emoji: "🧀" },
+          { name: "Garlic", emoji: "🧄" }
+        ],
+        aromaticCore: [
+          { name: "Basil", emoji: "🌿" },
+          { name: "Oregano", emoji: "🌿" },
+          { name: "Rosemary", emoji: "🌲" },
+          { name: "Sage", emoji: "🍃" },
+          { name: "Parsley", emoji: "🌱" }
+        ],
+        flavorBuilders: [
+          { name: "White Wine", emoji: "🍷" },
+          { name: "Pecorino", emoji: "🧀" },
+          { name: "Guanciale", emoji: "🥓" },
+          { name: "Anchovies", emoji: "🐟" },
+          { name: "Capers", emoji: "🫒" },
+          { name: "Peperoncino", emoji: "🌶️" },
+          { name: "Black Pepper", emoji: "⚫" }
+        ],
+        staples: [
+          { name: "Pasta", emoji: "🍝" },
+          { name: "Arborio Rice", emoji: "🍚" },
+          { name: "Bread", emoji: "🥖" },
+          { name: "Prosciutto", emoji: "🥓" }
+        ]
+      }
     },
     regionalVariations: [
       {
@@ -586,7 +732,44 @@ export const countries: Country[] = [
       },
       keyIngredients: ["teff flour (for injera)", "berbere spice blend", "niter kibbeh (spiced clarified butter)", "lentils", "chickpeas", "collard greens", "beef", "lamb", "chicken"],
       cookingTechniques: ["slow-simmering stews (wots)", "dry-frying spices", "fermenting (injera batter)", "clarifying and spicing butter", "raw meat preparation (kitfo, gored gored)"],
-      spicesAndSeasonings: ["berbere (chili, fenugreek, coriander, cardamom, and more)", "mitmita (chili powder blend)", "korarima (Ethiopian cardamom)", "black cumin", "fenugreek", "bishop's weed (ajwain)", "rue"]
+      cookingFlow: [
+        { action: "Dry-fry spices", emoji: "🫚" },
+        { action: "Build berbere", emoji: "🌶️" },
+        { action: "Sauté onions", emoji: "🧅" },
+        { action: "Slow-simmer wot", emoji: "🍲" },
+        { action: "Serve on injera", emoji: "🫓" }
+      ],
+      spicesAndSeasonings: ["berbere (chili, fenugreek, coriander, cardamom, and more)", "mitmita (chili powder blend)", "korarima (Ethiopian cardamom)", "black cumin", "fenugreek", "bishop's weed (ajwain)", "rue"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Berbere", emoji: "🌶️" },
+          { name: "Niter Kibbeh", emoji: "🧈" },
+          { name: "Teff", emoji: "🌾" },
+          { name: "Onions", emoji: "🧅" }
+        ],
+        aromaticCore: [
+          { name: "Korarima", emoji: "🫛" },
+          { name: "Fenugreek", emoji: "🌿" },
+          { name: "Black Cumin", emoji: "⚫" },
+          { name: "Ginger", emoji: "🫚" },
+          { name: "Garlic", emoji: "🧄" }
+        ],
+        flavorBuilders: [
+          { name: "Red Lentils", emoji: "🟠" },
+          { name: "Chickpeas", emoji: "🫘" },
+          { name: "Collard Greens", emoji: "🥬" },
+          { name: "Tomatoes", emoji: "🍅" },
+          { name: "Mitmita", emoji: "🔴" },
+          { name: "Cardamom", emoji: "🫛" },
+          { name: "Coriander", emoji: "🌱" }
+        ],
+        staples: [
+          { name: "Injera", emoji: "🫓" },
+          { name: "Beef", emoji: "🥩" },
+          { name: "Lamb", emoji: "🍖" },
+          { name: "Chicken", emoji: "🍗" }
+        ]
+      }
     },
     popularDishes: [
       {
@@ -699,7 +882,43 @@ export const countries: Country[] = [
       },
       keyIngredients: ["ají amarillo (yellow pepper)", "lime", "potatoes (thousands of varieties)", "corn (choclo)", "seafood", "quinoa", "cilantro", "ají panca", "huacatay (black mint)"],
       cookingTechniques: ["curing in citrus (ceviche)", "stir-frying (from chifa influence)", "braising and stewing", "grilling (anticuchos)", "pachamanca (earth oven cooking)"],
-      spicesAndSeasonings: ["ají amarillo", "ají panca", "ají rocoto", "cumin", "garlic", "cilantro", "huacatay", "chincho", "palillo (Peruvian turmeric)"]
+      cookingFlow: [
+        { action: "Slice fresh fish", emoji: "🐟" },
+        { action: "Squeeze citrus", emoji: "🍋" },
+        { action: "Chop aromatics", emoji: "🧅" },
+        { action: "Mix & cure", emoji: "🥣" },
+        { action: "Plate with sides", emoji: "🍠" }
+      ],
+      spicesAndSeasonings: ["ají amarillo", "ají panca", "ají rocoto", "cumin", "garlic", "cilantro", "huacatay", "chincho", "palillo (Peruvian turmeric)"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Ají Amarillo", emoji: "🌶️" },
+          { name: "Lime", emoji: "🍋" },
+          { name: "Potatoes", emoji: "🥔" },
+          { name: "Corn", emoji: "🌽" }
+        ],
+        aromaticCore: [
+          { name: "Cilantro", emoji: "🌿" },
+          { name: "Huacatay", emoji: "🌱" },
+          { name: "Ají Panca", emoji: "🔴" },
+          { name: "Ají Rocoto", emoji: "🫑" },
+          { name: "Cumin", emoji: "🫛" }
+        ],
+        flavorBuilders: [
+          { name: "Red Onion", emoji: "🧅" },
+          { name: "Garlic", emoji: "🧄" },
+          { name: "Soy Sauce", emoji: "🫘" },
+          { name: "Vinegar", emoji: "🫙" },
+          { name: "Sweet Potato", emoji: "🍠" },
+          { name: "Cancha", emoji: "🌽" },
+          { name: "Palillo", emoji: "🟡" }
+        ],
+        staples: [
+          { name: "Fresh Fish", emoji: "🐟" },
+          { name: "Rice", emoji: "🍚" },
+          { name: "Quinoa", emoji: "🌾" }
+        ]
+      }
     },
     popularDishes: [
       {

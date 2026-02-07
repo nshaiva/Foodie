@@ -91,7 +91,7 @@ foodie/
 
 ## Cuisine Profile Visualizations
 
-The Country Detail page includes two visualizations in the Cuisine Profile section:
+The Country Detail page includes three visualizations in the Cuisine Profile section:
 
 ### Flavor Radar Chart
 - Hexagonal radar chart showing flavor intensity (1-10 scale)
@@ -111,6 +111,13 @@ The Country Detail page includes two visualizations in the Cuisine Profile secti
 - Signature ingredients shown larger than supporting ingredients
 - Dashed lines connect commonly paired ingredients (e.g., "fish sauce + lime + cilantro")
 - Ingredient taxonomy with pattern-based classification in `data/ingredientTaxonomy.ts`
+
+### Cooking Flow
+- Visual flow showing typical cooking progression for each cuisine
+- Emoji-labeled steps connected by arrows
+- Example: "Pound aromatics → Fry paste → Simmer curry → Finish with herbs"
+- Data stored in `cuisineProfile.cookingFlow` as array of `CookingStep` objects
+- Makes cooking techniques feel alive, not just labels
 
 ## Build Commands
 

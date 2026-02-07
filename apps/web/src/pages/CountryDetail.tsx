@@ -14,7 +14,8 @@ import { WantToTryButton } from '../components/WantToTryButton';
 import { FavoriteButton } from '../components/FavoriteButton';
 import { RegionalMap } from '../components/RegionalMap';
 import { FlavorRadarChart } from '../components/FlavorRadarChart';
-import { IngredientBubbles } from '../components/IngredientBubbles';
+import { IngredientPyramid } from '../components/IngredientPyramid';
+import { CookingFlow } from '../components/CookingFlow';
 import type { RestaurantTry, CookingAttempt, RegionalCuisine, Dish } from '../data/types';
 
 // Helper to detect region from dish name by matching against regional signature dishes
@@ -407,16 +408,27 @@ export function CountryDetail() {
                 />
               </div>
 
-              {/* Ingredient Bubbles */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Ingredients & Spices</h3>
-                <IngredientBubbles
-                  keyIngredients={country.cuisineProfile.keyIngredients}
-                  spicesAndSeasonings={country.cuisineProfile.spicesAndSeasonings}
+              {/* Ingredient Pyramid */}
+              {country.cuisineProfile.ingredientTiers && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Ingredients & Spices</h3>
+                  <IngredientPyramid
+                    tiers={country.cuisineProfile.ingredientTiers}
+                    colors={colors}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Cooking Flow */}
+            {country.cuisineProfile.cookingFlow && country.cuisineProfile.cookingFlow.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-100">
+                <CookingFlow
+                  steps={country.cuisineProfile.cookingFlow}
                   colors={colors}
                 />
               </div>
-            </div>
+            )}
           </div>
         </section>
 
