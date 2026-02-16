@@ -33,7 +33,7 @@ Feature ideas for future consideration.
 ### High Priority
 
 - **Cuisine similarity mapping** - "If you enjoyed Thai, you might like Vietnamese or Lao cuisine"
-- **Dish difficulty ratings** - For home cooking attempts (easy/medium/hard)
+- ~~**Dish difficulty ratings** - For home cooking attempts (easy/medium/hard)~~ ✅ Implemented
 - **"Local favorites" vs "Tourist classics"** - Tags on popular dishes
 - **Home cooking log** - Track dishes you've attempted to make yourself
 - **City-level data** - Break down restaurants by city, not just country

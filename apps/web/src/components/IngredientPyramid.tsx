@@ -29,7 +29,6 @@ const tierDescriptions: Record<keyof IngredientTiers, string> = {
 };
 
 export function IngredientPyramid({ tiers, colors }: IngredientPyramidProps) {
-  const [activeTierTooltip, setActiveTierTooltip] = useState<keyof IngredientTiers | null>(null);
   const [activeIngredientTooltip, setActiveIngredientTooltip] = useState<string | null>(null);
 
   return (
@@ -41,11 +40,10 @@ export function IngredientPyramid({ tiers, colors }: IngredientPyramidProps) {
 
           return (
             <div key={config.key} className="w-full">
-              {/* Tier label with tooltip */}
+              {/* Tier label with hover tooltip */}
               <div className="text-center mb-2">
-                {/* Desktop: hover tooltip */}
-                <div className="hidden md:inline-block relative group">
-                  <span className="text-sm text-gray-500 font-medium border-b border-dotted border-gray-400 cursor-help">
+                <div className="inline-block relative group">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide cursor-default">
                     {config.label}
                   </span>
                   <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
@@ -54,29 +52,6 @@ export function IngredientPyramid({ tiers, colors }: IngredientPyramidProps) {
                     </div>
                     <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800" />
                   </div>
-                </div>
-
-                {/* Mobile: info icon with tap tooltip */}
-                <div className="md:hidden inline-flex items-center gap-1.5 relative">
-                  <span className="text-sm text-gray-500 font-medium">
-                    {config.label}
-                  </span>
-                  <button
-                    onClick={() => setActiveTierTooltip(activeTierTooltip === config.key ? null : config.key)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    aria-label={`Info about ${config.label}`}
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  {activeTierTooltip === config.key && (
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-10">
-                      <div className="bg-gray-800 text-white text-xs rounded-lg px-3 py-2 max-w-[200px] text-center">
-                        {tierDescriptions[config.key]}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -115,7 +90,7 @@ export function IngredientPyramid({ tiers, colors }: IngredientPyramidProps) {
                             activeIngredientTooltip === ingredientKey ? 'opacity-100' : 'opacity-0 md:group-hover:opacity-100'
                           }`}
                         >
-                          <div className="bg-gray-800 text-white text-xs rounded-lg px-3 py-2 max-w-[250px] text-center shadow-lg">
+                          <div className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 w-[180px] text-center shadow-lg">
                             {item.description}
                           </div>
                           <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800" />

@@ -23,7 +23,7 @@ export function ProfileSlide({ cuisineProfile, colors }: ProfileSlideProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Radar Chart */}
           <div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Flavor Fingerprint</h3>
+            <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Flavor Fingerprint</h4>
             <FlavorRadarChart
               flavorIntensity={cuisineProfile.flavorIntensity}
               colors={colors}
@@ -33,7 +33,7 @@ export function ProfileSlide({ cuisineProfile, colors }: ProfileSlideProps) {
           {/* Ingredient Pyramid */}
           {cuisineProfile.ingredientTiers && (
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Ingredients & Spices</h3>
+              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Ingredients & Spices</h4>
               <IngredientPyramid
                 tiers={cuisineProfile.ingredientTiers}
                 colors={colors}

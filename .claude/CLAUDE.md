@@ -64,6 +64,7 @@ foodie/
 - Uses ISO 3166-1 alpha-2 codes as country IDs (e.g., "TH" for Thailand)
 - Schema defined in `apps/web/src/data/types.ts`
 - Dishes can have `keyTraits`: 2-3 dominant flavor/ingredient/technique tags
+- Dishes have `difficulty`: 'easy' | 'medium' | 'hard' for home cooking guidance
 
 **User Data** (localStorage):
 - `foodie-restaurants`: Restaurant entries with visits
@@ -116,14 +117,14 @@ Three visualizations for the cuisine profile:
 - Interpretive text below chart summarizing the cuisine's flavor profile
 - Data: `flavorIntensity.interpretation` field
 
-#### Ingredient Pyramid (Kitchen Constellation)
+#### Ingredient Pyramid (Ingredients & Spices)
 - Tiered layout showing ingredients by importance:
   - **Foundation**: Essential ingredients you can't cook without
   - **Aromatic Core**: Signature aromatics defining the cuisine
   - **Flavor Builders**: Supporting ingredients for depth
   - **Staples**: Base starches and proteins
-- Tier labels with hover tooltips (desktop) or tap info icons (mobile)
-- Each ingredient has hover tooltip showing description
+- Tier labels with hover tooltips explaining each tier's role
+- Each ingredient has hover tooltip with concise description format: `[Alt name] · [Category/Role] · [Key trait]`
 - Data: `ingredientTiers` with `TieredIngredient` objects containing `name`, `emoji`, `description`
 
 #### Cooking Flow
@@ -138,7 +139,8 @@ Three visualizations for the cuisine profile:
 ### Tab 3: Dishes
 - Expandable list of popular dishes
 - Each dish shows: name, key traits, region, spice level
-- Expand to see description, category, dietary info
+- Expand to see: description, category, difficulty rating, dietary info
+- Difficulty badges: Easy (green), Medium (amber), Hard (rose)
 - Favorite (heart) and Want to Try (bookmark) buttons
 
 ## Build Commands

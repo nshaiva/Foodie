@@ -7,43 +7,43 @@ Build a working prototype with core functionality: browse countries, view food p
 
 ### 1. Project Setup
 - [x] Monorepo structure
-- [ ] Web app initialization (React + TypeScript + Tailwind)
-- [ ] Supabase project setup
-- [ ] Basic routing
+- [x] Web app initialization (React + TypeScript + Tailwind)
+- [ ] Supabase project setup (using localStorage for now)
+- [x] Basic routing
 
 ### 2. Country Data
-- [ ] Finalize country data schema
-- [ ] Generate sample entries (5-10 countries) for testing
+- [x] Finalize country data schema
+- [x] Generate sample entries (6 countries) for testing
 - [ ] Generate full 195 country dataset
 
 ### 3. Country Browsing (Web)
-- [ ] Country list/grid view (homepage)
+- [x] Country list/grid view (homepage)
   - Display country name, flag/image, continent
   - Click to open country detail
-- [ ] Country detail view
+- [x] Country detail view
   - Basic info (capital, region)
   - Food culture narrative
-  - Cuisine profile
-  - Popular dishes list
+  - Cuisine profile (radar chart, ingredient pyramid, cooking flow)
+  - Popular dishes list with difficulty ratings
 
 ### 4. Logging Features
-- [ ] Restaurant logging form
+- [x] Restaurant logging form
   - Country (auto-filled if from country view)
   - Name (required)
   - Google Maps link (optional)
   - Rating (1-5 stars)
   - Notes (optional)
   - Date visited (optional)
-- [ ] Dish logging form
+- [x] Dish logging form
   - Country (auto-filled if from country view)
   - Name (required)
   - Notes (optional)
   - Link to restaurants (optional, multi-select)
 
 ### 5. Database View
-- [ ] List all restaurants
-- [ ] List all dishes
-- [ ] Basic filtering by country
+- [x] List all restaurants
+- [x] List all dishes
+- [x] Basic filtering by country
 
 ## Out of Scope (Phase 0)
 - Interactive map
@@ -68,11 +68,19 @@ Build a working prototype with core functionality: browse countries, view food p
 ### Component Structure
 ```
 components/
-├── CountryCard.tsx       # Grid item for country list
-├── CountryDetail.tsx     # Full country profile view
-├── RestaurantForm.tsx    # Add/edit restaurant
-├── DishForm.tsx          # Add/edit dish
-├── RestaurantCard.tsx    # Restaurant list item
-├── DishCard.tsx          # Dish list item
-└── Rating.tsx            # Star rating input/display
+├── CountryCard.tsx           # Grid item for country list
+├── country-detail/
+│   ├── CountryDetailView.tsx # Main country detail with carousel
+│   └── slides/
+│       ├── CultureRegionsSlide.tsx  # Culture + regional map
+│       ├── ProfileSlide.tsx         # Cuisine visualizations
+│       └── DishesSlide.tsx          # Popular dishes list
+├── FlavorRadarChart.tsx      # Flavor intensity radar chart
+├── IngredientPyramid.tsx     # Tiered ingredient display
+├── CookingFlow.tsx           # Cooking progression visualization
+├── FavoriteButton.tsx        # Heart icon for favorites
+├── WantToTryButton.tsx       # Bookmark icon for wishlist
+├── RestaurantCard.tsx        # Restaurant list item
+├── DishCard.tsx              # Dish list item
+└── Rating.tsx                # Star rating input/display
 ```

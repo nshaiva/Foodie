@@ -6,7 +6,6 @@ import {
   Marker,
 } from 'react-simple-maps';
 import type { FoodCulture, RegionalCuisine, ColorPalette } from '../../../data/types';
-import { systemColors } from '../../../data/systemColors';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
 
@@ -120,10 +119,10 @@ function OverviewCard({
 // Region detail card (shown when a region is selected)
 function RegionDetailCard({
   region,
-  colorPrimary,
+  colors,
 }: {
   region: RegionalCuisine;
-  colorPrimary: string;
+  colors: ColorPalette;
 }) {
   return (
     <div className="space-y-4">
@@ -143,7 +142,7 @@ function RegionDetailCard({
             <span
               key={dish}
               className="text-xs px-2 py-1 rounded"
-              style={{ backgroundColor: `${colorPrimary}15`, color: colorPrimary }}
+              style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}
             >
               {dish}
             </span>
@@ -160,7 +159,7 @@ function RegionDetailCard({
             <span
               key={ingredient}
               className="text-xs px-2 py-1 rounded"
-              style={{ backgroundColor: systemColors.herbLight, color: systemColors.herb }}
+              style={{ backgroundColor: `${colors.secondary}15`, color: colors.secondary }}
             >
               {ingredient}
             </span>
@@ -178,7 +177,7 @@ function RegionDetailCard({
               <span
                 key={trait}
                 className="text-xs px-2 py-1 rounded"
-                style={{ backgroundColor: `${systemColors.navy}10`, color: systemColors.navy }}
+                style={{ backgroundColor: `${colors.accent}20`, color: colors.text }}
               >
                 {trait}
               </span>
@@ -406,7 +405,7 @@ export function CultureRegionsSlide({
             {selectedRegionData ? (
               <RegionDetailCard
                 region={selectedRegionData}
-                colorPrimary={colors.primary}
+                colors={colors}
               />
             ) : (
               <OverviewCard foodCulture={foodCulture} />

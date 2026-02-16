@@ -1,73 +1,87 @@
-# React + TypeScript + Vite
+# Foodie Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A world cuisine exploration and logging app built with React, TypeScript, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Browse Cuisines
+- **Country Grid**: Browse 6 countries with rich food culture profiles
+- **Culture & Regions**: Interactive regional maps with clickable markers
+- **Cuisine Profile**: Flavor radar chart, ingredient pyramid, cooking flow visualization
+- **Popular Dishes**: Expandable list with dietary info, difficulty ratings, and spice levels
 
-## React Compiler
+### Track Your Food Journey
+- **Restaurant Logging**: Track restaurants with visits and ratings
+- **Dish Logging**: Log dishes you've tried at restaurants or cooked at home
+- **Favorites**: Mark dishes as favorites (heart icon)
+- **Want to Try**: Save dishes to your wishlist (bookmark icon)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Visualizations
+- **Flavor Fingerprint**: Radar chart showing cuisine's flavor intensity profile
+- **Ingredient Pyramid**: Tiered display of essential ingredients with hover tooltips
+- **Cooking Flow**: Step-by-step visual of typical cooking progression
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Framework**: React 18 with TypeScript
+- **Styling**: Tailwind CSS
+- **Build**: Vite
+- **Charts**: Recharts (radar charts)
+- **Maps**: react-simple-maps (regional maps)
+- **Storage**: localStorage (Supabase planned)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Install dependencies
+npm install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/
+│   ├── country-detail/
+│   │   └── slides/           # Carousel slides (Culture, Profile, Dishes)
+│   ├── FlavorRadarChart.tsx  # Flavor intensity visualization
+│   ├── IngredientPyramid.tsx # Tiered ingredient display
+│   ├── CookingFlow.tsx       # Cooking progression flow
+│   └── ...                   # Other UI components
+├── data/
+│   ├── types.ts              # TypeScript interfaces
+│   ├── countries.ts          # Country data (6 countries)
+│   └── systemColors.ts       # Shared color palette
+├── hooks/                    # Custom React hooks
+└── pages/                    # Route pages
+```
+
+## Data Schema
+
+Each country includes:
+- **Food Culture**: Overview, meal structure, dining customs, historical influences
+- **Cuisine Profile**: Flavor intensity (1-10 scale), ingredient tiers, cooking flow
+- **Regional Variations**: Signature dishes, key ingredients, distinctive traits
+- **Popular Dishes**: Name, description, category, difficulty, spice level, dietary info
+
+## Countries Available
+
+- Thailand (TH)
+- Mexico (MX)
+- Japan (JP)
+- Italy (IT)
+- Ethiopia (ET)
+- Peru (PE)
+
+## License
+
+Private project - not for distribution.

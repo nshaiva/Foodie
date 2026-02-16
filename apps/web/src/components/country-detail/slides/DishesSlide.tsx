@@ -243,11 +243,22 @@ export function DishesSlide({
                     )}
                   </div>
 
-                  {/* Category and dietary info */}
+                  {/* Category, difficulty, and dietary info */}
                   <div className="flex flex-wrap gap-1.5">
                     <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded capitalize">
                       {dish.category}
                     </span>
+                    {dish.difficulty && (
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        dish.difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700' :
+                        dish.difficulty === 'medium' ? 'bg-amber-100 text-amber-700' :
+                        'bg-rose-100 text-rose-700'
+                      }`}>
+                        {dish.difficulty === 'easy' ? '🍳 Easy' :
+                         dish.difficulty === 'medium' ? '👨‍🍳 Medium' :
+                         '⭐ Hard'}
+                      </span>
+                    )}
                     {dish.dietary?.isVegan && (
                       <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegan</span>
                     )}
