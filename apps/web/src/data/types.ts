@@ -14,6 +14,34 @@ export interface ColorPalette {
   text: string;         // Text on colored backgrounds
 }
 
+export type BeverageCategory =
+  | 'tea'
+  | 'coffee'
+  | 'juice'
+  | 'soda'
+  | 'beer'
+  | 'wine'
+  | 'spirit'
+  | 'cocktail'
+  | 'street'
+  | 'ceremonial';
+
+export interface Beverage {
+  name: string;
+  englishName?: string;
+  pronunciation?: string;
+  description: string;
+  type: 'alcoholic' | 'non-alcoholic' | 'both';
+  category?: BeverageCategory;
+  regionalOrigin?: string;
+  servedHow?: 'hot' | 'cold' | 'room temperature' | 'iced';
+  keyIngredients?: string[];
+  isTraditional?: boolean;
+  isStreetDrink?: boolean;
+  alcoholContent?: 'none' | 'low' | 'medium' | 'high';
+  dietary?: DietaryInfo;
+}
+
 export interface Country {
   id: string;
   name: string;
@@ -25,6 +53,7 @@ export interface Country {
   cuisineProfile: CuisineProfile;
   regionalVariations?: RegionalCuisine[];
   popularDishes: Dish[];
+  popularBeverages?: Beverage[];
 }
 
 export type Continent =
@@ -84,6 +113,7 @@ export interface CuisineProfile {
 export interface Dish {
   name: string;
   englishName?: string;
+  pronunciation?: string;  // Phonetic spelling, e.g., "tom yoom goong"
   description: string;
   category: DishCategory;
   regionalOrigin?: string;

@@ -35,11 +35,11 @@ export const countries: Country[] = [
       keyIngredients: ["jasmine rice", "fish sauce (nam pla)", "coconut milk", "palm sugar", "tamarind", "lime", "shrimp paste", "rice noodles"],
       cookingTechniques: ["stir-frying (pad)", "grilling (yang)", "boiling/simmering curries", "pounding in mortar and pestle", "deep-frying"],
       cookingFlow: [
-        { action: "Pound aromatics", emoji: "🪨" },
+        { action: "Pound", emoji: "🪨" },
         { action: "Fry paste", emoji: "🍳" },
         { action: "Add coconut", emoji: "🥥" },
-        { action: "Simmer curry", emoji: "🍲" },
-        { action: "Finish with herbs", emoji: "🌿" }
+        { action: "Simmer", emoji: "🍲" },
+        { action: "Garnish", emoji: "🌿" }
       ],
       spicesAndSeasonings: ["Thai chilies", "galangal", "lemongrass", "kaffir lime leaves", "Thai basil", "cilantro (roots, stems, leaves)", "garlic", "shallots", "turmeric", "coriander seeds", "cumin"],
       ingredientTiers: {
@@ -105,6 +105,7 @@ export const countries: Country[] = [
     popularDishes: [
       {
         name: "Pad Thai",
+        pronunciation: "pahd tie",
         description: "Stir-fried rice noodles with eggs, tofu or shrimp, bean sprouts, and peanuts in a sweet-sour tamarind sauce. Thailand's most internationally recognized dish.",
         category: "main",
         keyTraits: ["wok-fried", "tamarind", "rice noodles"],
@@ -117,6 +118,7 @@ export const countries: Country[] = [
       {
         name: "Tom Yum Goong",
         englishName: "Spicy Shrimp Soup",
+        pronunciation: "tom yum goong",
         description: "Hot and sour soup with shrimp, mushrooms, lemongrass, galangal, kaffir lime leaves, and chilies. The quintessential Thai soup.",
         category: "soup",
         keyTraits: ["lemongrass", "hot & sour", "galangal"],
@@ -128,6 +130,7 @@ export const countries: Country[] = [
       {
         name: "Som Tum",
         englishName: "Green Papaya Salad",
+        pronunciation: "som tum",
         description: "Shredded unripe papaya pounded with tomatoes, green beans, peanuts, dried shrimp, and chilies in a lime and fish sauce dressing. Originates from the Isan region.",
         category: "salad",
         keyTraits: ["pounded", "lime", "fish sauce"],
@@ -141,6 +144,7 @@ export const countries: Country[] = [
       {
         name: "Gaeng Keow Wan",
         englishName: "Green Curry",
+        pronunciation: "gang kee-ow wahn",
         description: "Creamy coconut curry with green chili paste, Thai eggplant, bamboo shoots, and Thai basil, typically made with chicken or beef.",
         category: "main",
         keyTraits: ["coconut milk", "Thai basil", "green chili"],
@@ -152,6 +156,7 @@ export const countries: Country[] = [
       {
         name: "Khao Pad",
         englishName: "Thai Fried Rice",
+        pronunciation: "cow pahd",
         description: "Wok-fried jasmine rice with egg, onion, and choice of protein, seasoned with fish sauce and served with lime and cucumber.",
         category: "main",
         keyTraits: ["wok-fried", "jasmine rice", "fish sauce"],
@@ -163,6 +168,7 @@ export const countries: Country[] = [
       },
       {
         name: "Massaman Curry",
+        pronunciation: "mah-sah-mahn",
         description: "Rich, mild curry with Muslim influences, featuring potatoes, peanuts, and warm spices like cardamom, cinnamon, and star anise. Often made with beef or chicken.",
         category: "main",
         keyTraits: ["coconut", "warm spices", "peanuts"],
@@ -175,6 +181,7 @@ export const countries: Country[] = [
       {
         name: "Pad Krapow Moo Saap",
         englishName: "Basil Pork",
+        pronunciation: "pahd kra-pow moo sahp",
         description: "Stir-fried minced pork with holy basil, chilies, and garlic, served over rice with a fried egg. A beloved everyday lunch dish.",
         category: "main",
         keyTraits: ["holy basil", "garlic", "stir-fried"],
@@ -194,6 +201,68 @@ export const countries: Country[] = [
         spiceLevel: "none",
         difficulty: "easy",
         dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Thai Iced Tea",
+        englishName: "Cha Yen",
+        pronunciation: "chah yen",
+        description: "Sweet, creamy orange-colored tea made with strongly brewed Ceylon tea, condensed milk, and evaporated milk, served over ice.",
+        type: "non-alcoholic",
+        category: "tea",
+        servedHow: "iced",
+        keyIngredients: ["Ceylon tea", "condensed milk", "evaporated milk", "sugar"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isGlutenFree: true }
+      },
+      {
+        name: "Thai Iced Coffee",
+        englishName: "Oliang",
+        pronunciation: "oh-lee-ahng",
+        description: "Strong coffee brewed with roasted corn, soybeans, and sesame, sweetened with condensed milk and served over ice.",
+        type: "non-alcoholic",
+        category: "coffee",
+        servedHow: "iced",
+        keyIngredients: ["coffee", "condensed milk", "roasted corn", "sesame"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isGlutenFree: true }
+      },
+      {
+        name: "Nam Manao",
+        englishName: "Fresh Lime Juice",
+        pronunciation: "nahm ma-now",
+        description: "Refreshing Thai limeade made with fresh lime juice, sugar, and a pinch of salt, served over ice.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "iced",
+        keyIngredients: ["lime", "sugar", "salt"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Singha",
+        pronunciation: "sing-ha",
+        description: "Thailand's most famous beer, a full-bodied pale lager with a slightly bitter finish. Named after a mythical lion.",
+        type: "alcoholic",
+        category: "beer",
+        servedHow: "cold",
+        keyIngredients: ["barley malt", "hops"],
+        alcoholContent: "medium",
+        dietary: { isVegan: true, isDairyFree: true }
+      },
+      {
+        name: "Mekhong",
+        pronunciation: "may-kohng",
+        description: "Thai rum-whisky hybrid made from sugarcane and rice, often mixed with soda or used in cocktails. Named after the Mekong River.",
+        type: "alcoholic",
+        category: "spirit",
+        keyIngredients: ["sugarcane", "rice"],
+        alcoholContent: "high",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
       }
     ]
   },
@@ -231,11 +300,11 @@ export const countries: Country[] = [
       keyIngredients: ["corn (maize)", "dried and fresh chilies", "black beans", "tomatoes", "tomatillos", "avocado", "lime", "queso fresco", "crema"],
       cookingTechniques: ["nixtamalization (corn processing)", "dry-roasting chilies and spices", "braising and stewing", "grilling (al carbon)", "frying"],
       cookingFlow: [
-        { action: "Toast dried chilies", emoji: "🌶️" },
-        { action: "Blend sauce", emoji: "🫙" },
+        { action: "Toast chilies", emoji: "🌶️" },
+        { action: "Blend", emoji: "🫙" },
         { action: "Fry paste", emoji: "🍳" },
-        { action: "Braise meat", emoji: "🍖" },
-        { action: "Garnish fresh", emoji: "🌿" }
+        { action: "Braise", emoji: "🍖" },
+        { action: "Garnish", emoji: "🌿" }
       ],
       spicesAndSeasonings: ["cumin", "oregano (Mexican)", "epazote", "cilantro", "cinnamon", "cloves", "achiote (annatto)", "dried chilies (ancho, guajillo, chipotle, pasilla)"],
       ingredientTiers: {
@@ -309,6 +378,7 @@ export const countries: Country[] = [
     popularDishes: [
       {
         name: "Tacos",
+        pronunciation: "tah-kohs",
         description: "Soft corn tortillas filled with endless variations—carne asada, carnitas, al pastor, barbacoa, fish—topped with onion, cilantro, salsa, and lime.",
         category: "main",
         keyTraits: ["corn tortilla", "cilantro", "salsa"],
@@ -320,6 +390,7 @@ export const countries: Country[] = [
       },
       {
         name: "Mole Poblano",
+        pronunciation: "moh-leh poh-blah-noh",
         description: "Complex sauce of dried chilies, chocolate, nuts, spices, and more, typically served over chicken or turkey. Originated in Puebla and requires hours of preparation.",
         category: "main",
         keyTraits: ["chocolate", "dried chilies", "complex"],
@@ -331,6 +402,7 @@ export const countries: Country[] = [
       },
       {
         name: "Pozole",
+        pronunciation: "poh-soh-leh",
         description: "Hearty hominy soup with pork or chicken in a red or green chili broth, garnished with cabbage, radish, oregano, and lime. Traditional for celebrations.",
         category: "soup",
         keyTraits: ["hominy", "chili broth", "pork"],
@@ -341,6 +413,7 @@ export const countries: Country[] = [
       },
       {
         name: "Chiles en Nogada",
+        pronunciation: "chee-lehs en noh-gah-dah",
         description: "Poblano peppers stuffed with picadillo (meat and fruit mixture), covered in walnut cream sauce and pomegranate seeds. A patriotic dish eaten in September.",
         category: "main",
         keyTraits: ["walnut cream", "poblano", "picadillo"],
@@ -352,6 +425,7 @@ export const countries: Country[] = [
       },
       {
         name: "Tamales",
+        pronunciation: "tah-mah-lehs",
         description: "Corn masa filled with meats, cheese, or sweet fillings, wrapped in corn husks or banana leaves and steamed. A labor of love often made communally.",
         category: "main",
         keyTraits: ["masa", "steamed", "corn husk"],
@@ -362,6 +436,7 @@ export const countries: Country[] = [
       },
       {
         name: "Guacamole",
+        pronunciation: "gwah-kah-moh-leh",
         description: "Mashed avocado with lime, cilantro, onion, tomato, and chili. Simple but essential, served with tortilla chips or as a taco accompaniment.",
         category: "appetizer",
         keyTraits: ["avocado", "lime", "cilantro"],
@@ -372,6 +447,7 @@ export const countries: Country[] = [
       },
       {
         name: "Elote",
+        pronunciation: "eh-loh-teh",
         description: "Grilled corn on the cob slathered with mayonnaise, cotija cheese, chili powder, and lime. Iconic Mexican street food.",
         category: "street-food",
         keyTraits: ["grilled corn", "cotija", "chili lime"],
@@ -383,6 +459,7 @@ export const countries: Country[] = [
       },
       {
         name: "Churros",
+        pronunciation: "choo-rohs",
         description: "Fried dough pastry coated in cinnamon sugar, often served with chocolate sauce for dipping. A beloved street dessert.",
         category: "dessert",
         keyTraits: ["fried dough", "cinnamon sugar", "chocolate"],
@@ -391,6 +468,70 @@ export const countries: Country[] = [
         spiceLevel: "none",
         difficulty: "medium",
         dietary: { isVegetarian: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Horchata",
+        pronunciation: "or-chah-tah",
+        description: "Creamy, refreshing rice-based drink flavored with cinnamon and vanilla. A staple at taquerias and family gatherings.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "cold",
+        keyIngredients: ["rice", "cinnamon", "vanilla", "sugar"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Jamaica",
+        englishName: "Hibiscus Tea",
+        pronunciation: "ha-my-kah",
+        description: "Deep red drink made from dried hibiscus flowers, served cold and sweetened. Tart, refreshing, and rich in antioxidants.",
+        type: "non-alcoholic",
+        category: "tea",
+        servedHow: "cold",
+        keyIngredients: ["hibiscus flowers", "sugar", "lime"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Mexican Hot Chocolate",
+        englishName: "Chocolate Caliente",
+        pronunciation: "choh-koh-lah-teh kah-lee-en-teh",
+        description: "Spiced hot chocolate made with Mexican chocolate tablets, frothed with a molinillo. Flavored with cinnamon and sometimes chili.",
+        type: "non-alcoholic",
+        category: "street",
+        servedHow: "hot",
+        keyIngredients: ["Mexican chocolate", "cinnamon", "milk"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isGlutenFree: true }
+      },
+      {
+        name: "Mezcal",
+        pronunciation: "mes-kahl",
+        description: "Smoky agave spirit made primarily in Oaxaca, traditionally sipped neat. The agave hearts are roasted in underground pits.",
+        type: "alcoholic",
+        category: "spirit",
+        regionalOrigin: "Oaxaca",
+        keyIngredients: ["agave"],
+        isTraditional: true,
+        alcoholContent: "high",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Tequila",
+        pronunciation: "teh-kee-lah",
+        description: "Famous agave spirit from Jalisco, made exclusively from blue agave. Ranges from unaged blanco to barrel-aged añejo.",
+        type: "alcoholic",
+        category: "spirit",
+        regionalOrigin: "Jalisco",
+        keyIngredients: ["blue agave"],
+        isTraditional: true,
+        alcoholContent: "high",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
       }
     ]
   },
@@ -428,11 +569,11 @@ export const countries: Country[] = [
       keyIngredients: ["short-grain rice", "soy sauce (shoyu)", "dashi (seaweed and bonito stock)", "miso", "mirin", "sake", "tofu", "seafood", "nori (seaweed)"],
       cookingTechniques: ["raw preparation (sashimi)", "grilling (yakitori, robata)", "deep-frying (tempura, tonkatsu)", "simmering (nimono)", "steaming"],
       cookingFlow: [
-        { action: "Prepare dashi", emoji: "🍵" },
-        { action: "Season precisely", emoji: "🧂" },
-        { action: "Cook gently", emoji: "♨️" },
-        { action: "Arrange beautifully", emoji: "🎨" },
-        { action: "Garnish with care", emoji: "🌸" }
+        { action: "Make dashi", emoji: "🍵" },
+        { action: "Season", emoji: "🧂" },
+        { action: "Cook", emoji: "♨️" },
+        { action: "Plate", emoji: "🎨" },
+        { action: "Garnish", emoji: "🌸" }
       ],
       spicesAndSeasonings: ["wasabi", "ginger", "shichimi togarashi", "sesame (seeds and oil)", "shiso", "mitsuba", "yuzu", "sancho pepper"],
       ingredientTiers: {
@@ -468,6 +609,7 @@ export const countries: Country[] = [
     popularDishes: [
       {
         name: "Sushi",
+        pronunciation: "soo-shee",
         description: "Vinegared rice paired with fresh raw fish, seafood, or vegetables. Ranges from casual conveyor-belt shops to exclusive omakase counters where chefs serve piece by piece.",
         category: "main",
         keyTraits: ["vinegared rice", "raw fish", "nori"],
@@ -478,6 +620,7 @@ export const countries: Country[] = [
       },
       {
         name: "Ramen",
+        pronunciation: "rah-men",
         description: "Wheat noodles in rich broth—tonkotsu (pork bone), shoyu (soy), miso, or shio (salt)—topped with chashu pork, eggs, nori, and scallions. Regional styles vary dramatically.",
         category: "soup",
         keyTraits: ["rich broth", "wheat noodles", "chashu"],
@@ -489,6 +632,7 @@ export const countries: Country[] = [
       },
       {
         name: "Tempura",
+        pronunciation: "tem-poo-rah",
         description: "Lightly battered and deep-fried vegetables and seafood, served with tentsuyu dipping sauce. The batter is kept ice-cold for maximum crispness.",
         category: "main",
         keyTraits: ["light batter", "deep-fried", "dashi"],
@@ -499,6 +643,7 @@ export const countries: Country[] = [
       },
       {
         name: "Tonkatsu",
+        pronunciation: "tohn-kah-tsoo",
         description: "Breaded and deep-fried pork cutlet, served with shredded cabbage, rice, and tangy tonkatsu sauce. A comfort food staple.",
         category: "main",
         keyTraits: ["panko-breaded", "pork cutlet", "tonkatsu sauce"],
@@ -510,6 +655,7 @@ export const countries: Country[] = [
       {
         name: "Okonomiyaki",
         englishName: "Savory Pancake",
+        pronunciation: "oh-koh-noh-mee-yah-kee",
         description: "Cabbage-based savory pancake with various fillings, topped with mayo, okonomiyaki sauce, bonito flakes, and seaweed. Osaka and Hiroshima have distinct styles.",
         category: "main",
         keyTraits: ["cabbage", "savory pancake", "bonito flakes"],
@@ -521,6 +667,7 @@ export const countries: Country[] = [
       },
       {
         name: "Yakitori",
+        pronunciation: "yah-kee-toh-ree",
         description: "Skewered and grilled chicken pieces—thigh, breast, skin, organs—seasoned with salt or sweet tare sauce. Quintessential izakaya (pub) food.",
         category: "appetizer",
         keyTraits: ["charcoal-grilled", "tare sauce", "skewered"],
@@ -532,6 +679,7 @@ export const countries: Country[] = [
       },
       {
         name: "Miso Soup",
+        pronunciation: "mee-soh",
         description: "Dashi broth with dissolved miso paste, tofu, wakame seaweed, and scallions. Served with nearly every traditional meal.",
         category: "soup",
         keyTraits: ["dashi", "fermented miso", "tofu"],
@@ -542,6 +690,7 @@ export const countries: Country[] = [
       },
       {
         name: "Matcha",
+        pronunciation: "mah-chah",
         description: "Powdered green tea whisked into hot water, central to Japanese tea ceremony. Also used in desserts, lattes, and sweets.",
         category: "beverage",
         keyTraits: ["green tea", "ceremonial", "umami"],
@@ -549,6 +698,67 @@ export const countries: Country[] = [
         spiceLevel: "none",
         difficulty: "easy",
         dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Sake",
+        englishName: "Rice Wine",
+        pronunciation: "sah-keh",
+        description: "Fermented rice beverage central to Japanese culture. Ranges from dry to sweet, served cold, warm, or hot depending on the style.",
+        type: "alcoholic",
+        category: "wine",
+        keyIngredients: ["rice", "koji", "water"],
+        isTraditional: true,
+        alcoholContent: "medium",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Green Tea",
+        englishName: "Ocha",
+        pronunciation: "oh-chah",
+        description: "Everyday Japanese green tea served with meals. Sencha is most common, with a grassy, slightly astringent flavor.",
+        type: "non-alcoholic",
+        category: "tea",
+        servedHow: "hot",
+        keyIngredients: ["green tea leaves"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Ramune",
+        pronunciation: "rah-moo-neh",
+        description: "Iconic Japanese soda in a distinctive marble-sealed bottle. Lemon-lime flavor with a nostalgic, carnival association.",
+        type: "non-alcoholic",
+        category: "soda",
+        servedHow: "cold",
+        keyIngredients: ["carbonated water", "sugar", "citrus flavor"],
+        isTraditional: false,
+        isStreetDrink: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Shochu",
+        pronunciation: "shoh-choo",
+        description: "Distilled spirit made from barley, sweet potato, or rice. Lower proof than whisky, often drunk on the rocks or with water.",
+        type: "alcoholic",
+        category: "spirit",
+        keyIngredients: ["barley", "sweet potato", "rice"],
+        isTraditional: true,
+        alcoholContent: "medium",
+        dietary: { isVegan: true, isDairyFree: true }
+      },
+      {
+        name: "Calpis",
+        englishName: "Calpico",
+        pronunciation: "kah-ru-pee-su",
+        description: "Milky, slightly sweet and tangy soft drink made from fermented milk. Often diluted with water or soda.",
+        type: "non-alcoholic",
+        category: "soda",
+        servedHow: "cold",
+        keyIngredients: ["fermented milk", "sugar"],
+        isTraditional: false,
+        dietary: { isGlutenFree: true }
       }
     ]
   },
@@ -586,11 +796,11 @@ export const countries: Country[] = [
       keyIngredients: ["olive oil", "tomatoes (fresh and canned San Marzano)", "Parmigiano-Reggiano", "pasta (dozens of shapes)", "cured pork (guanciale, pancetta, prosciutto)", "garlic", "white beans", "arborio rice"],
       cookingTechniques: ["sautéing in olive oil", "slow-simmering sauces (ragù)", "roasting", "grilling", "curing and aging meats/cheeses"],
       cookingFlow: [
-        { action: "Sauté aromatics", emoji: "🧄" },
-        { action: "Toast base", emoji: "🍞" },
+        { action: "Sauté", emoji: "🧄" },
+        { action: "Toast", emoji: "🍞" },
         { action: "Deglaze", emoji: "🍷" },
-        { action: "Simmer slow", emoji: "🍝" },
-        { action: "Finish with cheese", emoji: "🧀" }
+        { action: "Simmer", emoji: "🍝" },
+        { action: "Add cheese", emoji: "🧀" }
       ],
       spicesAndSeasonings: ["basil", "oregano", "rosemary", "sage", "flat-leaf parsley", "garlic", "red pepper flakes (peperoncino)", "fennel seeds", "black pepper"],
       ingredientTiers: {
@@ -650,6 +860,7 @@ export const countries: Country[] = [
     popularDishes: [
       {
         name: "Pasta alla Carbonara",
+        pronunciation: "kar-boh-nah-rah",
         description: "Rigatoni or spaghetti tossed with guanciale, egg yolks, Pecorino Romano, and black pepper. No cream—the silky sauce comes from emulsifying eggs with pasta water.",
         category: "main",
         keyTraits: ["guanciale", "egg yolk", "pecorino"],
@@ -661,6 +872,7 @@ export const countries: Country[] = [
       },
       {
         name: "Margherita Pizza",
+        pronunciation: "mar-geh-ree-tah",
         description: "Neapolitan pizza with San Marzano tomatoes, fresh mozzarella, basil, and olive oil on a charred, chewy crust. The standard by which all pizza is measured.",
         category: "main",
         keyTraits: ["San Marzano", "fresh mozzarella", "wood-fired"],
@@ -672,6 +884,7 @@ export const countries: Country[] = [
       },
       {
         name: "Risotto alla Milanese",
+        pronunciation: "ree-zoh-toh mee-lah-neh-zeh",
         description: "Creamy arborio rice slowly cooked with saffron, white wine, and butter, finished with Parmigiano. Golden-hued and luxurious.",
         category: "main",
         keyTraits: ["saffron", "arborio rice", "butter"],
@@ -683,6 +896,7 @@ export const countries: Country[] = [
       },
       {
         name: "Ossobuco",
+        pronunciation: "oh-soh-boo-koh",
         description: "Braised veal shanks with vegetables, white wine, and broth, traditionally served with risotto alla Milanese. The marrow is prized.",
         category: "main",
         keyTraits: ["braised", "veal shank", "gremolata"],
@@ -694,6 +908,7 @@ export const countries: Country[] = [
       },
       {
         name: "Lasagna Bolognese",
+        pronunciation: "lah-zahn-yah boh-loh-nyeh-zeh",
         description: "Layers of fresh pasta sheets, slow-cooked meat ragù, béchamel, and Parmigiano, baked until golden. A labor-intensive celebration dish.",
         category: "main",
         keyTraits: ["ragù", "béchamel", "layered"],
@@ -705,6 +920,7 @@ export const countries: Country[] = [
       },
       {
         name: "Gelato",
+        pronunciation: "jeh-lah-toh",
         description: "Italian ice cream with less air and fat than American versions, resulting in denser, more intense flavors. Pistachio, stracciatella, and hazelnut are classics.",
         category: "dessert",
         keyTraits: ["dense", "pistachio", "artisanal"],
@@ -715,6 +931,7 @@ export const countries: Country[] = [
       },
       {
         name: "Prosciutto e Melone",
+        pronunciation: "proh-shoo-toh eh meh-loh-neh",
         description: "Paper-thin aged prosciutto draped over ripe cantaloupe. A perfect summer antipasto balancing salty, sweet, and savory.",
         category: "appetizer",
         keyTraits: ["cured ham", "cantaloupe", "sweet-savory"],
@@ -725,6 +942,7 @@ export const countries: Country[] = [
       },
       {
         name: "Tiramisu",
+        pronunciation: "tee-rah-mee-soo",
         description: "Layered dessert of espresso-soaked ladyfingers and mascarpone cream, dusted with cocoa. Originated in the Veneto region in the 1960s-80s.",
         category: "dessert",
         keyTraits: ["espresso", "mascarpone", "cocoa"],
@@ -733,6 +951,68 @@ export const countries: Country[] = [
         spiceLevel: "none",
         difficulty: "medium",
         dietary: { isVegetarian: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Espresso",
+        pronunciation: "eh-spreh-soh",
+        description: "Strong, concentrated coffee served in small cups. The foundation of Italian coffee culture, drunk standing at the bar throughout the day.",
+        type: "non-alcoholic",
+        category: "coffee",
+        servedHow: "hot",
+        keyIngredients: ["finely ground coffee"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Aperol Spritz",
+        pronunciation: "ah-peh-rol sprits",
+        description: "Iconic aperitif cocktail of Aperol, prosecco, and soda water, garnished with orange. The quintessential Italian happy hour drink.",
+        type: "alcoholic",
+        category: "cocktail",
+        regionalOrigin: "Veneto",
+        servedHow: "cold",
+        keyIngredients: ["Aperol", "prosecco", "soda water", "orange"],
+        alcoholContent: "low",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Limoncello",
+        pronunciation: "lee-mohn-cheh-loh",
+        description: "Bright yellow lemon liqueur from the Amalfi Coast. Made by steeping lemon zest in alcohol, served ice-cold as a digestivo.",
+        type: "alcoholic",
+        category: "spirit",
+        regionalOrigin: "Amalfi Coast",
+        servedHow: "cold",
+        keyIngredients: ["lemon zest", "alcohol", "sugar"],
+        isTraditional: true,
+        alcoholContent: "medium",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Prosecco",
+        pronunciation: "proh-seh-koh",
+        description: "Sparkling white wine from the Veneto region. Lighter and fruitier than Champagne, perfect for aperitivo or celebrations.",
+        type: "alcoholic",
+        category: "wine",
+        regionalOrigin: "Veneto",
+        servedHow: "cold",
+        keyIngredients: ["Glera grapes"],
+        isTraditional: true,
+        alcoholContent: "medium",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Chinotto",
+        pronunciation: "kee-noh-toh",
+        description: "Bitter citrus soda made from the chinotto fruit. Dark brown with a complex, bittersweet flavor similar to cola but more herbal.",
+        type: "non-alcoholic",
+        category: "soda",
+        servedHow: "cold",
+        keyIngredients: ["chinotto citrus", "sugar", "carbonated water"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
       }
     ]
   },
@@ -770,11 +1050,11 @@ export const countries: Country[] = [
       keyIngredients: ["teff flour (for injera)", "berbere spice blend", "niter kibbeh (spiced clarified butter)", "lentils", "chickpeas", "collard greens", "beef", "lamb", "chicken"],
       cookingTechniques: ["slow-simmering stews (wots)", "dry-frying spices", "fermenting (injera batter)", "clarifying and spicing butter", "raw meat preparation (kitfo, gored gored)"],
       cookingFlow: [
-        { action: "Dry-fry spices", emoji: "🫚" },
-        { action: "Build berbere", emoji: "🌶️" },
+        { action: "Toast spices", emoji: "🫚" },
+        { action: "Mix berbere", emoji: "🌶️" },
         { action: "Sauté onions", emoji: "🧅" },
-        { action: "Slow-simmer wot", emoji: "🍲" },
-        { action: "Serve on injera", emoji: "🫓" }
+        { action: "Simmer wot", emoji: "🍲" },
+        { action: "Serve", emoji: "🫓" }
       ],
       spicesAndSeasonings: ["berbere (chili, fenugreek, coriander, cardamom, and more)", "mitmita (chili powder blend)", "korarima (Ethiopian cardamom)", "black cumin", "fenugreek", "bishop's weed (ajwain)", "rue"],
       ingredientTiers: {
@@ -811,6 +1091,7 @@ export const countries: Country[] = [
     popularDishes: [
       {
         name: "Injera",
+        pronunciation: "in-jeh-rah",
         description: "Spongy, tangy flatbread made from fermented teff batter. The foundation of every Ethiopian meal—serving as plate, utensil, and staple carbohydrate.",
         category: "side",
         keyTraits: ["fermented teff", "spongy", "tangy"],
@@ -822,6 +1103,7 @@ export const countries: Country[] = [
       },
       {
         name: "Doro Wot",
+        pronunciation: "doh-roh woht",
         description: "Spicy chicken stew simmered for hours in berbere and niter kibbeh, served with hard-boiled eggs. The national dish, reserved for special occasions and holidays.",
         category: "main",
         keyTraits: ["berbere", "niter kibbeh", "slow-simmered"],
@@ -832,6 +1114,7 @@ export const countries: Country[] = [
       },
       {
         name: "Kitfo",
+        pronunciation: "kit-foh",
         description: "Minced raw beef seasoned with mitmita and niter kibbeh. Can be served leb leb (lightly warmed) or fully cooked. Ethiopia's steak tartare equivalent.",
         category: "main",
         keyTraits: ["raw beef", "mitmita", "niter kibbeh"],
@@ -842,6 +1125,7 @@ export const countries: Country[] = [
       },
       {
         name: "Misir Wot",
+        pronunciation: "mih-sir woht",
         description: "Red lentils simmered in berbere spice blend until thick and flavorful. A fasting-day staple and one of the world's great vegan dishes.",
         category: "main",
         keyTraits: ["red lentils", "berbere", "vegan"],
@@ -853,6 +1137,7 @@ export const countries: Country[] = [
       },
       {
         name: "Shiro",
+        pronunciation: "shee-roh",
         description: "Smooth, thick stew of ground chickpeas or broad beans with garlic, onion, and spices. Humble, comforting, and ubiquitous on fasting days.",
         category: "main",
         keyTraits: ["chickpea", "creamy", "garlic"],
@@ -864,6 +1149,7 @@ export const countries: Country[] = [
       },
       {
         name: "Tibs",
+        pronunciation: "tibs",
         description: "Sautéed meat (beef or lamb) with onions, peppers, and spices. Ranges from mild (alicha tibs) to fiery. Often served sizzling in a clay pot.",
         category: "main",
         keyTraits: ["sautéed", "onions", "peppers"],
@@ -874,6 +1160,7 @@ export const countries: Country[] = [
       },
       {
         name: "Gomen",
+        pronunciation: "goh-men",
         description: "Collard greens sautéed with garlic, ginger, and spices. A standard component of the vegetarian combination platter.",
         category: "side",
         keyTraits: ["collard greens", "garlic", "ginger"],
@@ -885,6 +1172,7 @@ export const countries: Country[] = [
       },
       {
         name: "Ethiopian Coffee (Buna)",
+        pronunciation: "boo-nah",
         description: "Coffee roasted, ground, and brewed tableside in a jebena (clay pot). Served in three rounds of decreasing strength. A ceremony, not just a drink.",
         category: "beverage",
         keyTraits: ["fresh-roasted", "ceremonial", "jebena"],
@@ -892,6 +1180,52 @@ export const countries: Country[] = [
         spiceLevel: "none",
         difficulty: "medium",
         dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Coffee (Buna)",
+        pronunciation: "boo-nah",
+        description: "Ceremonial coffee roasted, ground, and brewed tableside in a jebena clay pot. Served in three rounds: abol, tona, and baraka, each progressively weaker.",
+        type: "non-alcoholic",
+        category: "ceremonial",
+        servedHow: "hot",
+        keyIngredients: ["green coffee beans", "frankincense"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Tej",
+        pronunciation: "tedge",
+        description: "Traditional Ethiopian honey wine with a sweet, slightly bitter taste from gesho leaves. Served in distinctive round-bottomed flasks called berele.",
+        type: "alcoholic",
+        category: "wine",
+        keyIngredients: ["honey", "gesho leaves", "water"],
+        isTraditional: true,
+        alcoholContent: "medium",
+        dietary: { isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Tella",
+        pronunciation: "teh-lah",
+        description: "Traditional Ethiopian beer made from fermented barley, wheat, or teff. Thick, cloudy, and mildly sour with low alcohol content.",
+        type: "alcoholic",
+        category: "beer",
+        keyIngredients: ["barley", "gesho", "water"],
+        isTraditional: true,
+        alcoholContent: "low",
+        dietary: { isVegan: true, isDairyFree: true }
+      },
+      {
+        name: "Spris",
+        pronunciation: "spreece",
+        description: "Unique Ethiopian drink that's half coffee, half tea in the same cup. A popular way to enjoy both beverages simultaneously.",
+        type: "non-alcoholic",
+        category: "coffee",
+        servedHow: "hot",
+        keyIngredients: ["coffee", "black tea"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
       }
     ]
   },
@@ -929,11 +1263,11 @@ export const countries: Country[] = [
       keyIngredients: ["ají amarillo (yellow pepper)", "lime", "potatoes (thousands of varieties)", "corn (choclo)", "seafood", "quinoa", "cilantro", "ají panca", "huacatay (black mint)"],
       cookingTechniques: ["curing in citrus (ceviche)", "stir-frying (from chifa influence)", "braising and stewing", "grilling (anticuchos)", "pachamanca (earth oven cooking)"],
       cookingFlow: [
-        { action: "Slice fresh fish", emoji: "🐟" },
-        { action: "Squeeze citrus", emoji: "🍋" },
-        { action: "Chop aromatics", emoji: "🧅" },
-        { action: "Mix & cure", emoji: "🥣" },
-        { action: "Plate with sides", emoji: "🍠" }
+        { action: "Slice fish", emoji: "🐟" },
+        { action: "Add citrus", emoji: "🍋" },
+        { action: "Chop", emoji: "🧅" },
+        { action: "Cure", emoji: "🥣" },
+        { action: "Plate", emoji: "🍠" }
       ],
       spicesAndSeasonings: ["ají amarillo", "ají panca", "ají rocoto", "cumin", "garlic", "cilantro", "huacatay", "chincho", "palillo (Peruvian turmeric)"],
       ingredientTiers: {
@@ -969,6 +1303,7 @@ export const countries: Country[] = [
     popularDishes: [
       {
         name: "Ceviche",
+        pronunciation: "seh-vee-cheh",
         description: "Fresh raw fish cured in lime juice with ají, red onion, and cilantro. Served with sweet potato and cancha (toasted corn). Peru's national dish and point of pride.",
         category: "main",
         keyTraits: ["lime-cured", "ají amarillo", "red onion"],
@@ -979,6 +1314,7 @@ export const countries: Country[] = [
       },
       {
         name: "Lomo Saltado",
+        pronunciation: "loh-moh sahl-tah-doh",
         description: "Stir-fried beef with onions, tomatoes, and ají amarillo, served over rice with French fries. The quintessential chifa (Chinese-Peruvian) fusion dish.",
         category: "main",
         keyTraits: ["stir-fried", "chifa fusion", "soy sauce"],
@@ -989,6 +1325,7 @@ export const countries: Country[] = [
       },
       {
         name: "Ají de Gallina",
+        pronunciation: "ah-hee deh gah-yee-nah",
         description: "Shredded chicken in a creamy sauce of ají amarillo, bread, walnuts, and cheese, served over rice with potatoes and olives.",
         category: "main",
         keyTraits: ["creamy", "ají amarillo", "walnuts"],
@@ -999,6 +1336,7 @@ export const countries: Country[] = [
       },
       {
         name: "Anticuchos",
+        pronunciation: "ahn-tee-koo-chohs",
         description: "Grilled beef heart skewers marinated in vinegar, cumin, and ají panca. Beloved street food with pre-Columbian origins, served with potatoes and corn.",
         category: "street-food",
         keyTraits: ["grilled", "beef heart", "ají panca"],
@@ -1010,6 +1348,7 @@ export const countries: Country[] = [
       },
       {
         name: "Causa",
+        pronunciation: "cow-sah",
         description: "Layered cold dish of seasoned mashed yellow potato with ají amarillo, filled with chicken, tuna, or crab salad. Striking presentation.",
         category: "appetizer",
         keyTraits: ["layered potato", "ají amarillo", "cold"],
@@ -1020,6 +1359,7 @@ export const countries: Country[] = [
       },
       {
         name: "Rocoto Relleno",
+        pronunciation: "roh-koh-toh reh-yeh-noh",
         description: "Stuffed rocoto pepper (extremely spicy) with ground beef, onions, eggs, and cheese, baked until golden. A specialty of Arequipa.",
         category: "main",
         keyTraits: ["stuffed pepper", "rocoto", "baked"],
@@ -1031,6 +1371,7 @@ export const countries: Country[] = [
       },
       {
         name: "Picarones",
+        pronunciation: "pee-kah-roh-nehs",
         description: "Sweet potato and squash doughnuts drizzled with chancaca (raw sugar syrup). A beloved street dessert dating to colonial times.",
         category: "dessert",
         keyTraits: ["sweet potato", "chancaca syrup", "fried"],
@@ -1042,6 +1383,7 @@ export const countries: Country[] = [
       },
       {
         name: "Pisco Sour",
+        pronunciation: "pees-koh",
         description: "Cocktail of pisco (grape brandy), lime juice, simple syrup, egg white, and bitters. Peru's national drink, with contested Chilean origins.",
         category: "beverage",
         keyTraits: ["pisco", "lime", "egg white foam"],
@@ -1049,6 +1391,578 @@ export const countries: Country[] = [
         spiceLevel: "none",
         difficulty: "easy",
         dietary: { isDairyFree: true, isGlutenFree: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Pisco Sour",
+        pronunciation: "pees-koh sow-er",
+        description: "Peru's national cocktail made with pisco, lime juice, simple syrup, egg white, and Angostura bitters. Frothy, tangy, and iconic.",
+        type: "alcoholic",
+        category: "cocktail",
+        servedHow: "cold",
+        keyIngredients: ["pisco", "lime juice", "egg white", "bitters"],
+        isTraditional: true,
+        alcoholContent: "medium",
+        dietary: { isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Chicha Morada",
+        pronunciation: "chee-chah moh-rah-dah",
+        description: "Sweet, refreshing drink made from purple corn boiled with pineapple, cinnamon, and cloves. Deep purple color and uniquely Peruvian.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "cold",
+        keyIngredients: ["purple corn", "pineapple", "cinnamon", "cloves", "lime"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Inca Kola",
+        pronunciation: "in-kah koh-lah",
+        description: "Bright yellow soda with a sweet, bubblegum-like flavor. Peru's most popular soft drink, outselling even Coca-Cola in the country.",
+        type: "non-alcoholic",
+        category: "soda",
+        servedHow: "cold",
+        keyIngredients: ["lemon verbena", "sugar", "carbonated water"],
+        isTraditional: false,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Mate de Coca",
+        englishName: "Coca Leaf Tea",
+        pronunciation: "mah-teh deh koh-kah",
+        description: "Tea made from coca leaves, traditionally used to combat altitude sickness. Mild, earthy flavor with a subtle energizing effect.",
+        type: "non-alcoholic",
+        category: "tea",
+        regionalOrigin: "Andes",
+        servedHow: "hot",
+        keyIngredients: ["coca leaves"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Chicha de Jora",
+        pronunciation: "chee-chah deh hoh-rah",
+        description: "Ancient fermented corn beer dating to Incan times. Mildly alcoholic, slightly sour, and still made traditionally in the Andes.",
+        type: "alcoholic",
+        category: "beer",
+        regionalOrigin: "Andes",
+        keyIngredients: ["jora corn", "water"],
+        isTraditional: true,
+        alcoholContent: "low",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      }
+    ]
+  },
+  {
+    id: "GE",
+    name: "Georgia",
+    capital: "Tbilisi",
+    continent: "Asia",
+    region: "Caucasus",
+    colorPalette: {
+      primary: "#8b2942",      // Muted wine red (wine heritage)
+      secondary: "#4a5568",    // Slate gray (mountains)
+      accent: "#c9a227",       // Gold (church domes)
+      background: "#fdfaf6",   // Warm cream
+      text: "#3d2a2a"          // Dark burgundy
+    },
+    foodCulture: {
+      overview: "Georgian cuisine is one of the world's oldest and most distinctive culinary traditions, shaped by the country's position at the crossroads of Europe and Asia. The supra—a traditional feast presided over by a tamada (toastmaster)—is central to Georgian culture, featuring dozens of dishes and elaborate wine-fueled toasts that can last for hours.\n\nGeorgia is considered one of the birthplaces of wine, with 8,000 years of winemaking history. Traditional qvevri (clay vessels buried underground) are UNESCO-recognized, and wine is inseparable from Georgian hospitality and identity.\n\nThe cuisine celebrates bold, herbaceous flavors with generous use of walnuts, fresh herbs, and the distinctive spice blend khmeli suneli. Regional diversity is remarkable—coastal Adjara, mountainous Svaneti, and eastern Kakheti each have distinct traditions.",
+      mealStructure: "Meals often begin with an array of cold dishes (pkhali, salads, cheeses) before hot dishes arrive. The supra feast has no set number of courses—dishes arrive continuously. Bread (puri/shotis puri) is sacred and accompanies every meal.",
+      diningCustoms: "Refusing food or drink is considered impolite. Toasts during supra are elaborate and meaningful—to family, ancestors, Georgia itself. Wine is drunk from kantsi (horn) or clay cups. Guests are treated as gifts from God.",
+      historicalInfluences: "Ancient trade routes brought Persian, Turkish, and Mediterranean influences. Soviet era paradoxically helped preserve traditions as Georgians clung to cultural identity. Greek colonies on the Black Sea coast left lasting marks. The Silk Road brought spices and techniques from the East."
+    },
+    cuisineProfile: {
+      summary: "Georgian cuisine features bold, herbaceous flavors built on walnuts, fresh herbs, and distinctive spice blends, with exceptional cheese-filled breads and one of the world's oldest wine traditions.",
+      flavorProfile: ["herbaceous", "nutty (walnut-forward)", "tangy", "garlicky", "aromatic", "savory"],
+      flavorIntensity: {
+        heat: 3,
+        acidity: 6,
+        sweetness: 3,
+        umami: 6,
+        aromatic: 8,
+        smokeEarth: 5,
+        interpretation: "Bright, herb-forward flavors with prominent walnut richness and garlic punch, minimal heat."
+      },
+      keyIngredients: ["walnuts", "fresh herbs (cilantro, dill, tarragon, basil)", "garlic", "pomegranate", "sulguni cheese", "imeruli cheese", "tkemali (sour plum sauce)", "adjika (chili paste)"],
+      cookingTechniques: ["clay oven baking (tone)", "grilling and roasting", "walnut paste grinding", "cheese stretching and filling", "herb pounding (pkhali)", "stewing in clay pots"],
+      cookingFlow: [
+        { action: "Toast nuts", emoji: "🥜" },
+        { action: "Pound herbs", emoji: "🧄" },
+        { action: "Make paste", emoji: "🥣" },
+        { action: "Grill/bake", emoji: "🔥" },
+        { action: "Add pomegranate", emoji: "🔴" }
+      ],
+      spicesAndSeasonings: ["khmeli suneli (spice blend)", "blue fenugreek (utskho suneli)", "coriander seeds", "marigold petals (imeruli saffron)", "dried savory", "red pepper flakes", "fresh cilantro", "dill", "tarragon"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Walnuts", emoji: "🥜", description: "Nighozi · Defining flavor · Sauces, pastes, fillings" },
+          { name: "Fresh Herbs", emoji: "🌿", description: "Cilantro, dill, tarragon · Signature freshness" },
+          { name: "Garlic", emoji: "🧄", description: "Niori · Aromatic base · Used generously" },
+          { name: "Cheese", emoji: "🧀", description: "Sulguni, imeruli · Stretchy, salty, tangy" }
+        ],
+        aromaticCore: [
+          { name: "Blue Fenugreek", emoji: "🌱", description: "Utskho suneli · Key spice · Nutty, maple-like" },
+          { name: "Coriander", emoji: "🫛", description: "Kinza · Seed & leaf · Citrusy, warm" },
+          { name: "Marigold", emoji: "🌼", description: "Imeruli saffron · Color · Earthy, floral" },
+          { name: "Tarragon", emoji: "🌿", description: "Tarkhuna · Fresh herb · Anise notes" },
+          { name: "Savory", emoji: "🍃", description: "Kondari · Dried herb · Peppery, thyme-like" }
+        ],
+        flavorBuilders: [
+          { name: "Pomegranate", emoji: "🔴", description: "Brotseulis · Seeds & molasses · Sweet-tart" },
+          { name: "Tkemali", emoji: "🟢", description: "Sour plum sauce · Tangy condiment" },
+          { name: "Adjika", emoji: "🌶️", description: "Chili paste · Abkhazian · Spicy, garlicky" },
+          { name: "Vinegar", emoji: "🫙", description: "Wine vinegar · Pickling, dressings" },
+          { name: "Onion", emoji: "🧅", description: "Khakhvi · Base aromatic · Mild, sweet" },
+          { name: "Tomatoes", emoji: "🍅", description: "Pomidori · Sauces, salads" },
+          { name: "Sour Cream", emoji: "🥛", description: "Arazhani · Tangy dairy · Sauce enrichment" }
+        ],
+        staples: [
+          { name: "Bread", emoji: "🍞", description: "Puri/Shotis · Tone-baked · Chewy, slightly charred" },
+          { name: "Beef/Pork", emoji: "🥩", description: "Khortsi · Grilled, stewed" },
+          { name: "Chicken", emoji: "🍗", description: "Katami · Roasted, in sauces" },
+          { name: "Beans", emoji: "🫘", description: "Lobio · Red beans · Stewed, spiced" }
+        ]
+      }
+    },
+    regionalVariations: [
+      {
+        name: "Kakheti",
+        description: "Georgia's premier wine region in the east, Kakheti cuisine pairs perfectly with the local wines. Dishes tend to be robust and meat-heavy. The region is famous for mtsvadi (grilled meat), churchkhela (walnut candy), and traditional qvevri winemaking.",
+        signatureDishes: ["Mtsvadi", "Churchkhela", "Chakapuli", "Kakhuri Khachapuri"],
+        keyIngredients: ["lamb", "pork", "wine", "tarragon", "sour plums"],
+        distinctiveTraits: ["Wine-centric cuisine", "Grilled meats", "Churchkhela tradition", "Qvevri wines"]
+      },
+      {
+        name: "Imereti",
+        description: "Central Georgia's Imereti region is known for its distinctive cheese (imeruli) and lighter, more herbaceous cooking. The region claims the original khachapuri and excels in vegetable dishes and subtle spicing.",
+        signatureDishes: ["Imeruli Khachapuri", "Gebzhalia", "Elarji", "Mchadi"],
+        keyIngredients: ["imeruli cheese", "corn flour", "herbs", "walnuts"],
+        distinctiveTraits: ["Cheese-making tradition", "Corn-based dishes", "Lighter flavors", "Original khachapuri"]
+      },
+      {
+        name: "Adjara",
+        description: "The Black Sea coastal region brings Turkish and maritime influences. Adjara is famous for its boat-shaped khachapuri topped with egg and butter, dairy-rich cuisine, and seafood. The subtropical climate yields unique ingredients.",
+        signatureDishes: ["Adjaruli Khachapuri", "Borano", "Sinori", "Chirbuli"],
+        keyIngredients: ["butter", "eggs", "cheese", "corn", "hazelnuts"],
+        distinctiveTraits: ["Dairy-rich cooking", "Egg-topped breads", "Turkish influence", "Coastal cuisine"]
+      },
+      {
+        name: "Svaneti",
+        description: "The remote mountain region of Svaneti developed unique dishes due to its isolation. Known for kubdari (meat-filled bread), heavy use of caraway and wild herbs, and preservation techniques for the harsh winters.",
+        signatureDishes: ["Kubdari", "Tashmijabi", "Svan Salt"],
+        keyIngredients: ["caraway", "wild garlic", "beef", "pork", "potatoes"],
+        distinctiveTraits: ["Mountain cuisine", "Unique spice blends (Svan salt)", "Meat-stuffed breads", "Preserved foods"]
+      }
+    ],
+    popularDishes: [
+      {
+        name: "Khachapuri",
+        pronunciation: "kha-cha-poo-ree",
+        description: "Cheese-filled bread in various regional styles. The dough is stuffed or topped with melted cheese, often with egg and butter. Georgia's most iconic dish with variations in every region.",
+        category: "main",
+        keyTraits: ["cheese-filled", "bread", "regional styles"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "medium",
+        dietary: { isVegetarian: true }
+      },
+      {
+        name: "Khinkali",
+        pronunciation: "khin-kah-lee",
+        description: "Pleated soup dumplings filled with spiced meat, herbs, and broth. Eaten by hand—hold the top knob, bite, and slurp the juices. Counting the pleats is a mark of skill.",
+        category: "main",
+        keyTraits: ["soup dumpling", "pleated", "hand-eaten"],
+        popularity: "both",
+        spiceLevel: "mild",
+        difficulty: "hard",
+        dietary: {}
+      },
+      {
+        name: "Badrijani Nigvzit",
+        englishName: "Walnut-Stuffed Eggplant",
+        pronunciation: "bad-ree-jah-nee nig-vzit",
+        description: "Fried eggplant slices rolled around a garlicky walnut paste with herbs and pomegranate seeds. A quintessential Georgian appetizer.",
+        category: "appetizer",
+        keyTraits: ["walnut paste", "eggplant", "pomegranate"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "easy",
+        dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Lobio",
+        pronunciation: "lo-bee-oh",
+        description: "Spiced red bean stew cooked with onions, herbs, and walnuts, often served in a clay pot. A hearty staple enjoyed with mchadi (cornbread).",
+        category: "main",
+        keyTraits: ["red beans", "walnuts", "clay pot"],
+        popularity: "local-favorite",
+        spiceLevel: "mild",
+        difficulty: "easy",
+        dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Chakhokhbili",
+        pronunciation: "cha-kokh-bee-lee",
+        description: "Chicken stewed with tomatoes, onions, and fresh herbs—traditionally made with pheasant. The sauce is rich with tarragon, cilantro, and basil.",
+        category: "main",
+        keyTraits: ["chicken stew", "tomato", "fresh herbs"],
+        popularity: "both",
+        spiceLevel: "mild",
+        difficulty: "medium",
+        dietary: { isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Pkhali",
+        pronunciation: "p-kha-lee",
+        description: "Vegetable pâtés made by finely chopping vegetables (spinach, beet, cabbage) and mixing with walnut paste, garlic, and herbs. Served as appetizers.",
+        category: "appetizer",
+        keyTraits: ["vegetable pâté", "walnut", "garlic"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "easy",
+        dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Satsivi",
+        pronunciation: "sat-see-vee",
+        description: "Cold chicken or turkey in creamy walnut sauce with garlic and spices. Traditionally served at New Year's, the sauce is rich and aromatic.",
+        category: "main",
+        keyTraits: ["walnut sauce", "cold dish", "festive"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "medium",
+        dietary: { isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Churchkhela",
+        pronunciation: "church-khe-la",
+        description: "Traditional candy made by dipping strings of walnuts or hazelnuts in thickened grape juice, then drying. Called 'Georgian Snickers.'",
+        category: "dessert",
+        keyTraits: ["grape juice", "walnuts", "string candy"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "hard",
+        dietary: { isVegan: true, isVegetarian: true, isDairyFree: true, isGlutenFree: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Georgian Wine",
+        englishName: "Ghvino",
+        pronunciation: "ghvee-no",
+        description: "Wine from one of the world's oldest wine regions. Traditional qvevri (clay vessel) wines have an amber color and tannic character. Saperavi (red) and Rkatsiteli (white) are signature grapes.",
+        type: "alcoholic",
+        category: "wine",
+        keyIngredients: ["Saperavi grapes", "Rkatsiteli grapes"],
+        isTraditional: true,
+        alcoholContent: "medium",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Chacha",
+        pronunciation: "cha-cha",
+        description: "Georgian grape pomace brandy, similar to Italian grappa. Clear, potent, and often homemade. Traditionally served as a welcome drink or digestive.",
+        type: "alcoholic",
+        category: "spirit",
+        keyIngredients: ["grape pomace"],
+        isTraditional: true,
+        alcoholContent: "high",
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Tarkhuna",
+        pronunciation: "tar-khoo-na",
+        description: "Bright green tarragon-flavored soda, distinctively Georgian. Sweet with an herbal, anise-like flavor. A nostalgic Soviet-era creation still beloved today.",
+        type: "non-alcoholic",
+        category: "soda",
+        servedHow: "cold",
+        keyIngredients: ["tarragon extract", "sugar", "carbonated water"],
+        isTraditional: false,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Kompot",
+        pronunciation: "kom-pot",
+        description: "Traditional fruit drink made by simmering fresh or dried fruits with sugar. Served cold in summer, warm in winter. Common fruits include cherry, plum, and apple.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "cold",
+        keyIngredients: ["seasonal fruits", "sugar", "water"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Borjomi",
+        pronunciation: "bor-jo-mee",
+        description: "Famous Georgian mineral water from the Borjomi valley. Naturally carbonated with a distinctive salty-mineral taste. Considered medicinal and a hangover cure.",
+        type: "non-alcoholic",
+        category: "soda",
+        servedHow: "cold",
+        keyIngredients: ["natural mineral water"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      }
+    ]
+  },
+  {
+    id: "AZ",
+    name: "Azerbaijan",
+    capital: "Baku",
+    continent: "Asia",
+    region: "Caucasus",
+    colorPalette: {
+      primary: "#0092BC",      // Muted turquoise blue (from flag)
+      secondary: "#E4002B",    // Muted red (from flag)
+      accent: "#c9a227",       // Gold (Caspian wealth)
+      background: "#faf9f7",   // Warm cream
+      text: "#2d3a4a"          // Dark blue-gray
+    },
+    foodCulture: {
+      overview: "Azerbaijani cuisine sits at the crossroads of Middle Eastern, Central Asian, and Caucasian influences, creating a rich tapestry of flavors centered on rice, lamb, and aromatic herbs. The country's position on the ancient Silk Road and shores of the Caspian Sea shaped its diverse culinary traditions.\n\nPlov (pilaf) is the undisputed king of Azerbaijani cuisine, with over 40 regional variations, each village claiming their version is best. Rice is treated with reverence—properly cooked plov should have each grain separate, with a prized crispy bottom (qazmaq).\n\nTea culture is central to daily life. Tea houses (çay evi) are social institutions, and tea is served in distinctive pear-shaped glasses (armudu) that keep the top cool and bottom hot.",
+      mealStructure: "Meals begin with an array of salads, herbs, and pickles. Main dishes often center on grilled meats or elaborate plovs. Fresh herbs (greens platter) accompany every meal. Tea with sweets concludes the meal and continues for hours.",
+      diningCustoms: "Tea is offered immediately to guests—refusing is impolite. Bread is sacred and should never be placed upside down. Generous hospitality is a point of national pride. Meals are leisurely affairs, especially when entertaining.",
+      historicalInfluences: "Persian Empire influence is strong in rice dishes and sweets. Turkish influence shows in kebabs and dolma. Soviet era introduced communal dining and preserved certain traditions. Ancient Zoroastrian fire worship left marks in cooking over open flame."
+    },
+    cuisineProfile: {
+      summary: "Azerbaijani cuisine celebrates aromatic rice dishes, grilled meats, and saffron-infused flavors, with strong tea culture and generous use of fresh herbs, dried fruits, and nuts.",
+      flavorProfile: ["aromatic (saffron, herbs)", "savory", "subtly sweet (dried fruits)", "tangy (sumac, pomegranate)", "smoky (grilled)", "herbaceous"],
+      flavorIntensity: {
+        heat: 2,
+        acidity: 5,
+        sweetness: 5,
+        umami: 5,
+        aromatic: 8,
+        smokeEarth: 6,
+        interpretation: "Aromatic and fragrant with saffron, balanced sweet-savory notes from dried fruits, minimal heat."
+      },
+      keyIngredients: ["saffron", "lamb", "rice", "dried fruits (apricots, plums)", "walnuts", "chestnuts", "pomegranate", "fresh herbs", "sumac", "yogurt"],
+      cookingTechniques: ["plov cooking (rice pilaf)", "grilling kebabs (mangal)", "braising and stewing", "dolma wrapping", "slow-roasting", "preserving and pickling"],
+      cookingFlow: [
+        { action: "Parboil rice", emoji: "🍚" },
+        { action: "Sauté", emoji: "🧅" },
+        { action: "Layer", emoji: "🥩" },
+        { action: "Steam", emoji: "🟡" },
+        { action: "Serve", emoji: "🍳" }
+      ],
+      spicesAndSeasonings: ["saffron", "sumac", "cumin", "coriander", "turmeric", "cinnamon", "dried mint", "dill", "cilantro", "tarragon"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Saffron", emoji: "🟡", description: "Zəfəran · Signature spice · Floral, golden" },
+          { name: "Lamb", emoji: "🐑", description: "Quzu · Primary protein · Rich, tender" },
+          { name: "Rice", emoji: "🍚", description: "Düyü · Plov base · Long-grain, separate" },
+          { name: "Fresh Herbs", emoji: "🌿", description: "Göyərti · Herb platter · Essential accompaniment" }
+        ],
+        aromaticCore: [
+          { name: "Sumac", emoji: "🔴", description: "Sumaq · Souring spice · Tangy, fruity" },
+          { name: "Cumin", emoji: "🫛", description: "Zirə · Key spice · Earthy, warm" },
+          { name: "Cinnamon", emoji: "🪵", description: "Darçın · Sweet spice · In rice, sweets" },
+          { name: "Dried Mint", emoji: "🌱", description: "Nanə · Dried herb · Cooling, bright" },
+          { name: "Coriander", emoji: "🌿", description: "Keşniş · Seed & leaf · Citrusy" }
+        ],
+        flavorBuilders: [
+          { name: "Pomegranate", emoji: "🔴", description: "Nar · Molasses & seeds · Sweet-tart" },
+          { name: "Dried Apricots", emoji: "🟠", description: "Quru ərik · In plovs · Sweet, tangy" },
+          { name: "Chestnuts", emoji: "🌰", description: "Şabalıd · In rice dishes · Nutty, sweet" },
+          { name: "Walnuts", emoji: "🥜", description: "Qoz · Stuffings, sweets · Rich, earthy" },
+          { name: "Onion", emoji: "🧅", description: "Soğan · Base aromatic · Caramelized depth" },
+          { name: "Yogurt", emoji: "🥛", description: "Qatıq · Sauce, marinade · Tangy, creamy" },
+          { name: "Butter", emoji: "🧈", description: "Kərə yağı · Enrichment · Golden, rich" }
+        ],
+        staples: [
+          { name: "Bread", emoji: "🍞", description: "Çörək · Tandir-baked · Chewy, charred" },
+          { name: "Beef", emoji: "🥩", description: "Mal əti · Kebabs, stews" },
+          { name: "Chicken", emoji: "🍗", description: "Toyuq · Roasted, in pilaf" },
+          { name: "Caspian Fish", emoji: "🐟", description: "Balıq · Sturgeon, kutum · Grilled, smoked" }
+        ]
+      }
+    },
+    regionalVariations: [
+      {
+        name: "Baku & Absheron",
+        description: "The capital region showcases refined, cosmopolitan cuisine influenced by Caspian seafood and urban sophistication. Known for elaborate plovs, fish dishes, and the famous Baku-style pakhlava (diamond-shaped baklava).",
+        signatureDishes: ["Shah Plov", "Baliq Plov (Fish Pilaf)", "Baku Pakhlava", "Kutabi"],
+        keyIngredients: ["Caspian sturgeon", "saffron", "rice", "nuts", "honey"],
+        distinctiveTraits: ["Caspian seafood focus", "Elaborate presentation", "Urban refinement", "Famous sweets"]
+      },
+      {
+        name: "Sheki-Zagatala",
+        description: "The mountainous northwest is famous for Sheki's legendary pakhlava, distinctive piti (lamb soup), and nut-based sweets. The region's forests provide chestnuts and hazelnuts used extensively in cooking.",
+        signatureDishes: ["Sheki Pakhlava", "Piti", "Girmabadam", "Sheki Halva"],
+        keyIngredients: ["hazelnuts", "chestnuts", "honey", "lamb", "chickpeas"],
+        distinctiveTraits: ["Famous pakhlava tradition", "Nut-centric sweets", "Mountain cuisine", "Individual piti pots"]
+      },
+      {
+        name: "Lankaran & South",
+        description: "The humid subtropical south near the Iranian border features unique rice dishes, citrus fruits, and tea plantations. The region is known for lavangi (stuffed fish or chicken with walnut filling) and distinctive sour flavors.",
+        signatureDishes: ["Lavangi", "Lankaran Kulcha", "Siyaq Plov", "Turshu Kebab"],
+        keyIngredients: ["walnuts", "pomegranate", "citrus", "rice", "fresh fish"],
+        distinctiveTraits: ["Stuffed dishes (lavangi)", "Sour flavors", "Tea cultivation", "Iranian influences"]
+      },
+      {
+        name: "Ganja-Gazakh",
+        description: "Western Azerbaijan features hearty meat dishes and distinctive bread traditions. Ganja, the second-largest city, is known for its signature plov variations and dovga (yogurt soup).",
+        signatureDishes: ["Ganja Plov", "Dovga", "Xəngəl", "Qutab"],
+        keyIngredients: ["lamb", "yogurt", "herbs", "dried fruits", "wheat"],
+        distinctiveTraits: ["Hearty meat focus", "Yogurt-based dishes", "Wheat dishes", "Mountain herding tradition"]
+      }
+    ],
+    popularDishes: [
+      {
+        name: "Plov",
+        englishName: "Azerbaijani Pilaf",
+        pronunciation: "plohv",
+        description: "Aromatic saffron rice with meat, dried fruits, and chestnuts. The crispy bottom (qazmaq) is the prized portion. Over 40 regional variations exist, from simple to elaborate Shah Plov wrapped in lavash.",
+        category: "main",
+        keyTraits: ["saffron rice", "dried fruits", "qazmaq"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "hard",
+        dietary: { isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Dolma",
+        pronunciation: "dol-ma",
+        description: "Grape leaves, cabbage, or vegetables stuffed with spiced meat and rice mixture. The grape leaf version (yarpaq dolması) is most iconic. Served with garlicky yogurt.",
+        category: "main",
+        keyTraits: ["stuffed leaves", "spiced meat", "yogurt sauce"],
+        popularity: "both",
+        spiceLevel: "mild",
+        difficulty: "medium",
+        dietary: { isGlutenFree: true }
+      },
+      {
+        name: "Kebab",
+        pronunciation: "ke-bab",
+        description: "Grilled meat skewers—lamb (quzu), beef (mal), or chicken (toyuq). Lula kebab (ground meat) and tikka kebab (chunks) are popular. Served with flatbread, herbs, and sumac onions.",
+        category: "main",
+        keyTraits: ["grilled", "skewered", "sumac onions"],
+        isStreetFood: true,
+        popularity: "both",
+        spiceLevel: "mild",
+        difficulty: "medium",
+        dietary: { isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Qutab",
+        pronunciation: "goo-tab",
+        description: "Thin unleavened flatbread folded over savory or sweet fillings—greens and herbs, minced meat, or pumpkin. Cooked on a dry sadj (convex griddle) and served with yogurt.",
+        category: "appetizer",
+        keyTraits: ["thin flatbread", "folded", "herb filling"],
+        isStreetFood: true,
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "medium",
+        dietary: { isVegetarianFriendly: true, isDairyFree: true }
+      },
+      {
+        name: "Piti",
+        pronunciation: "pee-tee",
+        description: "Individual clay pot soup with lamb, chickpeas, chestnuts, and saffron. Slow-cooked for hours. Traditionally, the broth is poured over bread, then meat and vegetables eaten separately.",
+        category: "soup",
+        keyTraits: ["clay pot", "lamb", "chickpeas"],
+        regionalOrigin: "Sheki",
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "medium",
+        dietary: { isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Dovga",
+        pronunciation: "dov-ga",
+        description: "Creamy yogurt soup with rice, chickpeas, and fresh herbs (dill, cilantro, mint). Served hot or cold. Requires constant stirring to prevent curdling.",
+        category: "soup",
+        keyTraits: ["yogurt base", "fresh herbs", "rice"],
+        popularity: "local-favorite",
+        spiceLevel: "none",
+        difficulty: "medium",
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Lavangi",
+        pronunciation: "la-van-gee",
+        description: "Whole fish or chicken stuffed with ground walnut, onion, and sour plum paste, then baked. A specialty of southern Azerbaijan with Persian influences.",
+        category: "main",
+        keyTraits: ["stuffed", "walnut filling", "sour plum"],
+        regionalOrigin: "Lankaran",
+        popularity: "local-favorite",
+        spiceLevel: "none",
+        difficulty: "hard",
+        dietary: { isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Pakhlava",
+        pronunciation: "pakh-la-va",
+        description: "Diamond-shaped layered pastry with ground nuts (walnuts, almonds, or hazelnuts), cardamom, and saffron, soaked in honey syrup. Sheki pakhlava with rice flour is UNESCO-recognized.",
+        category: "dessert",
+        keyTraits: ["layered pastry", "nuts", "honey syrup"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "hard",
+        dietary: { isVegetarian: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Azerbaijani Tea",
+        englishName: "Çay",
+        pronunciation: "chai",
+        description: "Black tea served in pear-shaped armudu glasses, always with sugar cubes, jam, or sweets. Tea drinking is a social ritual lasting hours. Tea houses (çay evi) are cultural institutions.",
+        type: "non-alcoholic",
+        category: "tea",
+        servedHow: "hot",
+        keyIngredients: ["black tea", "sugar"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Sherbet",
+        pronunciation: "sher-bet",
+        description: "Traditional sweet drinks made from fruits, herbs, or flower extracts mixed with water and sugar. Flavors include rose, saffron, lemon, and pomegranate. Served at celebrations.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "cold",
+        keyIngredients: ["fruit extract", "sugar", "water", "rose water"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Ayran",
+        pronunciation: "eye-ran",
+        description: "Salted yogurt drink, refreshing and cooling. Made by mixing yogurt with water and salt. Popular accompaniment to grilled meats and heavy dishes.",
+        type: "non-alcoholic",
+        category: "street",
+        servedHow: "cold",
+        keyIngredients: ["yogurt", "water", "salt"],
+        isTraditional: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Pomegranate Juice",
+        englishName: "Nar Şərabı",
+        pronunciation: "nar sha-ra-buh",
+        description: "Fresh-squeezed pomegranate juice, a symbol of Azerbaijan. Deep red, sweet-tart, and antioxidant-rich. Pomegranate is the national fruit.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "cold",
+        keyIngredients: ["fresh pomegranate"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
+      },
+      {
+        name: "Kompot",
+        pronunciation: "kom-pot",
+        description: "Sweet fruit drink made by simmering dried or fresh fruits. Common in Caucasus and Central Asia. Often made with dried apricots, plums, or cherries.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "cold",
+        keyIngredients: ["dried fruits", "sugar", "water"],
+        isTraditional: true,
+        dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
       }
     ]
   }

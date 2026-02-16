@@ -125,22 +125,44 @@ export function DishesSlide({
                   {dish.englishName && (
                     <span className="text-gray-400 text-sm ml-2">({dish.englishName})</span>
                   )}
+                  {dish.pronunciation && (
+                    <span className="text-gray-400 text-xs ml-2 italic">[{dish.pronunciation}]</span>
+                  )}
                 </div>
 
                 {/* Tags */}
                 <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0">
-                  {dish.keyTraits?.slice(0, 2).map((trait) => (
-                    <span
-                      key={trait}
-                      className="text-xs px-2 py-0.5 rounded-full"
-                      style={{
-                        backgroundColor: `${colors.secondary}20`,
-                        color: colors.secondary,
-                      }}
-                    >
-                      {trait}
+                  {/* Difficulty */}
+                  {dish.difficulty && (
+                    <span className={`text-xs px-2 py-0.5 rounded ${
+                      dish.difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700' :
+                      dish.difficulty === 'medium' ? 'bg-amber-100 text-amber-700' :
+                      'bg-rose-100 text-rose-700'
+                    }`}>
+                      {dish.difficulty.charAt(0).toUpperCase() + dish.difficulty.slice(1)}
                     </span>
-                  ))}
+                  )}
+                  {/* Dietary flags */}
+                  {dish.dietary?.isVegan && (
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegan</span>
+                  )}
+                  {dish.dietary?.isVegetarian && !dish.dietary?.isVegan && (
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegetarian</span>
+                  )}
+                  {dish.dietary?.isVegetarianFriendly && !dish.dietary?.isVegetarian && !dish.dietary?.isVegan && (
+                    <span className="text-xs bg-lime-100 text-lime-800 px-2 py-0.5 rounded">Veg-Friendly</span>
+                  )}
+                  {dish.dietary?.isGlutenFree && (
+                    <span className="text-xs bg-sky-100 text-sky-800 px-2 py-0.5 rounded">GF</span>
+                  )}
+                  {dish.dietary?.isDairyFree && (
+                    <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">DF</span>
+                  )}
+                  {/* Category */}
+                  <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded capitalize">
+                    {dish.category}
+                  </span>
+                  {/* Region */}
                   {detectedRegion && (
                     <span
                       className="text-xs px-2 py-0.5 rounded-full"
@@ -152,6 +174,7 @@ export function DishesSlide({
                       {getShortRegionName(detectedRegion)}
                     </span>
                   )}
+                  {/* Spice level */}
                   {dish.spiceLevel && dish.spiceLevel !== 'none' && (
                     <span className={`text-xs px-2 py-0.5 rounded ${
                       dish.spiceLevel === 'mild' ? 'bg-yellow-100 text-yellow-800' :
@@ -162,6 +185,7 @@ export function DishesSlide({
                       {dish.spiceLevel === 'very-hot' ? 'Very Hot' : dish.spiceLevel.charAt(0).toUpperCase() + dish.spiceLevel.slice(1)}
                     </span>
                   )}
+                  {/* Street food */}
                   {dish.isStreetFood && (
                     <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>Street</span>
                   )}
@@ -205,60 +229,17 @@ export function DishesSlide({
 
                   {/* Mobile tags (shown on expand) */}
                   <div className="flex flex-wrap gap-1.5 sm:hidden mb-3">
-                    {dish.keyTraits?.map((trait) => (
-                      <span
-                        key={trait}
-                        className="text-xs px-2 py-0.5 rounded-full"
-                        style={{
-                          backgroundColor: `${colors.secondary}20`,
-                          color: colors.secondary,
-                        }}
-                      >
-                        {trait}
-                      </span>
-                    ))}
-                    {detectedRegion && (
-                      <span
-                        className="text-xs px-2 py-0.5 rounded-full"
-                        style={{
-                          backgroundColor: `${colors.primary}15`,
-                          color: colors.primary,
-                        }}
-                      >
-                        {getShortRegionName(detectedRegion)}
-                      </span>
-                    )}
-                    {dish.spiceLevel && dish.spiceLevel !== 'none' && (
-                      <span className={`text-xs px-2 py-0.5 rounded ${
-                        dish.spiceLevel === 'mild' ? 'bg-yellow-100 text-yellow-800' :
-                        dish.spiceLevel === 'medium' ? 'bg-orange-100 text-orange-800' :
-                        dish.spiceLevel === 'hot' ? 'bg-red-100 text-red-800' :
-                        'bg-red-200 text-red-900'
-                      }`}>
-                        {dish.spiceLevel === 'very-hot' ? 'Very Hot' : dish.spiceLevel.charAt(0).toUpperCase() + dish.spiceLevel.slice(1)}
-                      </span>
-                    )}
-                    {dish.isStreetFood && (
-                      <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>Street Food</span>
-                    )}
-                  </div>
-
-                  {/* Category, difficulty, and dietary info */}
-                  <div className="flex flex-wrap gap-1.5">
-                    <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded capitalize">
-                      {dish.category}
-                    </span>
+                    {/* Difficulty */}
                     {dish.difficulty && (
                       <span className={`text-xs px-2 py-0.5 rounded ${
                         dish.difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700' :
                         dish.difficulty === 'medium' ? 'bg-amber-100 text-amber-700' :
                         'bg-rose-100 text-rose-700'
                       }`}>
-                        {dish.difficulty === 'easy' ? '🍳 Easy' :
-                         dish.difficulty === 'medium' ? '👨‍🍳 Medium' :
-                         '⭐ Hard'}
+                        {dish.difficulty.charAt(0).toUpperCase() + dish.difficulty.slice(1)}
                       </span>
                     )}
+                    {/* Dietary flags */}
                     {dish.dietary?.isVegan && (
                       <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegan</span>
                     )}
@@ -274,10 +255,53 @@ export function DishesSlide({
                     {dish.dietary?.isDairyFree && (
                       <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">DF</span>
                     )}
-                    {dish.dietary?.isHalal && (
-                      <span className="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded">Halal</span>
+                    {/* Category */}
+                    <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded capitalize">
+                      {dish.category}
+                    </span>
+                    {/* Region */}
+                    {detectedRegion && (
+                      <span
+                        className="text-xs px-2 py-0.5 rounded-full"
+                        style={{
+                          backgroundColor: `${colors.primary}15`,
+                          color: colors.primary,
+                        }}
+                      >
+                        {getShortRegionName(detectedRegion)}
+                      </span>
+                    )}
+                    {/* Spice level */}
+                    {dish.spiceLevel && dish.spiceLevel !== 'none' && (
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        dish.spiceLevel === 'mild' ? 'bg-yellow-100 text-yellow-800' :
+                        dish.spiceLevel === 'medium' ? 'bg-orange-100 text-orange-800' :
+                        dish.spiceLevel === 'hot' ? 'bg-red-100 text-red-800' :
+                        'bg-red-200 text-red-900'
+                      }`}>
+                        {dish.spiceLevel === 'very-hot' ? 'Very Hot' : dish.spiceLevel.charAt(0).toUpperCase() + dish.spiceLevel.slice(1)}
+                      </span>
+                    )}
+                    {/* Street food */}
+                    {dish.isStreetFood && (
+                      <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>Street</span>
                     )}
                   </div>
+
+                  {/* Key ingredients/traits */}
+                  {dish.keyTraits && dish.keyTraits.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      <span className="text-xs text-gray-500 mr-1">Key ingredients:</span>
+                      {dish.keyTraits.map((trait) => (
+                        <span
+                          key={trait}
+                          className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded"
+                        >
+                          {trait}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

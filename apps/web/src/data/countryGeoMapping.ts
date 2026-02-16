@@ -214,6 +214,8 @@ export const alpha2ToAlpha3: Record<string, string> = {
   IT: 'ITA',
   ET: 'ETH',
   PE: 'PER',
+  GE: 'GEO',
+  AZ: 'AZE',
 };
 
 export function getAlpha2(alpha3: string): string | undefined {

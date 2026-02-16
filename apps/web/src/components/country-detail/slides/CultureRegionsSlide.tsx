@@ -24,6 +24,8 @@ const alpha2ToNumeric: Record<string, string> = {
   IT: '380',
   ET: '231',
   PE: '604',
+  GE: '268',
+  AZ: '031',
 };
 
 // Country-specific map configurations (zoomed in to fill container)
@@ -37,6 +39,8 @@ const countryMapConfig: Record<string, {
   IT: { center: [12.5, 42], scale: 2800 },
   ET: { center: [40, 9], scale: 3000 },
   PE: { center: [-75, -10], scale: 1800 },
+  GE: { center: [43.5, 42], scale: 5500 },
+  AZ: { center: [47.5, 40.5], scale: 6000 },
 };
 
 // Geographic coordinates for region centers
@@ -59,6 +63,18 @@ const regionCoordinates: Record<string, Record<string, [number, number]>> = {
     'Central Italy': [12, 42.5],
     'Southern Italy & Sicily': [14.5, 39],
   },
+  GE: {
+    'Kakheti': [45.8, 41.6],
+    'Imereti': [42.7, 42.2],
+    'Adjara': [41.8, 41.6],
+    'Svaneti': [42.9, 43.0],
+  },
+  AZ: {
+    'Baku & Absheron': [49.8, 40.4],
+    'Sheki-Zagatala': [47.2, 41.2],
+    'Lankaran & South': [48.8, 38.8],
+    'Ganja-Gazakh': [46.3, 40.7],
+  },
 };
 
 // Get a shortened region name for the bubble label
@@ -75,6 +91,8 @@ function getShortRegionName(regionName: string): string {
     .replace('Thailand', '')
     .replace('Mexico', '')
     .replace('Italy', '')
+    .replace('Georgia', '')
+    .replace('Azerbaijan', '')
     .trim();
 }
 

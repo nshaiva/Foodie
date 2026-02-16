@@ -18,6 +18,7 @@ import {
   CultureRegionsSlide,
   ProfileSlide,
   DishesSlide,
+  BeveragesSlide,
 } from '../components/country-detail';
 import type { RestaurantTry, CookingAttempt } from '../data/types';
 
@@ -116,11 +117,13 @@ export function CountryDetail() {
   };
 
   // Build tabs array based on available content
-  // Order: Culture & Regions, Profile, Dishes
+  // Order: Culture & Regions, Profile, Dishes, Beverages
+  const hasBeverages = country.popularBeverages && country.popularBeverages.length > 0;
   const tabs = [
     { label: 'Culture & Regions' },
     { label: 'Profile' },
     { label: 'Dishes' },
+    ...(hasBeverages ? [{ label: 'Beverages' }] : []),
   ];
 
   const slideCount = tabs.length;
@@ -151,7 +154,7 @@ export function CountryDetail() {
           />
 
           {/* Carousel content */}
-          <div className="bg-white rounded-lg border border-gray-200 h-[680px]">
+          <div className="bg-white rounded-lg border border-gray-200 h-[920px]">
             <CarouselContainer>
               {/* Slide 1: Culture & Regions */}
               <CarouselSlide>
@@ -166,7 +169,7 @@ export function CountryDetail() {
               {/* Slide 2: Profile */}
               <CarouselSlide>
                 <ProfileSlide
-                  cuisineProfile={country.cuisineProfile}
+                  country={country}
                   colors={colors}
                 />
               </CarouselSlide>
@@ -188,6 +191,17 @@ export function CountryDetail() {
                   findFavoriteItem={findFavoriteItem}
                 />
               </CarouselSlide>
+
+              {/* Slide 4: Beverages (conditional) */}
+              {hasBeverages && (
+                <CarouselSlide>
+                  <BeveragesSlide
+                    beverages={country.popularBeverages!}
+                    colors={colors}
+                    countryId={country.id}
+                  />
+                </CarouselSlide>
+              )}
             </CarouselContainer>
           </div>
 
