@@ -37,7 +37,7 @@ Feature ideas for future consideration.
 - **"Local favorites" vs "Tourist classics"** - Tags on popular dishes
 - **Home cooking log** - Track dishes you've attempted to make yourself
 - **City-level data** - Break down restaurants by city, not just country
-- **Taste profile analysis** - Based on your ratings, identify patterns (loves spicy, prefers seafood, etc.)
+- ~~**Taste profile analysis** - Based on your ratings, identify patterns (loves spicy, prefers seafood, etc.)~~ ✅ Implemented as Personal Flavor Fingerprint
 - **Dietary filters** - Vegetarian, halal, gluten-free tags on dishes
 - **Spice level filters** - Filter dishes by spice level
 - **Ingredient discovery** - New ingredients you've encountered

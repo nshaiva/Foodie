@@ -78,6 +78,9 @@ components/
 ├── FlavorRadarChart.tsx      # Flavor intensity radar chart
 ├── IngredientPyramid.tsx     # Tiered ingredient display
 ├── CookingFlow.tsx           # Cooking progression visualization
+├── PersonalFlavorFingerprint.tsx  # Personal taste profile display
+├── AffinitySpectrum.tsx      # Preference spectrum slider
+├── CuisinePreferences.tsx    # Favorite cuisines ranking
 ├── FavoriteButton.tsx        # Heart icon for favorites
 ├── WantToTryButton.tsx       # Bookmark icon for wishlist
 ├── RestaurantCard.tsx        # Restaurant list item

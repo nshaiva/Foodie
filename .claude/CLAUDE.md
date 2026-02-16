@@ -57,6 +57,20 @@ foodie/
 - Algorithm: `score = (avgRating * 0.7) + (engagementBonus * 0.3)`
 - Displayed on home page when user has rated dishes
 
+### Personal Flavor Fingerprint
+Analyzes user's logged dishes to generate a personalized taste profile:
+- **Personal Flavor Radar**: Reuses FlavorRadarChart with weighted cuisine data
+- **Affinity Spectrums**: 5 preference sliders with labels and confidence opacity
+  - Spice Tolerance: Based on spiceLevel of dishes tried
+  - Dish Complexity: Based on difficulty ratings
+  - Activity Style: Ratio of restaurant tries vs cooking attempts
+  - Sweet/Savory: Based on sweetness axis of engaged cuisines
+  - Flavor Richness: Based on umami+smokeEarth vs acidity
+- **Weight algorithm**: `(ratingWeight * 0.5) + (frequencyWeight * 0.3) + (recencyWeight * 0.2)`
+- **Thresholds**: 3+ dishes for radar, 5+ for spectrums
+- Hook: `usePersonalFlavorProfile()` in `hooks/usePersonalFlavorProfile.ts`
+- Components: `PersonalFlavorFingerprint.tsx`, `AffinitySpectrum.tsx`
+
 ## Data Architecture
 
 **Static Data** (pre-generated JSON):

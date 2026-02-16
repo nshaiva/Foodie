@@ -64,6 +64,19 @@ Each country includes:
 - Algorithm: `score = (avgRating * 0.7) + (engagementBonus * 0.3)`
 - Displayed on home page when user has rated dishes
 
+### Personal Flavor Fingerprint
+Personalized taste profile analysis based on logged dishes:
+- **Personal Flavor Radar**: 6-axis chart (Heat, Acidity, Sweet, Umami, Aromatic, Smoke/Earth) weighted by cuisine engagement
+- **Affinity Spectrums**: Visual sliders showing preferences across 5 dimensions:
+  - Spice Tolerance (Mild Seeker ↔ Spice Adventurer)
+  - Dish Complexity (Comfort Food Lover ↔ Challenge Seeker)
+  - Activity Style (Restaurant Explorer ↔ Home Chef)
+  - Sweet vs Savory (Sweet Tooth ↔ Savory Seeker)
+  - Flavor Richness (Rich & Hearty ↔ Bright & Fresh)
+- **Confidence visualization**: Opacity fades when insufficient data
+- **Top cuisine influences**: Shows which cuisines shape your profile
+- Requires 3+ logged dishes to appear, 5+ for full spectrums
+
 ### Database Views
 **Restaurants page** (`/restaurants`):
 - Filter by continent, country, minimum rating, visit count
@@ -97,6 +110,7 @@ foodie/
 │           │   ├── RestaurantForm, DishForm
 │           │   ├── RestaurantTryForm, CookingAttemptForm
 │           │   ├── WantToTryButton, CuisinePreferences
+│           │   ├── PersonalFlavorFingerprint, AffinitySpectrum
 │           │   ├── StarRating, ViewToggle
 │           │   └── ...
 │           ├── pages/
@@ -106,8 +120,8 @@ foodie/
 │           │   ├── Dishes
 │           │   └── Wishlist
 │           ├── hooks/
-│           │   ├── useRestaurants, useDishes, useWishlist
-│           │   ├── useCuisinePreferences
+│           │   ├── useRestaurants, useDishes, useWishlist, useFavorites
+│           │   ├── useCuisinePreferences, usePersonalFlavorProfile
 │           │   ├── useLocalStorage, useCountryActivity
 │           │   └── useMediaQuery
 │           └── data/

@@ -10,6 +10,7 @@ import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { CuisinePreferences } from '../components/CuisinePreferences';
+import { PersonalFlavorFingerprint } from '../components/PersonalFlavorFingerprint';
 
 export function Home() {
   const { restaurants } = useRestaurants();
@@ -84,6 +85,13 @@ export function Home() {
         {dishes.length > 0 && (
           <div className="mb-8">
             <CuisinePreferences />
+          </div>
+        )}
+
+        {/* Personal Flavor Fingerprint - shown when user has 3+ dishes */}
+        {dishes.length >= 3 && (
+          <div className="mb-8">
+            <PersonalFlavorFingerprint />
           </div>
         )}
 
