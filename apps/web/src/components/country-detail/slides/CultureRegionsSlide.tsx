@@ -26,6 +26,9 @@ const alpha2ToNumeric: Record<string, string> = {
   PE: '604',
   GE: '268',
   AZ: '031',
+  IN: '356',
+  PK: '586',
+  AF: '004',
 };
 
 // Country-specific map configurations (zoomed in to fill container)
@@ -41,6 +44,9 @@ const countryMapConfig: Record<string, {
   PE: { center: [-75, -10], scale: 1800 },
   GE: { center: [43.5, 42], scale: 5500 },
   AZ: { center: [47.5, 40.5], scale: 6000 },
+  IN: { center: [79, 22], scale: 1200 },
+  PK: { center: [69, 30], scale: 1800 },
+  AF: { center: [66, 34], scale: 2500 },
 };
 
 // Geographic coordinates for region centers
@@ -75,6 +81,24 @@ const regionCoordinates: Record<string, Record<string, [number, number]>> = {
     'Lankaran & South': [48.8, 38.8],
     'Ganja-Gazakh': [46.3, 40.7],
   },
+  IN: {
+    'North India': [77, 28],
+    'South India': [78, 13],
+    'West India': [73, 19],
+    'East India': [88, 23],
+  },
+  PK: {
+    'Punjab': [74, 31],
+    'Sindh': [68, 26],
+    'Khyber Pakhtunkhwa (Pashtun)': [71, 34],
+    'Balochistan': [66, 28],
+  },
+  AF: {
+    'Kabul & Central': [69, 34.5],
+    'North (Mazar-i-Sharif)': [67, 36.5],
+    'East & South (Pashtun Regions)': [70, 32],
+    'West (Herat)': [62, 34],
+  },
 };
 
 // Get a shortened region name for the bubble label
@@ -93,6 +117,9 @@ function getShortRegionName(regionName: string): string {
     .replace('Italy', '')
     .replace('Georgia', '')
     .replace('Azerbaijan', '')
+    .replace('India', '')
+    .replace('Pakistan', '')
+    .replace('Afghanistan', '')
     .trim();
 }
 
