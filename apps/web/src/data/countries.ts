@@ -1965,6 +1965,864 @@ export const countries: Country[] = [
         dietary: { isVegan: true, isDairyFree: true, isGlutenFree: true }
       }
     ]
+  },
+  {
+    id: "IN",
+    name: "India",
+    capital: "New Delhi",
+    continent: "Asia",
+    region: "South Asia",
+    colorPalette: {
+      primary: "#FF9933",      // Saffron orange (from flag)
+      secondary: "#138808",    // India green (from flag)
+      accent: "#d4a574",       // Warm turmeric gold
+      background: "#faf8f2",   // Cream white
+      text: "#2d2a26"          // Deep brown
+    },
+    foodCulture: {
+      overview: "Indian cuisine is one of the world's most diverse, with each region, religion, and community maintaining distinct culinary traditions developed over thousands of years. Food is deeply intertwined with spirituality, festivals, and family life. The concept of 'thali'—a complete meal with multiple dishes offering balanced flavors and nutrition—exemplifies the Indian approach to eating.\n\nVegetarianism is deeply rooted in Indian culture, particularly among Hindu and Jain communities, making India home to the world's most sophisticated vegetarian cuisine. Yet meat dishes, particularly in Muslim, Christian, and some Hindu communities, represent equally rich traditions.\n\nSpices are the soul of Indian cooking. The art of blending spices (masala) is passed down through generations, with each family's garam masala recipe being a closely guarded secret. The technique of 'tadka' or 'tempering'—blooming spices in hot oil or ghee—releases aromatic compounds and forms the foundation of countless dishes.",
+      mealStructure: "Meals typically include rice or roti (flatbread), dal (lentils), a vegetable dish, and accompaniments like pickles, chutneys, and yogurt. In the south, meals often begin with rice and sambar. Breakfast varies regionally—idli and dosa in the south, paratha in the north.",
+      diningCustoms: "Eating with the right hand (without utensils) is traditional and considered the proper way to experience food. Sharing from common dishes is the norm. Guests are treated as sacred, and refusing food is considered impolite.",
+      historicalInfluences: "Ancient Ayurvedic principles shape food philosophy—balancing six tastes (sweet, sour, salty, bitter, pungent, astringent). Mughal rule introduced Persian-influenced biryanis, kebabs, and rich gravies. Portuguese traders brought chilies, tomatoes, and potatoes that transformed the cuisine. British colonialism influenced tea culture and certain fusion dishes."
+    },
+    cuisineProfile: {
+      summary: "Indian cuisine layers complex spice blends with techniques like tempering and slow-cooking, creating deeply aromatic dishes that range from fiery hot to delicately fragrant.",
+      flavorProfile: ["spiced", "aromatic", "earthy", "pungent", "tangy", "rich"],
+      flavorIntensity: {
+        heat: 7,
+        acidity: 6,
+        sweetness: 5,
+        umami: 6,
+        aromatic: 10,
+        smokeEarth: 6,
+        interpretation: "Intensely aromatic with complex layered spicing, moderate heat, and earthy depth from slow-cooked gravies."
+      },
+      keyIngredients: ["basmati rice", "ghee", "lentils (dal)", "yogurt", "tomatoes", "onions", "ginger", "garlic", "chilies"],
+      cookingTechniques: ["tadka (tempering)", "dum (slow-cooking)", "tandoor (clay oven)", "bhuna (frying)", "tarka (spice infusion)"],
+      cookingFlow: [
+        { action: "Toast spices", emoji: "🫙" },
+        { action: "Temper in oil", emoji: "🍳" },
+        { action: "Fry onions", emoji: "🧅" },
+        { action: "Add tomatoes", emoji: "🍅" },
+        { action: "Simmer", emoji: "🍲" }
+      ],
+      spicesAndSeasonings: ["cumin", "coriander", "turmeric", "garam masala", "cardamom", "cinnamon", "cloves", "bay leaves", "fenugreek", "mustard seeds", "asafoetida", "red chili powder"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Ghee", emoji: "🧈", description: "Clarified butter · Cooking fat · Nutty, rich" },
+          { name: "Cumin", emoji: "🫛", description: "Jeera · Essential spice · Earthy, warm" },
+          { name: "Turmeric", emoji: "🟡", description: "Haldi · Color & flavor · Earthy, bitter" },
+          { name: "Chilies", emoji: "🌶️", description: "Mirch · Heat source · Various varieties" }
+        ],
+        aromaticCore: [
+          { name: "Garam Masala", emoji: "🫙", description: "Spice blend · Warming · Complex, aromatic" },
+          { name: "Cardamom", emoji: "🌿", description: "Elaichi · Sweet spice · Floral, minty" },
+          { name: "Coriander", emoji: "🌱", description: "Dhania · Seeds & leaves · Citrusy, fresh" },
+          { name: "Ginger", emoji: "🫚", description: "Adrak · Aromatic · Sharp, warming" },
+          { name: "Garlic", emoji: "🧄", description: "Lahsun · Aromatic · Pungent, essential" }
+        ],
+        flavorBuilders: [
+          { name: "Onions", emoji: "🧅", description: "Pyaz · Gravy base · Sweet when fried" },
+          { name: "Tomatoes", emoji: "🍅", description: "Tamatar · Sauce base · Tangy, bright" },
+          { name: "Yogurt", emoji: "🥛", description: "Dahi · Marinade & sauce · Tangy, tenderizing" },
+          { name: "Mustard Seeds", emoji: "🟤", description: "Rai · Tempering · Nutty, pungent" },
+          { name: "Fenugreek", emoji: "🍃", description: "Methi · Bitter spice · Maple-like" },
+          { name: "Asafoetida", emoji: "🟡", description: "Hing · Onion substitute · Pungent, savory" }
+        ],
+        staples: [
+          { name: "Basmati Rice", emoji: "🍚", description: "Long-grain · Fragrant · Fluffy" },
+          { name: "Lentils", emoji: "🫘", description: "Dal · Protein staple · Many varieties" },
+          { name: "Roti", emoji: "🫓", description: "Wheat flatbread · Daily staple · Whole wheat" },
+          { name: "Paneer", emoji: "🧀", description: "Fresh cheese · Protein · Mild, firm" }
+        ]
+      }
+    },
+    regionalVariations: [
+      {
+        name: "North India",
+        description: "Rich, creamy curries define this region, heavily influenced by Mughal cuisine. Tandoor cooking, dairy-based gravies, and wheat-based breads (naan, roti, paratha) are staples. Punjab, Delhi, and Lucknow each contribute distinctive dishes. This is the India most familiar to Western diners.",
+        signatureDishes: ["Butter Chicken", "Dal Makhani", "Rogan Josh", "Biryani", "Naan"],
+        keyIngredients: ["cream", "butter", "paneer", "wheat flour", "yogurt"],
+        distinctiveTraits: ["Tandoor cooking", "Creamy gravies", "Mughal influence", "Wheat-based breads"]
+      },
+      {
+        name: "South India",
+        description: "Rice-based cuisine with emphasis on fermented batters, coconut, curry leaves, and tamarind. Sambar, rasam, and coconut chutneys accompany most meals. Vegetarian traditions are strong, though coastal areas have rich seafood traditions. Spicier and tangier than northern cuisine.",
+        signatureDishes: ["Dosa", "Idli", "Sambar", "Rasam", "Kerala Fish Curry"],
+        keyIngredients: ["rice", "coconut", "curry leaves", "tamarind", "mustard seeds"],
+        distinctiveTraits: ["Fermented batters", "Coconut-based", "Rice staple", "Tangy flavors"]
+      },
+      {
+        name: "West India",
+        description: "Diverse region spanning Gujarati vegetarian thalis to Goan Portuguese-influenced dishes to Mumbai street food. Gujarat is known for sweet-savory balance and strict vegetarianism. Goa features vindaloo and seafood with coconut. Maharashtra bridges north and south.",
+        signatureDishes: ["Pav Bhaji", "Dhokla", "Vindaloo", "Vada Pav", "Thepla"],
+        keyIngredients: ["jaggery", "peanuts", "kokum", "coconut", "kokum"],
+        distinctiveTraits: ["Sweet-savory balance", "Portuguese influence (Goa)", "Street food culture"]
+      },
+      {
+        name: "East India",
+        description: "Bengali cuisine dominates, known for its love of fish, rice, and sweets. Mustard oil and panch phoron (five-spice blend) are signature flavors. The region produces India's most famous desserts. Subtle, less spicy flavors compared to other regions.",
+        signatureDishes: ["Machher Jhol", "Rasgulla", "Shorshe Ilish", "Sandesh", "Luchi"],
+        keyIngredients: ["mustard oil", "fish", "panch phoron", "poppy seeds", "milk"],
+        distinctiveTraits: ["Fish-centric", "Renowned sweets", "Mustard oil", "Subtle spicing"]
+      }
+    ],
+    popularDishes: [
+      {
+        name: "Butter Chicken",
+        englishName: "Murgh Makhani",
+        pronunciation: "murg mah-kah-nee",
+        description: "Tandoor-cooked chicken in a creamy, mildly spiced tomato sauce with butter and cream. Created in 1950s Delhi, it's become India's most famous curry worldwide.",
+        category: "main",
+        keyTraits: ["creamy", "tomato-based", "tandoor"],
+        regionalOrigin: "North India (Delhi)",
+        popularity: "tourist-classic",
+        spiceLevel: "mild",
+        difficulty: "medium",
+        dietary: { isGlutenFree: true }
+      },
+      {
+        name: "Biryani",
+        pronunciation: "bir-yah-nee",
+        description: "Fragrant layered rice dish with spiced meat (or vegetables), saffron, and caramelized onions, slow-cooked in a sealed pot. Each city has its own style—Hyderabadi, Lucknowi, Kolkata.",
+        category: "main",
+        keyTraits: ["saffron", "layered", "aromatic"],
+        popularity: "both",
+        spiceLevel: "medium",
+        difficulty: "hard",
+        dietary: { isGlutenFree: true }
+      },
+      {
+        name: "Dal Makhani",
+        pronunciation: "dahl mah-kah-nee",
+        description: "Black lentils slow-cooked overnight with butter, cream, and mild spices. A Punjabi classic that's become synonymous with North Indian restaurant cuisine.",
+        category: "main",
+        keyTraits: ["creamy", "slow-cooked", "lentils"],
+        regionalOrigin: "Punjab",
+        popularity: "both",
+        spiceLevel: "mild",
+        difficulty: "medium",
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Palak Paneer",
+        englishName: "Spinach with Cottage Cheese",
+        pronunciation: "pah-lahk pah-neer",
+        description: "Fresh paneer cheese cubes in a vibrant green spinach puree seasoned with garlic, ginger, and garam masala.",
+        category: "main",
+        keyTraits: ["spinach", "paneer", "vegetarian"],
+        popularity: "tourist-classic",
+        spiceLevel: "mild",
+        difficulty: "easy",
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Dosa",
+        pronunciation: "doh-sah",
+        description: "Crispy, fermented rice and lentil crepe, often filled with spiced potatoes (masala dosa). Served with sambar and chutneys. A South Indian breakfast staple.",
+        category: "breakfast",
+        keyTraits: ["fermented", "crispy", "rice-based"],
+        regionalOrigin: "South India",
+        popularity: "both",
+        spiceLevel: "mild",
+        difficulty: "medium",
+        dietary: { isVegan: true, isGlutenFree: true }
+      },
+      {
+        name: "Samosa",
+        pronunciation: "sah-moh-sah",
+        description: "Crispy fried pastry triangles filled with spiced potatoes and peas. India's most beloved street snack, served with chutneys.",
+        category: "appetizer",
+        keyTraits: ["fried", "potato", "street food"],
+        isStreetFood: true,
+        popularity: "both",
+        spiceLevel: "medium",
+        difficulty: "medium",
+        dietary: { isVegan: true }
+      },
+      {
+        name: "Rogan Josh",
+        pronunciation: "roh-gahn josh",
+        description: "Kashmiri braised lamb in an aromatic sauce of Kashmiri chilies, yogurt, and warming spices. Deep red color comes from mild Kashmiri chilies, not heat.",
+        category: "main",
+        keyTraits: ["lamb", "aromatic", "Kashmiri chilies"],
+        regionalOrigin: "Kashmir",
+        popularity: "local-favorite",
+        spiceLevel: "medium",
+        difficulty: "hard",
+        dietary: { isGlutenFree: true }
+      },
+      {
+        name: "Chole Bhature",
+        pronunciation: "cho-lay bah-too-ray",
+        description: "Spiced chickpea curry (chole) served with deep-fried puffy bread (bhature). A hearty Punjabi breakfast or lunch beloved across North India.",
+        category: "main",
+        keyTraits: ["chickpeas", "fried bread", "spiced"],
+        regionalOrigin: "Punjab",
+        popularity: "local-favorite",
+        spiceLevel: "medium",
+        difficulty: "medium",
+        dietary: { isVegetarian: true }
+      },
+      {
+        name: "Tandoori Chicken",
+        pronunciation: "tahn-door-ee",
+        description: "Chicken marinated in yogurt and spices, then roasted in a clay tandoor oven until charred and smoky. The iconic red color comes from Kashmiri chilies and food coloring.",
+        category: "main",
+        keyTraits: ["tandoor", "yogurt marinade", "smoky"],
+        popularity: "tourist-classic",
+        spiceLevel: "medium",
+        difficulty: "medium",
+        dietary: { isGlutenFree: true }
+      },
+      {
+        name: "Gulab Jamun",
+        pronunciation: "goo-lahb jah-moon",
+        description: "Deep-fried milk solid balls soaked in rose-scented sugar syrup. One of India's most beloved desserts, served warm at celebrations.",
+        category: "dessert",
+        keyTraits: ["sweet", "rose water", "fried"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "medium",
+        dietary: { isVegetarian: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Masala Chai",
+        englishName: "Spiced Tea",
+        pronunciation: "mah-sah-lah chai",
+        description: "Black tea brewed with milk, sugar, and warming spices like cardamom, ginger, cinnamon, and cloves. India's national drink, sold by chai wallahs on every corner.",
+        type: "non-alcoholic",
+        category: "tea",
+        servedHow: "hot",
+        keyIngredients: ["black tea", "milk", "cardamom", "ginger", "sugar"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Lassi",
+        pronunciation: "lah-see",
+        description: "Creamy yogurt-based drink, either sweet (with sugar and rose water) or salty (with cumin and salt). Mango lassi is the most popular sweet variant.",
+        type: "non-alcoholic",
+        category: "street",
+        servedHow: "cold",
+        keyIngredients: ["yogurt", "water", "sugar or salt", "rose water"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Nimbu Pani",
+        englishName: "Fresh Lime Water",
+        pronunciation: "nim-boo pah-nee",
+        description: "Refreshing limeade with salt, sugar, and sometimes roasted cumin or black salt. India's favorite thirst quencher in summer.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "cold",
+        keyIngredients: ["lime", "water", "sugar", "salt", "cumin"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegan: true, isGlutenFree: true }
+      },
+      {
+        name: "Mango Lassi",
+        pronunciation: "man-go lah-see",
+        description: "Sweet, creamy yogurt drink blended with ripe Alphonso mangoes. The most popular lassi variant, especially during mango season.",
+        type: "non-alcoholic",
+        category: "street",
+        servedHow: "cold",
+        keyIngredients: ["yogurt", "mango", "sugar", "cardamom"],
+        isTraditional: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Thandai",
+        pronunciation: "than-dye",
+        description: "Chilled spiced milk drink with almonds, fennel, rose petals, and saffron. Traditional during Holi festival. Sometimes made with bhang (cannabis) for celebrations.",
+        type: "both",
+        category: "ceremonial",
+        servedHow: "cold",
+        keyIngredients: ["milk", "almonds", "fennel", "saffron", "rose petals"],
+        isTraditional: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Filter Coffee",
+        englishName: "South Indian Coffee",
+        pronunciation: "fil-ter kah-fee",
+        description: "Strong, chicory-blended coffee dripped through a metal filter, mixed with boiled milk and sugar, and traditionally 'pulled' between two vessels for froth.",
+        type: "non-alcoholic",
+        category: "coffee",
+        regionalOrigin: "South India",
+        servedHow: "hot",
+        keyIngredients: ["coffee", "chicory", "milk", "sugar"],
+        isTraditional: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      }
+    ]
+  },
+  {
+    id: "PK",
+    name: "Pakistan",
+    capital: "Islamabad",
+    continent: "Asia",
+    region: "South Asia",
+    colorPalette: {
+      primary: "#01411C",      // Pakistan green (from flag)
+      secondary: "#FFFFFF",    // White (from flag)
+      accent: "#c49a6c",       // Warm kebab brown
+      background: "#f8f7f2",   // Cream white
+      text: "#1a2e1a"          // Deep green
+    },
+    foodCulture: {
+      overview: "Pakistani cuisine is a rich tapestry of Mughal imperial traditions, Central Asian influences, and regional specialties, united by a love of meat, bread, and robust spices. Unlike neighboring India, Pakistan is predominantly Muslim, so beef and mutton feature prominently, and halal practices govern all meat preparation.\n\nFood culture centers on hospitality—guests must be fed generously, and refusing food is considered an insult. Meals are communal, often eaten from shared platters while seated on the floor. The tradition of 'dastarkhwan' (a cloth spread for communal dining) remains strong.\n\nStreet food is integral to Pakistani life. Cities like Lahore and Karachi are renowned for their food streets where generations-old establishments serve legendary dishes through the night. The art of grilling—seekh kebabs, tikkas, and sajji—reaches its pinnacle here.",
+      mealStructure: "Breakfast might be paratha with omelette or halwa puri. Lunch and dinner are similar: rice or roti with a meat curry, dal, vegetables, and salad. Chai is served constantly throughout the day.",
+      diningCustoms: "Eating with the right hand is traditional. Naan or roti is torn and used to scoop food. Men and women may eat separately at formal gatherings. Tea is offered to every guest, refusal requires multiple polite insistences.",
+      historicalInfluences: "The Mughal Empire left an indelible mark—biryanis, kebabs, and rich kormas. Punjabi, Sindhi, Pashtun, and Balochi communities each contribute distinct traditions. Central Asian and Persian influences appear in pilafs and grilled meats. British colonialism introduced certain dishes and tea culture."
+    },
+    cuisineProfile: {
+      summary: "Pakistani cuisine emphasizes grilled and slow-cooked meats, fragrant rice dishes, and robust spicing, with regional variations from Punjabi richness to Pashtun simplicity.",
+      flavorProfile: ["meaty", "aromatic", "spiced", "smoky", "rich", "herbaceous"],
+      flavorIntensity: {
+        heat: 6,
+        acidity: 4,
+        sweetness: 3,
+        umami: 7,
+        aromatic: 9,
+        smokeEarth: 8,
+        interpretation: "Deeply aromatic with smoky grilled meats, warming spices, and rich gravies built on slow-cooked onions."
+      },
+      keyIngredients: ["basmati rice", "ghee", "mutton", "beef", "chicken", "yogurt", "onions", "tomatoes", "green chilies"],
+      cookingTechniques: ["grilling (kebab)", "dum (slow-cooking)", "bhuna (frying)", "tandoor", "karahi (wok cooking)"],
+      cookingFlow: [
+        { action: "Toast spices", emoji: "🫙" },
+        { action: "Fry onions", emoji: "🧅" },
+        { action: "Add meat", emoji: "🍖" },
+        { action: "Slow cook", emoji: "🍲" },
+        { action: "Char finish", emoji: "🔥" }
+      ],
+      spicesAndSeasonings: ["cumin", "coriander", "garam masala", "red chili", "turmeric", "cardamom", "cinnamon", "cloves", "nutmeg", "mace", "black pepper"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Ghee", emoji: "🧈", description: "Clarified butter · Essential fat · Rich, nutty" },
+          { name: "Onions", emoji: "🧅", description: "Pyaz · Gravy base · Caramelized depth" },
+          { name: "Yogurt", emoji: "🥛", description: "Dahi · Marinades · Tangy, tenderizing" },
+          { name: "Green Chilies", emoji: "🌶️", description: "Hari mirch · Fresh heat · Bright, sharp" }
+        ],
+        aromaticCore: [
+          { name: "Garam Masala", emoji: "🫙", description: "Spice blend · Warming · Complex" },
+          { name: "Cumin", emoji: "🫛", description: "Zeera · Essential · Earthy, warm" },
+          { name: "Coriander", emoji: "🌿", description: "Dhania · Fresh & seeds · Citrusy" },
+          { name: "Ginger-Garlic", emoji: "🫚", description: "Adrak-lahsun · Paste base · Aromatic" },
+          { name: "Cardamom", emoji: "🌿", description: "Elaichi · Sweet spice · Floral" }
+        ],
+        flavorBuilders: [
+          { name: "Tomatoes", emoji: "🍅", description: "Tamatar · Sauce base · Tangy" },
+          { name: "Red Chili", emoji: "🌶️", description: "Lal mirch · Heat & color · Dried" },
+          { name: "Turmeric", emoji: "🟡", description: "Haldi · Color · Earthy, bitter" },
+          { name: "Cinnamon", emoji: "🪵", description: "Dar cheeni · Warm spice · Sweet" },
+          { name: "Cloves", emoji: "🟤", description: "Laung · Intense · Warming, sharp" },
+          { name: "Black Pepper", emoji: "⚫", description: "Kali mirch · Sharp heat · Pungent" }
+        ],
+        staples: [
+          { name: "Basmati Rice", emoji: "🍚", description: "Long-grain · Fragrant · Essential" },
+          { name: "Naan", emoji: "🫓", description: "Leavened bread · Tandoor-baked · Soft" },
+          { name: "Roti", emoji: "🫓", description: "Unleavened · Daily bread · Whole wheat" },
+          { name: "Mutton", emoji: "🍖", description: "Goat meat · Primary protein · Rich" }
+        ]
+      }
+    },
+    regionalVariations: [
+      {
+        name: "Punjab",
+        description: "Pakistan's culinary heartland, Punjabi cuisine is rich, buttery, and robust. Lahore is Pakistan's food capital, famous for its food streets. Tandoor-cooked breads, creamy dals, and hearty meat dishes define this region. Agriculture abundance means wheat and dairy feature prominently.",
+        signatureDishes: ["Nihari", "Paye", "Lahori Chargha", "Saag", "Lassi"],
+        keyIngredients: ["butter", "cream", "wheat", "mustard greens", "meat"],
+        distinctiveTraits: ["Rich, buttery dishes", "Tandoor breads", "Food street culture", "Hearty portions"]
+      },
+      {
+        name: "Sindh",
+        description: "Sindhi cuisine reflects desert conditions and riverine culture along the Indus. Fish from the Indus River, tangy pickles, and dishes with lotus stem are distinctive. Karachi, Pakistan's largest city, has absorbed influences from migrants across the subcontinent.",
+        signatureDishes: ["Sindhi Biryani", "Sai Bhaji", "Palla Fish", "Sindhi Kadhi"],
+        keyIngredients: ["fish", "lotus stem", "gram flour", "tamarind", "dried fruit"],
+        distinctiveTraits: ["River fish", "Tangy flavors", "Vegetarian traditions", "Karachi fusion"]
+      },
+      {
+        name: "Khyber Pakhtunkhwa (Pashtun)",
+        description: "Simple, meat-focused cuisine of the Pashtun people. Grilled meats, lamb karahi, and the legendary chapli kebab define this region. Less reliance on complex spicing—quality meat speaks for itself. Hospitality is paramount in Pashtun culture.",
+        signatureDishes: ["Chapli Kebab", "Sajji", "Lamb Karahi", "Kabuli Pulao"],
+        keyIngredients: ["lamb", "beef", "coriander seeds", "tomatoes", "green chilies"],
+        distinctiveTraits: ["Meat-centric", "Simple spicing", "Grilled specialties", "Generous hospitality"]
+      },
+      {
+        name: "Balochistan",
+        description: "Rugged terrain means simple, nourishing food. Sajji (whole roasted lamb) is the signature dish, cooked over open flames. Dried meats and fruits preserve food in harsh conditions. Dates and almonds are staples. Influences from Iran and Afghanistan are evident.",
+        signatureDishes: ["Balochi Sajji", "Kaak", "Dampukht", "Landhi"],
+        keyIngredients: ["lamb", "dates", "dried meat", "wheat"],
+        distinctiveTraits: ["Whole roasted meats", "Minimal spicing", "Dried ingredients", "Open-fire cooking"]
+      }
+    ],
+    popularDishes: [
+      {
+        name: "Nihari",
+        pronunciation: "nih-hah-ree",
+        description: "Slow-cooked beef or mutton stew, traditionally simmered overnight in bone marrow and spices. Originally a breakfast dish for laborers, now a beloved Sunday morning tradition.",
+        category: "main",
+        keyTraits: ["slow-cooked", "bone marrow", "spiced"],
+        regionalOrigin: "Punjab/Delhi",
+        popularity: "local-favorite",
+        spiceLevel: "medium",
+        difficulty: "hard",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Biryani",
+        pronunciation: "bir-yah-nee",
+        description: "Fragrant layered rice with spiced meat, saffron, and caramelized onions. Pakistani biryanis, especially Karachi-style with potatoes, are distinct from Indian versions.",
+        category: "main",
+        keyTraits: ["saffron", "layered", "spiced meat"],
+        popularity: "both",
+        spiceLevel: "medium",
+        difficulty: "hard",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Chapli Kebab",
+        pronunciation: "chahp-lee keh-bahb",
+        description: "Flattened, pan-fried beef kebabs from Peshawar, studded with tomatoes, chilies, and coriander seeds. The name comes from 'chappal' (sandal) due to its flat shape.",
+        category: "main",
+        keyTraits: ["pan-fried", "beef", "Pashtun"],
+        regionalOrigin: "Peshawar",
+        popularity: "both",
+        spiceLevel: "medium",
+        difficulty: "medium",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Haleem",
+        pronunciation: "hah-leem",
+        description: "Slow-cooked stew of wheat, barley, lentils, and shredded meat, pounded to a thick paste. Garnished with fried onions, ginger, and lime. Popular during Ramadan.",
+        category: "main",
+        keyTraits: ["slow-cooked", "wheat", "shredded meat"],
+        popularity: "local-favorite",
+        spiceLevel: "mild",
+        difficulty: "hard",
+        dietary: { isHalal: true }
+      },
+      {
+        name: "Seekh Kebab",
+        pronunciation: "seek keh-bahb",
+        description: "Minced meat mixed with spices and herbs, molded onto skewers and grilled over charcoal. Served with naan and chutney.",
+        category: "appetizer",
+        keyTraits: ["grilled", "minced", "charcoal"],
+        popularity: "both",
+        spiceLevel: "medium",
+        difficulty: "medium",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Karahi",
+        pronunciation: "kah-rah-hee",
+        description: "Meat (chicken or mutton) cooked in a karahi (wok) with tomatoes, green chilies, ginger, and minimal gravy. Named after the cooking vessel.",
+        category: "main",
+        keyTraits: ["wok-cooked", "tomatoes", "ginger"],
+        popularity: "both",
+        spiceLevel: "hot",
+        difficulty: "medium",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Sajji",
+        pronunciation: "sah-jee",
+        description: "Whole marinated lamb or chicken, skewered and roasted over open flames. A Balochi specialty, served with rice cooked in the meat drippings.",
+        category: "main",
+        keyTraits: ["whole roasted", "open flame", "Balochi"],
+        regionalOrigin: "Balochistan",
+        popularity: "local-favorite",
+        spiceLevel: "mild",
+        difficulty: "hard",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Paye",
+        pronunciation: "pah-yay",
+        description: "Slow-cooked trotters (goat or cow feet) in a rich, gelatinous broth. A hearty breakfast dish, especially popular in winter.",
+        category: "soup",
+        keyTraits: ["trotters", "slow-cooked", "rich broth"],
+        popularity: "local-favorite",
+        spiceLevel: "medium",
+        difficulty: "hard",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Lahori Chargha",
+        pronunciation: "lah-hor-ee char-gah",
+        description: "Whole chicken marinated in spices and yogurt, steamed then deep-fried until crispy. A Lahore specialty, served at celebrations.",
+        category: "main",
+        keyTraits: ["whole chicken", "deep-fried", "crispy"],
+        regionalOrigin: "Lahore",
+        popularity: "local-favorite",
+        spiceLevel: "medium",
+        difficulty: "hard",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Jalebi",
+        pronunciation: "jah-lay-bee",
+        description: "Deep-fried batter spirals soaked in saffron sugar syrup. Served hot for breakfast with creamy rabri or enjoyed as a sweet snack.",
+        category: "dessert",
+        keyTraits: ["fried", "syrup-soaked", "crispy"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "medium",
+        dietary: { isVegetarian: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Doodh Patti",
+        englishName: "Milk Tea",
+        pronunciation: "dood puh-tee",
+        description: "Strong tea brewed directly in milk without water, creating a rich, creamy chai. Pakistan's most popular tea style.",
+        type: "non-alcoholic",
+        category: "tea",
+        servedHow: "hot",
+        keyIngredients: ["black tea", "milk", "sugar"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Kashmiri Chai",
+        englishName: "Pink Tea",
+        pronunciation: "kahsh-meer-ee chai",
+        description: "Distinctive pink tea made with special tea leaves, milk, baking soda, and crushed pistachios. Traditional in weddings and special occasions.",
+        type: "non-alcoholic",
+        category: "tea",
+        servedHow: "hot",
+        keyIngredients: ["special tea leaves", "milk", "baking soda", "pistachios"],
+        isTraditional: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Lassi",
+        pronunciation: "lah-see",
+        description: "Cool yogurt drink, either sweet with sugar or salty with cumin. Mango lassi is popular in summer. Often topped with cream.",
+        type: "non-alcoholic",
+        category: "street",
+        servedHow: "cold",
+        keyIngredients: ["yogurt", "water", "sugar or salt"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Rooh Afza",
+        pronunciation: "rooh af-zah",
+        description: "Sweet rose-flavored syrup mixed with water or milk. Iconic pink drink especially popular during Ramadan. Created in 1907.",
+        type: "non-alcoholic",
+        category: "soda",
+        servedHow: "cold",
+        keyIngredients: ["rose syrup", "water", "herbs"],
+        isTraditional: true,
+        dietary: { isVegan: true, isGlutenFree: true }
+      },
+      {
+        name: "Sugarcane Juice",
+        englishName: "Gannay Ka Ras",
+        pronunciation: "gahn-nay kah rahs",
+        description: "Fresh-pressed sugarcane juice with lime and ginger. Sold from street carts with hand-cranked presses.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "cold",
+        keyIngredients: ["sugarcane", "lime", "ginger"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegan: true, isGlutenFree: true }
+      }
+    ]
+  },
+  {
+    id: "AF",
+    name: "Afghanistan",
+    capital: "Kabul",
+    continent: "Asia",
+    region: "Central Asia",
+    colorPalette: {
+      primary: "#000000",      // Black (from flag)
+      secondary: "#D32011",    // Red (from flag)
+      accent: "#c49a6c",       // Warm flatbread brown
+      background: "#f9f7f3",   // Cream white
+      text: "#1a1a1a"          // Near black
+    },
+    foodCulture: {
+      overview: "Afghan cuisine sits at the crossroads of Central Asia, the Middle East, and the Indian subcontinent, blending influences from Persian, Mongol, and Indian culinary traditions. Hospitality is a sacred duty—the Pashtunwali code demands that guests be fed generously, even at great personal cost.\n\nMeals are communal, eaten while seated on floor cushions around a shared cloth (dastarkhan). Food is eaten with the right hand, using flatbread to scoop dishes. Lamb and rice form the backbone of the cuisine, with an emphasis on simple, nourishing preparations that highlight quality ingredients.\n\nUnlike neighboring cuisines, Afghan food is relatively mild, relying on subtle spicing and the natural flavors of meat and vegetables. Dried fruits and nuts, reflecting Afghanistan's role on the ancient Silk Road, appear in both savory dishes and desserts.",
+      mealStructure: "Breakfast is simple—bread with tea, perhaps eggs or cream. Lunch is the main meal, often rice-based. Dinner may be lighter. Tea is served constantly, accompanying every meal and social interaction.",
+      diningCustoms: "Elders eat first. Guests receive the choicest portions. It's impolite to refuse food or leave any on your plate. Multiple rounds of tea are expected at any gathering.",
+      historicalInfluences: "Silk Road trade brought dried fruits, nuts, and spices. Persian influence appears in pilafs and kebabs. Mongol invasions introduced dumplings (mantu). Indian subcontinental influence shows in some spicing. The cuisine remains largely unchanged over centuries."
+    },
+    cuisineProfile: {
+      summary: "Afghan cuisine features fragrant rice pilafs, tender grilled meats, and subtle spicing, with Persian and Central Asian influences emphasized through dried fruits and nuts.",
+      flavorProfile: ["mild", "aromatic", "meaty", "subtly sweet", "herbaceous", "earthy"],
+      flavorIntensity: {
+        heat: 3,
+        acidity: 4,
+        sweetness: 5,
+        umami: 6,
+        aromatic: 7,
+        smokeEarth: 5,
+        interpretation: "Gentle, aromatic flavors with subtle sweetness from dried fruits and mild spicing that lets quality ingredients shine."
+      },
+      keyIngredients: ["lamb", "basmati rice", "dried fruits", "nuts", "yogurt", "flatbread", "onions", "tomatoes"],
+      cookingTechniques: ["pilaf (palao)", "grilling (kebab)", "braising", "steaming dumplings", "slow-cooking"],
+      cookingFlow: [
+        { action: "Brown onions", emoji: "🧅" },
+        { action: "Add meat", emoji: "🍖" },
+        { action: "Layer rice", emoji: "🍚" },
+        { action: "Steam", emoji: "♨️" },
+        { action: "Add fruit", emoji: "🍇" }
+      ],
+      spicesAndSeasonings: ["cumin", "coriander", "cardamom", "cinnamon", "black pepper", "turmeric", "dried mint", "dill"],
+      ingredientTiers: {
+        foundation: [
+          { name: "Lamb", emoji: "🍖", description: "Gosht · Primary protein · Rich, tender" },
+          { name: "Basmati Rice", emoji: "🍚", description: "Berenj · Pilaf base · Fragrant, long-grain" },
+          { name: "Onions", emoji: "🧅", description: "Piaz · Flavor base · Caramelized" },
+          { name: "Yogurt", emoji: "🥛", description: "Mast · Essential · Tangy, cooling" }
+        ],
+        aromaticCore: [
+          { name: "Cardamom", emoji: "🌿", description: "Hel · Key spice · Floral, warm" },
+          { name: "Cumin", emoji: "🫛", description: "Zira · Essential · Earthy" },
+          { name: "Coriander", emoji: "🌿", description: "Gashneez · Fresh & dried · Citrusy" },
+          { name: "Cinnamon", emoji: "🪵", description: "Darchin · Sweet warmth · Pilaf spice" }
+        ],
+        flavorBuilders: [
+          { name: "Raisins", emoji: "🍇", description: "Kishmish · Sweetness · In pilafs" },
+          { name: "Almonds", emoji: "🥜", description: "Badam · Garnish · Crunchy, rich" },
+          { name: "Carrots", emoji: "🥕", description: "Zardak · Qabuli topping · Sweet" },
+          { name: "Dried Apricots", emoji: "🍑", description: "Zardalu · Tart-sweet · Silk Road" },
+          { name: "Tomatoes", emoji: "🍅", description: "Badenjan rumi · Sauce base · Fresh" }
+        ],
+        staples: [
+          { name: "Naan", emoji: "🫓", description: "Flatbread · Essential · Fresh daily" },
+          { name: "Chutney", emoji: "🫙", description: "Sauce · Cilantro-based · Fresh, tangy" },
+          { name: "Chickpeas", emoji: "🫘", description: "Nakhod · Protein · Earthy" }
+        ]
+      }
+    },
+    regionalVariations: [
+      {
+        name: "Kabul & Central",
+        description: "The capital's cuisine represents refined Afghan cooking, with elaborate pilafs, refined kebabs, and Persian-influenced dishes. Qabuli Palao, the national dish, originated here. Urban influences have brought some international touches while maintaining tradition.",
+        signatureDishes: ["Qabuli Palao", "Mantu", "Ashak", "Bolani"],
+        keyIngredients: ["lamb", "rice", "carrots", "raisins", "dill"],
+        distinctiveTraits: ["Refined preparations", "Elaborate pilafs", "Persian influence"]
+      },
+      {
+        name: "North (Mazar-i-Sharif)",
+        description: "Northern cuisine shows Uzbek and Turkmen influences. Buzkashi players traditionally feast on hearty dishes. Dairy products, especially qurut (dried yogurt balls), feature prominently. Lamb preparation is often simpler and more rustic.",
+        signatureDishes: ["Quruti", "Mastawa", "Chopan Kebab"],
+        keyIngredients: ["lamb", "dried yogurt", "bread", "onions"],
+        distinctiveTraits: ["Central Asian influence", "Dairy-heavy", "Rustic simplicity"]
+      },
+      {
+        name: "East & South (Pashtun Regions)",
+        description: "Pashtun cuisine emphasizes meat and bread with minimal complexity. Chapli kebab and tikka showcase quality meat with simple seasoning. Hospitality traditions are especially strong. Some dishes share DNA with Pakistani Pashtun cooking.",
+        signatureDishes: ["Chapli Kebab", "Tikka", "Shinwari Karahi"],
+        keyIngredients: ["beef", "lamb", "tomatoes", "coriander"],
+        distinctiveTraits: ["Meat-focused", "Simple spicing", "Shared Pashtun identity"]
+      },
+      {
+        name: "West (Herat)",
+        description: "Herat's cuisine shows the strongest Persian influence, befitting this historic Silk Road city. Dishes tend toward the refined and subtle. Saffron appears more frequently. Poetry and food culture intertwine in this cultured region.",
+        signatureDishes: ["Dampukht", "Herati Pilaf", "Sheer Khurma"],
+        keyIngredients: ["saffron", "lamb", "dried fruits", "cream"],
+        distinctiveTraits: ["Persian refinement", "Subtle flavors", "Silk Road heritage"]
+      }
+    ],
+    popularDishes: [
+      {
+        name: "Qabuli Palao",
+        englishName: "Kabul-style Rice",
+        pronunciation: "kah-boo-lee pah-lao",
+        description: "Afghanistan's national dish: fragrant rice with lamb, topped with caramelized carrots, raisins, and almonds. The name means 'Kabul-style.' Reserved for special occasions and honored guests.",
+        category: "main",
+        keyTraits: ["fragrant rice", "carrots", "raisins"],
+        regionalOrigin: "Kabul",
+        popularity: "both",
+        spiceLevel: "mild",
+        difficulty: "medium",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Mantu",
+        pronunciation: "mahn-too",
+        description: "Steamed dumplings filled with spiced lamb and onions, topped with yogurt-garlic sauce, tomato-meat sauce, and dried mint. A celebratory dish requiring hours of preparation.",
+        category: "main",
+        keyTraits: ["dumplings", "yogurt sauce", "lamb"],
+        popularity: "both",
+        spiceLevel: "mild",
+        difficulty: "hard",
+        dietary: { isHalal: true }
+      },
+      {
+        name: "Ashak",
+        pronunciation: "ah-shahk",
+        description: "Leek-filled dumplings topped with meat sauce and yogurt-garlic sauce. Similar to mantu but with vegetable filling. Often served alongside mantu at gatherings.",
+        category: "main",
+        keyTraits: ["dumplings", "leeks", "yogurt"],
+        popularity: "local-favorite",
+        spiceLevel: "mild",
+        difficulty: "hard",
+        dietary: { isVegetarianFriendly: true, isHalal: true }
+      },
+      {
+        name: "Bolani",
+        pronunciation: "boh-lah-nee",
+        description: "Thin, pan-fried flatbread stuffed with potatoes, leeks, or pumpkin. Served with yogurt or chutney. Popular street food and home snack.",
+        category: "appetizer",
+        keyTraits: ["stuffed bread", "pan-fried", "potato"],
+        isStreetFood: true,
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "easy",
+        dietary: { isVegan: true, isHalal: true }
+      },
+      {
+        name: "Kabuli Burger",
+        englishName: "Afghan Lamb Burger",
+        pronunciation: "kah-boo-lee",
+        description: "Spiced lamb patty in naan bread with fresh vegetables, chutney, and yogurt sauce. Afghanistan's popular street food take on the burger.",
+        category: "street-food",
+        keyTraits: ["lamb", "naan", "chutney"],
+        isStreetFood: true,
+        popularity: "local-favorite",
+        spiceLevel: "mild",
+        difficulty: "easy",
+        dietary: { isHalal: true }
+      },
+      {
+        name: "Chopan Kebab",
+        englishName: "Shepherd's Kebab",
+        pronunciation: "cho-pahn keh-bahb",
+        description: "Lamb chops marinated in salt and fat, grilled over charcoal. Named after shepherds (chopan) who would grill lamb over open fires. Simple, highlighting meat quality.",
+        category: "main",
+        keyTraits: ["lamb chops", "charcoal", "simple"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "easy",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Korma",
+        pronunciation: "kor-mah",
+        description: "Tender braised meat in a mild, aromatic sauce of onions, yogurt, and whole spices. Afghan korma is gentler than Indian versions, emphasizing subtle flavors.",
+        category: "main",
+        keyTraits: ["braised", "mild", "aromatic"],
+        popularity: "both",
+        spiceLevel: "mild",
+        difficulty: "medium",
+        dietary: { isGlutenFree: true, isHalal: true }
+      },
+      {
+        name: "Aush",
+        pronunciation: "oosh",
+        description: "Hearty noodle soup with beans, chickpeas, yogurt, and meat sauce, topped with dried mint. A warming winter dish, especially popular during Nowruz (New Year).",
+        category: "soup",
+        keyTraits: ["noodles", "beans", "yogurt"],
+        popularity: "local-favorite",
+        spiceLevel: "mild",
+        difficulty: "medium",
+        dietary: { isVegetarianFriendly: true, isHalal: true }
+      },
+      {
+        name: "Sheer Khurma",
+        englishName: "Milk with Dates",
+        pronunciation: "sheer khoor-mah",
+        description: "Creamy vermicelli pudding with dates, nuts, and cardamom, cooked in milk. A festive dessert served during Eid celebrations.",
+        category: "dessert",
+        keyTraits: ["vermicelli", "dates", "cardamom"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "easy",
+        dietary: { isVegetarian: true, isHalal: true }
+      },
+      {
+        name: "Firni",
+        pronunciation: "fir-nee",
+        description: "Silky ground rice pudding flavored with cardamom and rose water, garnished with pistachios. Traditionally served chilled in shallow clay bowls.",
+        category: "dessert",
+        keyTraits: ["rice pudding", "cardamom", "rose water"],
+        popularity: "both",
+        spiceLevel: "none",
+        difficulty: "easy",
+        dietary: { isVegetarian: true, isGlutenFree: true, isHalal: true }
+      }
+    ],
+    popularBeverages: [
+      {
+        name: "Kahwah",
+        englishName: "Green Tea",
+        pronunciation: "kah-wah",
+        description: "Delicate green tea with cardamom, sometimes with sugar or honey. Served constantly throughout the day and at every social gathering.",
+        type: "non-alcoholic",
+        category: "tea",
+        servedHow: "hot",
+        keyIngredients: ["green tea", "cardamom", "sugar"],
+        isTraditional: true,
+        dietary: { isVegan: true, isGlutenFree: true }
+      },
+      {
+        name: "Sheer Chai",
+        englishName: "Milk Tea",
+        pronunciation: "sheer chai",
+        description: "Sweet, milky tea, richer than kahwah. Often served to guests as a sign of special hospitality.",
+        type: "non-alcoholic",
+        category: "tea",
+        servedHow: "hot",
+        keyIngredients: ["black tea", "milk", "sugar", "cardamom"],
+        isTraditional: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Doogh",
+        pronunciation: "doog",
+        description: "Savory yogurt drink with salt and dried mint. Refreshing accompaniment to rich rice dishes and kebabs.",
+        type: "non-alcoholic",
+        category: "street",
+        servedHow: "cold",
+        keyIngredients: ["yogurt", "water", "salt", "dried mint"],
+        isTraditional: true,
+        dietary: { isVegetarian: true, isGlutenFree: true }
+      },
+      {
+        name: "Sharbat",
+        englishName: "Sweet Drink",
+        pronunciation: "shar-baht",
+        description: "Sweet flavored drink made with fruit syrups, rose water, or other flavorings. Popular at weddings and celebrations.",
+        type: "non-alcoholic",
+        category: "soda",
+        servedHow: "cold",
+        keyIngredients: ["fruit syrup", "water", "rose water"],
+        isTraditional: true,
+        dietary: { isVegan: true, isGlutenFree: true }
+      },
+      {
+        name: "Fresh Pomegranate Juice",
+        englishName: "Aab-e-Anar",
+        pronunciation: "ahb-eh ah-nahr",
+        description: "Freshly pressed pomegranate juice, a specialty in autumn when pomegranates are in season. Afghanistan is renowned for its pomegranates.",
+        type: "non-alcoholic",
+        category: "juice",
+        servedHow: "cold",
+        keyIngredients: ["fresh pomegranate"],
+        isTraditional: true,
+        isStreetDrink: true,
+        dietary: { isVegan: true, isGlutenFree: true }
+      }
+    ]
   }
 ];
 
