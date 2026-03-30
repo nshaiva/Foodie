@@ -4,6 +4,7 @@ import { CountryDetail } from './pages/CountryDetail';
 import { Restaurants } from './pages/Restaurants';
 import { Dishes } from './pages/Dishes';
 import { Wishlist } from './pages/Wishlist';
+import { Stats } from './pages/Stats';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/restaurants" element={<Restaurants />} />
         <Route path="/dishes" element={<Dishes />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/stats" element={<Stats />} />
       </Routes>
     </BrowserRouter>
   );

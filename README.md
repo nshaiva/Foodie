@@ -77,6 +77,14 @@ Personalized taste profile analysis based on logged dishes:
 - **Top cuisine influences**: Shows which cuisines shape your profile
 - Requires 3+ logged dishes to appear, 5+ for full spectrums
 
+### Health & Stats Dashboard
+Insights into your food journey with health focus:
+- **Health Score**: Average health score (1-10) based on dish categories, dietary flags, and cooking methods
+- **Healthiest Dishes**: Top 5 healthiest dishes you've logged
+- **Dietary Breakdown**: Pie chart of vegan/vegetarian/other dishes
+- **Category Distribution**: Bar chart showing what types of food you eat (salads, mains, desserts, etc.)
+- **Healthy Recommendations**: Dishes from explored cuisines you haven't tried yet with high health scores
+
 ### Database Views
 **Restaurants page** (`/restaurants`):
 - Filter by continent, country, minimum rating, visit count
@@ -200,6 +208,7 @@ interface WishlistItem {
 /restaurants          → All restaurants with filters
 /dishes               → All dishes with filters
 /wishlist             → Want to Try list
+/stats                → Health & Stats dashboard
 ```
 
 ## Development Roadmap

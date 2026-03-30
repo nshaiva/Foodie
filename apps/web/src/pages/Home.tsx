@@ -75,6 +75,19 @@ export function Home() {
                 </span>
                 Wishlist
               </Link>
+              <Link
+                to="/stats"
+                className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
+                style={{ color: systemColors.seaSalt }}
+              >
+                <span
+                  className="px-2 py-0.5 rounded-full font-medium"
+                  style={{ backgroundColor: `${systemColors.seaSalt}30`, color: systemColors.seaSalt }}
+                >
+                  📊
+                </span>
+                Stats
+              </Link>
             </div>
           </div>
         </div>
