@@ -72,7 +72,7 @@ Feature ideas for future consideration.
 - **Cooking technique videos** - Links to learn wok cooking, making pasta, etc.
 
 #### Personal Insights
-- ~~**Statistics dashboard** - Most logged cuisine, average rating, restaurants per month~~ ✅ Implemented as Health & Stats Dashboard
+- **Statistics dashboard** - Most logged cuisine, average rating, restaurants per month
 - **Rating distribution** - Are you a tough critic or generous rater?
 - **Exploration trends** - Graph of new countries/dishes over time
 - **Heat map** - Visual of your global food journey
