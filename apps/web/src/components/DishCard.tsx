@@ -1,20 +1,15 @@
 import { useState } from 'react';
-import type { UserDish, Restaurant, RestaurantTry, CookingAttempt } from '../data/types';
+import type { UserDish, RestaurantTry } from '../data/types';
 import { RestaurantTryForm } from './RestaurantTryForm';
-import { CookingAttemptForm } from './CookingAttemptForm';
 import { systemColors } from '../data/systemColors';
 
 interface DishCardProps {
   dish: UserDish;
-  restaurants: Restaurant[];
   onUpdate: (id: string, updates: Partial<Omit<UserDish, 'id' | 'createdAt' | 'countryId'>>) => void;
   onDelete: (id: string) => void;
   onAddRestaurantTry: (dishId: string, data: Omit<RestaurantTry, 'id'>) => void;
   onUpdateRestaurantTry: (dishId: string, tryId: string, updates: Partial<Omit<RestaurantTry, 'id'>>) => void;
   onDeleteRestaurantTry: (dishId: string, tryId: string) => void;
-  onAddCookingAttempt: (dishId: string, data: Omit<CookingAttempt, 'id'>) => void;
-  onUpdateCookingAttempt: (dishId: string, attemptId: string, updates: Partial<Omit<CookingAttempt, 'id'>>) => void;
-  onDeleteCookingAttempt: (dishId: string, attemptId: string) => void;
 }
 
 function formatDate(dateString: string): string {
@@ -36,37 +31,20 @@ function RatingStars({ rating }: { rating: number }) {
 
 export function DishCard({
   dish,
-  restaurants,
   onUpdate,
   onDelete,
   onAddRestaurantTry,
   onUpdateRestaurantTry,
   onDeleteRestaurantTry,
-  onAddCookingAttempt,
-  onUpdateCookingAttempt,
-  onDeleteCookingAttempt,
 }: DishCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(dish.name);
   const [editNotes, setEditNotes] = useState(dish.notes || '');
 
-  // Form states
   const [showAddTry, setShowAddTry] = useState(false);
-  const [showAddAttempt, setShowAddAttempt] = useState(false);
   const [editingTryId, setEditingTryId] = useState<string | null>(null);
-  const [editingAttemptId, setEditingAttemptId] = useState<string | null>(null);
 
   const restaurantTries = dish.restaurantTries || [];
-  const cookingAttempts = dish.cookingAttempts || [];
-
-  const getRestaurantName = (tryItem: RestaurantTry): string => {
-    if (tryItem.restaurantName) return tryItem.restaurantName;
-    if (tryItem.restaurantId) {
-      const restaurant = restaurants.find(r => r.id === tryItem.restaurantId);
-      return restaurant?.name || 'Unknown restaurant';
-    }
-    return 'Unknown restaurant';
-  };
 
   const handleSaveEdit = () => {
     onUpdate(dish.id, {
@@ -90,16 +68,6 @@ export function DishCard({
   const handleUpdateTry = (tryId: string, data: Omit<RestaurantTry, 'id'>) => {
     onUpdateRestaurantTry(dish.id, tryId, data);
     setEditingTryId(null);
-  };
-
-  const handleAddAttempt = (data: Omit<CookingAttempt, 'id'>) => {
-    onAddCookingAttempt(dish.id, data);
-    setShowAddAttempt(false);
-  };
-
-  const handleUpdateAttempt = (attemptId: string, data: Omit<CookingAttempt, 'id'>) => {
-    onUpdateCookingAttempt(dish.id, attemptId, data);
-    setEditingAttemptId(null);
   };
 
   if (isEditing) {
@@ -189,14 +157,14 @@ export function DishCard({
         <p className="text-sm text-gray-600 mb-3">{dish.notes}</p>
       )}
 
-      {/* Restaurant Tries Section */}
-      <div className="mb-3">
+      {/* Tries Section */}
+      <div>
         <div className="flex items-center justify-between mb-2">
           <h5 className="text-sm font-medium flex items-center gap-1" style={{ color: systemColors.saffron }}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            Restaurant Tries ({restaurantTries.length})
+            Tries ({restaurantTries.length})
           </h5>
           {!showAddTry && !editingTryId && (
             <button
@@ -212,7 +180,6 @@ export function DishCard({
         {showAddTry && (
           <div className="mb-2">
             <RestaurantTryForm
-              restaurants={restaurants}
               onSubmit={handleAddTry}
               onCancel={() => setShowAddTry(false)}
             />
@@ -225,7 +192,6 @@ export function DishCard({
               <div key={tryItem.id}>
                 {editingTryId === tryItem.id ? (
                   <RestaurantTryForm
-                    restaurants={restaurants}
                     existingTry={tryItem}
                     onSubmit={(data) => handleUpdateTry(tryItem.id, data)}
                     onCancel={() => setEditingTryId(null)}
@@ -235,7 +201,7 @@ export function DishCard({
                     <div className="flex items-start justify-between">
                       <div>
                         <span className="font-medium text-gray-800">
-                          {getRestaurantName(tryItem)}
+                          {tryItem.restaurantName || 'Tried'}
                         </span>
                         <span className="text-gray-500 ml-2">
                           {formatDate(tryItem.date)}
@@ -280,105 +246,7 @@ export function DishCard({
         )}
 
         {restaurantTries.length === 0 && !showAddTry && (
-          <p className="text-xs text-gray-400">No restaurant tries logged</p>
-        )}
-      </div>
-
-      {/* Cooking Attempts Section */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <h5 className="text-sm font-medium flex items-center gap-1" style={{ color: systemColors.herb }}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Cooking Attempts ({cookingAttempts.length})
-          </h5>
-          {!showAddAttempt && !editingAttemptId && (
-            <button
-              onClick={() => setShowAddAttempt(true)}
-              className="text-xs transition-colors"
-              style={{ color: systemColors.herb }}
-            >
-              + Add Attempt
-            </button>
-          )}
-        </div>
-
-        {showAddAttempt && (
-          <div className="mb-2">
-            <CookingAttemptForm
-              onSubmit={handleAddAttempt}
-              onCancel={() => setShowAddAttempt(false)}
-            />
-          </div>
-        )}
-
-        {cookingAttempts.length > 0 && (
-          <div className="space-y-2">
-            {cookingAttempts.map((attempt) => (
-              <div key={attempt.id}>
-                {editingAttemptId === attempt.id ? (
-                  <CookingAttemptForm
-                    existingAttempt={attempt}
-                    onSubmit={(data) => handleUpdateAttempt(attempt.id, data)}
-                    onCancel={() => setEditingAttemptId(null)}
-                  />
-                ) : (
-                  <div className="rounded-md p-2 text-sm" style={{ backgroundColor: systemColors.herbLight }}>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <span className="text-gray-500">
-                          {formatDate(attempt.date)}
-                        </span>
-                        {attempt.recipeSource && (
-                          <span className="ml-2" style={{ color: systemColors.herb }}>
-                            from {attempt.recipeSource}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => setEditingAttemptId(attempt.id)}
-                          className="text-gray-400 transition-colors p-1"
-                          onMouseEnter={(e) => (e.currentTarget.style.color = systemColors.herb)}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = '')}
-                          title="Edit"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => onDeleteCookingAttempt(dish.id, attempt.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors p-1"
-                          title="Delete"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                    {attempt.successRating && (
-                      <div className="mt-1">
-                        <span style={{ color: systemColors.herb }}>
-                          {'★'.repeat(attempt.successRating)}
-                          {'☆'.repeat(5 - attempt.successRating)}
-                        </span>
-                      </div>
-                    )}
-                    {attempt.notes && (
-                      <p className="text-gray-600 mt-1">{attempt.notes}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {cookingAttempts.length === 0 && !showAddAttempt && (
-          <p className="text-xs text-gray-400">No cooking attempts logged</p>
+          <p className="text-xs text-gray-400">No tries logged yet</p>
         )}
       </div>
     </div>

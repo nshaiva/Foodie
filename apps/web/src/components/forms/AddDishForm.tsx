@@ -2,19 +2,16 @@ import { useState } from 'react';
 import { countries } from '../../data/countries';
 import { getRegionsForCountry } from '../../data/countryHelpers';
 import { systemColors } from '../../data/systemColors';
-import type { Restaurant, UserDish, RestaurantTry, CookingAttempt } from '../../data/types';
+import type { UserDish, RestaurantTry } from '../../data/types';
 
-type InitialTryType = 'none' | 'restaurant' | 'cooked';
+type InitialTryType = 'none' | 'restaurant';
 
 interface AddDishFormProps {
-  /** All logged restaurants — used to offer linking a try to an existing restaurant. */
-  restaurants: Restaurant[];
   onAddDish: (dish: Omit<UserDish, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  findOrCreateRestaurant: (countryId: string, name: string, dateVisited?: string) => Restaurant;
   onCancel: () => void;
 }
 
-export function AddDishForm({ restaurants, onAddDish, findOrCreateRestaurant, onCancel }: AddDishFormProps) {
+export function AddDishForm({ onAddDish, onCancel }: AddDishFormProps) {
   const [formCountryId, setFormCountryId] = useState('');
   const [formName, setFormName] = useState('');
   const [formRegion, setFormRegion] = useState('');
@@ -22,64 +19,29 @@ export function AddDishForm({ restaurants, onAddDish, findOrCreateRestaurant, on
 
   const [initialTryType, setInitialTryType] = useState<InitialTryType>('none');
 
-  // Restaurant try fields
-  const [useLinkedRestaurant, setUseLinkedRestaurant] = useState(true);
-  const [restaurantId, setRestaurantId] = useState('');
+  // Taste rating (used when "just logging")
+  const [tasteRating, setTasteRating] = useState('');
+
+  // "Where I ate it" fields
   const [restaurantName, setRestaurantName] = useState('');
   const [restaurantDate, setRestaurantDate] = useState(new Date().toISOString().split('T')[0]);
   const [restaurantRating, setRestaurantRating] = useState('');
   const [restaurantNotes, setRestaurantNotes] = useState('');
 
-  // Cooking attempt fields
-  const [cookingDate, setCookingDate] = useState(new Date().toISOString().split('T')[0]);
-  const [cookingRating, setCookingRating] = useState('');
-  const [recipeSource, setRecipeSource] = useState('');
-  const [cookingNotes, setCookingNotes] = useState('');
-
-  const getRestaurantsForCountry = (countryId: string) =>
-    restaurants.filter(r => r.countryId === countryId);
-
   const selectedCountryRegions = formCountryId ? getRegionsForCountry(formCountryId) : [];
-  const selectedCountryRestaurants = formCountryId ? getRestaurantsForCountry(formCountryId) : [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formCountryId || !formName.trim()) return;
 
-    // Validate restaurant try if selected
-    if (initialTryType === 'restaurant') {
-      if (useLinkedRestaurant && !restaurantId) return;
-      if (!useLinkedRestaurant && !restaurantName.trim()) return;
-    }
-
     let initialRestaurantTry: RestaurantTry | undefined;
-    let initialCookingAttempt: CookingAttempt | undefined;
-
     if (initialTryType === 'restaurant') {
-      const tryDate = new Date(restaurantDate).toISOString();
-
-      // Auto-create restaurant if name provided without ID
-      let finalRestaurantId = useLinkedRestaurant ? restaurantId : undefined;
-      if (!useLinkedRestaurant && restaurantName.trim()) {
-        const restaurant = findOrCreateRestaurant(formCountryId, restaurantName.trim(), tryDate);
-        finalRestaurantId = restaurant.id;
-      }
-
       initialRestaurantTry = {
         id: crypto.randomUUID(),
-        restaurantId: finalRestaurantId,
-        restaurantName: undefined, // Always link to restaurant now
-        date: tryDate,
+        restaurantName: restaurantName.trim() || undefined,
+        date: new Date(restaurantDate).toISOString(),
         rating: restaurantRating ? parseInt(restaurantRating, 10) : undefined,
         notes: restaurantNotes.trim() || undefined,
-      };
-    } else if (initialTryType === 'cooked') {
-      initialCookingAttempt = {
-        id: crypto.randomUUID(),
-        date: new Date(cookingDate).toISOString(),
-        successRating: cookingRating ? parseInt(cookingRating, 10) : undefined,
-        recipeSource: recipeSource.trim() || undefined,
-        notes: cookingNotes.trim() || undefined,
       };
     }
 
@@ -88,8 +50,8 @@ export function AddDishForm({ restaurants, onAddDish, findOrCreateRestaurant, on
       region: formRegion || undefined,
       name: formName.trim(),
       notes: formNotes.trim() || undefined,
+      tasteRating: initialTryType === 'none' && tasteRating ? parseInt(tasteRating, 10) : undefined,
       restaurantTries: initialRestaurantTry ? [initialRestaurantTry] : [],
-      cookingAttempts: initialCookingAttempt ? [initialCookingAttempt] : [],
     });
 
     onCancel();
@@ -110,8 +72,6 @@ export function AddDishForm({ restaurants, onAddDish, findOrCreateRestaurant, on
               onChange={(e) => {
                 setFormCountryId(e.target.value);
                 setFormRegion('');
-                setRestaurantId('');
-                setUseLinkedRestaurant(getRestaurantsForCountry(e.target.value).length > 0);
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
               required
@@ -165,6 +125,26 @@ export function AddDishForm({ restaurants, onAddDish, findOrCreateRestaurant, on
           />
         </div>
 
+        {/* Taste rating (when just logging) */}
+        {initialTryType === 'none' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">How much did you like it?</label>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setTasteRating(tasteRating === star.toString() ? '' : star.toString())}
+                  className="text-2xl transition-colors"
+                  style={{ color: parseInt(tasteRating) >= star ? systemColors.saffron : '#d1d5db' }}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div>
           <label htmlFor="formNotes" className="block text-sm font-medium text-gray-700 mb-1">
             Notes
@@ -179,10 +159,10 @@ export function AddDishForm({ restaurants, onAddDish, findOrCreateRestaurant, on
           />
         </div>
 
-        {/* Initial try type selection */}
+        {/* How did you have it */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            How did you try this dish?
+            How did you have it?
           </label>
           <div className="flex flex-wrap gap-2">
             <button
@@ -205,88 +185,30 @@ export function AddDishForm({ restaurants, onAddDish, findOrCreateRestaurant, on
                 color: initialTryType === 'restaurant' ? 'white' : systemColors.navy
               }}
             >
-              At a restaurant
-            </button>
-            <button
-              type="button"
-              onClick={() => setInitialTryType('cooked')}
-              className="px-3 py-1.5 rounded-md text-sm transition-colors"
-              style={{
-                backgroundColor: initialTryType === 'cooked' ? systemColors.herb : systemColors.herbLight,
-                color: initialTryType === 'cooked' ? 'white' : systemColors.navy
-              }}
-            >
-              I cooked it
+              I ate out
             </button>
           </div>
         </div>
 
-        {/* Restaurant try form */}
+        {/* Where details */}
         {initialTryType === 'restaurant' && (
           <div className="rounded-lg p-3 space-y-3" style={{ backgroundColor: systemColors.saffronLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.saffron }}>
-            {selectedCountryRestaurants.length > 0 && (
-              <div className="flex gap-4 mb-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    checked={useLinkedRestaurant}
-                    onChange={() => setUseLinkedRestaurant(true)}
-                    style={{ accentColor: systemColors.saffron }}
-                  />
-                  <span className="text-sm text-gray-700">My restaurants</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    checked={!useLinkedRestaurant}
-                    onChange={() => setUseLinkedRestaurant(false)}
-                    style={{ accentColor: systemColors.saffron }}
-                  />
-                  <span className="text-sm text-gray-700">Enter name</span>
-                </label>
-              </div>
-            )}
-
-            {useLinkedRestaurant && selectedCountryRestaurants.length > 0 ? (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Restaurant *
-                </label>
-                <select
-                  value={restaurantId}
-                  onChange={(e) => setRestaurantId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
-                  required
-                >
-                  <option value="">Select a restaurant</option>
-                  {selectedCountryRestaurants.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Restaurant Name *
-                </label>
-                <input
-                  type="text"
-                  value={restaurantName}
-                  onChange={(e) => setRestaurantName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
-                  placeholder="e.g., Little Bangkok"
-                  required
-                />
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Where did you eat it? <span className="font-normal text-gray-400">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={restaurantName}
+                onChange={(e) => setRestaurantName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
+                placeholder="e.g., Little Bangkok"
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
                 <input
                   type="date"
                   value={restaurantDate}
@@ -296,9 +218,7 @@ export function AddDishForm({ restaurants, onAddDish, findOrCreateRestaurant, on
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rating
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
                 <select
                   value={restaurantRating}
                   onChange={(e) => setRestaurantRating(e.target.value)}
@@ -315,78 +235,13 @@ export function AddDishForm({ restaurants, onAddDish, findOrCreateRestaurant, on
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
               <textarea
                 value={restaurantNotes}
                 onChange={(e) => setRestaurantNotes(e.target.value)}
                 rows={2}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
-                placeholder="How was it at this restaurant?"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Cooking attempt form */}
-        {initialTryType === 'cooked' && (
-          <div className="rounded-lg p-3 space-y-3" style={{ backgroundColor: systemColors.herbLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.herb }}>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  value={cookingDate}
-                  onChange={(e) => setCookingDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  How did it turn out?
-                </label>
-                <select
-                  value={cookingRating}
-                  onChange={(e) => setCookingRating(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
-                >
-                  <option value="">No rating</option>
-                  <option value="5">5 - Nailed it!</option>
-                  <option value="4">4 - Pretty good</option>
-                  <option value="3">3 - Decent</option>
-                  <option value="2">2 - Needs work</option>
-                  <option value="1">1 - Disaster</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Recipe Source
-              </label>
-              <input
-                type="text"
-                value={recipeSource}
-                onChange={(e) => setRecipeSource(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
-                placeholder="e.g., YouTube, cookbook, family recipe..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes
-              </label>
-              <textarea
-                value={cookingNotes}
-                onChange={(e) => setCookingNotes(e.target.value)}
-                rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
-                placeholder="What worked? What would you change?"
+                placeholder="How was it?"
               />
             </div>
           </div>

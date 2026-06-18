@@ -63,7 +63,6 @@ export function PersonalFlavorFingerprint() {
             <div className="space-y-1">
               <AffinitySpectrum spectrum={spectrums.spice} title="Spice Tolerance" />
               <AffinitySpectrum spectrum={spectrums.complexity} title="Dish Complexity" />
-              <AffinitySpectrum spectrum={spectrums.activity} title="Activity Style" />
               <AffinitySpectrum spectrum={spectrums.sweetSavory} title="Sweet vs Savory" />
               <AffinitySpectrum spectrum={spectrums.richness} title="Flavor Richness" />
             </div>

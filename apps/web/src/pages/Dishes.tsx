@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDishes } from '../hooks/useDishes';
-import { useRestaurants } from '../hooks/useRestaurants';
 import { useCountryListFilter } from '../hooks/useCountryListFilter';
 import { getCountryName } from '../data/countryHelpers';
 import { systemColors } from '../data/systemColors';
 import { DishCard } from '../components/DishCard';
 import { ListControls, FilterSelect } from '../components/ListControls';
 import { AddDishForm } from '../components/forms/AddDishForm';
-import type { RestaurantTry, UserDish } from '../data/types';
+import type { UserDish } from '../data/types';
 
-type SortOption = 'date-desc' | 'date-asc' | 'name' | 'country' | 'updated' | 'most-tried' | 'most-cooked';
+type SortOption = 'date-desc' | 'date-asc' | 'name' | 'country' | 'updated' | 'most-tried';
 
 function compareDishes(a: UserDish, b: UserDish, sortBy: SortOption): number {
   switch (sortBy) {
@@ -26,8 +25,6 @@ function compareDishes(a: UserDish, b: UserDish, sortBy: SortOption): number {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     case 'most-tried':
       return (b.restaurantTries?.length || 0) - (a.restaurantTries?.length || 0);
-    case 'most-cooked':
-      return (b.cookingAttempts?.length || 0) - (a.cookingAttempts?.length || 0);
     default:
       return 0;
   }
@@ -42,11 +39,7 @@ export function Dishes() {
     addRestaurantTry,
     updateRestaurantTry,
     deleteRestaurantTry,
-    addCookingAttempt,
-    updateCookingAttempt,
-    deleteCookingAttempt,
   } = useDishes();
-  const { restaurants, findOrCreateRestaurant } = useRestaurants();
   const [showAddForm, setShowAddForm] = useState(false);
 
   const {
@@ -60,27 +53,6 @@ export function Dishes() {
     availableCountryIds,
     availableContinents,
   } = useCountryListFilter<UserDish, SortOption>(dishes, 'date-desc', compareDishes);
-
-  const getRestaurantsForCountry = (countryId: string) =>
-    restaurants.filter(r => r.countryId === countryId);
-
-  // Wrapper for addRestaurantTry that auto-creates restaurants
-  const handleAddRestaurantTry = (dishId: string, data: Omit<RestaurantTry, 'id'>) => {
-    const dish = dishes.find(d => d.id === dishId);
-    if (!dish) return;
-
-    // Auto-create restaurant if name provided without ID
-    if (data.restaurantName && !data.restaurantId) {
-      const restaurant = findOrCreateRestaurant(dish.countryId, data.restaurantName, data.date);
-      addRestaurantTry(dishId, {
-        ...data,
-        restaurantId: restaurant.id,
-        restaurantName: undefined,
-      });
-    } else {
-      addRestaurantTry(dishId, data);
-    }
-  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
@@ -118,9 +90,7 @@ export function Dishes() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         {showAddForm && (
           <AddDishForm
-            restaurants={restaurants}
             onAddDish={addDish}
-            findOrCreateRestaurant={findOrCreateRestaurant}
             onCancel={() => setShowAddForm(false)}
           />
         )}
@@ -148,8 +118,7 @@ export function Dishes() {
                 <option value="updated">Recently Updated</option>
                 <option value="country">Country A-Z</option>
                 <option value="name">Name A-Z</option>
-                <option value="most-tried">Most Restaurant Tries</option>
-                <option value="most-cooked">Most Cooking Attempts</option>
+                <option value="most-tried">Most Tries</option>
               </FilterSelect>
             </ListControls>
 
@@ -168,15 +137,11 @@ export function Dishes() {
                   </div>
                   <DishCard
                     dish={dish}
-                    restaurants={getRestaurantsForCountry(dish.countryId)}
                     onUpdate={updateDish}
                     onDelete={deleteDish}
-                    onAddRestaurantTry={handleAddRestaurantTry}
+                    onAddRestaurantTry={addRestaurantTry}
                     onUpdateRestaurantTry={updateRestaurantTry}
                     onDeleteRestaurantTry={deleteRestaurantTry}
-                    onAddCookingAttempt={addCookingAttempt}
-                    onUpdateCookingAttempt={updateCookingAttempt}
-                    onDeleteCookingAttempt={deleteCookingAttempt}
                   />
                 </div>
               ))}

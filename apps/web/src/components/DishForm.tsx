@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import type { Restaurant, RestaurantTry, CookingAttempt, RegionalCuisine, Dish } from '../data/types';
+import type { RestaurantTry, RegionalCuisine, Dish } from '../data/types';
 import { systemColors } from '../data/systemColors';
 
-type TryType = 'none' | 'restaurant' | 'cooked';
+type TryType = 'none' | 'restaurant';
 
 interface DishFormProps {
   countryId: string;
@@ -10,7 +10,6 @@ interface DishFormProps {
   regions?: string[];
   regionalVariations?: RegionalCuisine[];
   popularDishes?: Dish[];
-  restaurants: Restaurant[];
   onSubmit: (data: {
     countryId: string;
     region?: string;
@@ -18,7 +17,6 @@ interface DishFormProps {
     notes?: string;
     tasteRating?: number;
     initialRestaurantTry?: Omit<RestaurantTry, 'id'>;
-    initialCookingAttempt?: Omit<CookingAttempt, 'id'>;
   }) => void;
   onCancel: () => void;
 }
@@ -39,8 +37,6 @@ function detectRegion(
            d.englishName?.toLowerCase() === normalizedName
     );
     if (matchedDish?.regionalOrigin) {
-      // Extract just the region name (e.g., "Isan (Northeastern Thailand)" -> "Northeastern Thailand (Isan)")
-      // Try to match with regional variations
       if (regionalVariations) {
         const matchedRegion = regionalVariations.find(r =>
           matchedDish.regionalOrigin!.toLowerCase().includes(r.name.toLowerCase())
@@ -71,7 +67,6 @@ export function DishForm({
   regions,
   regionalVariations,
   popularDishes,
-  restaurants,
   onSubmit,
   onCancel
 }: DishFormProps) {
@@ -82,27 +77,17 @@ export function DishForm({
   const [showRegion, setShowRegion] = useState(false);
   const [detectedRegion, setDetectedRegion] = useState<string | undefined>();
 
-  // Try type
   const [tryType, setTryType] = useState<TryType>('none');
 
-  // Restaurant fields
-  const [useLinkedRestaurant, setUseLinkedRestaurant] = useState(restaurants.length > 0);
-  const [restaurantId, setRestaurantId] = useState('');
+  // "Where I ate it" fields
   const [restaurantName, setRestaurantName] = useState('');
   const [restaurantDate, setRestaurantDate] = useState(new Date().toISOString().split('T')[0]);
   const [restaurantNotes, setRestaurantNotes] = useState('');
-
-  // Cooking fields
-  const [cookingDate, setCookingDate] = useState(new Date().toISOString().split('T')[0]);
-  const [cookingRating, setCookingRating] = useState('');
-  const [recipeSource, setRecipeSource] = useState('');
-  const [cookingNotes, setCookingNotes] = useState('');
 
   // Auto-detect region when dish name changes
   useEffect(() => {
     const detected = detectRegion(name, regionalVariations, popularDishes);
     setDetectedRegion(detected);
-    // Only auto-fill if user hasn't manually selected a region
     if (detected && !region) {
       setRegion(detected);
     }
@@ -112,29 +97,14 @@ export function DishForm({
     e.preventDefault();
     if (!name.trim()) return;
 
-    // Validate restaurant try if selected
-    if (tryType === 'restaurant') {
-      if (useLinkedRestaurant && !restaurantId) return;
-      if (!useLinkedRestaurant && !restaurantName.trim()) return;
-    }
-
     let initialRestaurantTry: Omit<RestaurantTry, 'id'> | undefined;
-    let initialCookingAttempt: Omit<CookingAttempt, 'id'> | undefined;
 
     if (tryType === 'restaurant') {
       initialRestaurantTry = {
-        restaurantId: useLinkedRestaurant ? restaurantId : undefined,
-        restaurantName: useLinkedRestaurant ? undefined : restaurantName.trim(),
+        restaurantName: restaurantName.trim() || undefined,
         date: new Date(restaurantDate).toISOString(),
         rating: tasteRating ? parseInt(tasteRating, 10) : undefined,
         notes: restaurantNotes.trim() || undefined,
-      };
-    } else if (tryType === 'cooked') {
-      initialCookingAttempt = {
-        date: new Date(cookingDate).toISOString(),
-        successRating: cookingRating ? parseInt(cookingRating, 10) : undefined,
-        recipeSource: recipeSource.trim() || undefined,
-        notes: cookingNotes.trim() || undefined,
       };
     }
 
@@ -143,10 +113,9 @@ export function DishForm({
       region: region || undefined,
       name: name.trim(),
       notes: notes.trim() || undefined,
-      // Only save tasteRating on dish when "just logging" - restaurant tries store their own rating
+      // Only save tasteRating on the dish when "just logging" — tries store their own rating
       tasteRating: tryType === 'none' && tasteRating ? parseInt(tasteRating, 10) : undefined,
       initialRestaurantTry,
-      initialCookingAttempt,
     });
   };
 
@@ -174,7 +143,7 @@ export function DishForm({
         {/* Taste Rating */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {tryType === 'restaurant' ? 'How was it at this restaurant?' : 'How much did you like it?'}
+            {tryType === 'restaurant' ? 'How was it where you had it?' : 'How much did you like it?'}
           </label>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
@@ -213,14 +182,14 @@ export function DishForm({
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb focus:border-transparent"
-            placeholder="Your thoughts, where you had it, what made it special..."
+            placeholder="Your thoughts, what made it special..."
           />
         </div>
 
-        {/* How did you try it */}
+        {/* How did you have it */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            How did you try it?
+            How did you have it?
           </label>
           <div className="flex flex-wrap gap-2">
             <button
@@ -243,78 +212,28 @@ export function DishForm({
                 color: tryType === 'restaurant' ? 'white' : systemColors.navy
               }}
             >
-              At a restaurant
-            </button>
-            <button
-              type="button"
-              onClick={() => setTryType('cooked')}
-              className="px-3 py-1.5 rounded-md text-sm transition-colors"
-              style={{
-                backgroundColor: tryType === 'cooked' ? systemColors.herb : systemColors.herbLight,
-                color: tryType === 'cooked' ? 'white' : systemColors.navy
-              }}
-            >
-              I cooked it
+              I ate out
             </button>
           </div>
         </div>
 
-        {/* Restaurant details */}
+        {/* Where details */}
         {tryType === 'restaurant' && (
           <div className="rounded-lg p-3 space-y-2" style={{ backgroundColor: systemColors.saffronLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.saffron }}>
-            {restaurants.length > 0 && (
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    checked={useLinkedRestaurant}
-                    onChange={() => setUseLinkedRestaurant(true)}
-                    style={{ accentColor: systemColors.saffron }}
-                  />
-                  <span className="text-sm text-gray-700">My restaurants</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    checked={!useLinkedRestaurant}
-                    onChange={() => setUseLinkedRestaurant(false)}
-                    style={{ accentColor: systemColors.saffron }}
-                  />
-                  <span className="text-sm text-gray-700">New restaurant</span>
-                </label>
-              </div>
-            )}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Where did you eat it? <span className="font-normal text-gray-400">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={restaurantName}
+                onChange={(e) => setRestaurantName(e.target.value)}
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
+                placeholder="e.g., Little Bangkok"
+              />
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {useLinkedRestaurant && restaurants.length > 0 ? (
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Restaurant *</label>
-                  <select
-                    value={restaurantId}
-                    onChange={(e) => setRestaurantId(e.target.value)}
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
-                    required
-                  >
-                    <option value="">Select restaurant</option>
-                    {restaurants.map((r) => (
-                      <option key={r.id} value={r.id}>{r.name}</option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Restaurant Name *</label>
-                  <input
-                    type="text"
-                    value={restaurantName}
-                    onChange={(e) => setRestaurantName(e.target.value)}
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
-                    placeholder="e.g., Little Bangkok"
-                    required
-                  />
-                </div>
-              )}
-
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
                 <input
@@ -324,72 +243,17 @@ export function DishForm({
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Notes about this visit</label>
-              <input
-                type="text"
-                value={restaurantNotes}
-                onChange={(e) => setRestaurantNotes(e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
-                placeholder="How was it here?"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Cooking details */}
-        {tryType === 'cooked' && (
-          <div className="rounded-lg p-3 space-y-2" style={{ backgroundColor: systemColors.herbLight, borderWidth: 1, borderStyle: 'solid', borderColor: systemColors.herb }}>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
-                <input
-                  type="date"
-                  value={cookingDate}
-                  onChange={(e) => setCookingDate(e.target.value)}
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
-                />
-              </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">How did it turn out?</label>
-                <select
-                  value={cookingRating}
-                  onChange={(e) => setCookingRating(e.target.value)}
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
-                >
-                  <option value="">No rating</option>
-                  <option value="5">Nailed it!</option>
-                  <option value="4">Pretty good</option>
-                  <option value="3">Decent</option>
-                  <option value="2">Needs work</option>
-                  <option value="1">Disaster</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Recipe Source</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Notes about this visit</label>
                 <input
                   type="text"
-                  value={recipeSource}
-                  onChange={(e) => setRecipeSource(e.target.value)}
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
-                  placeholder="YouTube, cookbook..."
+                  value={restaurantNotes}
+                  onChange={(e) => setRestaurantNotes(e.target.value)}
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-saffron"
+                  placeholder="How was it?"
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Notes about this attempt</label>
-              <input
-                type="text"
-                value={cookingNotes}
-                onChange={(e) => setCookingNotes(e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-herb"
-                placeholder="What worked? What would you change?"
-              />
             </div>
           </div>
         )}
