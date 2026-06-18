@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foodie — Country page consolidation options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#F7F3EC; --ink:#33302A; --muted:#6F6A5F;
+      --primary:#C2654A; --secondary:#D9A441; --herb:#8A9A7B;
+      --surface:#FFFFFF; --border:#E5DFD2;
+      --tint-s:#F3E6C7; --tint-h:#E6EAE0; --tint-p:#F0DBD1;
+      --flag:#1e4d6b; /* Thailand muted flag tone */
+      --fbody:'Inter',system-ui,sans-serif; --fhead:'Nunito',system-ui,sans-serif; --fbrand:'Fraunces',Georgia,serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fbody)}
+    h1,h2,h3,h4{font-family:var(--fhead);margin:0}
+
+    .controls{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--border);padding:12px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .controls .lab{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .controls button{font-family:var(--fbody);font-size:13px;font-weight:500;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink);cursor:pointer}
+    .controls button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+    .controls .hint{font-size:13px;color:var(--muted);margin-left:auto}
+
+    /* shared country header */
+    .pg-header{background:var(--surface);border-bottom:1px solid var(--border)}
+    .pg-header .in{max-width:1000px;margin:0 auto;padding:16px 24px}
+    .wordmark{font-family:var(--fbrand);font-weight:700;font-size:22px;color:var(--ink);text-decoration:none}
+    .wordmark .dot{color:var(--primary)}
+    .cty-name{font-size:30px;font-weight:800;display:flex;align-items:center;gap:10px;margin-top:6px}
+    .flagdot{width:13px;height:13px;border-radius:50%;background:var(--flag);display:inline-block}
+    .cty-sub{color:var(--muted);margin-top:3px;font-size:14px}
+    .summary{max-width:1000px;margin:18px auto 0;padding:0 24px;font-size:17px;line-height:1.55;color:var(--ink)}
+
+    main{max-width:1000px;margin:0 auto;padding:24px}
+
+    .concept{display:none}
+    body.ca .concept-a{display:block}
+    body.cb .concept-b{display:block}
+    body.cc .concept-c{display:block}
+
+    /* pills / tabs */
+    .pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+    .pill{padding:8px 16px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--ink)}
+    .pill.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+    .panel{display:none}
+    .panel.on{display:block}
+
+    h3.sec{font-size:16px;margin-bottom:12px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:14px}
+
+    /* dish / drink cards */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+    .item{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;position:relative;transition:transform .15s ease,box-shadow .15s ease}
+    .item:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(43,32,24,.10)}
+    .item .emoji{font-size:30px}
+    .item .nm{font-weight:700;margin-top:6px;font-size:15px}
+    .item .en{color:var(--muted);font-size:12px}
+    .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+    .chip{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--tint-h);color:var(--herb)}
+    .chip.cat{background:#eee;color:#555}
+    .chip.spice-mild{background:#eef3ec;color:#5b8c5a}
+    .chip.spice-medium{background:var(--tint-s);color:#b07d12}
+    .chip.spice-hot{background:var(--tint-p);color:var(--primary)}
+    .chip.spice-veryhot{background:#e7c4ba;color:#8c3a26}
+    .chip.spice-none{background:#eee;color:#777}
+    .chip.diff-easy{background:#eef3ec;color:#5b8c5a}
+    .chip.diff-medium{background:var(--tint-s);color:#b07d12}
+    .chip.diff-hard{background:#e7c4ba;color:#8c3a26}
+    .chip.alc{background:#e7c4ba;color:#8c3a26}
+    .chip.nonalc{background:var(--tint-h);color:var(--herb)}
+    .acts{position:absolute;top:10px;right:10px;display:flex;gap:8px}
+    .acts span{cursor:pointer;font-size:16px;opacity:.7}
+    .acts .heart{color:var(--primary)}
+    .acts .book{color:var(--secondary)}
+
+    /* segmented toggle */
+    .seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+    .seg button{border:none;background:#fff;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink)}
+    .seg button.on{background:var(--ink);color:#fff}
+
+    /* flavor block */
+    .flavor-grid{display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:center}
+    @media(max-width:640px){.flavor-grid{grid-template-columns:1fr}}
+    .ing-cluster{display:flex;flex-wrap:wrap;gap:8px}
+    .ing{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:var(--bg);border:1px solid var(--border);font-size:13px}
+    .flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:18px}
+    .flow .step{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:var(--tint-h);font-size:13px;font-weight:600;color:var(--ink)}
+    .flow .arr{color:var(--muted)}
+
+    /* map placeholder + regions */
+    .culture-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    @media(max-width:640px){.culture-grid{grid-template-columns:1fr}}
+    .map{height:280px;border-radius:14px;border:1px solid var(--border);position:relative;
+      background:radial-gradient(circle at 1px 1px,rgba(110,98,86,.12) 1px,transparent 0) 0 0/20px 20px,linear-gradient(180deg,#eef4f0,#f6f1ea)}
+    .map .rg{position:absolute;padding:5px 10px;border-radius:999px;background:#fff;border:1px solid var(--border);font-size:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+    .map .rg:hover{border-color:var(--primary);color:var(--primary)}
+    .reg-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .reg{padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer}
+    .blurb{color:var(--ink);font-size:14px;line-height:1.6}
+
+    /* radar */
+    .radar text{font-family:var(--fbody)}
+
+    /* Concept B scroll story */
+    .story-nav{position:sticky;top:53px;z-index:30;background:var(--bg);padding:10px 0;display:flex;gap:8px;border-bottom:1px solid var(--border)}
+    .story-sec{padding:28px 0;border-bottom:1px dashed var(--border)}
+    .story-sec h2{font-size:24px;margin-bottom:6px}
+    .story-sec .lead{color:var(--muted);margin-bottom:16px}
+    .hero-flavor{display:grid;grid-template-columns:260px 1fr;gap:24px;align-items:center}
+    @media(max-width:640px){.hero-flavor{grid-template-columns:1fr}}
+    .hero-flavor .big{font-size:30px;font-weight:800;line-height:1.15}
+    .row-scroll{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px}
+    .row-scroll .item{min-width:220px}
+
+    /* Concept C bento */
+    .bento{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;grid-auto-rows:170px}
+    @media(max-width:760px){.bento{grid-template-columns:repeat(2,1fr)}}
+    .tile{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;overflow:hidden;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;position:relative}
+    .tile:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(43,32,24,.12)}
+    .tile h4{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:10px}
+    .tile .corner{position:absolute;top:14px;right:14px;color:var(--muted);font-size:14px}
+    .t-radar{grid-row:span 2}
+    .t-dishes{grid-column:span 2;grid-row:span 2}
+    .t-ing{grid-column:span 1}
+    .t-region{grid-column:span 1;grid-row:span 2}
+    .t-drinks{grid-column:span 2}
+    .t-culture{grid-column:span 2}
+    .mini-dish{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+    .mini-dish:last-child{border-bottom:none}
+    .mini-dish .e{font-size:22px}
+    .tile .map{height:100%;min-height:120px}
+  </style>
+</head>
+<body class="ca">
+
+  <div class="controls">
+    <span class="lab">Concept</span>
+    <button data-c="a" class="active">A · Three smart tabs</button>
+    <button data-c="b">B · Scroll story</button>
+    <button data-c="c">C · Bento dashboard</button>
+    <span class="hint">Thailand example · same content, three layouts</span>
+  </div>
+
+  <!-- shared header -->
+  <div class="pg-header">
+    <div class="in">
+      <a class="wordmark" href="#">foodie<span class="dot">.</span></a>
+      <div class="cty-name"><span class="flagdot"></span>Thailand</div>
+      <div class="cty-sub">Bangkok · Southeast Asia</div>
+    </div>
+  </div>
+  <p class="summary">Thai cuisine is defined by its bold, harmonious balance of spicy, sour, sweet, and salty flavors, with an emphasis on fresh herbs and aromatic ingredients.</p>
+
+  <main>
+    <!-- ============ CONCEPT A: 3 tabs + cards ============ -->
+    <div class="concept concept-a">
+      <div class="pills" id="a-pills">
+        <div class="pill on" data-p="flavor">Flavor</div>
+        <div class="pill" data-p="eat">Eat &amp; Drink</div>
+        <div class="pill" data-p="culture">Culture &amp; Regions</div>
+      </div>
+
+      <div class="panel on" data-panel="flavor">
+        <div class="flavor-grid">
+          <div class="radar-slot"></div>
+          <div>
+            <h3 class="sec">Signature ingredients</h3>
+            <div class="ing-cluster"></div>
+          </div>
+        </div>
+        <div class="flow"></div>
+      </div>
+
+      <div class="panel" data-panel="eat">
+        <div class="seg" id="a-seg">
+          <button class="on" data-f="food">🍽 Food</button>
+          <button data-f="drink">🥤 Drinks</button>
+        </div>
+        <div data-fpane="food"><div class="grid dish-grid"></div></div>
+        <div data-fpane="drink" style="display:none"><div class="grid drink-grid"></div></div>
+      </div>
+
+      <div class="panel" data-panel="culture">
+        <div class="culture-grid">
+          <div class="map region-map"></div>
+          <div>
+            <div class="blurb">Meals are communal — dishes are shared from the center of the table, balanced across spicy, sour, sweet and salty. Street food is everywhere, and the line between stall and restaurant blurs.</div>
+            <h3 class="sec" style="margin-top:18px">Regions</h3>
+            <div class="reg-list region-chips"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ CONCEPT B: scroll story ============ -->
+    <div class="concept concept-b">
+      <div class="story-nav">
+        <a class="pill on" href="#b-flavor">Flavor</a>
+        <a class="pill" href="#b-eat">Eat</a>
+        <a class="pill" href="#b-drink">Drink</a>
+        <a class="pill" href="#b-culture">Culture</a>
+      </div>
+
+      <section class="story-sec" id="b-flavor">
+        <h2>The flavor</h2>
+        <div class="lead">Bold and aromatic, with a bright balance of heat and sour.</div>
+        <div class="hero-flavor">
+          <div class="radar-slot"></div>
+          <div>
+            <div class="big">Spicy · Sour · Aromatic</div>
+            <div class="ing-cluster" style="margin-top:14px"></div>
+            <div class="flow"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="story-sec" id="b-eat">
+        <h2>What to eat</h2>
+        <div class="lead">Eight dishes that define the table.</div>
+        <div class="row-scroll dish-grid" style="display:flex"></div>
+      </section>
+
+      <section class="story-sec" id="b-drink">
+        <h2>What to drink</h2>
+        <div class="lead">From sweet iced tea to Singha.</div>
+        <div class="row-scroll drink-grid" style="display:flex"></div>
+      </section>
+
+      <section class="story-sec" id="b-culture" style="border-bottom:none">
+        <h2>Culture &amp; regions</h2>
+        <div class="lead">Four regions, four personalities.</div>
+        <div class="culture-grid">
+          <div class="map region-map"></div>
+          <div><div class="reg-list region-chips"></div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ CONCEPT C: bento ============ -->
+    <div class="concept concept-c">
+      <div class="bento">
+        <div class="tile t-radar"><h4>Flavor</h4><div class="radar-slot"></div></div>
+        <div class="tile t-dishes"><h4>Signature dishes</h4><span class="corner">→</span><div class="mini-dishes"></div></div>
+        <div class="tile t-region"><h4>Regions</h4><span class="corner">⤢</span><div class="map region-map" style="height:78%"></div></div>
+        <div class="tile t-ing"><h4>Ingredients</h4><div class="ing-cluster"></div></div>
+        <div class="tile t-drinks"><h4>Drinks</h4><span class="corner">→</span><div class="ing-cluster drink-chips"></div></div>
+        <div class="tile t-culture"><h4>Culture</h4><div class="blurb" style="font-size:13px">Communal, balanced, street-food-driven. Chinese, Indian, and Portuguese influences shaped centuries of Thai cooking.</div></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const dishes = [
+      {e:'🍜',nm:'Pad Thai',en:'',spice:'mild',diff:'medium',cat:'main'},
+      {e:'🦐',nm:'Tom Yum Goong',en:'Spicy Shrimp Soup',spice:'hot',diff:'medium',cat:'soup'},
+      {e:'🥗',nm:'Som Tum',en:'Green Papaya Salad',spice:'very-hot',diff:'easy',cat:'salad'},
+      {e:'🍲',nm:'Green Curry',en:'Gaeng Keow Wan',spice:'hot',diff:'medium',cat:'main'},
+      {e:'🍚',nm:'Khao Pad',en:'Thai Fried Rice',spice:'mild',diff:'easy',cat:'main'},
+      {e:'🍛',nm:'Massaman Curry',en:'',spice:'mild',diff:'hard',cat:'main'},
+      {e:'🍳',nm:'Pad Krapow',en:'Basil Pork',spice:'hot',diff:'easy',cat:'main'},
+      {e:'🥭',nm:'Mango Sticky Rice',en:'Khao Niao Mamuang',spice:'none',diff:'easy',cat:'dessert'},
+    ];
+    const drinks = [
+      {e:'🧋',nm:'Thai Iced Tea',en:'Cha Yen',type:'non-alcoholic',cat:'tea'},
+      {e:'☕',nm:'Thai Iced Coffee',en:'Oliang',type:'non-alcoholic',cat:'coffee'},
+      {e:'🍋',nm:'Nam Manao',en:'Fresh Lime Juice',type:'non-alcoholic',cat:'juice'},
+      {e:'🍺',nm:'Singha',en:'',type:'alcoholic',cat:'beer'},
+      {e:'🥃',nm:'Mekhong',en:'',type:'alcoholic',cat:'spirit'},
+    ];
+    const ingredients = [
+      ['🐟','Fish Sauce'],['🥥','Coconut Milk'],['🌶️','Thai Chilies'],['🍋','Lime'],
+      ['🌿','Lemongrass'],['🫚','Galangal'],['🍃','Kaffir Lime'],['🌱','Cilantro'],
+    ];
+    const flow = [['🪨','Pound'],['🍳','Fry paste'],['🥥','Add coconut'],['🍲','Simmer'],['🌿','Garnish']];
+    const regions = ['Central','Northern (Lanna)','Northeastern (Isan)','Southern'];
+
+    const spiceClass = s => 'spice-' + s.replace('-','');
+    function dishCard(d){
+      return `<div class="item"><div class="acts"><span class="heart">♥</span><span class="book">⌑</span></div>
+        <div class="emoji">${d.e}</div><div class="nm">${d.nm}</div>${d.en?`<div class="en">${d.en}</div>`:''}
+        <div class="chips"><span class="chip ${spiceClass(d.spice)}">${d.spice}</span><span class="chip diff-${d.diff}">${d.diff}</span><span class="chip cat">${d.cat}</span></div></div>`;
+    }
+    function drinkCard(b){
+      const tc = b.type==='alcoholic'?'alc':'nonalc';
+      return `<div class="item"><div class="acts"><span class="heart">♥</span><span class="book">⌑</span></div>
+        <div class="emoji">${b.e}</div><div class="nm">${b.nm}</div>${b.en?`<div class="en">${b.en}</div>`:''}
+        <div class="chips"><span class="chip ${tc}">${b.type==='alcoholic'?'alcoholic':'non-alcoholic'}</span><span class="chip cat">${b.cat}</span></div></div>`;
+    }
+    const radarSVG = `<svg class="radar" viewBox="0 0 220 220" width="100%" height="220">
+      <polygon points="110,20 188,65 188,155 110,200 32,155 32,65" fill="none" stroke="#e2dccf" stroke-width="1.5"/>
+      <polygon points="110,65 149,87.5 149,132.5 110,155 71,132.5 71,87.5" fill="none" stroke="#e2dccf" stroke-width="1.5"/>
+      <polygon points="110,38 172,74 165,142 110,173 40,150 87,97" fill="rgba(194,101,74,.28)" stroke="#C2654A" stroke-width="2"/>
+      <text x="110" y="14" text-anchor="middle" font-size="10" fill="#6F6A5F">Heat</text>
+      <text x="196" y="64" font-size="10" fill="#6F6A5F">Acid</text>
+      <text x="196" y="160" font-size="10" fill="#6F6A5F">Sweet</text>
+      <text x="110" y="214" text-anchor="middle" font-size="10" fill="#6F6A5F">Umami</text>
+      <text x="2" y="160" font-size="10" fill="#6F6A5F">Aromatic</text>
+      <text x="6" y="64" font-size="10" fill="#6F6A5F">Smoke</text></svg>`;
+    const ingHTML = ingredients.map(([e,n])=>`<span class="ing">${e} ${n}</span>`).join('');
+    const flowHTML = flow.map(([e,a],i)=>`${i?'<span class="arr">→</span>':''}<span class="step">${e} ${a}</span>`).join('');
+    const regChips = regions.map(r=>`<span class="reg">${r}</span>`).join('');
+    const miniDishes = dishes.slice(0,5).map(d=>`<div class="mini-dish"><span class="e">${d.e}</span><div><div class="nm" style="font-size:14px">${d.nm}</div><div class="en">${d.cat} · ${d.spice}</div></div></div>`).join('');
+    const drinkChips = drinks.map(b=>`<span class="ing">${b.e} ${b.nm}</span>`).join('');
+
+    function fill(sel, html){ document.querySelectorAll(sel).forEach(el=>{ el.innerHTML = html; }); }
+    fill('.dish-grid', dishes.map(dishCard).join(''));
+    fill('.drink-grid', drinks.map(drinkCard).join(''));
+    fill('.radar-slot', radarSVG);
+    fill('.ing-cluster:not(.drink-chips)', ingHTML);
+    fill('.drink-chips', drinkChips);
+    fill('.flow', flowHTML);
+    fill('.region-chips', regChips);
+    fill('.mini-dishes', miniDishes);
+    // region map bubbles
+    const mapPos = [['Central','46%','46%'],['Northern (Lanna)','40%','16%'],['Northeastern (Isan)','62%','30%'],['Southern','38%','78%']];
+    fill('.region-map', mapPos.map(([n,l,t])=>`<span class="rg" style="left:${l};top:${t}">${n}</span>`).join(''));
+
+    // concept switch
+    const body=document.body;
+    document.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{
+      body.classList.remove('ca','cb','cc'); body.classList.add('c'+b.dataset.c);
+      document.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('active',x===b));
+    }));
+    // concept A tabs
+    document.querySelectorAll('#a-pills .pill').forEach(p=>p.addEventListener('click',()=>{
+      document.querySelectorAll('#a-pills .pill').forEach(x=>x.classList.toggle('on',x===p));
+      document.querySelectorAll('.concept-a .panel').forEach(pn=>pn.classList.toggle('on',pn.dataset.panel===p.dataset.p));
+    }));
+    // concept A food/drink toggle
+    document.querySelectorAll('#a-seg button').forEach(btn=>btn.addEventListener('click',()=>{
+      document.querySelectorAll('#a-seg button').forEach(x=>x.classList.toggle('on',x===btn));
+      document.querySelectorAll('[data-fpane]').forEach(pane=>pane.style.display = pane.dataset.fpane===btn.dataset.f?'block':'none');
+    }));
+    // concept B nav active on click
+    document.querySelectorAll('.concept-b .story-nav .pill').forEach(p=>p.addEventListener('click',()=>{
+      document.querySelectorAll('.concept-b .story-nav .pill').forEach(x=>x.classList.toggle('on',x===p));
+    }));
+  </script>
+</body>
+</html>

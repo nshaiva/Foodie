@@ -2,6 +2,7 @@ import { FlavorRadarChart } from '../../FlavorRadarChart';
 import { IngredientPyramid } from '../../IngredientPyramid';
 import { CookingFlow } from '../../CookingFlow';
 import { SimilarCuisinesSection } from './SimilarCuisinesSection';
+import { systemColors } from '../../../data/systemColors';
 import type { Country, ColorPalette } from '../../../data/types';
 
 interface ProfileSlideProps {
@@ -9,58 +10,51 @@ interface ProfileSlideProps {
   colors: ColorPalette;
 }
 
+function TileLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h4 className="text-xs font-medium uppercase tracking-wide mb-2" style={{ color: systemColors.navyMuted }}>
+      {children}
+    </h4>
+  );
+}
+
 export function ProfileSlide({ country, colors }: ProfileSlideProps) {
   const cuisineProfile = country.cuisineProfile;
+  const tile = 'bg-white rounded-2xl border border-gray-200 p-4';
 
   return (
-    <div className="p-4 space-y-4 h-full">
-      <h2
-        className="text-lg font-semibold"
-        style={{ color: colors.text }}
-      >
-        Cuisine Profile
+    <div className="p-4 h-full overflow-y-auto">
+      <h2 className="text-xl font-semibold mb-4" style={{ color: systemColors.navy }}>
+        Flavor
       </h2>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        {/* 2-column layout on desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Radar Chart */}
-          <div>
-            <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Flavor Fingerprint</h4>
-            <FlavorRadarChart
-              flavorIntensity={cuisineProfile.flavorIntensity}
-              colors={colors}
-            />
-          </div>
-
-          {/* Ingredient Pyramid */}
-          {cuisineProfile.ingredientTiers && (
-            <div>
-              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Ingredients & Spices</h4>
-              <IngredientPyramid
-                tiers={cuisineProfile.ingredientTiers}
-                colors={colors}
-              />
-            </div>
-          )}
+      {/* Bento grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Radar — tall feature tile */}
+        <div className={`${tile} lg:row-span-2`}>
+          <TileLabel>Flavor Fingerprint</TileLabel>
+          <FlavorRadarChart flavorIntensity={cuisineProfile.flavorIntensity} colors={colors} />
         </div>
 
-        {/* Cooking Flow */}
-        {cuisineProfile.cookingFlow && cuisineProfile.cookingFlow.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <CookingFlow
-              steps={cuisineProfile.cookingFlow}
-              colors={colors}
-            />
+        {/* Ingredients — wide tile */}
+        {cuisineProfile.ingredientTiers && (
+          <div className={`${tile} lg:col-span-2`}>
+            <TileLabel>Ingredients &amp; Spices</TileLabel>
+            <IngredientPyramid tiers={cuisineProfile.ingredientTiers} colors={colors} />
           </div>
         )}
 
-        {/* Similar Cuisines */}
-        <SimilarCuisinesSection
-          country={country}
-          colors={colors}
-        />
+        {/* Cooking flow — wide tile */}
+        {cuisineProfile.cookingFlow && cuisineProfile.cookingFlow.length > 0 && (
+          <div className={`${tile} lg:col-span-2`}>
+            <TileLabel>How it's cooked</TileLabel>
+            <CookingFlow steps={cuisineProfile.cookingFlow} colors={colors} />
+          </div>
+        )}
       </div>
+
+      {/* Similar cuisines — full width below the bento (renders its own tile) */}
+      <SimilarCuisinesSection country={country} colors={colors} />
     </div>
   );
 }
