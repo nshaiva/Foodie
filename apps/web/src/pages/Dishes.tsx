@@ -5,6 +5,7 @@ import { useCountryListFilter } from '../hooks/useCountryListFilter';
 import { getCountryName } from '../data/countryHelpers';
 import { systemColors } from '../data/systemColors';
 import { DishCard } from '../components/DishCard';
+import { Wordmark } from '../components/Wordmark';
 import { ListControls, FilterSelect } from '../components/ListControls';
 import { AddDishForm } from '../components/forms/AddDishForm';
 import type { UserDish } from '../data/types';
@@ -58,13 +59,9 @@ export function Dishes() {
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
       <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link
-            to="/"
-            className="text-sm mb-2 inline-block opacity-80 hover:opacity-100 transition-opacity"
-            style={{ color: systemColors.navyMuted }}
-          >
-            ← Back to countries
-          </Link>
+          <div className="mb-2">
+            <Wordmark className="text-2xl" />
+          </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold" style={{ color: systemColors.navy }}>
