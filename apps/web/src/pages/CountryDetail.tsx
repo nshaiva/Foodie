@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { getCountryById } from '../data/countries';
+import { systemColors } from '../data/systemColors';
 import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
 import { useFavorites } from '../hooks/useFavorites';
@@ -87,7 +88,7 @@ export function CountryDetail() {
   const slideCount = tabs.length;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
+    <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
       <CountryHeader
         name={country.name}
         capital={country.capital}
@@ -98,7 +99,7 @@ export function CountryDetail() {
       <main className="max-w-5xl mx-auto px-4 py-8">
         {/* Cuisine Summary - above carousel */}
         <section className="mb-6">
-          <p className="text-lg leading-relaxed" style={{ color: colors.text }}>
+          <p className="text-lg leading-relaxed" style={{ color: systemColors.navy }}>
             {country.cuisineProfile.summary}
           </p>
         </section>
@@ -108,7 +109,7 @@ export function CountryDetail() {
           <CarouselTabs
             tabs={tabs}
             primaryColor={colors.primary}
-            textColor={colors.text}
+            textColor={systemColors.navy}
           />
 
           {/* Carousel content */}
