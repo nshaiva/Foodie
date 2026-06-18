@@ -145,7 +145,7 @@ export function CountryDetail() {
           </p>
         </section>
 
-        <CarouselProvider slideCount={slideCount}>
+        <CarouselProvider>
           {/* Tabs navigation */}
           <CarouselTabs
             tabs={tabs}

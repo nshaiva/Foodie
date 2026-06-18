@@ -26,11 +26,10 @@ export function useCarousel() {
 
 interface CarouselProviderProps {
   children: ReactNode;
-  slideCount: number;
   onSlideChange?: (index: number) => void;
 }
 
-export function CarouselProvider({ children, slideCount, onSlideChange }: CarouselProviderProps) {
+export function CarouselProvider({ children, onSlideChange }: CarouselProviderProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     align: 'start',
@@ -88,9 +87,6 @@ export function CarouselProvider({ children, slideCount, onSlideChange }: Carous
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [scrollPrev, scrollNext]);
-
-  // Suppress unused variable warning
-  void slideCount;
 
   return (
     <CarouselContext.Provider
