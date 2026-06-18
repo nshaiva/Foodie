@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foodie — Home / Profile layout options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#F7F3EC; --ink:#33302A; --muted:#6F6A5F;
+      --primary:#C2654A; --secondary:#D9A441; --herb:#8A9A7B;
+      --surface:#FFFFFF; --border:#E5DFD2;
+      --tint-s:#F3E6C7; --tint-h:#E6EAE0; --tint-p:#F0DBD1;
+      --font-body:'Inter',system-ui,sans-serif;
+      --font-head:'Nunito',system-ui,sans-serif;
+      --font-brand:'Fraunces',Georgia,serif;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); }
+    h1,h2,h3,h4 { font-family:var(--font-head); margin:0; }
+
+    /* Control bar */
+    .controls { position:sticky; top:0; z-index:40; background:rgba(255,255,255,.92);
+      backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:12px 20px;
+      display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+    .controls .lab { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+    .controls button { font-family:var(--font-body); font-size:13px; font-weight:500; padding:6px 12px;
+      border-radius:8px; border:1px solid var(--border); background:#fff; color:var(--ink); cursor:pointer; }
+    .controls button.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .hint { font-size:13px; color:var(--muted); margin-left:auto; }
+
+    /* App header */
+    .app-header { background:var(--surface); border-bottom:1px solid var(--border); }
+    .app-header .inner { max-width:1100px; margin:0 auto; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; }
+    .wordmark { font-family:var(--font-brand); font-weight:700; font-size:24px; color:var(--ink); text-decoration:none; }
+    .wordmark .dot { color:var(--primary); }
+    .nav { display:flex; align-items:center; gap:18px; }
+    .nav a { color:var(--ink); text-decoration:none; font-size:14px; display:flex; align-items:center; gap:6px; }
+    .nav .badge { padding:1px 8px; border-radius:999px; font-weight:600; font-size:12px; }
+    .badge.d { background:var(--tint-h); color:var(--herb); }
+    .badge.w { background:var(--tint-p); color:var(--primary); }
+
+    /* Profile entry points (shown per layout) */
+    .profile-pill, .profile-link, .profile-bar { display:none; }
+    body.layout-b .profile-pill { display:inline-flex; }
+    body.layout-c .profile-link { display:inline-flex; }
+    body.layout-a .profile-bar { display:flex; }
+
+    .profile-pill { align-items:center; gap:8px; padding:6px 12px; border-radius:999px;
+      border:1px solid var(--border); background:var(--bg); cursor:pointer; font-size:14px; color:var(--ink); }
+    .profile-pill .spark { color:var(--primary); }
+    .profile-link { cursor:pointer; }
+
+    main { max-width:1100px; margin:0 auto; padding:28px 24px 80px; }
+
+    /* Inline profile bar (layout A) */
+    .profile-bar { align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px;
+      padding:16px 20px; background:var(--surface); border:1px solid var(--border); border-radius:14px; cursor:pointer; }
+    .profile-bar .pb-left { display:flex; align-items:center; gap:12px; }
+    .profile-bar .pb-icon { width:38px; height:38px; border-radius:10px; background:var(--tint-p);
+      display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:18px; }
+    .profile-bar h3 { font-size:16px; }
+    .profile-bar .pb-sub { font-size:13px; color:var(--muted); }
+    .profile-bar .chev { color:var(--muted); transition:transform .25s ease; }
+    body.profile-open .profile-bar .chev { transform:rotate(90deg); }
+
+    .inline-panel { max-height:0; overflow:hidden; transition:max-height .35s ease, margin .35s ease, opacity .3s ease;
+      opacity:0; margin-bottom:0; }
+    body.layout-a.profile-open .inline-panel { max-height:760px; opacity:1; margin-bottom:24px; }
+
+    /* Section heading + map */
+    .sec-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .sec-head h2 { font-size:20px; }
+    .toggle { display:inline-flex; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .toggle span { padding:6px 12px; font-size:13px; }
+    .toggle .on { background:var(--ink); color:#fff; }
+
+    .map { position:relative; height:440px; border:1px solid var(--border); border-radius:16px; overflow:hidden;
+      background:
+        radial-gradient(circle at 1px 1px, rgba(110,98,86,.12) 1px, transparent 0) 0 0/22px 22px,
+        linear-gradient(180deg,#eef4f0,#f6f1ea); }
+    .blob { position:absolute; border-radius:46% 54% 50% 50%/52% 48% 52% 48%; opacity:.9;
+      display:flex; align-items:center; justify-content:center; font-size:11px; color:#2c2c2c; }
+    .legend { position:absolute; left:14px; bottom:14px; background:rgba(255,255,255,.92);
+      border:1px solid var(--border); border-radius:10px; padding:8px 10px; display:flex; gap:14px; }
+    .legend i { width:11px; height:11px; border-radius:3px; display:inline-block; margin-right:5px; vertical-align:-1px; }
+
+    /* Slide-over (layout B) */
+    .backdrop { position:fixed; inset:0; background:rgba(43,32,24,.38); opacity:0; pointer-events:none;
+      transition:opacity .3s ease; z-index:50; }
+    body.layout-b.profile-open .backdrop { opacity:1; pointer-events:auto; }
+    .slideover { position:fixed; top:0; right:0; height:100%; width:min(560px,94vw); background:var(--bg);
+      box-shadow:-12px 0 40px rgba(43,32,24,.18); transform:translateX(100%); transition:transform .32s ease; z-index:60;
+      overflow-y:auto; }
+    body.layout-b.profile-open .slideover { transform:translateX(0); }
+    .slideover .so-head { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border); }
+    .slideover .so-body { padding:20px 22px; }
+    .x-btn { border:none; background:none; font-size:22px; cursor:pointer; color:var(--muted); line-height:1; }
+    .expand-btn { border:1px solid var(--border); background:#fff; border-radius:8px; padding:5px 10px;
+      font-size:13px; cursor:pointer; color:var(--ink); display:inline-flex; align-items:center; gap:6px; }
+    .expand-btn:hover { border-color:var(--primary); color:var(--primary); }
+
+    /* Dedicated page (layout C) */
+    .profile-page { display:none; }
+    body.layout-c.profile-open .profile-page { display:block; }
+    body.layout-c.profile-open .explore { display:none; }
+    .back-link { display:inline-flex; align-items:center; gap:6px; color:var(--muted); cursor:pointer; font-size:14px; margin-bottom:18px; }
+
+    /* Fingerprint card (shared, moved between slots) */
+    .fp { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px 22px; }
+    .fp-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .fp-head h3 { font-size:18px; display:flex; align-items:center; gap:8px; }
+    .fp-head .spark { color:var(--primary); }
+    .fp-head .sub { font-size:12px; color:var(--muted); }
+    .fp-grid { display:grid; grid-template-columns:230px 1fr; gap:24px; align-items:center; }
+    @media (max-width:620px){ .fp-grid{ grid-template-columns:1fr; } }
+    .radar-cap { text-align:center; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    .spec { margin-bottom:14px; }
+    .spec-top { display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
+    .spec-top .lbl { font-weight:600; }
+    .spec-top .val { color:var(--primary); font-weight:600; }
+    .spec-track { position:relative; height:6px; border-radius:6px; background:var(--tint-s); }
+    .spec-dot { position:absolute; top:50%; width:14px; height:14px; border-radius:50%; background:var(--primary);
+      transform:translate(-50%,-50%); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.15); }
+    .spec-ends { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:4px; }
+    .fp-foot { margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--muted); display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .chip { font-size:12px; padding:2px 9px; border-radius:999px; background:var(--tint-h); color:var(--herb); }
+    .chip.lead { background:var(--tint-p); color:var(--primary); }
+  </style>
+</head>
+<body class="layout-a">
+
+  <div class="controls">
+    <span class="lab">Layout</span>
+    <button data-layout="a" class="active">A · Inline expand</button>
+    <button data-layout="b">B · Slide-over</button>
+    <button data-layout="c">C · Own page</button>
+    <span class="hint">Click “My Profile” / the profile bar to reveal the Flavor Fingerprint.</span>
+  </div>
+
+  <header class="app-header">
+    <div class="inner">
+      <a class="wordmark" href="#">foodie<span class="dot">.</span></a>
+      <nav class="nav">
+        <a href="#"><span class="badge d">12</span> Dishes</a>
+        <a href="#"><span class="badge w">3</span> Wishlist</a>
+        <!-- layout B entry -->
+        <button class="profile-pill" onclick="openProfile()"><span class="spark">✦</span> My Profile</button>
+        <!-- layout C entry -->
+        <a class="profile-link" onclick="openProfile()"><span class="spark" style="color:var(--primary)">✦</span>&nbsp;My Profile</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- EXPLORE VIEW (map-first) -->
+    <div class="explore">
+      <!-- layout A entry: inline profile bar + expanding panel -->
+      <div class="profile-bar" onclick="toggleProfile()">
+        <div class="pb-left">
+          <div class="pb-icon">✦</div>
+          <div>
+            <h3>Your Flavor Fingerprint</h3>
+            <div class="pb-sub">Based on 12 dishes · tap to expand</div>
+          </div>
+        </div>
+        <span class="chev">▸</span>
+      </div>
+      <div class="inline-panel" id="slot-a"></div>
+
+      <div class="sec-head">
+        <h2>Explore 11 Countries</h2>
+        <span class="toggle"><span class="on">Map</span><span>Grid</span></span>
+      </div>
+
+      <div class="map" id="map">
+        <div class="blob" style="left:18%;top:42%;width:120px;height:80px;background:var(--tint-p)">Mexico · 4🍽</div>
+        <div class="blob" style="left:46%;top:30%;width:90px;height:70px;background:var(--tint-h)">Italy · 3🍽</div>
+        <div class="blob" style="left:62%;top:52%;width:130px;height:90px;background:#d4c4eb">Thailand · 5🍽</div>
+        <div class="blob" style="left:54%;top:64%;width:80px;height:60px;background:#e5e7eb">Ethiopia</div>
+        <div class="blob" style="left:30%;top:22%;width:70px;height:55px;background:#e5e7eb">Peru</div>
+        <div class="legend">
+          <span><i style="background:#d4c4eb"></i>Dishes logged</span>
+          <span><i style="background:var(--tint-h)"></i>Available</span>
+          <span><i style="background:#e5e7eb"></i>Coming soon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEDICATED PROFILE PAGE (layout C) -->
+    <div class="profile-page">
+      <span class="back-link" onclick="closeProfile()">← Back to explore</span>
+      <div id="slot-c"></div>
+    </div>
+  </main>
+
+  <!-- SLIDE-OVER (layout B) -->
+  <div class="backdrop" onclick="closeProfile()"></div>
+  <aside class="slideover">
+    <div class="so-head">
+      <h3 style="font-size:18px;">My Profile</h3>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="expand-btn" onclick="expandToPage()" title="Open as a full page">⤢ Expand</button>
+        <button class="x-btn" onclick="closeProfile()">×</button>
+      </div>
+    </div>
+    <div class="so-body" id="slot-b"></div>
+  </aside>
+
+  <!-- SHARED FINGERPRINT NODE (moved between slots) -->
+  <div id="fingerprint" class="fp" style="display:none">
+    <div class="fp-head">
+      <h3><span class="spark">✦</span> Your Flavor Fingerprint</h3>
+      <span class="sub">Based on 12 dishes</span>
+    </div>
+    <div class="fp-grid">
+      <div>
+        <div class="radar-cap">Your Flavor Profile</div>
+        <svg viewBox="0 0 220 220" width="100%" height="220">
+          <polygon points="110,20 188,65 188,155 110,200 32,155 32,65" fill="none" stroke="#e2dccf" stroke-width="1.5"/>
+          <polygon points="110,65 149,87.5 149,132.5 110,155 71,132.5 71,87.5" fill="none" stroke="#e2dccf" stroke-width="1.5"/>
+          <line x1="110" y1="110" x2="110" y2="20" stroke="#ece6da"/>
+          <line x1="110" y1="110" x2="188" y2="65" stroke="#ece6da"/>
+          <line x1="110" y1="110" x2="188" y2="155" stroke="#ece6da"/>
+          <line x1="110" y1="110" x2="110" y2="200" stroke="#ece6da"/>
+          <line x1="110" y1="110" x2="32" y2="155" stroke="#ece6da"/>
+          <line x1="110" y1="110" x2="32" y2="65" stroke="#ece6da"/>
+          <polygon points="110,47 149,87.5 172,146 110,146 40,150 63,83" fill="rgba(194,101,74,.28)" stroke="#C2654A" stroke-width="2"/>
+          <text x="110" y="14" text-anchor="middle" font-size="10" fill="#6F6A5F">Heat</text>
+          <text x="196" y="64" font-size="10" fill="#6F6A5F">Acidity</text>
+          <text x="196" y="160" font-size="10" fill="#6F6A5F">Sweet</text>
+          <text x="110" y="214" text-anchor="middle" font-size="10" fill="#6F6A5F">Umami</text>
+          <text x="2" y="160" font-size="10" fill="#6F6A5F">Aromatic</text>
+          <text x="2" y="64" font-size="10" fill="#6F6A5F">Smoke</text>
+        </svg>
+      </div>
+      <div>
+        <div class="spec">
+          <div class="spec-top"><span class="lbl">Spice Tolerance</span><span class="val">Heat Explorer</span></div>
+          <div class="spec-track"><div class="spec-dot" style="left:62%"></div></div>
+          <div class="spec-ends"><span>Mild</span><span>Spicy</span></div>
+        </div>
+        <div class="spec">
+          <div class="spec-top"><span class="lbl">Dish Complexity</span><span class="val">Balanced</span></div>
+          <div class="spec-track"><div class="spec-dot" style="left:48%"></div></div>
+          <div class="spec-ends"><span>Simple</span><span>Complex</span></div>
+        </div>
+        <div class="spec">
+          <div class="spec-top"><span class="lbl">Sweet vs Savory</span><span class="val">Savory Seeker</span></div>
+          <div class="spec-track"><div class="spec-dot" style="left:72%"></div></div>
+          <div class="spec-ends"><span>Sweet</span><span>Savory</span></div>
+        </div>
+        <div class="spec">
+          <div class="spec-top"><span class="lbl">Flavor Richness</span><span class="val">Rich &amp; Hearty</span></div>
+          <div class="spec-track"><div class="spec-dot" style="left:30%"></div></div>
+          <div class="spec-ends"><span>Rich</span><span>Bright</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="fp-foot">
+      <span>Top influences:</span>
+      <span class="chip lead">Thailand (5)</span>
+      <span class="chip">Mexico (4)</span>
+      <span class="chip">Italy (3)</span>
+    </div>
+  </div>
+
+  <script>
+    const body = document.body;
+    const fp = document.getElementById('fingerprint');
+    const slots = { a:'slot-a', b:'slot-b', c:'slot-c' };
+
+    function currentLayout() {
+      return body.classList.contains('layout-b') ? 'b'
+           : body.classList.contains('layout-c') ? 'c' : 'a';
+    }
+    function openProfile() {
+      const slot = document.getElementById(slots[currentLayout()]);
+      slot.appendChild(fp);
+      fp.style.display = 'block';
+      body.classList.add('profile-open');
+    }
+    function closeProfile() { body.classList.remove('profile-open'); }
+    function toggleProfile() {
+      if (body.classList.contains('profile-open')) closeProfile(); else openProfile();
+    }
+    // From the slide-over, promote the same fingerprint into a full page (the /profile route).
+    function expandToPage() {
+      closeProfile();
+      body.classList.remove('layout-a','layout-b','layout-c');
+      body.classList.add('layout-c');
+      document.querySelectorAll('[data-layout]').forEach(b => b.classList.toggle('active', b.dataset.layout === 'c'));
+      openProfile();
+    }
+
+    document.querySelectorAll('[data-layout]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeProfile();
+        body.classList.remove('layout-a','layout-b','layout-c');
+        body.classList.add('layout-' + btn.dataset.layout);
+        document.querySelectorAll('[data-layout]').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+  </script>
+</body>
+</html>

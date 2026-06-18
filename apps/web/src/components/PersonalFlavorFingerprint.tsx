@@ -13,7 +13,12 @@ const personalColors: ColorPalette = {
   text: '#1F2D3D',         // Navy
 };
 
-export function PersonalFlavorFingerprint() {
+interface PersonalFlavorFingerprintProps {
+  /** When embedded, the surrounding container supplies the title/chrome. */
+  embedded?: boolean;
+}
+
+export function PersonalFlavorFingerprint({ embedded = false }: PersonalFlavorFingerprintProps) {
   const {
     personalFlavor,
     spectrums,
@@ -22,23 +27,49 @@ export function PersonalFlavorFingerprint() {
     hasEnoughData,
   } = usePersonalFlavorProfile();
 
-  // Don't render if not enough data
+  const wrapperClass = embedded ? '' : 'bg-white rounded-lg border border-gray-200 p-4 md:p-6';
+
+  // Empty state — not enough logged dishes yet
   if (!hasEnoughData || !personalFlavor) {
-    return null;
+    const remaining = Math.max(0, 3 - totalDishes);
+    return (
+      <div className={wrapperClass}>
+        <div className="text-center py-10">
+          <div className="text-3xl mb-2" style={{ color: personalColors.primary }}>✦</div>
+          <h3 className="font-semibold text-gray-900 mb-1">Your taste profile is taking shape</h3>
+          <p className="text-sm text-gray-500">
+            Log {remaining} more dish{remaining !== 1 ? 'es' : ''} to reveal your Flavor Fingerprint.
+          </p>
+          <Link
+            to="/dishes"
+            className="inline-block mt-4 text-white px-4 py-2 rounded-md text-sm transition-colors"
+            style={{ backgroundColor: personalColors.primary }}
+          >
+            Log a dish
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-          <span style={{ color: personalColors.primary }}>✦</span>
-          Your Flavor Fingerprint
-        </h3>
-        <span className="text-xs text-gray-400">
+    <div className={wrapperClass}>
+      {/* Header (omitted when embedded — the container titles it) */}
+      {embedded ? (
+        <p className="text-xs text-gray-400 mb-4">
           Based on {totalDishes} dish{totalDishes !== 1 ? 'es' : ''}
-        </span>
-      </div>
+        </p>
+      ) : (
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+            <span style={{ color: personalColors.primary }}>✦</span>
+            Your Flavor Fingerprint
+          </h3>
+          <span className="text-xs text-gray-400">
+            Based on {totalDishes} dish{totalDishes !== 1 ? 'es' : ''}
+          </span>
+        </div>
+      )}
 
       {/* Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

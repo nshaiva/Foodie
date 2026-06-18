@@ -8,12 +8,12 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { PersonalFlavorFingerprint } from '../components/PersonalFlavorFingerprint';
+import { TasteProfileButton } from '../components/TasteProfileButton';
 
 export function Home() {
   const { dishes } = useDishes();
   const { wishlist } = useWishlist();
-  const [viewMode, setViewMode] = useLocalStorage<ViewMode>('foodie-view-mode', 'grid');
+  const [viewMode, setViewMode] = useLocalStorage<ViewMode>('foodie-view-mode', 'map');
   const isMobile = useMediaQuery('(max-width: 767px)');
 
   // Force grid view on mobile
@@ -32,7 +32,8 @@ export function Home() {
                 Explore cuisines from around the world
               </p>
             </div>
-            <div className="flex gap-4">
+            <div className="flex items-center gap-4">
+              <TasteProfileButton />
               <Link
                 to="/dishes"
                 className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
@@ -65,13 +66,6 @@ export function Home() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Personal Flavor Fingerprint - shown when user has 3+ dishes */}
-        {dishes.length >= 3 && (
-          <div className="mb-8">
-            <PersonalFlavorFingerprint />
-          </div>
-        )}
-
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-medium" style={{ color: systemColors.navy }}>
             {countries.length} Countries
