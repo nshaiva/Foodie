@@ -24,14 +24,14 @@ export function Home() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
-      <header style={{ backgroundColor: systemColors.navy }}>
-        <div className="max-w-6xl mx-auto px-4 py-6">
+      <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
+        <div className="max-w-6xl mx-auto px-4 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold" style={{ color: systemColors.seaSalt }}>
-                Foodie
+              <h1 className="wordmark text-3xl font-bold lowercase leading-none" style={{ color: systemColors.navy }}>
+                foodie<span style={{ color: systemColors.tomato }}>.</span>
               </h1>
-              <p className="mt-1" style={{ color: `${systemColors.seaSalt}99` }}>
+              <p className="mt-1.5 text-sm" style={{ color: systemColors.navyMuted }}>
                 Explore cuisines from around the world
               </p>
             </div>
@@ -39,7 +39,7 @@ export function Home() {
               <Link
                 to="/restaurants"
                 className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
-                style={{ color: systemColors.seaSalt }}
+                style={{ color: systemColors.navy }}
               >
                 <span
                   className="px-2 py-0.5 rounded-full font-medium"
@@ -52,7 +52,7 @@ export function Home() {
               <Link
                 to="/dishes"
                 className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
-                style={{ color: systemColors.seaSalt }}
+                style={{ color: systemColors.navy }}
               >
                 <span
                   className="px-2 py-0.5 rounded-full font-medium"
@@ -65,7 +65,7 @@ export function Home() {
               <Link
                 to="/wishlist"
                 className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
-                style={{ color: systemColors.seaSalt }}
+                style={{ color: systemColors.navy }}
               >
                 <span
                   className="px-2 py-0.5 rounded-full font-medium"

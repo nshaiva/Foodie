@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
+:root {
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Nunito', system-ui, -apple-system, sans-serif;
+  --font-brand: 'Fraunces', Georgia, 'Times New Roman', serif;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
+  font-family: var(--font-body);
+}
+
+/* Friendly, rounded headings (Nunito) across the app */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Brand wordmark uses the editorial serif (Fraunces) */
+.wordmark {
+  font-family: var(--font-brand);
 }
 
 #root {
