@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 import { useDishes } from './useDishes';
-import { useFavorites } from './useFavorites';
-import { useWishlist } from './useWishlist';
 import { countries } from '../data/countries';
 import type { FlavorIntensity, UserDish, Dish, SpiceLevel, DishDifficulty } from '../data/types';
 
@@ -307,8 +305,6 @@ function calculateRichnessAffinity(cuisineWeights: Map<string, number>): Affinit
 
 export function usePersonalFlavorProfile(): PersonalFlavorProfile {
   const { dishes } = useDishes();
-  const { favorites } = useFavorites();
-  const { wishlist } = useWishlist();
 
   return useMemo(() => {
     const totalDishes = dishes.length;
@@ -421,5 +417,5 @@ export function usePersonalFlavorProfile(): PersonalFlavorProfile {
       hasEnoughForSpectrums,
       hasEnoughForTimeline,
     };
-  }, [dishes, favorites, wishlist]);
+  }, [dishes]);
 }
