@@ -41,12 +41,12 @@ export function Wishlist() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
-      <header style={{ backgroundColor: systemColors.navy }}>
+      <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
         <div className="max-w-4xl mx-auto px-4 py-4">
           <Link
             to="/"
             className="text-sm mb-2 inline-block opacity-80 hover:opacity-100 transition-opacity"
-            style={{ color: systemColors.seaSalt }}
+            style={{ color: systemColors.navyMuted }}
           >
             ← Back to countries
           </Link>
@@ -55,10 +55,10 @@ export function Wishlist() {
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
             <div>
-              <h1 className="text-3xl font-bold" style={{ color: systemColors.seaSalt }}>
+              <h1 className="text-3xl font-bold" style={{ color: systemColors.navy }}>
                 Want to Try
               </h1>
-              <p className="mt-1" style={{ color: `${systemColors.seaSalt}99` }}>
+              <p className="mt-1" style={{ color: systemColors.navyMuted }}>
                 {wishlist.length} dish{wishlist.length !== 1 ? 'es' : ''} saved
               </p>
             </div>

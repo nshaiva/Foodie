@@ -84,21 +84,21 @@ export function Dishes() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
-      <header style={{ backgroundColor: systemColors.navy }}>
+      <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
         <div className="max-w-4xl mx-auto px-4 py-4">
           <Link
             to="/"
             className="text-sm mb-2 inline-block opacity-80 hover:opacity-100 transition-opacity"
-            style={{ color: systemColors.seaSalt }}
+            style={{ color: systemColors.navyMuted }}
           >
             ← Back to countries
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold" style={{ color: systemColors.seaSalt }}>
+              <h1 className="text-3xl font-bold" style={{ color: systemColors.navy }}>
                 Dishes I've Tried
               </h1>
-              <p className="mt-1" style={{ color: `${systemColors.seaSalt}99` }}>
+              <p className="mt-1" style={{ color: systemColors.navyMuted }}>
                 {dishes.length} dish{dishes.length !== 1 ? 'es' : ''} logged
               </p>
             </div>

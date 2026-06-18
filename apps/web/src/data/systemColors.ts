@@ -1,27 +1,33 @@
-// Global system color palette
-// Used for app-wide UI elements outside of country-specific theming
+// Global system color palette — "Terracotta + Sage"
+// Used for app-wide UI elements outside of country-specific theming.
+// NOTE: key names (navy/tomato/saffron/herb) are kept stable so existing
+// inline styles re-theme automatically; the values are the warm palette.
 
 export const systemColors = {
   // Primary palette
-  saffron: '#E2B857',       // Highlights, ratings, stars
-  tomato: '#B44A3C',        // Accents, alerts, important actions
-  seaSalt: '#FAF8F3',       // Main background
-  herb: '#4F6A4C',          // Success states, dishes
-  navy: '#1F2D3D',          // Text, headers, navigation
+  saffron: '#D9A441',       // Highlights, ratings, stars (warm gold)
+  tomato: '#C2654A',        // Primary accent — terracotta
+  seaSalt: '#F7F3EC',       // Main background (warm paper)
+  herb: '#8A9A7B',          // Success states, dishes (sage)
+  navy: '#33302A',          // Text, headings (warm ink)
 
   // Derived colors
-  navyLight: '#2d3e52',     // Hover states
-  navyMuted: '#4a5568',     // Secondary text
-  saffronLight: '#f5e6c4',  // Saffron tint for backgrounds
-  tomatoLight: '#f5d5d1',   // Tomato tint for backgrounds
-  herbLight: '#e8f0e7',     // Herb tint for backgrounds
+  navyLight: '#44413A',     // Hover states
+  navyMuted: '#6F6A5F',     // Secondary text
+  saffronLight: '#F3E6C7',  // Gold tint for backgrounds
+  tomatoLight: '#F0DBD1',   // Terracotta tint for backgrounds
+  herbLight: '#E6EAE0',     // Sage tint for backgrounds
+
+  // Surfaces
+  surface: '#FFFFFF',       // Cards, header bar
+  border: '#E5DFD2',        // Hairline borders/dividers
 };
 
 // Tailwind-compatible CSS custom properties
 export const systemColorsCss = `
-  --color-saffron: #E2B857;
-  --color-tomato: #B44A3C;
-  --color-sea-salt: #FAF8F3;
-  --color-herb: #4F6A4C;
-  --color-navy: #1F2D3D;
+  --color-saffron: #D9A441;
+  --color-tomato: #C2654A;
+  --color-sea-salt: #F7F3EC;
+  --color-herb: #8A9A7B;
+  --color-navy: #33302A;
 `;
