@@ -1,6 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
 import { getCountryById } from '../data/countries';
-import { useRestaurants } from '../hooks/useRestaurants';
 import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
 import { useFavorites } from '../hooks/useFavorites';
@@ -20,22 +19,11 @@ import {
   DishesSlide,
   BeveragesSlide,
 } from '../components/country-detail';
-import type { RestaurantTry, CookingAttempt } from '../data/types';
+import type { RestaurantTry } from '../data/types';
 
 export function CountryDetail() {
   const { id } = useParams<{ id: string }>();
   const country = id ? getCountryById(id) : undefined;
-
-  const {
-    addRestaurant,
-    updateRestaurant,
-    deleteRestaurant,
-    getRestaurantsByCountry,
-    findOrCreateRestaurant,
-    addVisit,
-    updateVisit,
-    deleteVisit,
-  } = useRestaurants();
 
   const {
     addDish,
@@ -45,9 +33,6 @@ export function CountryDetail() {
     addRestaurantTry,
     updateRestaurantTry,
     deleteRestaurantTry,
-    addCookingAttempt,
-    updateCookingAttempt,
-    deleteCookingAttempt,
   } = useDishes();
 
   const { addToWishlist, removeFromWishlist, isOnWishlist, findWishlistItem } = useWishlist();
@@ -66,7 +51,6 @@ export function CountryDetail() {
     );
   }
 
-  const countryRestaurants = getRestaurantsByCountry(country.id);
   const countryDishes = getDishesByCountry(country.id);
   const colors = country.colorPalette;
 
@@ -77,43 +61,17 @@ export function CountryDetail() {
     notes?: string;
     tasteRating?: number;
     initialRestaurantTry?: Omit<RestaurantTry, 'id'>;
-    initialCookingAttempt?: Omit<CookingAttempt, 'id'>;
   }) => {
-    let processedTry = data.initialRestaurantTry;
-    if (processedTry?.restaurantName && !processedTry.restaurantId) {
-      const restaurant = findOrCreateRestaurant(data.countryId, processedTry.restaurantName, processedTry.date);
-      processedTry = {
-        ...processedTry,
-        restaurantId: restaurant.id,
-        restaurantName: undefined,
-      };
-    }
-
     addDish({
       countryId: data.countryId,
       region: data.region,
       name: data.name,
       notes: data.notes,
       tasteRating: data.tasteRating,
-      restaurantTries: processedTry ? [{ ...processedTry, id: crypto.randomUUID() }] : [],
-      cookingAttempts: data.initialCookingAttempt ? [{ ...data.initialCookingAttempt, id: crypto.randomUUID() }] : [],
+      restaurantTries: data.initialRestaurantTry
+        ? [{ ...data.initialRestaurantTry, id: crypto.randomUUID() }]
+        : [],
     });
-  };
-
-  const handleAddRestaurantTry = (dishId: string, data: Omit<RestaurantTry, 'id'>) => {
-    const dish = countryDishes.find(d => d.id === dishId);
-    if (!dish) return;
-
-    if (data.restaurantName && !data.restaurantId) {
-      const restaurant = findOrCreateRestaurant(dish.countryId, data.restaurantName, data.date);
-      addRestaurantTry(dishId, {
-        ...data,
-        restaurantId: restaurant.id,
-        restaurantName: undefined,
-      });
-    } else {
-      addRestaurantTry(dishId, data);
-    }
   };
 
   // Build tabs array based on available content
@@ -219,23 +177,13 @@ export function CountryDetail() {
           regions={country.regionalVariations?.map(r => r.name)}
           regionalVariations={country.regionalVariations}
           popularDishes={country.popularDishes}
-          restaurants={countryRestaurants}
           dishes={countryDishes}
-          onAddRestaurant={addRestaurant}
-          onUpdateRestaurant={updateRestaurant}
-          onDeleteRestaurant={deleteRestaurant}
-          onAddVisit={addVisit}
-          onUpdateVisit={updateVisit}
-          onDeleteVisit={deleteVisit}
           onAddDish={handleAddDish}
           onUpdateDish={updateDish}
           onDeleteDish={deleteDish}
-          onAddRestaurantTry={handleAddRestaurantTry}
+          onAddRestaurantTry={addRestaurantTry}
           onUpdateRestaurantTry={updateRestaurantTry}
           onDeleteRestaurantTry={deleteRestaurantTry}
-          onAddCookingAttempt={addCookingAttempt}
-          onUpdateCookingAttempt={updateCookingAttempt}
-          onDeleteCookingAttempt={deleteCookingAttempt}
         />
       </main>
     </div>

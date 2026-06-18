@@ -2,18 +2,15 @@ import { Link } from 'react-router-dom';
 import { countries } from '../data/countries';
 import { systemColors } from '../data/systemColors';
 import { CountryCard } from '../components/CountryCard';
-import { useRestaurants } from '../hooks/useRestaurants';
 import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { CuisinePreferences } from '../components/CuisinePreferences';
 import { PersonalFlavorFingerprint } from '../components/PersonalFlavorFingerprint';
 
 export function Home() {
-  const { restaurants } = useRestaurants();
   const { dishes } = useDishes();
   const { wishlist } = useWishlist();
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('foodie-view-mode', 'grid');
@@ -36,19 +33,6 @@ export function Home() {
               </p>
             </div>
             <div className="flex gap-4">
-              <Link
-                to="/restaurants"
-                className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
-                style={{ color: systemColors.navy }}
-              >
-                <span
-                  className="px-2 py-0.5 rounded-full font-medium"
-                  style={{ backgroundColor: `${systemColors.saffron}30`, color: systemColors.saffron }}
-                >
-                  {restaurants.length}
-                </span>
-                Restaurants
-              </Link>
               <Link
                 to="/dishes"
                 className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
@@ -81,13 +65,6 @@ export function Home() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Cuisine Preferences - shown when user has rated dishes */}
-        {dishes.length > 0 && (
-          <div className="mb-8">
-            <CuisinePreferences />
-          </div>
-        )}
-
         {/* Personal Flavor Fingerprint - shown when user has 3+ dishes */}
         {dishes.length >= 3 && (
           <div className="mb-8">

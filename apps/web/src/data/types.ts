@@ -176,38 +176,10 @@ export type DishDifficulty = 'easy' | 'medium' | 'hard';
 
 export interface RestaurantTry {
   id: string;
-  restaurantId?: string;    // Optional link to logged restaurant
-  restaurantName?: string;  // Name if not linking to a logged restaurant
+  restaurantName?: string;  // Free-text "where I ate it" (optional)
   date: string;
   rating?: number;          // 1-5
   notes?: string;
-}
-
-export interface CookingAttempt {
-  id: string;
-  date: string;
-  successRating?: number;   // 1-5
-  recipeSource?: string;
-  notes?: string;
-}
-
-export interface RestaurantVisit {
-  id: string;
-  date: string;
-  notes?: string;
-}
-
-export interface Restaurant {
-  id: string;
-  countryId: string;
-  region?: string;
-  name: string;
-  googleMapsLink?: string;
-  rating?: number;
-  notes?: string;
-  visits: RestaurantVisit[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface UserDish {
@@ -218,7 +190,6 @@ export interface UserDish {
   notes?: string;
   tasteRating?: number;  // 1-5: How much you enjoyed eating this dish
   restaurantTries?: RestaurantTry[];
-  cookingAttempts?: CookingAttempt[];
   createdAt: string;
   updatedAt: string;
 }

@@ -8,7 +8,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getAlpha2FromNumeric } from '../../data/countryGeoMapping';
 import { getCountryById } from '../../data/countries';
-import { useRestaurants } from '../../hooks/useRestaurants';
 import { useDishes } from '../../hooks/useDishes';
 import { useCountryActivity } from '../../hooks/useCountryActivity';
 import { getCountryFillColor, MAP_STROKE } from './mapUtils';
@@ -28,9 +27,8 @@ interface TooltipData {
 
 export const WorldMap = memo(function WorldMap() {
   const navigate = useNavigate();
-  const { restaurants } = useRestaurants();
   const { dishes } = useDishes();
-  const { getActivityState, getCountryActivity, profiledCountryIds } = useCountryActivity(restaurants, dishes);
+  const { getActivityState, getCountryActivity, profiledCountryIds } = useCountryActivity(dishes);
 
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);

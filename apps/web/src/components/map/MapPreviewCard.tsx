@@ -40,7 +40,7 @@ export const MapPreviewCard = memo(function MapPreviewCard({
   }, [x, y]);
 
   const hasProfile = !!country;
-  const { restaurantCount, dishCount } = activity;
+  const { dishCount } = activity;
 
   const tooltipStyle: React.CSSProperties = {
     position: 'absolute',
@@ -82,14 +82,9 @@ export const MapPreviewCard = memo(function MapPreviewCard({
               ))}
             </div>
 
-            {(restaurantCount > 0 || dishCount > 0) && (
+            {dishCount > 0 && (
               <div className="flex gap-3 text-xs text-gray-500 mb-2">
-                {restaurantCount > 0 && (
-                  <span>{restaurantCount} restaurant{restaurantCount !== 1 ? 's' : ''}</span>
-                )}
-                {dishCount > 0 && (
-                  <span>{dishCount} dish{dishCount !== 1 ? 'es' : ''}</span>
-                )}
+                <span>{dishCount} dish{dishCount !== 1 ? 'es' : ''} logged</span>
               </div>
             )}
 

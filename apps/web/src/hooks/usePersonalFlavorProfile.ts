@@ -27,7 +27,6 @@ export interface PersonalFlavorProfile {
   spectrums: {
     spice: AffinitySpectrum;
     complexity: AffinitySpectrum;
-    activity: AffinitySpectrum;
     sweetSavory: AffinitySpectrum;
     richness: AffinitySpectrum;
   } | null;
@@ -49,7 +48,7 @@ function findStaticDish(userDish: UserDish): Dish | undefined {
   );
 }
 
-// Get all ratings from a dish (taste, restaurant tries, cooking attempts)
+// Get all ratings from a dish (taste rating + per-try ratings)
 function collectAllRatings(dish: UserDish): number[] {
   const ratings: number[] = [];
 
@@ -59,10 +58,6 @@ function collectAllRatings(dish: UserDish): number[] {
 
   (dish.restaurantTries || []).forEach(t => {
     if (t.rating) ratings.push(t.rating);
-  });
-
-  (dish.cookingAttempts || []).forEach(a => {
-    if (a.successRating) ratings.push(a.successRating);
   });
 
   return ratings;
@@ -75,12 +70,11 @@ function getAvgRating(dish: UserDish): number {
   return ratings.reduce((a, b) => a + b, 0) / ratings.length;
 }
 
-// Count total engagements (tries + attempts)
+// Count total engagements (dish + its tries)
 function countEngagements(dishes: UserDish[]): number {
   return dishes.reduce((total, dish) => {
     const tries = dish.restaurantTries?.length || 0;
-    const attempts = dish.cookingAttempts?.length || 0;
-    return total + tries + attempts + 1; // +1 for the dish itself
+    return total + tries + 1; // +1 for the dish itself
   }, 0);
 }
 
@@ -95,11 +89,6 @@ function getMostRecentDate(dishes: UserDish[]): Date {
     (dish.restaurantTries || []).forEach(t => {
       const tryDate = new Date(t.date);
       if (tryDate > mostRecent) mostRecent = tryDate;
-    });
-
-    (dish.cookingAttempts || []).forEach(a => {
-      const attemptDate = new Date(a.date);
-      if (attemptDate > mostRecent) mostRecent = attemptDate;
     });
   });
 
@@ -199,35 +188,6 @@ function calculateComplexityAffinity(dishes: UserDish[]): AffinitySpectrum {
     confidence: Math.min(1, totalWeight / 5),
     leftLabel: 'Simple',
     rightLabel: 'Complex'
-  };
-}
-
-// Calculate activity style (dining out vs home cooking)
-function calculateActivityAffinity(dishes: UserDish[]): AffinitySpectrum {
-  let totalTries = 0;
-  let totalAttempts = 0;
-
-  dishes.forEach(dish => {
-    totalTries += dish.restaurantTries?.length || 0;
-    totalAttempts += dish.cookingAttempts?.length || 0;
-  });
-
-  const total = totalTries + totalAttempts;
-
-  // Position: 0 = all dining out, 100 = all home cooking
-  const position = total > 0 ? (totalAttempts / total) * 100 : 50;
-
-  let label: string;
-  if (position < 33) label = 'Restaurant Explorer';
-  else if (position < 66) label = 'Balanced Foodie';
-  else label = 'Home Chef';
-
-  return {
-    position,
-    label,
-    confidence: Math.min(1, total / 10),
-    leftLabel: 'Dining Out',
-    rightLabel: 'Home Cooking'
   };
 }
 
@@ -388,7 +348,6 @@ export function usePersonalFlavorProfile(): PersonalFlavorProfile {
     const spectrums = hasEnoughForSpectrums ? {
       spice: calculateSpiceAffinity(dishes),
       complexity: calculateComplexityAffinity(dishes),
-      activity: calculateActivityAffinity(dishes),
       sweetSavory: calculateSweetSavoryAffinity(cuisineWeights),
       richness: calculateRichnessAffinity(cuisineWeights),
     } : null;
