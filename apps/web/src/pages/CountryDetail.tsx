@@ -14,7 +14,6 @@ import {
 } from '../components/carousel';
 import {
   CountryHeader,
-  MyActivitySection,
   CultureRegionsSlide,
   ProfileSlide,
   EatDrinkSlide,
@@ -122,11 +121,19 @@ export function CountryDetail() {
               {/* Slide 2: Eat & Drink */}
               <CarouselSlide>
                 <EatDrinkSlide
+                  countryId={country.id}
+                  countryName={country.name}
                   popularDishes={country.popularDishes}
                   popularBeverages={country.popularBeverages}
                   regionalVariations={country.regionalVariations}
                   colors={colors}
-                  countryId={country.id}
+                  countryDishes={countryDishes}
+                  onAddDish={handleAddDish}
+                  onUpdateDish={updateDish}
+                  onDeleteDish={deleteDish}
+                  onAddRestaurantTry={addRestaurantTry}
+                  onUpdateRestaurantTry={updateRestaurantTry}
+                  onDeleteRestaurantTry={deleteRestaurantTry}
                   isOnWishlist={isOnWishlist}
                   isFavorite={isFavorite}
                   addToWishlist={addToWishlist}
@@ -156,22 +163,6 @@ export function CountryDetail() {
             <CarouselDots count={slideCount} primaryColor={colors.primary} />
           </div>
         </CarouselProvider>
-
-        {/* My Activity Section - below carousel */}
-        <MyActivitySection
-          countryId={country.id}
-          countryName={country.name}
-          regions={country.regionalVariations?.map(r => r.name)}
-          regionalVariations={country.regionalVariations}
-          popularDishes={country.popularDishes}
-          dishes={countryDishes}
-          onAddDish={handleAddDish}
-          onUpdateDish={updateDish}
-          onDeleteDish={deleteDish}
-          onAddRestaurantTry={addRestaurantTry}
-          onUpdateRestaurantTry={updateRestaurantTry}
-          onDeleteRestaurantTry={deleteRestaurantTry}
-        />
       </main>
     </div>
   );

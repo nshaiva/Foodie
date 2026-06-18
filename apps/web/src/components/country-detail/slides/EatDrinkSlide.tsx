@@ -1,15 +1,33 @@
 import { useState } from 'react';
 import { WantToTryButton } from '../../WantToTryButton';
 import { FavoriteButton } from '../../FavoriteButton';
+import { MyActivitySection } from '../MyActivitySection';
 import { systemColors } from '../../../data/systemColors';
-import type { Dish, Beverage, RegionalCuisine, ColorPalette } from '../../../data/types';
+import type { Dish, Beverage, UserDish, RestaurantTry, RegionalCuisine, ColorPalette } from '../../../data/types';
 
 interface EatDrinkSlideProps {
+  countryId: string;
+  countryName: string;
   popularDishes: Dish[];
   popularBeverages?: Beverage[];
   regionalVariations?: RegionalCuisine[];
   colors: ColorPalette;
-  countryId: string;
+  // Logged dishes + CRUD (logging now lives here, in context)
+  countryDishes: UserDish[];
+  onAddDish: (data: {
+    countryId: string;
+    region?: string;
+    name: string;
+    notes?: string;
+    tasteRating?: number;
+    initialRestaurantTry?: Omit<RestaurantTry, 'id'>;
+  }) => void;
+  onUpdateDish: (id: string, data: Partial<UserDish>) => void;
+  onDeleteDish: (id: string) => void;
+  onAddRestaurantTry: (dishId: string, data: Omit<RestaurantTry, 'id'>) => void;
+  onUpdateRestaurantTry: (dishId: string, tryId: string, data: Partial<RestaurantTry>) => void;
+  onDeleteRestaurantTry: (dishId: string, tryId: string) => void;
+  // Favorites / wishlist
   isOnWishlist: (countryId: string, dishName: string) => boolean;
   isFavorite: (countryId: string, dishName: string) => boolean;
   addToWishlist: (item: { countryId: string; dishName: string; englishName?: string }) => void;
@@ -65,6 +83,13 @@ function detectRegion(dish: Dish, regionalVariations?: RegionalCuisine[]): strin
   return undefined;
 }
 
+function dishRating(ud: UserDish): number | undefined {
+  if (ud.tasteRating) return ud.tasteRating;
+  const ratings = (ud.restaurantTries || []).map(t => t.rating).filter((r): r is number => !!r);
+  if (ratings.length === 0) return undefined;
+  return Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
+}
+
 const typeChipClass: Record<Beverage['type'], string> = {
   alcoholic: 'bg-purple-100 text-purple-800',
   'non-alcoholic': 'bg-green-100 text-green-800',
@@ -74,23 +99,24 @@ const typeLabel: Record<Beverage['type'], string> = {
   alcoholic: 'Alcoholic', 'non-alcoholic': 'Non-Alcoholic', both: 'Optional Alcohol',
 };
 
-export function EatDrinkSlide({
-  popularDishes,
-  popularBeverages,
-  regionalVariations,
-  colors,
-  countryId,
-  isOnWishlist,
-  isFavorite,
-  addToWishlist,
-  removeFromWishlist,
-  findWishlistItem,
-  addToFavorites,
-  removeFromFavorites,
-  findFavoriteItem,
-}: EatDrinkSlideProps) {
+export function EatDrinkSlide(props: EatDrinkSlideProps) {
+  const {
+    countryId, countryName, popularDishes, popularBeverages, regionalVariations, colors,
+    countryDishes, onAddDish, onUpdateDish, onDeleteDish,
+    onAddRestaurantTry, onUpdateRestaurantTry, onDeleteRestaurantTry,
+    isOnWishlist, isFavorite, addToWishlist, removeFromWishlist, findWishlistItem,
+    addToFavorites, removeFromFavorites, findFavoriteItem,
+  } = props;
+
   const hasBeverages = !!popularBeverages && popularBeverages.length > 0;
   const [mode, setMode] = useState<'food' | 'drink'>('food');
+
+  // Map logged dishes by name so popular cards can show a "Tried" marker
+  const triedByName = new Map<string, UserDish>();
+  countryDishes.forEach(d => triedByName.set(d.name.toLowerCase(), d));
+  const triedFor = (dish: Dish) =>
+    triedByName.get(dish.name.toLowerCase()) ||
+    (dish.englishName ? triedByName.get(dish.englishName.toLowerCase()) : undefined);
 
   return (
     <div className="p-4 h-full flex flex-col">
@@ -103,18 +129,14 @@ export function EatDrinkSlide({
             <button
               onClick={() => setMode('food')}
               className="px-4 py-1.5 text-sm font-semibold transition-colors"
-              style={mode === 'food'
-                ? { backgroundColor: systemColors.navy, color: '#fff' }
-                : { backgroundColor: '#fff', color: systemColors.navy }}
+              style={mode === 'food' ? { backgroundColor: systemColors.navy, color: '#fff' } : { backgroundColor: '#fff', color: systemColors.navy }}
             >
               🍽 Food
             </button>
             <button
               onClick={() => setMode('drink')}
               className="px-4 py-1.5 text-sm font-semibold transition-colors"
-              style={mode === 'drink'
-                ? { backgroundColor: systemColors.navy, color: '#fff' }
-                : { backgroundColor: '#fff', color: systemColors.navy }}
+              style={mode === 'drink' ? { backgroundColor: systemColors.navy, color: '#fff' } : { backgroundColor: '#fff', color: systemColors.navy }}
             >
               🥤 Drinks
             </button>
@@ -124,57 +146,95 @@ export function EatDrinkSlide({
 
       <div className="flex-1 overflow-y-auto">
         {mode === 'food' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {popularDishes.map((dish) => {
-              const region = detectRegion(dish, regionalVariations);
-              return (
-                <div key={dish.name} className="relative bg-white rounded-xl border border-gray-200 p-4 transition-shadow hover:shadow-md">
-                  <div className="absolute top-3 right-3 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                    <FavoriteButton
-                      isFavorite={isFavorite(countryId, dish.name)}
-                      onAdd={() => addToFavorites({ countryId, dishName: dish.name, englishName: dish.englishName })}
-                      onRemove={() => { const i = findFavoriteItem(countryId, dish.name); if (i) removeFromFavorites(i.id); }}
-                      compact
-                    />
-                    <WantToTryButton
-                      isOnWishlist={isOnWishlist(countryId, dish.name)}
-                      onAdd={() => addToWishlist({ countryId, dishName: dish.name, englishName: dish.englishName })}
-                      onRemove={() => { const i = findWishlistItem(countryId, dish.name); if (i) removeFromWishlist(i.id); }}
-                      compact
-                    />
-                  </div>
+          <>
+            {/* Your log — prominent, in context (logging lives here) */}
+            <MyActivitySection
+              embedded
+              countryId={countryId}
+              countryName={countryName}
+              regions={regionalVariations?.map(r => r.name)}
+              regionalVariations={regionalVariations}
+              popularDishes={popularDishes}
+              dishes={countryDishes}
+              onAddDish={onAddDish}
+              onUpdateDish={onUpdateDish}
+              onDeleteDish={onDeleteDish}
+              onAddRestaurantTry={onAddRestaurantTry}
+              onUpdateRestaurantTry={onUpdateRestaurantTry}
+              onDeleteRestaurantTry={onDeleteRestaurantTry}
+            />
 
-                  <div className="text-3xl mb-1.5">{DISH_EMOJI[dish.category] || '🍽️'}</div>
-                  <h3 className="font-semibold text-gray-900 pr-12 leading-tight">{dish.name}</h3>
-                  {dish.englishName && <p className="text-xs text-gray-400 mb-1">{dish.englishName}</p>}
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{dish.description}</p>
+            {/* Popular dishes — discovery, with "tried" markers */}
+            <h3 className="text-sm font-semibold mt-6 mb-3" style={{ color: systemColors.navy }}>
+              Popular dishes
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {popularDishes.map((dish) => {
+                const region = detectRegion(dish, regionalVariations);
+                const tried = triedFor(dish);
+                const rating = tried ? dishRating(tried) : undefined;
+                return (
+                  <div key={dish.name} className="relative bg-white rounded-xl border border-gray-200 p-4 transition-shadow hover:shadow-md">
+                    <div className="absolute top-3 right-3 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                      <FavoriteButton
+                        isFavorite={isFavorite(countryId, dish.name)}
+                        onAdd={() => addToFavorites({ countryId, dishName: dish.name, englishName: dish.englishName })}
+                        onRemove={() => { const i = findFavoriteItem(countryId, dish.name); if (i) removeFromFavorites(i.id); }}
+                        compact
+                      />
+                      <WantToTryButton
+                        isOnWishlist={isOnWishlist(countryId, dish.name)}
+                        onAdd={() => addToWishlist({ countryId, dishName: dish.name, englishName: dish.englishName })}
+                        onRemove={() => { const i = findWishlistItem(countryId, dish.name); if (i) removeFromWishlist(i.id); }}
+                        compact
+                      />
+                    </div>
 
-                  <div className="flex flex-wrap gap-1.5 mt-3">
-                    {spiceChip(dish.spiceLevel)}
-                    {difficultyChip(dish.difficulty)}
-                    <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded capitalize">{dish.category}</span>
-                    {region && (
-                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>
-                        {region}
-                      </span>
-                    )}
-                    {dish.dietary?.isVegan && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegan</span>}
-                    {dish.dietary?.isVegetarian && !dish.dietary?.isVegan && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegetarian</span>}
-                    {dish.dietary?.isGlutenFree && <span className="text-xs bg-sky-100 text-sky-800 px-2 py-0.5 rounded">GF</span>}
-                    {dish.isStreetFood && (
-                      <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>Street</span>
+                    <div className="text-3xl mb-1.5">{DISH_EMOJI[dish.category] || '🍽️'}</div>
+                    <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{dish.name}</h4>
+                    {dish.englishName && <p className="text-xs text-gray-400 mb-1">{dish.englishName}</p>}
+                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">{dish.description}</p>
+
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {tried && (
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: systemColors.herb, color: '#fff' }}>
+                          ✓ Tried{rating ? ` · ${'★'.repeat(rating)}` : ''}
+                        </span>
+                      )}
+                      {spiceChip(dish.spiceLevel)}
+                      {difficultyChip(dish.difficulty)}
+                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded capitalize">{dish.category}</span>
+                      {region && (
+                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>{region}</span>
+                      )}
+                      {dish.dietary?.isVegan && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegan</span>}
+                      {dish.dietary?.isVegetarian && !dish.dietary?.isVegan && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegetarian</span>}
+                      {dish.dietary?.isGlutenFree && <span className="text-xs bg-sky-100 text-sky-800 px-2 py-0.5 rounded">GF</span>}
+                      {dish.isStreetFood && (
+                        <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>Street</span>
+                      )}
+                    </div>
+
+                    {!tried && (
+                      <button
+                        onClick={() => onAddDish({ countryId, name: dish.name })}
+                        className="mt-3 text-sm font-medium transition-colors hover:opacity-80"
+                        style={{ color: systemColors.herb }}
+                      >
+                        + I tried this
+                      </button>
                     )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {(popularBeverages || []).map((bev) => (
               <div key={bev.name} className="bg-white rounded-xl border border-gray-200 p-4 transition-shadow hover:shadow-md">
                 <div className="text-3xl mb-1.5">{(bev.category && BEVERAGE_EMOJI[bev.category]) || '🥤'}</div>
-                <h3 className="font-semibold text-gray-900 leading-tight">{bev.name}</h3>
+                <h4 className="font-semibold text-gray-900 leading-tight">{bev.name}</h4>
                 {bev.englishName && <p className="text-xs text-gray-400 mb-1">{bev.englishName}</p>}
                 <p className="text-sm text-gray-600 mt-1 line-clamp-2">{bev.description}</p>
 

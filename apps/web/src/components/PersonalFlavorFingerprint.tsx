@@ -41,11 +41,11 @@ export function PersonalFlavorFingerprint({ embedded = false }: PersonalFlavorFi
             Log {remaining} more dish{remaining !== 1 ? 'es' : ''} to reveal your Flavor Fingerprint.
           </p>
           <Link
-            to="/dishes"
+            to="/"
             className="inline-block mt-4 text-white px-4 py-2 rounded-md text-sm transition-colors"
             style={{ backgroundColor: personalColors.primary }}
           >
-            Log a dish
+            Explore cuisines
           </Link>
         </div>
       </div>

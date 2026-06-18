@@ -11,6 +11,8 @@ interface MyActivitySectionProps {
   regionalVariations?: RegionalCuisine[];
   popularDishes?: Dish[];
   dishes: UserDish[];
+  /** When embedded inside another section, drop the top border/margin. */
+  embedded?: boolean;
   onAddDish: (data: {
     countryId: string;
     region?: string;
@@ -33,6 +35,7 @@ export function MyActivitySection({
   regionalVariations,
   popularDishes,
   dishes,
+  embedded = false,
   onAddDish,
   onUpdateDish,
   onDeleteDish,
@@ -53,7 +56,7 @@ export function MyActivitySection({
   };
 
   return (
-    <section className="border-t border-gray-200 pt-6 mt-6">
+    <section className={embedded ? '' : 'border-t border-gray-200 pt-6 mt-6'}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
