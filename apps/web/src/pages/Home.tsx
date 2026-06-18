@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { countries } from '../data/countries';
 import { systemColors } from '../data/systemColors';
 import { CountryCard } from '../components/CountryCard';
-import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
@@ -11,7 +10,6 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TasteProfileButton } from '../components/TasteProfileButton';
 
 export function Home() {
-  const { dishes } = useDishes();
   const { wishlist } = useWishlist();
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('foodie-view-mode', 'map');
   const isMobile = useMediaQuery('(max-width: 767px)');
@@ -34,19 +32,6 @@ export function Home() {
             </div>
             <div className="flex items-center gap-4">
               <TasteProfileButton />
-              <Link
-                to="/dishes"
-                className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
-                style={{ color: systemColors.navy }}
-              >
-                <span
-                  className="px-2 py-0.5 rounded-full font-medium"
-                  style={{ backgroundColor: `${systemColors.herb}30`, color: systemColors.herb }}
-                >
-                  {dishes.length}
-                </span>
-                Dishes
-              </Link>
               <Link
                 to="/wishlist"
                 className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"

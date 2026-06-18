@@ -14,11 +14,9 @@ import {
 } from '../components/carousel';
 import {
   CountryHeader,
-  MyActivitySection,
   CultureRegionsSlide,
   ProfileSlide,
-  DishesSlide,
-  BeveragesSlide,
+  EatDrinkSlide,
 } from '../components/country-detail';
 import type { RestaurantTry } from '../data/types';
 
@@ -75,14 +73,11 @@ export function CountryDetail() {
     });
   };
 
-  // Build tabs array based on available content
-  // Order: Culture & Regions, Profile, Dishes, Beverages
-  const hasBeverages = country.popularBeverages && country.popularBeverages.length > 0;
+  // Consolidated tabs: Flavor · Eat & Drink · Culture & Regions
   const tabs = [
+    { label: 'Flavor' },
+    { label: 'Eat & Drink' },
     { label: 'Culture & Regions' },
-    { label: 'Profile' },
-    { label: 'Dishes' },
-    ...(hasBeverages ? [{ label: 'Beverages' }] : []),
   ];
 
   const slideCount = tabs.length;
@@ -115,17 +110,7 @@ export function CountryDetail() {
           {/* Carousel content */}
           <div className="bg-white rounded-lg border border-gray-200 h-[920px]">
             <CarouselContainer>
-              {/* Slide 1: Culture & Regions */}
-              <CarouselSlide>
-                <CultureRegionsSlide
-                  countryId={country.id}
-                  foodCulture={country.foodCulture}
-                  regions={country.regionalVariations}
-                  colors={colors}
-                />
-              </CarouselSlide>
-
-              {/* Slide 2: Profile */}
+              {/* Slide 1: Flavor */}
               <CarouselSlide>
                 <ProfileSlide
                   country={country}
@@ -133,13 +118,22 @@ export function CountryDetail() {
                 />
               </CarouselSlide>
 
-              {/* Slide 3: Dishes */}
+              {/* Slide 2: Eat & Drink */}
               <CarouselSlide>
-                <DishesSlide
+                <EatDrinkSlide
+                  countryId={country.id}
+                  countryName={country.name}
                   popularDishes={country.popularDishes}
+                  popularBeverages={country.popularBeverages}
                   regionalVariations={country.regionalVariations}
                   colors={colors}
-                  countryId={country.id}
+                  countryDishes={countryDishes}
+                  onAddDish={handleAddDish}
+                  onUpdateDish={updateDish}
+                  onDeleteDish={deleteDish}
+                  onAddRestaurantTry={addRestaurantTry}
+                  onUpdateRestaurantTry={updateRestaurantTry}
+                  onDeleteRestaurantTry={deleteRestaurantTry}
                   isOnWishlist={isOnWishlist}
                   isFavorite={isFavorite}
                   addToWishlist={addToWishlist}
@@ -151,16 +145,15 @@ export function CountryDetail() {
                 />
               </CarouselSlide>
 
-              {/* Slide 4: Beverages (conditional) */}
-              {hasBeverages && (
-                <CarouselSlide>
-                  <BeveragesSlide
-                    beverages={country.popularBeverages!}
-                    colors={colors}
-                    countryId={country.id}
-                  />
-                </CarouselSlide>
-              )}
+              {/* Slide 3: Culture & Regions */}
+              <CarouselSlide>
+                <CultureRegionsSlide
+                  countryId={country.id}
+                  foodCulture={country.foodCulture}
+                  regions={country.regionalVariations}
+                  colors={colors}
+                />
+              </CarouselSlide>
             </CarouselContainer>
           </div>
 
@@ -170,22 +163,6 @@ export function CountryDetail() {
             <CarouselDots count={slideCount} primaryColor={colors.primary} />
           </div>
         </CarouselProvider>
-
-        {/* My Activity Section - below carousel */}
-        <MyActivitySection
-          countryId={country.id}
-          countryName={country.name}
-          regions={country.regionalVariations?.map(r => r.name)}
-          regionalVariations={country.regionalVariations}
-          popularDishes={country.popularDishes}
-          dishes={countryDishes}
-          onAddDish={handleAddDish}
-          onUpdateDish={updateDish}
-          onDeleteDish={deleteDish}
-          onAddRestaurantTry={addRestaurantTry}
-          onUpdateRestaurantTry={updateRestaurantTry}
-          onDeleteRestaurantTry={deleteRestaurantTry}
-        />
       </main>
     </div>
   );

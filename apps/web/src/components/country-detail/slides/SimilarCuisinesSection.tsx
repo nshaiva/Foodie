@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Country, ColorPalette } from '../../../data/types';
 import { countries } from '../../../data/countries';
 import { getSimilarCuisines } from '../../../utils/cuisineSimilarity';
+import { systemColors } from '../../../data/systemColors';
 
 interface SimilarCuisinesSectionProps {
   country: Country;
@@ -17,8 +18,8 @@ export function SimilarCuisinesSection({ country, colors }: SimilarCuisinesSecti
   }
 
   return (
-    <div className="mt-4 pt-4 border-t border-gray-100">
-      <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+    <div className="bg-white rounded-2xl border border-gray-200 p-4 mt-4">
+      <h4 className="text-xs font-medium uppercase tracking-wide mb-2" style={{ color: systemColors.navyMuted }}>
         Similar Cuisines
       </h4>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
