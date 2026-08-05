@@ -27,7 +27,7 @@ export function SimilarCuisinesSection({ country, colors }: SimilarCuisinesSecti
           <button
             key={similarCountry.id}
             onClick={() => navigate(`/country/${similarCountry.id}`)}
-            className="group text-left p-2 rounded-lg border border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 transition-all duration-200"
+            className="card-interactive-sm group text-left p-2 rounded-lg border border-gray-200 bg-white"
           >
             <div className="flex items-center gap-2 mb-1">
               <span

@@ -22,10 +22,10 @@ export function CarouselTabs({ tabs, primaryColor, textColor }: CarouselTabsProp
           <button
             key={tab.label}
             onClick={() => scrollTo(index)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${
               isActive
-                ? 'text-white shadow-sm'
-                : 'bg-white/80 hover:bg-white'
+                ? 'text-white shadow-sm transition-all'
+                : 'btn-press bg-white/80 hover:bg-white'
             }`}
             style={{
               backgroundColor: isActive ? primaryColor : undefined,

@@ -43,3 +43,55 @@ export const LEGEND_ITEMS = [
   { state: 'hasProfile' as const, label: 'Available', color: MAP_COLORS.hasProfile },
   { state: 'noProfile' as const, label: 'Coming Soon', color: MAP_COLORS.noProfile },
 ];
+
+// --- Flavor Match layer ---
+
+export type MapLayer = 'explored' | 'flavorMatch';
+
+// Sequential terracotta ramp: pale warm neutral → saturated terracotta.
+// Stops at score 0 / 50 / 100; interpolated between.
+const FLAVOR_MATCH_STOPS: [number, string][] = [
+  [0, '#EFE8DC'],
+  [50, '#E5BBA4'],
+  [100, '#C2654A'],
+];
+
+function lerpHex(a: string, b: string, t: number): string {
+  const pa = parseInt(a.slice(1), 16);
+  const pb = parseInt(b.slice(1), 16);
+  const ch = (shift: number) => {
+    const va = (pa >> shift) & 0xff;
+    const vb = (pb >> shift) & 0xff;
+    return Math.round(va + (vb - va) * t);
+  };
+  return `#${((ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).padStart(6, '0')}`;
+}
+
+export function getFlavorMatchFillColor(
+  score: number | undefined,
+  isHovered: boolean = false
+): string {
+  if (score === undefined) {
+    return isHovered ? MAP_HOVER_COLORS.noProfile : MAP_COLORS.noProfile;
+  }
+  const clamped = Math.max(0, Math.min(100, score));
+  let color = FLAVOR_MATCH_STOPS[FLAVOR_MATCH_STOPS.length - 1][1];
+  for (let i = 1; i < FLAVOR_MATCH_STOPS.length; i++) {
+    const [prevStop, prevColor] = FLAVOR_MATCH_STOPS[i - 1];
+    const [stop, stopColor] = FLAVOR_MATCH_STOPS[i];
+    if (clamped <= stop) {
+      color = lerpHex(prevColor, stopColor, (clamped - prevStop) / (stop - prevStop));
+      break;
+    }
+  }
+  // Hover: nudge toward the saturated end
+  return isHovered ? lerpHex(color, '#A9503A', 0.25) : color;
+}
+
+// Gradient for the flavor-match legend bar
+export const FLAVOR_MATCH_GRADIENT = `linear-gradient(to right, ${FLAVOR_MATCH_STOPS.map(
+  ([stop, color]) => `${color} ${stop}%`
+).join(', ')})`;
+
+// Outline for already-logged countries on the flavor-match layer
+export const FLAVOR_MATCH_LOGGED_STROKE = '#33302A';

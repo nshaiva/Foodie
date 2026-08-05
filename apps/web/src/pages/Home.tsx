@@ -8,6 +8,7 @@ import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TasteProfileButton } from '../components/TasteProfileButton';
+import { WordmarkDot } from '../components/Wordmark';
 
 export function Home() {
   const { wishlist } = useWishlist();
@@ -24,7 +25,7 @@ export function Home() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="wordmark text-3xl font-bold lowercase leading-none" style={{ color: systemColors.navy }}>
-                foodie<span style={{ color: systemColors.tomato }}>.</span>
+                foodie<WordmarkDot />
               </h1>
               <p className="mt-1.5 text-sm" style={{ color: systemColors.navyMuted }}>
                 Explore cuisines from around the world

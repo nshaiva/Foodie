@@ -17,8 +17,11 @@ export function CountryHeader({ name, capital, region, colors }: CountryHeaderPr
           <Wordmark className="text-2xl" />
         </div>
         <h1 className="text-3xl font-bold flex items-center gap-2.5" style={{ color: systemColors.navy }}>
-          {/* Subtle flag-tone accent */}
-          <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: colors.primary }} />
+          {/* Flag-tone plate: solid center, mid ring, pale rim */}
+          <span
+            className="inline-block w-3.5 h-3.5 rounded-full"
+            style={{ background: `radial-gradient(circle, ${colors.primary} 0 36%, ${colors.primary}8C 36% 60%, ${colors.primary}33 60% 100%)` }}
+          />
           {name}
         </h1>
         <p className="mt-1" style={{ color: systemColors.navyMuted }}>

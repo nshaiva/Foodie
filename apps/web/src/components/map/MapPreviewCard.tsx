@@ -1,6 +1,7 @@
 import { memo, useRef, useEffect, useState } from 'react';
 import type { Country } from '../../data/types';
 import type { CountryActivity } from '../../hooks/useCountryActivity';
+import type { FlavorMatch } from './flavorMatch';
 import { systemColors } from '../../data/systemColors';
 
 interface MapPreviewCardProps {
@@ -8,6 +9,7 @@ interface MapPreviewCardProps {
   countryName: string;
   country: Country | undefined;
   activity: CountryActivity;
+  match?: FlavorMatch;
   x: number;
   y: number;
 }
@@ -16,6 +18,7 @@ export const MapPreviewCard = memo(function MapPreviewCard({
   countryName,
   country,
   activity,
+  match,
   x,
   y,
 }: MapPreviewCardProps) {
@@ -69,6 +72,20 @@ export const MapPreviewCard = memo(function MapPreviewCard({
             <div className="text-xs text-gray-500 mb-2">
               Capital: {country.capital}
             </div>
+
+            {match && (
+              <div
+                className="text-xs font-medium mb-2"
+                style={{ color: systemColors.tomato }}
+              >
+                {match.score}% match
+                {match.topAxes.length > 0 && (
+                  <span style={{ color: systemColors.navyMuted }}>
+                    {' '}— big on {match.topAxes.join(' and ')}, like you
+                  </span>
+                )}
+              </div>
+            )}
 
             <div className="flex flex-wrap gap-1 mb-2">
               {country.cuisineProfile.flavorProfile.slice(0, 4).map((flavor) => (

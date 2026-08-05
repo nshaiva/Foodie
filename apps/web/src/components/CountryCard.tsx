@@ -20,7 +20,7 @@ export function CountryCard({ country }: CountryCardProps) {
   return (
     <Link
       to={`/country/${country.id}`}
-      className="block bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-200"
+      className="card-interactive block bg-white rounded-lg shadow-sm border border-gray-200"
     >
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
@@ -54,6 +54,7 @@ export function CountryCard({ country }: CountryCardProps) {
             </span>
           ))}
         </div>
+        <span className="card-go">Explore →</span>
       </div>
     </Link>
   );

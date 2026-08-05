@@ -6,12 +6,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Foodie is a world cuisine exploration and logging app. Users browse countries, learn about food culture, and log restaurants and dishes they've tried. Currently in early development (Phase 0).
 
+## Product Thesis (stated 2026-08-05)
+
+**Primary:** "I'm at a restaurant trying a new cuisine and I don't know what to
+order." The app should answer that moment — and teach the spices and food of
+the cuisine I'm eating while I'm at it. Because this moment happens on a phone,
+**the app must be mobile-optimized as well as desktop-optimized**.
+
+**Secondary:** over time, give a sense of:
+- the cuisines I'm trying, want to try, and haven't tried yet
+- where they are in the world in relation to each other
+- how similar they are to cuisines I've already eaten
+
+**Tertiary:** self-knowledge — understanding my own palate (flavor fingerprint,
+spice affinity).
+
+**Quaternary:** cultural learning beyond the plate (history, customs, regions).
+
+**Non-goals:** cooking (tracking, recipes, difficulty guidance), social/sharing
+features, and restaurant tracking as its own thing (per-visit tries on a dish
+are fine; a restaurants section is not).
+
+Feature decisions in `docs/roadmap/priorities.md` should serve these goals;
+when priorities conflict, the restaurant-moment thesis wins.
+
 ## Tech Stack
 
 - **Web**: React, TypeScript, Tailwind CSS, Vite
 - **Mobile**: React Native (iOS first, not yet started)
 - **Charts**: Recharts (radar), D3.js (force layouts)
-- **Maps**: Leaflet.js
+- **Maps**: react-simple-maps (TopoJSON uses ISO numeric codes; `countryGeoMapping.ts` converts to our alpha-2 IDs)
 - **Storage**: localStorage (Supabase planned for future)
 - **Hosting**: Vercel
 - **Content**: Pre-generated country profiles via Claude/OpenAI
@@ -28,8 +52,11 @@ foodie/
 │           ├── hooks/          # Custom React hooks
 │           └── pages/          # Route pages
 ├── docs/
-│   ├── phases/                 # Development phase specs
-│   └── roadmap/                # Feature icebox
+│   ├── design/
+│   │   ├── mockups/            # Static HTML design mockups
+│   │   └── prototypes/         # Interactive prototypes / session artifacts (save new ones here)
+│   ├── archive/                # Superseded build plans & tech designs (historical record)
+│   └── roadmap/                # priorities.md (ranked backlog + idea inbox), notes.md, implemented/ specs
 └── .claude/                    # Claude Code configuration
 ```
 
@@ -38,9 +65,12 @@ foodie/
 ### Dish Logging
 - Log dishes with taste ratings (1-5 stars)
 - Track restaurant tries with per-visit ratings
-- Track cooking attempts with success ratings
 - Auto-detect region from dish name
-- Auto-create restaurants when logging dishes
+- **Rating semantics (verdict model)**: a dish-level `tasteRating` is the user's
+  declared verdict and wins wherever it exists; otherwise the average of rated
+  tries fills in (shown as "avg of N tries"). "I ate out" ratings stay on the
+  visit and never auto-set the verdict. Shared helpers: `utils/ratings.ts`
+  (`dishVerdictRating`, `isDerivedRating`, `ratingSignal`)
 
 ### Favorites
 - Mark dishes as favorites with heart icon
@@ -52,21 +82,20 @@ foodie/
 - Bookmark icon (amber/saffron themed)
 - Stored in localStorage (`foodie-wishlist`)
 
-### Cuisine Preferences
-- Separate rankings: "Favorite to Eat" vs "Favorite to Cook"
-- Algorithm: `score = (avgRating * 0.7) + (engagementBonus * 0.3)`
-- Displayed on home page when user has rated dishes
-
 ### Personal Flavor Fingerprint
 Analyzes user's logged dishes to generate a personalized taste profile:
 - **Personal Flavor Radar**: Reuses FlavorRadarChart with weighted cuisine data
-- **Affinity Spectrums**: 5 preference sliders with labels and confidence opacity
-  - Spice Tolerance: Based on spiceLevel of dishes tried
-  - Dish Complexity: Based on difficulty ratings
-  - Activity Style: Ratio of restaurant tries vs cooking attempts
+- **Affinity Spectrums**: 4 preference sliders with labels and confidence opacity
+  - Spice Tolerance: Based on spiceLevel of rated dishes
+  - Dish Complexity: Based on difficulty of rated dishes
   - Sweet/Savory: Based on sweetness axis of engaged cuisines
   - Flavor Richness: Based on umami+smokeEarth vs acidity
-- **Weight algorithm**: `(ratingWeight * 0.5) + (frequencyWeight * 0.3) + (recencyWeight * 0.2)`
+- **Weighting is 3★-neutral**: `ratingSignal = (verdict − 3) / 2` (range −1..+1);
+  4–5★ pulls a cuisine/trait toward the profile, 1–2★ pushes away, unrated
+  dishes contribute no rating signal (spice/complexity sliders ignore them)
+- **Cuisine weight**: `max(0, signal*0.7 + frequencyWeight*0.1 + recencyWeight*0.2)`
+  — ratings dominate; all-disliked cuisines clamp to 0 and drop out of the radar
+  and Top Influences
 - **Thresholds**: 3+ dishes for radar, 5+ for spectrums
 - Hook: `usePersonalFlavorProfile()` in `hooks/usePersonalFlavorProfile.ts`
 - Components: `PersonalFlavorFingerprint.tsx`, `AffinitySpectrum.tsx`
