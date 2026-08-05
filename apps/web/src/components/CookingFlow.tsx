@@ -44,8 +44,6 @@ export function CookingFlow({ steps, colors }: CookingFlowProps) {
 
   return (
     <div className="w-full">
-      <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Cooking Flow</h4>
-
       {/* Desktop (lg+): Horizontal centered, wrap if needed */}
       <div className="hidden lg:flex items-center justify-center gap-2 flex-wrap">
         {steps.map((step, index) => (
