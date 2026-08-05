@@ -24,7 +24,7 @@ export function CountryCard({ country }: CountryCardProps) {
     >
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
-          <h3 className="text-lg font-semibold text-gray-900">{country.name}</h3>
+          <h3 className="text-lg font-semibold text-gray-900"><span className="card-title">{country.name}</span></h3>
           <span
             className="text-xs px-2 py-1 rounded-full"
             style={{

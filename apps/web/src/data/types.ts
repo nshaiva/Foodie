@@ -187,6 +187,7 @@ export interface UserDish {
   countryId: string;
   region?: string;
   name: string;
+  kind?: 'food' | 'drink';  // defaults to food; set for entries logged from the Drinks tab
   notes?: string;
   tasteRating?: number;  // 1-5: How much you enjoyed eating this dish
   restaurantTries?: RestaurantTry[];

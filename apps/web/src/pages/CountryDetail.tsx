@@ -59,12 +59,14 @@ export function CountryDetail() {
     name: string;
     notes?: string;
     tasteRating?: number;
+    kind?: 'food' | 'drink';
     initialRestaurantTry?: Omit<RestaurantTry, 'id'>;
   }) => {
     addDish({
       countryId: data.countryId,
       region: data.region,
       name: data.name,
+      kind: data.kind,
       notes: data.notes,
       tasteRating: data.tasteRating,
       restaurantTries: data.initialRestaurantTry

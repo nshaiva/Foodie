@@ -48,7 +48,9 @@ export function ProfileSlide({ country, colors }: ProfileSlideProps) {
         {cuisineProfile.cookingFlow && cuisineProfile.cookingFlow.length > 0 && (
           <div className={`${tile} lg:col-span-2`}>
             <TileLabel>How it's cooked</TileLabel>
-            <CookingFlow steps={cuisineProfile.cookingFlow} colors={colors} />
+            <div className="mt-3">
+              <CookingFlow steps={cuisineProfile.cookingFlow} colors={colors} />
+            </div>
           </div>
         )}
       </div>
