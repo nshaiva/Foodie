@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RestaurantTryForm } from '../RestaurantTryForm';
 import { systemColors } from '../../data/systemColors';
 import { dishVerdictRating, isDerivedRating, ratedTryCount } from '../../utils/ratings';
@@ -58,6 +58,18 @@ export function UnifiedDishCard({
   const [editNotes, setEditNotes] = useState('');
   const [editRating, setEditRating] = useState(0);
   const [showRatingInfo, setShowRatingInfo] = useState(false);
+  const [justTried, setJustTried] = useState(false);
+
+  // "+ I tried this" flows straight into the rating prompt once the entry exists
+  useEffect(() => {
+    if (justTried && tried) {
+      setEditName(tried.name);
+      setEditNotes(tried.notes || '');
+      setEditRating(tried.tasteRating || 0);
+      setIsEditing(true);
+      setJustTried(false);
+    }
+  }, [justTried, tried]);
 
   const tries = tried?.restaurantTries || [];
   const verdict = tried ? dishVerdictRating(tried) : undefined;
@@ -284,7 +296,7 @@ export function UnifiedDishCard({
       ) : (
         onTryThis && (
           <button
-            onClick={onTryThis}
+            onClick={() => { setJustTried(true); onTryThis(); }}
             className="card-cta mt-3 text-sm font-medium transition-colors hover:opacity-80"
             style={{ color: systemColors.herb }}
           >

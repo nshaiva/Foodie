@@ -1,9 +1,13 @@
 import { Link } from 'react-router-dom';
 import type { Country } from '../data/types';
 import { systemColors } from '../data/systemColors';
+import { ProgressPlate } from './ProgressPlate';
+import { PlateDot } from './Wordmark';
+import type { DishProgress } from '../utils/dishProgress';
 
 interface CountryCardProps {
   country: Country;
+  progress?: DishProgress;
 }
 
 // Using system colors for continent badges
@@ -16,7 +20,7 @@ const continentColors: Record<string, { bg: string; text: string }> = {
   'Oceania': { bg: `${systemColors.herb}20`, text: systemColors.navy },
 };
 
-export function CountryCard({ country }: CountryCardProps) {
+export function CountryCard({ country, progress }: CountryCardProps) {
   return (
     <Link
       to={`/country/${country.id}`}
@@ -24,7 +28,19 @@ export function CountryCard({ country }: CountryCardProps) {
     >
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
-          <h3 className="text-lg font-semibold text-gray-900"><span className="card-title">{country.name}</span></h3>
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            {progress && progress.percent > 0 ? (
+              <ProgressPlate
+                percent={progress.percent}
+                size={22}
+                color={country.colorPalette.primary}
+                title={`${progress.tried} of ${progress.total} dishes tried`}
+              />
+            ) : (
+              <PlateDot color={country.colorPalette.primary} size={14} />
+            )}
+            <span className="card-title">{country.name}</span>
+          </h3>
           <span
             className="text-xs px-2 py-1 rounded-full"
             style={{

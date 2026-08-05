@@ -207,7 +207,7 @@ export function IngredientPyramid({ tiers, colors, cookingFlow }: IngredientPyra
       {view === 'matrix' && hasAxes ? <MatrixView tiers={tiers} /> : <BuildView tiers={tiers} />}
 
       {showFlow && (
-        <div className="mt-3 pt-3 border-t" style={{ borderColor: systemColors.border }}>
+        <div className="mt-6 pt-4 border-t" style={{ borderColor: systemColors.border }}>
           <div className="text-[10px] font-bold tracking-widest uppercase mb-2" style={{ color: systemColors.navyMuted }}>
             In practice — the sequence
           </div>

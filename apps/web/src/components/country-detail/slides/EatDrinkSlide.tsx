@@ -399,8 +399,8 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
           )}
           {mode === 'food' && (
             <>
-              {toggleChip(popFilter === 'local-favorite', () => setPopFilter(p => p === 'local-favorite' ? 'any' : 'local-favorite'), '📍 Local favorites')}
-              {toggleChip(popFilter === 'tourist-classic', () => setPopFilter(p => p === 'tourist-classic' ? 'any' : 'tourist-classic'), '📷 Tourist classics')}
+              {toggleChip(popFilter === 'local-favorite', () => setPopFilter(p => p === 'local-favorite' ? 'any' : 'local-favorite'), '📍 Local')}
+              {toggleChip(popFilter === 'tourist-classic', () => setPopFilter(p => p === 'tourist-classic' ? 'any' : 'tourist-classic'), '📷 Tourist')}
             </>
           )}
         </div>
