@@ -1,4 +1,4 @@
-import { useState, useCallback, memo, useEffect } from 'react';
+import { useState, useCallback, memo, useEffect, useMemo } from 'react';
 import {
   ComposableMap,
   Geographies,
@@ -10,7 +10,16 @@ import { getAlpha2FromNumeric } from '../../data/countryGeoMapping';
 import { getCountryById } from '../../data/countries';
 import { useDishes } from '../../hooks/useDishes';
 import { useCountryActivity } from '../../hooks/useCountryActivity';
-import { getCountryFillColor, MAP_STROKE } from './mapUtils';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { usePersonalFlavorProfile } from '../../hooks/usePersonalFlavorProfile';
+import { computeAllFlavorMatches } from './flavorMatch';
+import {
+  getCountryFillColor,
+  getFlavorMatchFillColor,
+  FLAVOR_MATCH_LOGGED_STROKE,
+  MAP_STROKE,
+  type MapLayer,
+} from './mapUtils';
 import { MapPreviewCard } from './MapPreviewCard';
 import { MapLegend } from './MapLegend';
 import { systemColors } from '../../data/systemColors';
@@ -34,6 +43,16 @@ export const WorldMap = memo(function WorldMap() {
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasRendered, setHasRendered] = useState(false);
+
+  const { personalFlavor, hasEnoughData } = usePersonalFlavorProfile();
+  const [storedLayer, setStoredLayer] = useLocalStorage<MapLayer>('foodie-map-layer', 'explored');
+  // Fall back to explored if the profile doesn't have enough data yet
+  const layer: MapLayer = hasEnoughData ? storedLayer : 'explored';
+
+  const flavorMatches = useMemo(
+    () => (layer === 'flavorMatch' && personalFlavor ? computeAllFlavorMatches(personalFlavor) : null),
+    [layer, personalFlavor]
+  );
 
   // Mark as loaded once geographies have rendered
   useEffect(() => {
@@ -128,13 +147,25 @@ export const WorldMap = memo(function WorldMap() {
                 const isHovered = hoveredCountry === alpha2;
                 const hasProfile = alpha2 ? profiledCountryIds.has(alpha2) : false;
 
+                const match = alpha2 ? flavorMatches?.get(alpha2) : undefined;
+                const fill = flavorMatches
+                  ? getFlavorMatchFillColor(match?.score, isHovered)
+                  : getCountryFillColor(activityState, isHovered);
+                // On the flavor-match layer, outline already-logged countries
+                const isLoggedOnMatchLayer = !!flavorMatches && activityState === 'hasDishes';
+                const stroke = isHovered
+                  ? MAP_STROKE.hover
+                  : isLoggedOnMatchLayer
+                    ? FLAVOR_MATCH_LOGGED_STROKE
+                    : MAP_STROKE.default;
+
                 return (
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    fill={getCountryFillColor(activityState, isHovered)}
-                    stroke={isHovered ? MAP_STROKE.hover : MAP_STROKE.default}
-                    strokeWidth={isHovered ? 1 : 0.5}
+                    fill={fill}
+                    stroke={stroke}
+                    strokeWidth={isHovered || isLoggedOnMatchLayer ? 1 : 0.5}
                     style={{
                       default: {
                         outline: 'none',
@@ -166,12 +197,40 @@ export const WorldMap = memo(function WorldMap() {
           countryName={tooltipData.countryName}
           country={getCountryById(tooltipData.countryId)}
           activity={getCountryActivity(tooltipData.countryId)}
+          match={flavorMatches?.get(tooltipData.countryId)}
           x={tooltipData.x}
           y={tooltipData.y}
         />
       )}
 
-      <MapLegend />
+      <div className="absolute top-3 left-3 flex gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-sm border border-gray-200">
+        <button
+          onClick={() => setStoredLayer('explored')}
+          className="px-2.5 py-1 text-xs font-medium rounded-md transition-colors"
+          style={
+            layer === 'explored'
+              ? { backgroundColor: systemColors.navy, color: '#fff' }
+              : { color: systemColors.navyMuted }
+          }
+        >
+          Explored
+        </button>
+        <button
+          onClick={() => hasEnoughData && setStoredLayer('flavorMatch')}
+          disabled={!hasEnoughData}
+          title={hasEnoughData ? undefined : 'Log 3 dishes to unlock'}
+          className="px-2.5 py-1 text-xs font-medium rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          style={
+            layer === 'flavorMatch'
+              ? { backgroundColor: systemColors.tomato, color: '#fff' }
+              : { color: systemColors.navyMuted }
+          }
+        >
+          Flavor Match
+        </button>
+      </div>
+
+      <MapLegend layer={layer} />
     </div>
   );
 });
