@@ -1,0 +1,273 @@
+<title>Ingredients & Spices — 3 display prototypes</title>
+<style>
+  :root {
+    --bg: #FAF7F0;
+    --surface: #FFFFFF;
+    --ink: #33302A;
+    --ink-soft: #6E6A60;
+    --ink-faint: #9B968A;
+    --line: #E7E1D4;
+    --terracotta: #C2654A;
+    --sage: #7C8B6F;
+    --sage-soft: #EDF1E8;
+
+    --ax-heat: #C0392B;
+    --ax-acid: #C99A2E;
+    --ax-sweet: #C46A88;
+    --ax-umami: #6B4F3A;
+    --ax-arom: #6E8B5E;
+    --ax-smoke: #5C5652;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #211F1B; --surface: #2B2823; --ink: #EDE8DD; --ink-soft: #B5AFA2;
+      --ink-faint: #837D70; --line: #3D392F; --sage-soft: #33382C;
+      --ax-heat: #D96A57; --ax-acid: #D9B25A; --ax-sweet: #D68DA6;
+      --ax-umami: #B08D6E; --ax-arom: #93AC80; --ax-smoke: #A29B94;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #FAF7F0; --surface: #FFFFFF; --ink: #33302A; --ink-soft: #6E6A60;
+    --ink-faint: #9B968A; --line: #E7E1D4; --sage-soft: #EDF1E8;
+    --ax-heat: #C0392B; --ax-acid: #C99A2E; --ax-sweet: #C46A88;
+    --ax-umami: #6B4F3A; --ax-arom: #6E8B5E; --ax-smoke: #5C5652;
+  }
+  :root[data-theme="dark"] {
+    --bg: #211F1B; --surface: #2B2823; --ink: #EDE8DD; --ink-soft: #B5AFA2;
+    --ink-faint: #837D70; --line: #3D392F; --sage-soft: #33382C;
+    --ax-heat: #D96A57; --ax-acid: #D9B25A; --ax-sweet: #D68DA6;
+    --ax-umami: #B08D6E; --ax-arom: #93AC80; --ax-smoke: #A29B94;
+  }
+
+  body { background: var(--bg); color: var(--ink); font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; margin: 0; padding: 2.5rem 1.25rem 5rem; }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; letter-spacing: -.01em; }
+  .sub { color: var(--ink-soft); font-size: .95rem; margin: 0 0 3rem; max-width: 60ch; }
+  .proto { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1.75rem; margin-bottom: 3.5rem; }
+  .proto-tag { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--terracotta); margin-bottom: .35rem; }
+  .proto h2 { font-size: 1.15rem; margin: 0 0 .3rem; }
+  .proto .why { color: var(--ink-soft); font-size: .88rem; margin: 0 0 1.6rem; max-width: 64ch; }
+  .demo-label { font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); border-top: 1px dashed var(--line); padding-top: 1.2rem; margin-bottom: 1.2rem; }
+
+  /* ---------- shared axis chips ---------- */
+  .ax { display: inline-flex; align-items: center; gap: .3rem; font-size: .72rem; font-weight: 600; }
+  .ax i { width: .55rem; height: .55rem; border-radius: 50%; display: inline-block; }
+
+  /* ---------- A: matrix ---------- */
+  .mtx-scroll { overflow-x: auto; }
+  table.mtx { border-collapse: collapse; width: 100%; min-width: 620px; font-size: .85rem; }
+  .mtx th { font-weight: 600; font-size: .72rem; letter-spacing: .04em; color: var(--ink-soft); padding: .3rem .4rem; text-align: center; }
+  .mtx th.rowhead { text-align: left; padding-left: 0; }
+  .mtx td { padding: .3rem .4rem; text-align: center; border-top: 1px solid var(--line); }
+  .mtx td.name { text-align: left; padding-left: 0; white-space: nowrap; }
+  .mtx td.name .alt { color: var(--ink-faint); font-size: .75rem; margin-left: .4rem; }
+  .mtx tr.tier td { border-top: none; padding-top: 1.1rem; font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--terracotta); text-align: left; padding-left: 0; }
+  .mtx tr.tier .role { color: var(--ink-faint); font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: .5rem; }
+  .dot { width: .6rem; height: .6rem; border-radius: 50%; display: inline-block; }
+  .dot.minor { opacity: .35; transform: scale(.75); }
+
+  /* ---------- B: axis-first ---------- */
+  .axis-block { margin-bottom: 1.4rem; }
+  .axis-head { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .45rem; }
+  .axis-head .nm { font-weight: 700; font-size: .95rem; }
+  .axis-head .bar { flex: 0 0 90px; height: 5px; border-radius: 3px; background: var(--line); position: relative; top: -2px; overflow: hidden; }
+  .axis-head .bar i { display: block; height: 100%; border-radius: 3px; }
+  .axis-head .score { font-size: .75rem; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .axis-ing { display: flex; flex-wrap: wrap; gap: .4rem .5rem; }
+  .ing-pill { border: 1px solid var(--line); border-radius: 999px; padding: .22rem .7rem; font-size: .8rem; display: inline-flex; align-items: baseline; gap: .4rem; background: var(--surface); }
+  .ing-pill .tier-b { font-size: .62rem; font-weight: 700; letter-spacing: .06em; color: var(--ink-faint); text-transform: uppercase; }
+  .axis-note { font-size: .8rem; color: var(--ink-soft); margin-top: .35rem; }
+
+  /* ---------- C: the build ---------- */
+  .layer { display: grid; grid-template-columns: 150px 1fr; gap: 1.1rem; padding: 1.05rem 0; border-top: 1px solid var(--line); }
+  .layer:first-of-type { border-top: none; padding-top: 0; }
+  .layer .meta .step { font-size: .66rem; font-weight: 700; letter-spacing: .1em; color: var(--ink-faint); }
+  .layer .meta .nm { font-weight: 700; font-size: .92rem; margin: .1rem 0; }
+  .layer .meta .role { font-size: .78rem; color: var(--ink-soft); line-height: 1.4; }
+  .layer .chips { display: flex; flex-wrap: wrap; gap: .35rem .45rem; align-content: flex-start; }
+  .chip { font-size: .8rem; padding: .2rem .6rem; border-radius: 6px; background: var(--sage-soft); border-left: 3px solid transparent; }
+  .arrow-note { text-align: center; color: var(--ink-faint); font-size: .75rem; padding: .1rem 0 .4rem; }
+  @media (max-width: 560px) { .layer { grid-template-columns: 1fr; gap: .5rem; } }
+
+  .legend { display: flex; flex-wrap: wrap; gap: .8rem 1.2rem; margin-bottom: 1.3rem; }
+</style>
+
+<div class="wrap">
+  <h1>Ingredients &amp; Spices — three ways to read a pantry</h1>
+  <p class="sub">All three use China's real data. The shared move: drop the emoji grid, connect every ingredient to either the flavor fingerprint axes or its job in the dish, and let hierarchy do the work. Axis colors are consistent across all three.</p>
+
+  <div class="legend">
+    <span class="ax"><i style="background:var(--ax-heat)"></i>Heat</span>
+    <span class="ax"><i style="background:var(--ax-acid)"></i>Acidity</span>
+    <span class="ax"><i style="background:var(--ax-sweet)"></i>Sweet</span>
+    <span class="ax"><i style="background:var(--ax-umami)"></i>Umami</span>
+    <span class="ax"><i style="background:var(--ax-arom)"></i>Aromatic</span>
+    <span class="ax"><i style="background:var(--ax-smoke)"></i>Smoke/Earth</span>
+  </div>
+
+  <!-- ================= A ================= -->
+  <div class="proto">
+    <span class="proto-tag">Prototype A</span>
+    <h2>The flavor matrix</h2>
+    <p class="why">A quiet table: one row per ingredient, one column per fingerprint axis. A solid dot = main contribution, a faint dot = supporting note. You can read it two ways — across a row ("what does doubanjiang do?") or down a column ("where does all that umami come from?"). Tier headers stay, but reduced to a label + one-line role. Staples get a sentence instead of rows, because a canvas has no flavor column.</p>
+    <div class="demo-label">China</div>
+    <div class="mtx-scroll">
+    <table class="mtx">
+      <tr>
+        <th class="rowhead"></th>
+        <th><span class="ax"><i style="background:var(--ax-heat)"></i></span>Heat</th>
+        <th><span class="ax"><i style="background:var(--ax-acid)"></i></span>Acid</th>
+        <th><span class="ax"><i style="background:var(--ax-sweet)"></i></span>Sweet</th>
+        <th><span class="ax"><i style="background:var(--ax-umami)"></i></span>Umami</th>
+        <th><span class="ax"><i style="background:var(--ax-arom)"></i></span>Aroma</th>
+        <th><span class="ax"><i style="background:var(--ax-smoke)"></i></span>Smoke</th>
+      </tr>
+      <tr class="tier"><td colspan="7">Foundation <span class="role">— in almost every dish</span></td></tr>
+      <tr><td class="name">Soy Sauce <span class="alt">jiangyou</span></td><td></td><td></td><td></td><td><span class="dot" style="background:var(--ax-umami)"></span></td><td></td><td></td></tr>
+      <tr><td class="name">Shaoxing Wine <span class="alt">huangjiu</span></td><td></td><td></td><td><span class="dot minor" style="background:var(--ax-sweet)"></span></td><td></td><td><span class="dot" style="background:var(--ax-arom)"></span></td><td></td></tr>
+      <tr><td class="name">Ginger &amp; Scallion <span class="alt">jiang-cong</span></td><td></td><td></td><td></td><td></td><td><span class="dot" style="background:var(--ax-arom)"></span></td><td></td></tr>
+      <tr><td class="name">Sesame Oil <span class="alt">xiangyou</span></td><td></td><td></td><td></td><td></td><td><span class="dot minor" style="background:var(--ax-arom)"></span></td><td><span class="dot" style="background:var(--ax-smoke)"></span></td></tr>
+      <tr><td class="name">Black Vinegar <span class="alt">chinkiang cu</span></td><td></td><td><span class="dot" style="background:var(--ax-acid)"></span></td><td><span class="dot minor" style="background:var(--ax-sweet)"></span></td><td></td><td></td><td></td></tr>
+      <tr class="tier"><td colspan="7">Aromatic core <span class="role">— hits the hot oil first</span></td></tr>
+      <tr><td class="name">Garlic <span class="alt">suan</span></td><td></td><td></td><td></td><td></td><td><span class="dot" style="background:var(--ax-arom)"></span></td><td></td></tr>
+      <tr><td class="name">Sichuan Peppercorn <span class="alt">huajiao</span></td><td><span class="dot" style="background:var(--ax-heat)"></span></td><td></td><td></td><td></td><td><span class="dot" style="background:var(--ax-arom)"></span></td><td></td></tr>
+      <tr><td class="name">Star Anise <span class="alt">bajiao</span></td><td></td><td></td><td><span class="dot minor" style="background:var(--ax-sweet)"></span></td><td></td><td><span class="dot" style="background:var(--ax-arom)"></span></td><td></td></tr>
+      <tr><td class="name">Dried Chilies <span class="alt">gan lajiao</span></td><td><span class="dot" style="background:var(--ax-heat)"></span></td><td></td><td></td><td></td><td></td><td><span class="dot minor" style="background:var(--ax-smoke)"></span></td></tr>
+      <tr><td class="name">Doubanjiang <span class="alt">chili bean paste</span></td><td><span class="dot" style="background:var(--ax-heat)"></span></td><td></td><td></td><td><span class="dot" style="background:var(--ax-umami)"></span></td><td></td><td></td></tr>
+      <tr><td class="name">Fermented Black Beans <span class="alt">douchi</span></td><td></td><td></td><td></td><td><span class="dot" style="background:var(--ax-umami)"></span></td><td></td><td><span class="dot minor" style="background:var(--ax-smoke)"></span></td></tr>
+      <tr><td class="name">White Pepper <span class="alt">bai hujiao</span></td><td><span class="dot" style="background:var(--ax-heat)"></span></td><td></td><td></td><td></td><td></td><td><span class="dot minor" style="background:var(--ax-smoke)"></span></td></tr>
+      <tr class="tier"><td colspan="7">Flavor builders <span class="role">— pick a few to steer the dish</span></td></tr>
+      <tr><td class="name">Oyster Sauce <span class="alt">haoyou</span></td><td></td><td></td><td><span class="dot minor" style="background:var(--ax-sweet)"></span></td><td><span class="dot" style="background:var(--ax-umami)"></span></td><td></td><td></td></tr>
+      <tr><td class="name">Hoisin Sauce <span class="alt">haixianjiang</span></td><td></td><td></td><td><span class="dot" style="background:var(--ax-sweet)"></span></td><td><span class="dot minor" style="background:var(--ax-umami)"></span></td><td></td><td></td></tr>
+      <tr><td class="name">Rock Sugar <span class="alt">bingtang</span></td><td></td><td></td><td><span class="dot" style="background:var(--ax-sweet)"></span></td><td></td><td></td><td></td></tr>
+      <tr><td class="name">Five-Spice <span class="alt">wuxiangfen</span></td><td></td><td></td><td><span class="dot minor" style="background:var(--ax-sweet)"></span></td><td></td><td><span class="dot" style="background:var(--ax-arom)"></span></td><td></td></tr>
+      <tr><td class="name">Dried Shiitake <span class="alt">xianggu</span></td><td></td><td></td><td></td><td><span class="dot" style="background:var(--ax-umami)"></span></td><td></td><td><span class="dot minor" style="background:var(--ax-smoke)"></span></td></tr>
+      <tr><td class="name">Chili Oil <span class="alt">lajiao you</span></td><td><span class="dot" style="background:var(--ax-heat)"></span></td><td></td><td></td><td></td><td><span class="dot minor" style="background:var(--ax-arom)"></span></td><td></td></tr>
+      <tr><td class="name">Cilantro <span class="alt">xiangcai</span></td><td></td><td><span class="dot minor" style="background:var(--ax-acid)"></span></td><td></td><td></td><td><span class="dot" style="background:var(--ax-arom)"></span></td><td></td></tr>
+      <tr><td class="name">Preserved Vegetables <span class="alt">zhacai</span></td><td></td><td><span class="dot" style="background:var(--ax-acid)"></span></td><td></td><td><span class="dot minor" style="background:var(--ax-umami)"></span></td><td></td><td></td></tr>
+    </table>
+    </div>
+    <p class="axis-note" style="margin-top:1rem">Staples — rice, wheat noodles, tofu, dumpling wrappers — are the neutral canvas all of this lands on, so they sit here as a sentence, not rows. (Cornstarch dropped: it's texture, not flavor.)</p>
+  </div>
+
+  <!-- ================= B ================= -->
+  <div class="proto">
+    <span class="proto-tag">Prototype B</span>
+    <h2>Why it tastes this way</h2>
+    <p class="why">Inverts the hierarchy: lead with the cuisine's fingerprint axes, strongest first, each with its intensity bar — the same 1–10 the radar shows. Under each axis: the ingredients that put it there, with a small tier tag. This answers the question the pyramid never answers: "China scores 9 on umami — <em>where does that come from?</em>" It's the strongest tie-in to the flavor fingerprint, and it doubles as radar education.</p>
+    <div class="demo-label">China — axes ordered by intensity</div>
+
+    <div class="axis-block">
+      <div class="axis-head"><span class="nm" style="color:var(--ax-umami)">Umami</span><span class="bar"><i style="width:90%;background:var(--ax-umami)"></i></span><span class="score">9 / 10</span></div>
+      <div class="axis-ing">
+        <span class="ing-pill">Soy sauce <span class="tier-b">fdn</span></span>
+        <span class="ing-pill">Doubanjiang <span class="tier-b">core</span></span>
+        <span class="ing-pill">Fermented black beans <span class="tier-b">core</span></span>
+        <span class="ing-pill">Oyster sauce <span class="tier-b">bld</span></span>
+        <span class="ing-pill">Dried shiitake <span class="tier-b">bld</span></span>
+      </div>
+      <p class="axis-note">The defining axis — fermented sauces and pastes at every tier, from the base seasoning up.</p>
+    </div>
+
+    <div class="axis-block">
+      <div class="axis-head"><span class="nm" style="color:var(--ax-smoke)">Smoke &amp; Earth</span><span class="bar"><i style="width:70%;background:var(--ax-smoke)"></i></span><span class="score">7 / 10</span></div>
+      <div class="axis-ing">
+        <span class="ing-pill">Sesame oil <span class="tier-b">fdn</span></span>
+        <span class="ing-pill">Dried shiitake <span class="tier-b">bld</span></span>
+        <span class="ing-pill">Dried chilies <span class="tier-b">core</span></span>
+      </div>
+      <p class="axis-note">Plus the wok itself — wok hei, the "breath of the wok," is technique, not an ingredient.</p>
+    </div>
+
+    <div class="axis-block">
+      <div class="axis-head"><span class="nm" style="color:var(--ax-arom)">Aromatic</span><span class="bar"><i style="width:60%;background:var(--ax-arom)"></i></span><span class="score">6 / 10</span></div>
+      <div class="axis-ing">
+        <span class="ing-pill">Ginger &amp; scallion <span class="tier-b">fdn</span></span>
+        <span class="ing-pill">Garlic <span class="tier-b">core</span></span>
+        <span class="ing-pill">Star anise <span class="tier-b">core</span></span>
+        <span class="ing-pill">Five-spice <span class="tier-b">bld</span></span>
+        <span class="ing-pill">Shaoxing wine <span class="tier-b">fdn</span></span>
+      </div>
+    </div>
+
+    <div class="axis-block">
+      <div class="axis-head"><span class="nm" style="color:var(--ax-heat)">Heat</span><span class="bar"><i style="width:50%;background:var(--ax-heat)"></i></span><span class="score">5 / 10</span></div>
+      <div class="axis-ing">
+        <span class="ing-pill">Sichuan peppercorn <span class="tier-b">core</span></span>
+        <span class="ing-pill">Dried chilies <span class="tier-b">core</span></span>
+        <span class="ing-pill">Chili oil <span class="tier-b">bld</span></span>
+        <span class="ing-pill">White pepper <span class="tier-b">core</span></span>
+      </div>
+      <p class="axis-note">A 5 that swings wildly by region — Sichuan alone would be a 9.</p>
+    </div>
+
+    <div class="axis-block">
+      <div class="axis-head"><span class="nm" style="color:var(--ax-acid)">Acidity</span><span class="bar"><i style="width:40%;background:var(--ax-acid)"></i></span><span class="score">4 / 10</span></div>
+      <div class="axis-ing">
+        <span class="ing-pill">Black vinegar <span class="tier-b">fdn</span></span>
+        <span class="ing-pill">Preserved vegetables <span class="tier-b">bld</span></span>
+      </div>
+    </div>
+
+    <div class="axis-block">
+      <div class="axis-head"><span class="nm" style="color:var(--ax-sweet)">Sweet</span><span class="bar"><i style="width:40%;background:var(--ax-sweet)"></i></span><span class="score">4 / 10</span></div>
+      <div class="axis-ing">
+        <span class="ing-pill">Rock sugar <span class="tier-b">bld</span></span>
+        <span class="ing-pill">Hoisin sauce <span class="tier-b">bld</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= C ================= -->
+  <div class="proto">
+    <span class="proto-tag">Prototype C</span>
+    <h2>The build — tiers as cooking order</h2>
+    <p class="why">Keeps your four tiers but makes them a sequence instead of a pyramid: read top to bottom and you're watching a dish get assembled. Each tier gets a plain-language job description; ingredients are quiet chips whose left edge is colored by their dominant axis (that's the fingerprint tie-in, kept subtle). This is the version that explains how the tiers <em>work together</em>.</p>
+    <div class="demo-label">China — how a dish comes together</div>
+
+    <div class="layer">
+      <div class="meta"><div class="step">START</div><div class="nm">Staples</div><div class="role">The canvas. Neutral on purpose — everything below exists to flavor these.</div></div>
+      <div class="chips">
+        <span class="chip">Rice</span><span class="chip">Wheat noodles</span><span class="chip">Tofu</span><span class="chip">Baozi &amp; dumpling wrappers</span>
+      </div>
+    </div>
+    <div class="arrow-note">↓ hot oil goes in</div>
+    <div class="layer">
+      <div class="meta"><div class="step">FIRST 30 SECONDS</div><div class="nm">Aromatic core</div><div class="role">Bloomed in oil before anything else — this sizzle is the smell of the cuisine.</div></div>
+      <div class="chips">
+        <span class="chip" style="border-color:var(--ax-arom)">Garlic</span>
+        <span class="chip" style="border-color:var(--ax-heat)">Sichuan peppercorn</span>
+        <span class="chip" style="border-color:var(--ax-arom)">Star anise</span>
+        <span class="chip" style="border-color:var(--ax-heat)">Dried chilies</span>
+        <span class="chip" style="border-color:var(--ax-heat)">Doubanjiang</span>
+        <span class="chip" style="border-color:var(--ax-umami)">Fermented black beans</span>
+        <span class="chip" style="border-color:var(--ax-heat)">White pepper</span>
+      </div>
+    </div>
+    <div class="arrow-note">↓ the main ingredient joins</div>
+    <div class="layer">
+      <div class="meta"><div class="step">THE BACKBONE</div><div class="nm">Foundation</div><div class="role">The seasoning base in nearly every savory dish — if it tastes "Chinese," these are why.</div></div>
+      <div class="chips">
+        <span class="chip" style="border-color:var(--ax-umami)">Soy sauce</span>
+        <span class="chip" style="border-color:var(--ax-arom)">Shaoxing wine</span>
+        <span class="chip" style="border-color:var(--ax-arom)">Ginger &amp; scallion</span>
+        <span class="chip" style="border-color:var(--ax-smoke)">Sesame oil</span>
+        <span class="chip" style="border-color:var(--ax-acid)">Black vinegar</span>
+      </div>
+    </div>
+    <div class="arrow-note">↓ steer the dish somewhere specific</div>
+    <div class="layer">
+      <div class="meta"><div class="step">THE CHARACTER</div><div class="nm">Flavor builders</div><div class="role">Choose two or three — each pulls the dish toward a different corner of the radar.</div></div>
+      <div class="chips">
+        <span class="chip" style="border-color:var(--ax-umami)">Oyster sauce</span>
+        <span class="chip" style="border-color:var(--ax-sweet)">Hoisin sauce</span>
+        <span class="chip" style="border-color:var(--ax-sweet)">Rock sugar</span>
+        <span class="chip" style="border-color:var(--ax-arom)">Five-spice</span>
+        <span class="chip" style="border-color:var(--ax-umami)">Dried shiitake</span>
+        <span class="chip" style="border-color:var(--ax-heat)">Chili oil</span>
+        <span class="chip" style="border-color:var(--ax-arom)">Cilantro</span>
+        <span class="chip" style="border-color:var(--ax-acid)">Preserved vegetables</span>
+      </div>
+    </div>
+  </div>
+</div>

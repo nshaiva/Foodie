@@ -48,12 +48,12 @@ export const LEGEND_ITEMS = [
 
 export type MapLayer = 'explored' | 'flavorMatch';
 
-// Sequential terracotta ramp: pale warm neutral → saturated terracotta.
+// Sequential terracotta ramp: pale warm neutral → deep saturated terracotta.
 // Stops at score 0 / 50 / 100; interpolated between.
 const FLAVOR_MATCH_STOPS: [number, string][] = [
-  [0, '#EFE8DC'],
+  [0, '#F3EDE2'],
   [50, '#E5BBA4'],
-  [100, '#C2654A'],
+  [100, '#A9503A'],
 ];
 
 function lerpHex(a: string, b: string, t: number): string {
@@ -69,12 +69,21 @@ function lerpHex(a: string, b: string, t: number): string {
 
 export function getFlavorMatchFillColor(
   score: number | undefined,
-  isHovered: boolean = false
+  isHovered: boolean = false,
+  domain?: [number, number]
 ): string {
   if (score === undefined) {
     return isHovered ? MAP_HOVER_COLORS.noProfile : MAP_COLORS.noProfile;
   }
-  const clamped = Math.max(0, Math.min(100, score));
+  // Raw scores cluster in a narrow band (e.g. 55-85), which flattens the ramp
+  // into one indistinguishable terracotta. Stretch the actual min-max spread
+  // across the full ramp so relative differences stay visible.
+  let normalized = score;
+  if (domain) {
+    const [min, max] = domain;
+    normalized = max > min ? ((score - min) / (max - min)) * 100 : 100;
+  }
+  const clamped = Math.max(0, Math.min(100, normalized));
   let color = FLAVOR_MATCH_STOPS[FLAVOR_MATCH_STOPS.length - 1][1];
   for (let i = 1; i < FLAVOR_MATCH_STOPS.length; i++) {
     const [prevStop, prevColor] = FLAVOR_MATCH_STOPS[i - 1];
@@ -85,7 +94,7 @@ export function getFlavorMatchFillColor(
     }
   }
   // Hover: nudge toward the saturated end
-  return isHovered ? lerpHex(color, '#A9503A', 0.25) : color;
+  return isHovered ? lerpHex(color, '#7E3A29', 0.25) : color;
 }
 
 // Gradient for the flavor-match legend bar

@@ -54,6 +54,19 @@ export const WorldMap = memo(function WorldMap() {
     [layer, personalFlavor]
   );
 
+  // Min-max of the computed scores, used to stretch the color ramp so
+  // clustered high scores still grade visibly.
+  const matchDomain = useMemo<[number, number] | undefined>(() => {
+    if (!flavorMatches || flavorMatches.size === 0) return undefined;
+    let min = Infinity;
+    let max = -Infinity;
+    for (const { score } of flavorMatches.values()) {
+      if (score < min) min = score;
+      if (score > max) max = score;
+    }
+    return [min, max];
+  }, [flavorMatches]);
+
   // Mark as loaded once geographies have rendered
   useEffect(() => {
     if (hasRendered) {
@@ -149,7 +162,7 @@ export const WorldMap = memo(function WorldMap() {
 
                 const match = alpha2 ? flavorMatches?.get(alpha2) : undefined;
                 const fill = flavorMatches
-                  ? getFlavorMatchFillColor(match?.score, isHovered)
+                  ? getFlavorMatchFillColor(match?.score, isHovered, matchDomain)
                   : getCountryFillColor(activityState, isHovered);
                 // On the flavor-match layer, outline already-logged countries
                 const isLoggedOnMatchLayer = !!flavorMatches && activityState === 'hasDishes';
@@ -206,12 +219,26 @@ export const WorldMap = memo(function WorldMap() {
       <div className="absolute top-3 left-3 flex gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-sm border border-gray-200">
         <button
           onClick={() => setStoredLayer('explored')}
-          className="px-2.5 py-1 text-xs font-medium rounded-md transition-colors"
+          className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+            layer === 'explored' ? '' : 'btn-press'
+          }`}
           style={
             layer === 'explored'
               ? { backgroundColor: systemColors.navy, color: '#fff' }
               : { color: systemColors.navyMuted }
           }
+          onMouseEnter={(e) => {
+            if (layer !== 'explored') {
+              e.currentTarget.style.backgroundColor = `${systemColors.navy}15`;
+              e.currentTarget.style.color = systemColors.navy;
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (layer !== 'explored') {
+              e.currentTarget.style.backgroundColor = '';
+              e.currentTarget.style.color = systemColors.navyMuted;
+            }
+          }}
         >
           Explored
         </button>
@@ -219,12 +246,26 @@ export const WorldMap = memo(function WorldMap() {
           onClick={() => hasEnoughData && setStoredLayer('flavorMatch')}
           disabled={!hasEnoughData}
           title={hasEnoughData ? undefined : 'Log 3 dishes to unlock'}
-          className="px-2.5 py-1 text-xs font-medium rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+            layer === 'flavorMatch' ? '' : 'btn-press'
+          }`}
           style={
             layer === 'flavorMatch'
               ? { backgroundColor: systemColors.tomato, color: '#fff' }
               : { color: systemColors.navyMuted }
           }
+          onMouseEnter={(e) => {
+            if (layer !== 'flavorMatch' && hasEnoughData) {
+              e.currentTarget.style.backgroundColor = `${systemColors.tomato}18`;
+              e.currentTarget.style.color = systemColors.tomato;
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (layer !== 'flavorMatch') {
+              e.currentTarget.style.backgroundColor = '';
+              e.currentTarget.style.color = systemColors.navyMuted;
+            }
+          }}
         >
           Flavor Match
         </button>
