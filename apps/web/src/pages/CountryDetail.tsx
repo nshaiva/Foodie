@@ -154,6 +154,7 @@ export function CountryDetail() {
                   foodCulture={country.foodCulture}
                   regions={country.regionalVariations}
                   colors={colors}
+                  country={country}
                 />
               </CarouselSlide>
             </CarouselContainer>

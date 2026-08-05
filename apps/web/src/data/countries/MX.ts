@@ -44,25 +44,25 @@ export const MX: Country = {
     ingredientTiers: {
       foundation: [
         { name: "Corn", emoji: "🌽", description: "Maíz · Base starch · Sacred, versatile" },
-        { name: "Dried Chilies", emoji: "🌶️", description: "Chiles secos · Heat & flavor · Smoky, complex" },
-        { name: "Lime", emoji: "🍋", description: "Limón · Acid balance · Bright, essential" },
-        { name: "Black Beans", emoji: "🫘", description: "Frijoles negros · Protein · Earthy, creamy" }
+        { name: "Dried Chilies", emoji: "🌶️", description: "Chiles secos · Heat & flavor · Smoky, complex", flavorAxes: [{ axis: "heat", strength: "main" }, { axis: "smokeEarth", strength: "main" }] },
+        { name: "Lime", emoji: "🍋", description: "Limón · Acid balance · Bright, essential", flavorAxes: [{ axis: "acidity", strength: "main" }] },
+        { name: "Black Beans", emoji: "🫘", description: "Frijoles negros · Protein · Earthy, creamy", flavorAxes: [{ axis: "smokeEarth", strength: "supporting" }] }
       ],
       aromaticCore: [
-        { name: "Cilantro", emoji: "🌿", description: "AKA coriander · Fresh garnish · Citrusy, polarizing" },
-        { name: "Epazote", emoji: "🌱", description: "Mexican herb · Bean seasoning · Pungent, minty" },
-        { name: "Cumin", emoji: "🫛", description: "Comino · Dried spice · Earthy, warm" },
-        { name: "Mexican Oregano", emoji: "🍃", description: "Dried herb · More citrusy than Mediterranean" },
-        { name: "Cinnamon", emoji: "🪵", description: "Canela · Ceylon variety · Sweet, warm" }
+        { name: "Cilantro", emoji: "🌿", description: "AKA coriander · Fresh garnish · Citrusy, polarizing", flavorAxes: [{ axis: "aromatic", strength: "main" }, { axis: "acidity", strength: "supporting" }] },
+        { name: "Epazote", emoji: "🌱", description: "Mexican herb · Bean seasoning · Pungent, minty", flavorAxes: [{ axis: "aromatic", strength: "main" }] },
+        { name: "Cumin", emoji: "🫛", description: "Comino · Dried spice · Earthy, warm", flavorAxes: [{ axis: "aromatic", strength: "main" }, { axis: "smokeEarth", strength: "supporting" }] },
+        { name: "Mexican Oregano", emoji: "🍃", description: "Dried herb · More citrusy than Mediterranean", flavorAxes: [{ axis: "aromatic", strength: "main" }] },
+        { name: "Cinnamon", emoji: "🪵", description: "Canela · Ceylon variety · Sweet, warm", flavorAxes: [{ axis: "sweetness", strength: "main" }, { axis: "aromatic", strength: "supporting" }] }
       ],
       flavorBuilders: [
-        { name: "Tomatoes", emoji: "🍅", description: "Jitomate · Salsa base · Bright, acidic" },
-        { name: "Tomatillos", emoji: "🟢", description: "Tomate verde · Salsa verde · Tangy, citrusy" },
-        { name: "Onion", emoji: "🧅", description: "Cebolla · Aromatic · Sharp, sweet when charred" },
-        { name: "Garlic", emoji: "🧄", description: "Ajo · Aromatic · Pungent, mellows roasted" },
+        { name: "Tomatoes", emoji: "🍅", description: "Jitomate · Salsa base · Bright, acidic", flavorAxes: [{ axis: "acidity", strength: "main" }, { axis: "umami", strength: "supporting" }] },
+        { name: "Tomatillos", emoji: "🟢", description: "Tomate verde · Salsa verde · Tangy, citrusy", flavorAxes: [{ axis: "acidity", strength: "main" }] },
+        { name: "Onion", emoji: "🧅", description: "Cebolla · Aromatic · Sharp, sweet when charred", flavorAxes: [{ axis: "aromatic", strength: "main" }, { axis: "sweetness", strength: "supporting" }] },
+        { name: "Garlic", emoji: "🧄", description: "Ajo · Aromatic · Pungent, mellows roasted", flavorAxes: [{ axis: "aromatic", strength: "main" }] },
         { name: "Avocado", emoji: "🥑", description: "Aguacate · Creamy fat · Rich, buttery" },
-        { name: "Achiote", emoji: "🟠", description: "Annatto · Color & spice · Earthy, musky" },
-        { name: "Chocolate", emoji: "🍫", description: "Cacao · Mole depth · Bitter, complex" }
+        { name: "Achiote", emoji: "🟠", description: "Annatto · Color & spice · Earthy, musky", flavorAxes: [{ axis: "smokeEarth", strength: "main" }, { axis: "aromatic", strength: "supporting" }] },
+        { name: "Chocolate", emoji: "🍫", description: "Cacao · Mole depth · Bitter, complex", flavorAxes: [{ axis: "sweetness", strength: "main" }, { axis: "smokeEarth", strength: "supporting" }] }
       ],
       staples: [
         { name: "Tortillas", emoji: "🫓", description: "Base starch · Corn or flour · Fresh daily" },

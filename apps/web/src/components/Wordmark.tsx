@@ -6,20 +6,30 @@ interface WordmarkProps {
   className?: string;
 }
 
-/** The tomato plate dot that ends the wordmark — solid center, mid ring, pale rim. */
-export function WordmarkDot() {
+/** The brand plate dot — solid center, mid ring, pale rim — in any color/size. */
+export function PlateDot({ color, size = '0.34em', className = '', style }: {
+  color: string;
+  size?: string | number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
     <span
       aria-hidden
-      className="inline-block rounded-full"
+      className={`inline-block rounded-full ${className}`}
       style={{
-        width: '0.34em',
-        height: '0.34em',
-        marginLeft: '0.08em',
-        background: `radial-gradient(circle, ${systemColors.tomato} 0 36%, ${systemColors.tomato}8C 36% 60%, ${systemColors.tomato}33 60% 100%)`,
+        width: size,
+        height: size,
+        background: `radial-gradient(circle, ${color} 0 36%, ${color}8C 36% 60%, ${color}33 60% 100%)`,
+        ...style,
       }}
     />
   );
+}
+
+/** The tomato plate dot that ends the wordmark. */
+export function WordmarkDot() {
+  return <PlateDot color={systemColors.tomato} style={{ marginLeft: '0.08em' }} />;
 }
 
 /** The "foodie." brand wordmark, linking back to the home page. */

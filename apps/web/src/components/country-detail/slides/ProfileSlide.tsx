@@ -1,7 +1,5 @@
 import { FlavorRadarChart } from '../../FlavorRadarChart';
 import { IngredientPyramid } from '../../IngredientPyramid';
-import { CookingFlow } from '../../CookingFlow';
-import { SimilarCuisinesSection } from './SimilarCuisinesSection';
 import { systemColors } from '../../../data/systemColors';
 import type { Country, ColorPalette } from '../../../data/types';
 
@@ -33,30 +31,25 @@ export function ProfileSlide({ country, colors }: ProfileSlideProps) {
         {/* Radar — tall feature tile */}
         <div className={`${tile} lg:row-span-2`}>
           <TileLabel>Flavor Fingerprint</TileLabel>
-          <FlavorRadarChart flavorIntensity={cuisineProfile.flavorIntensity} colors={colors} />
+          <FlavorRadarChart
+            flavorIntensity={cuisineProfile.flavorIntensity}
+            colors={colors}
+            ingredientTiers={cuisineProfile.ingredientTiers}
+          />
         </div>
 
-        {/* Ingredients — wide tile */}
+        {/* Ingredients + cooking sequence — wide tile */}
         {cuisineProfile.ingredientTiers && (
-          <div className={`${tile} lg:col-span-2`}>
-            <TileLabel>Ingredients &amp; Spices</TileLabel>
-            <IngredientPyramid tiers={cuisineProfile.ingredientTiers} colors={colors} />
-          </div>
-        )}
-
-        {/* Cooking flow — wide tile */}
-        {cuisineProfile.cookingFlow && cuisineProfile.cookingFlow.length > 0 && (
-          <div className={`${tile} lg:col-span-2`}>
-            <TileLabel>How it's cooked</TileLabel>
-            <div className="mt-3">
-              <CookingFlow steps={cuisineProfile.cookingFlow} colors={colors} />
-            </div>
+          <div className={`${tile} lg:col-span-2 lg:row-span-2`}>
+            <TileLabel>How it comes together</TileLabel>
+            <IngredientPyramid
+              tiers={cuisineProfile.ingredientTiers}
+              colors={colors}
+              cookingFlow={cuisineProfile.cookingFlow}
+            />
           </div>
         )}
       </div>
-
-      {/* Similar cuisines — full width below the bento (renders its own tile) */}
-      <SimilarCuisinesSection country={country} colors={colors} />
     </div>
   );
 }
