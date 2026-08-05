@@ -86,10 +86,21 @@ export interface CookingStep {
   emoji?: string;      // e.g., "🥄"
 }
 
+// The six fingerprint axes (numeric keys of FlavorIntensity)
+export type FlavorAxisId = 'heat' | 'acidity' | 'sweetness' | 'umami' | 'aromatic' | 'smokeEarth';
+
+export interface IngredientFlavorAxis {
+  axis: FlavorAxisId;
+  strength: 'main' | 'supporting';
+}
+
 export interface TieredIngredient {
   name: string;
   emoji: string;
   description?: string;  // 1-2 sentence description for modal
+  // Which fingerprint axes this ingredient drives; empty/omitted = neutral
+  // (texture, canvas). Populated per-country by the content pipeline (#23).
+  flavorAxes?: IngredientFlavorAxis[];
 }
 
 export interface IngredientTiers {

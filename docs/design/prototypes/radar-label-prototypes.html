@@ -1,0 +1,167 @@
+<title>Radar axis labels — clickable treatments</title>
+<style>
+  :root {
+    --bg: #FAF7F0; --surface: #fff; --ink: #33302A; --ink-soft: #6E6A60;
+    --ink-faint: #9B968A; --line: #E7E1D4; --terracotta: #C2654A; --sage: #7C8B6F;
+    --ax-heat: #C0392B; --ax-acid: #C99A2E; --ax-sweet: #C46A88;
+    --ax-umami: #6B4F3A; --ax-arom: #6E8B5E; --ax-smoke: #5C5652;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F;
+      --ax-heat:#D96A57; --ax-acid:#D9B25A; --ax-sweet:#D68DA6; --ax-umami:#B08D6E; --ax-arom:#93AC80; --ax-smoke:#A29B94; }
+  }
+  :root[data-theme="light"] { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A; --line:#E7E1D4;
+    --ax-heat:#C0392B; --ax-acid:#C99A2E; --ax-sweet:#C46A88; --ax-umami:#6B4F3A; --ax-arom:#6E8B5E; --ax-smoke:#5C5652; }
+  :root[data-theme="dark"] { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F;
+    --ax-heat:#D96A57; --ax-acid:#D9B25A; --ax-sweet:#D68DA6; --ax-umami:#B08D6E; --ax-arom:#93AC80; --ax-smoke:#A29B94; }
+
+  body { background: var(--bg); color: var(--ink); margin: 0; padding: 2.5rem 1.25rem 5rem;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 .3rem; }
+  .sub { color: var(--ink-soft); font-size: .92rem; margin: 0 0 2.2rem; max-width: 62ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.4rem; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1.3rem 1.3rem 1.1rem; }
+  .tag { font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--terracotta); }
+  .card h2 { font-size: 1rem; margin: .15rem 0 .3rem; }
+  .card .why { font-size: .8rem; color: var(--ink-soft); margin: 0 0 .6rem; min-height: 3.6em; }
+  .hint { font-size: .72rem; color: var(--ink-faint); text-align: center; margin-top: .3rem; }
+
+  .demo { position: relative; width: 300px; height: 250px; margin: 0 auto; }
+  .demo svg { position: absolute; inset: 0; }
+  .lbl { position: absolute; transform: translate(-50%, -50%); font-size: 13px; font-weight: 500;
+    color: var(--ink); cursor: pointer; user-select: none; white-space: nowrap; }
+
+  /* positions for 6 labels around the hexagon */
+  .p0 { left: 50%; top: 8%; }   /* Heat */
+  .p1 { left: 88%; top: 30%; }  /* Acidity */
+  .p2 { left: 88%; top: 72%; }  /* Sweet */
+  .p3 { left: 50%; top: 94%; }  /* Umami */
+  .p4 { left: 12%; top: 72%; }  /* Aromatic */
+  .p5 { left: 12%; top: 30%; }  /* Smoke */
+
+  /* ---------- A: dotted underline (current) ---------- */
+  .vA .lbl { text-decoration: underline dotted var(--ink-faint); text-underline-offset: 3px; }
+  .vA .lbl:hover { color: var(--ax); text-decoration-color: var(--ax); }
+
+  /* ---------- B: garnish underline (grows) ---------- */
+  .vB .lbl { background: linear-gradient(var(--ax), var(--ax)) no-repeat left 100%/0% 2px; padding-bottom: 3px; transition: background-size .22s ease; }
+  .vB .lbl:hover { background-size: 100% 2px; color: var(--ax); }
+
+  /* ---------- C: plate dot ---------- */
+  .vC .lbl::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    border: 2px solid var(--ax); background: transparent; margin-right: 5px; vertical-align: 1px;
+    transition: background .18s ease, transform .18s ease; }
+  .vC .lbl:hover { color: var(--ax); }
+  .vC .lbl:hover::before { background: var(--ax); transform: scale(1.25); }
+
+  /* ---------- D: chip labels ---------- */
+  .vD .lbl { border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+    padding: 3px 10px; font-size: 12px; transition: all .15s ease; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .vD .lbl::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--ax); margin-right: 5px; vertical-align: 1px; }
+  .vD .lbl:hover { border-color: var(--ax); color: var(--ax); transform: translate(-50%, -50%) scale(1.06); }
+
+  /* ---------- E: spice sprinkle ---------- */
+  .vE .lbl { text-decoration: underline dotted var(--ink-faint); text-underline-offset: 3px; }
+  .vE .lbl:hover { color: var(--ax); text-decoration-color: var(--ax); }
+  .vE .lbl .spr { position: absolute; left: 50%; top: -4px; width: 2px; height: 2px; border-radius: 50%;
+    background: var(--ax); opacity: 0; pointer-events: none; }
+  .vE .lbl:hover .spr { animation: sprinkle .5s ease-out forwards; }
+  .vE .lbl:hover .spr:nth-child(1) { animation-delay: 0s; --dx: -10px; }
+  .vE .lbl:hover .spr:nth-child(2) { animation-delay: .07s; --dx: 0px; }
+  .vE .lbl:hover .spr:nth-child(3) { animation-delay: .14s; --dx: 10px; }
+  @keyframes sprinkle {
+    0% { opacity: 0; transform: translate(var(--dx, 0), 0) scale(.5); }
+    40% { opacity: 1; transform: translate(var(--dx, 0), -9px) scale(1.4); }
+    100% { opacity: 0; transform: translate(var(--dx, 0), -13px) scale(1); }
+  }
+
+  /* ---------- F: simmer (steam) ---------- */
+  .vF .lbl { text-decoration: underline dotted var(--ink-faint); text-underline-offset: 3px; }
+  .vF .lbl:hover { color: var(--ax); text-decoration-color: var(--ax); }
+  .vF .lbl .stm { position: absolute; left: 50%; top: -8px; width: 8px; height: 10px; opacity: 0; pointer-events: none;
+    border-left: 1.5px solid var(--ax); border-radius: 60%; }
+  .vF .lbl:hover .stm { animation: steam 1.1s ease-in-out infinite; }
+  .vF .lbl:hover .stm:nth-child(1) { margin-left: -8px; animation-delay: 0s; }
+  .vF .lbl:hover .stm:nth-child(2) { margin-left: 0; animation-delay: .25s; }
+  .vF .lbl:hover .stm:nth-child(3) { margin-left: 8px; animation-delay: .5s; }
+  @keyframes steam {
+    0% { opacity: 0; transform: translateY(2px) scaleX(1); }
+    35% { opacity: .8; }
+    100% { opacity: 0; transform: translateY(-8px) scaleX(-1); }
+  }
+
+  /* ---------- G: seasoned plate (C + E merged) ---------- */
+  .vG .lbl::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    border: 2px solid var(--ax); background: transparent; margin-right: 5px; vertical-align: 1px;
+    transition: background .18s ease, transform .18s ease; }
+  .vG .lbl:hover { color: var(--ax); }
+  .vG .lbl:hover::before { background: var(--ax); transform: scale(1.25); }
+  .vG .lbl .spr { position: absolute; left: 50%; top: -4px; width: 2px; height: 2px; border-radius: 50%;
+    background: var(--ax); opacity: 0; pointer-events: none; }
+  .vG .lbl:hover .spr { animation: sprinkle .5s ease-out forwards; }
+  .vG .lbl:hover .spr:nth-child(1) { animation-delay: 0s; --dx: -10px; }
+  .vG .lbl:hover .spr:nth-child(2) { animation-delay: .07s; --dx: 0px; }
+  .vG .lbl:hover .spr:nth-child(3) { animation-delay: .14s; --dx: 10px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vB .lbl, .vC .lbl::before, .vD .lbl { transition: none; }
+    .vE .lbl:hover .spr, .vF .lbl:hover .stm, .vG .lbl:hover .spr { animation: none; opacity: .7; }
+  }
+</style>
+
+<div class="wrap">
+  <h1>Radar axis labels — "tap me" treatments</h1>
+  <p class="sub">Six ways to make the fingerprint's axis labels read as clickable. Hover any label. A is the current dotted underline for comparison; each variant keeps the axis color reveal on hover.</p>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+  const variants = [
+    { id: 'vA', tag: 'A · current', name: 'Dotted underline', why: 'The shipped baseline: quiet, standard "this expands" cue. Everything else builds on or replaces it.' },
+    { id: 'vB', tag: 'B', name: 'Garnish underline', why: 'The same growing underline your country-card titles use — app-consistent, feels intentional, still minimal.' },
+    { id: 'vC', tag: 'C', name: 'Plate dot', why: 'A tiny empty plate (the logo dot) before each label; hovering fills the plate in the axis color. Food-native and echoes the brand mark.' },
+    { id: 'vD', tag: 'D', name: 'Chip labels', why: 'Labels become mini chips with an axis-color dot — unmistakably buttons, matches the dish-chip language. Boldest visual change to the chart.' },
+    { id: 'vE', tag: 'E', name: 'Spice sprinkle', why: 'Hover tosses a pinch of axis-colored specks over the word — a little seasoning moment. Playful; underline still carries the affordance.' },
+    { id: 'vF', tag: 'F', name: 'Simmer', why: 'Wisps of steam rise from the label while hovered, in the axis color. The most "food" of all — maybe too busy with six axes?' },
+    { id: 'vG', tag: 'G · C + E', name: 'Seasoned plate', why: 'The merge: the plate dot carries the always-visible "tap me" cue (works on mobile), and hovering both fills the plate and tosses the sprinkle. Seasoning the plate.' },
+  ];
+  const axes = [
+    { n: 'Heat', c: 'var(--ax-heat)' }, { n: 'Acidity', c: 'var(--ax-acid)' },
+    { n: 'Sweet', c: 'var(--ax-sweet)' }, { n: 'Umami', c: 'var(--ax-umami)' },
+    { n: 'Aromatic', c: 'var(--ax-arom)' }, { n: 'Smoke', c: 'var(--ax-smoke)' },
+  ];
+  // hexagon geometry (matches label positions)
+  function hexPoints(cx, cy, r) {
+    return Array.from({ length: 6 }, (_, i) => {
+      const a = -Math.PI / 2 + i * Math.PI / 3;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    });
+  }
+  const values = [7, 6, 4, 5, 8, 6]; // sample fingerprint
+  function radarSvg() {
+    const cx = 150, cy = 125, R = 82;
+    let s = '';
+    for (const f of [1, .66, .33]) {
+      s += `<polygon points="${hexPoints(cx, cy, R * f).map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--line)" stroke-width="1"/>`;
+    }
+    s += hexPoints(cx, cy, R).map(p => `<line x1="${cx}" y1="${cy}" x2="${p[0]}" y2="${p[1]}" stroke="var(--line)" stroke-width="1"/>`).join('');
+    const data = hexPoints(cx, cy, R).map((p, i) => [cx + (p[0] - cx) * values[i] / 10, cy + (p[1] - cy) * values[i] / 10]);
+    s += `<polygon points="${data.map(p => p.join(',')).join(' ')}" fill="var(--sage)" fill-opacity=".3" stroke="var(--sage)" stroke-width="2"/>`;
+    return `<svg viewBox="0 0 300 250">${s}</svg>`;
+  }
+  const extra = { vE: '<i class="spr"></i><i class="spr"></i><i class="spr"></i>', vF: '<i class="stm"></i><i class="stm"></i><i class="stm"></i>', vG: '<i class="spr"></i><i class="spr"></i><i class="spr"></i>' };
+  document.getElementById('grid').innerHTML = variants.map(v => `
+    <div class="card">
+      <span class="tag">${v.tag}</span>
+      <h2>${v.name}</h2>
+      <p class="why">${v.why}</p>
+      <div class="demo ${v.id}">
+        ${radarSvg()}
+        ${axes.map((a, i) => `<span class="lbl p${i}" style="--ax:${a.c}">${extra[v.id] || ''}${a.n}</span>`).join('')}
+      </div>
+      <p class="hint">hover the labels</p>
+    </div>`).join('');
+</script>

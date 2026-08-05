@@ -44,31 +44,31 @@ export const CN: Country = {
     spicesAndSeasonings: ["light soy sauce", "dark soy sauce", "Shaoxing wine", "black vinegar (Chinkiang)", "sesame oil", "Sichuan peppercorns", "dried chilies", "five-spice powder", "star anise", "cassia bark", "fermented black beans (douchi)", "oyster sauce", "white pepper"],
     ingredientTiers: {
       foundation: [
-        { name: "Soy Sauce", emoji: "🫗", description: "Jiangyou · Salt & umami base · Light seasons, dark colors" },
-        { name: "Shaoxing Wine", emoji: "🍶", description: "Huangjiu · Deglazer & marinade · Nutty, sherry-like" },
-        { name: "Ginger & Scallion", emoji: "🫚", description: "Jiang-cong · Aromatic duo · The universal flavor opener" },
-        { name: "Sesame Oil", emoji: "🌰", description: "Xiangyou · Finishing oil · Toasty, fragrant" },
-        { name: "Black Vinegar", emoji: "🍾", description: "Chinkiang cu · Acid backbone · Malty, mellow" }
+        { name: "Soy Sauce", emoji: "🫗", description: "Jiangyou · Salt & umami base · Light seasons, dark colors", flavorAxes: [{ axis: "umami", strength: "main" }] },
+        { name: "Shaoxing Wine", emoji: "🍶", description: "Huangjiu · Deglazer & marinade · Nutty, sherry-like", flavorAxes: [{ axis: "aromatic", strength: "main" }, { axis: "sweetness", strength: "supporting" }] },
+        { name: "Ginger & Scallion", emoji: "🫚", description: "Jiang-cong · Aromatic duo · The universal flavor opener", flavorAxes: [{ axis: "aromatic", strength: "main" }] },
+        { name: "Sesame Oil", emoji: "🌰", description: "Xiangyou · Finishing oil · Toasty, fragrant", flavorAxes: [{ axis: "smokeEarth", strength: "main" }, { axis: "aromatic", strength: "supporting" }] },
+        { name: "Black Vinegar", emoji: "🍾", description: "Chinkiang cu · Acid backbone · Malty, mellow", flavorAxes: [{ axis: "acidity", strength: "main" }, { axis: "sweetness", strength: "supporting" }] }
       ],
       aromaticCore: [
-        { name: "Garlic", emoji: "🧄", description: "Suan · Aromatic · Pungent, sweet when fried" },
-        { name: "Sichuan Peppercorn", emoji: "🌸", description: "Huajiao · Numbing spice · Tingling, citrusy" },
-        { name: "Star Anise", emoji: "⭐", description: "Bajiao · Braising spice · Sweet licorice warmth" },
-        { name: "Dried Chilies", emoji: "🌶️", description: "Gan lajiao · Heat source · Smoky, fruity fire" },
-        { name: "Doubanjiang", emoji: "🟥", description: "Chili bean paste · Fermented heat · Sichuan's soul" },
-        { name: "Fermented Black Beans", emoji: "⚫", description: "Douchi · Umami punch · Salty, winey funk" },
-        { name: "White Pepper", emoji: "⚪", description: "Bai hujiao · Warm spice · Sharp, earthy heat" }
+        { name: "Garlic", emoji: "🧄", description: "Suan · Aromatic · Pungent, sweet when fried", flavorAxes: [{ axis: "aromatic", strength: "main" }] },
+        { name: "Sichuan Peppercorn", emoji: "🌸", description: "Huajiao · Numbing spice · Tingling, citrusy", flavorAxes: [{ axis: "heat", strength: "main" }, { axis: "aromatic", strength: "main" }] },
+        { name: "Star Anise", emoji: "⭐", description: "Bajiao · Braising spice · Sweet licorice warmth", flavorAxes: [{ axis: "aromatic", strength: "main" }, { axis: "sweetness", strength: "supporting" }] },
+        { name: "Dried Chilies", emoji: "🌶️", description: "Gan lajiao · Heat source · Smoky, fruity fire", flavorAxes: [{ axis: "heat", strength: "main" }, { axis: "smokeEarth", strength: "supporting" }] },
+        { name: "Doubanjiang", emoji: "🟥", description: "Chili bean paste · Fermented heat · Sichuan's soul", flavorAxes: [{ axis: "heat", strength: "main" }, { axis: "umami", strength: "main" }] },
+        { name: "Fermented Black Beans", emoji: "⚫", description: "Douchi · Umami punch · Salty, winey funk", flavorAxes: [{ axis: "umami", strength: "main" }, { axis: "smokeEarth", strength: "supporting" }] },
+        { name: "White Pepper", emoji: "⚪", description: "Bai hujiao · Warm spice · Sharp, earthy heat", flavorAxes: [{ axis: "heat", strength: "main" }, { axis: "smokeEarth", strength: "supporting" }] }
       ],
       flavorBuilders: [
-        { name: "Oyster Sauce", emoji: "🦪", description: "Haoyou · Umami glaze · Sweet-briny richness" },
-        { name: "Hoisin Sauce", emoji: "🍯", description: "Haixianjiang · Sweet paste · Glossy, spiced" },
-        { name: "Rock Sugar", emoji: "💎", description: "Bingtang · Braising sweetener · Clean, lacquering shine" },
-        { name: "Five-Spice", emoji: "🌟", description: "Wuxiangfen · Spice blend · Sweet-warm-anise" },
-        { name: "Dried Shiitake", emoji: "🍄", description: "Xianggu · Umami depth · Meaty, woodsy" },
-        { name: "Chili Oil", emoji: "🔴", description: "Lajiao you · Condiment · Fragrant, crimson heat" },
+        { name: "Oyster Sauce", emoji: "🦪", description: "Haoyou · Umami glaze · Sweet-briny richness", flavorAxes: [{ axis: "umami", strength: "main" }, { axis: "sweetness", strength: "supporting" }] },
+        { name: "Hoisin Sauce", emoji: "🍯", description: "Haixianjiang · Sweet paste · Glossy, spiced", flavorAxes: [{ axis: "sweetness", strength: "main" }, { axis: "umami", strength: "supporting" }] },
+        { name: "Rock Sugar", emoji: "💎", description: "Bingtang · Braising sweetener · Clean, lacquering shine", flavorAxes: [{ axis: "sweetness", strength: "main" }] },
+        { name: "Five-Spice", emoji: "🌟", description: "Wuxiangfen · Spice blend · Sweet-warm-anise", flavorAxes: [{ axis: "aromatic", strength: "main" }, { axis: "sweetness", strength: "supporting" }] },
+        { name: "Dried Shiitake", emoji: "🍄", description: "Xianggu · Umami depth · Meaty, woodsy", flavorAxes: [{ axis: "umami", strength: "main" }, { axis: "smokeEarth", strength: "supporting" }] },
+        { name: "Chili Oil", emoji: "🔴", description: "Lajiao you · Condiment · Fragrant, crimson heat", flavorAxes: [{ axis: "heat", strength: "main" }, { axis: "aromatic", strength: "supporting" }] },
         { name: "Cornstarch", emoji: "🥄", description: "Dianfen · Thickener · Velvets meat, glosses sauce" },
-        { name: "Cilantro", emoji: "🌱", description: "Xiangcai · Fresh garnish · Bright, citrusy" },
-        { name: "Preserved Vegetables", emoji: "🥬", description: "Zhacai / suancai · Pickled accent · Sour, crunchy" }
+        { name: "Cilantro", emoji: "🌱", description: "Xiangcai · Fresh garnish · Bright, citrusy", flavorAxes: [{ axis: "aromatic", strength: "main" }, { axis: "acidity", strength: "supporting" }] },
+        { name: "Preserved Vegetables", emoji: "🥬", description: "Zhacai / suancai · Pickled accent · Sour, crunchy", flavorAxes: [{ axis: "acidity", strength: "main" }, { axis: "umami", strength: "supporting" }] }
       ],
       staples: [
         { name: "Rice", emoji: "🍚", description: "Mifan · Southern staple · Neutral canvas" },

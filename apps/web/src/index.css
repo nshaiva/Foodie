@@ -141,3 +141,55 @@ h1, h2, h3, h4, h5, h6 {
     transition: none;
   }
 }
+
+/* Radar axis labels: "seasoned plate" treatment (prototype G). The empty
+   plate dot is the static tap cue; hover/selection fills it in the axis
+   color (--ax) and tosses a spice sprinkle over the word. */
+.radar-lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.radar-lbl .plate {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--ax);
+  background: transparent;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+.radar-lbl:hover { color: var(--ax); }
+.radar-lbl:hover .plate,
+.radar-lbl.sel .plate { background: var(--ax); transform: scale(1.25); }
+.radar-lbl.sel { font-weight: 700; }
+.radar-lbl .txt { position: relative; }
+.radar-lbl .spr {
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--ax);
+  opacity: 0;
+  pointer-events: none;
+}
+.radar-lbl:hover .spr { animation: radar-sprinkle 0.5s ease-out forwards; }
+.radar-lbl:hover .spr:nth-child(1) { animation-delay: 0s; --dx: -10px; }
+.radar-lbl:hover .spr:nth-child(2) { animation-delay: 0.07s; --dx: 0px; }
+.radar-lbl:hover .spr:nth-child(3) { animation-delay: 0.14s; --dx: 10px; }
+@keyframes radar-sprinkle {
+  0% { opacity: 0; transform: translate(var(--dx, 0), 0) scale(0.5); }
+  40% { opacity: 1; transform: translate(var(--dx, 0), -9px) scale(1.4); }
+  100% { opacity: 0; transform: translate(var(--dx, 0), -13px) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .radar-lbl .plate { transition: none; }
+  .radar-lbl:hover .spr { animation: none; }
+}

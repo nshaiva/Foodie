@@ -3,7 +3,9 @@ import { WantToTryButton } from '../../WantToTryButton';
 import { FavoriteButton } from '../../FavoriteButton';
 import { DishForm } from '../../DishForm';
 import { UnifiedDishCard } from '../UnifiedDishCard';
+import { PlateDot } from '../../Wordmark';
 import { systemColors } from '../../../data/systemColors';
+import { DISH_CATEGORY_COLORS, BEVERAGE_CATEGORY_COLORS, BEVERAGE_DEFAULT_COLOR } from '../../../data/categoryMeta';
 import type { Dish, Beverage, DietaryInfo, UserDish, RestaurantTry, RegionalCuisine, ColorPalette } from '../../../data/types';
 
 interface EatDrinkSlideProps {
@@ -40,15 +42,10 @@ interface EatDrinkSlideProps {
   findFavoriteItem: (countryId: string, dishName: string) => { id: string } | undefined;
 }
 
-const DISH_EMOJI: Record<Dish['category'], string> = {
-  appetizer: '🥟', soup: '🍲', salad: '🥗', main: '🍽️', side: '🍚',
-  'street-food': '🥢', dessert: '🍰', beverage: '🥤', breakfast: '🍳', condiment: '🥣',
-};
-
-const BEVERAGE_EMOJI: Record<string, string> = {
-  tea: '🍵', coffee: '☕', juice: '🧃', soda: '🥤', beer: '🍺',
-  wine: '🍷', spirit: '🥃', cocktail: '🍸', street: '🥤', ceremonial: '🍵',
-};
+// Card marker: brand plate dot colored by category (replaced emoji, #24)
+function CategoryPlate({ color }: { color: string }) {
+  return <div className="mb-2"><PlateDot color={color} size={20} /></div>;
+}
 
 function spiceChip(level: Dish['spiceLevel']) {
   if (!level || level === 'none') return null;
@@ -392,7 +389,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                     }
                     {...dishCrudProps}
                   >
-                    <div className="text-3xl mb-1.5">{DISH_EMOJI[dish.category] || '🍽️'}</div>
+                    <CategoryPlate color={DISH_CATEGORY_COLORS[dish.category] || systemColors.navy} />
                     <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{dish.name}</h4>
                     {dish.englishName && <p className="text-xs text-gray-400">{dish.englishName}</p>}
                     <p className="text-xs text-gray-400 mb-1">{[region, categoryLabel(dish.category), dish.isStreetFood && dish.category !== 'street-food' ? 'Street food' : undefined].filter(Boolean).join(' · ')}</p>
@@ -411,7 +408,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
 
               {visibleCustom.map((ud) => (
                 <UnifiedDishCard key={ud.id} tried={ud} isCustom {...dishCrudProps}>
-                  <div className="text-3xl mb-1.5">🍽️</div>
+                  <CategoryPlate color={systemColors.herb} />
                   <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{ud.name}</h4>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.herbLight, color: systemColors.navy }}>My dish</span>
@@ -462,7 +459,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                 }
                 {...dishCrudProps}
               >
-                <div className="text-3xl mb-1.5">{(bev.category && BEVERAGE_EMOJI[bev.category]) || '🥤'}</div>
+                <CategoryPlate color={(bev.category && BEVERAGE_CATEGORY_COLORS[bev.category]) || BEVERAGE_DEFAULT_COLOR} />
                 <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{bev.name}</h4>
                 {bev.englishName && <p className="text-xs text-gray-400">{bev.englishName}</p>}
                 <p className="text-xs text-gray-400 mb-1">
@@ -490,7 +487,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
 
             {visibleCustomDrinks.map((ud) => (
               <UnifiedDishCard key={ud.id} tried={ud} isCustom {...dishCrudProps}>
-                <div className="text-3xl mb-1.5">🥤</div>
+                <CategoryPlate color={BEVERAGE_DEFAULT_COLOR} />
                 <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{ud.name}</h4>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.herbLight, color: systemColors.navy }}>My drink</span>

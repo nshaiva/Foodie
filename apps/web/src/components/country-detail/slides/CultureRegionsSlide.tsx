@@ -5,7 +5,8 @@ import {
   Geography,
   Marker,
 } from 'react-simple-maps';
-import type { FoodCulture, RegionalCuisine, ColorPalette } from '../../../data/types';
+import type { FoodCulture, RegionalCuisine, ColorPalette, Country } from '../../../data/types';
+import { SimilarCuisinesSection } from './SimilarCuisinesSection';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
 
@@ -14,6 +15,8 @@ interface CultureRegionsSlideProps {
   foodCulture: FoodCulture;
   regions?: RegionalCuisine[];
   colors: ColorPalette;
+  /** Full country record, for the similar-cuisines section */
+  country: Country;
 }
 
 // Map alpha-2 to numeric codes
@@ -568,6 +571,7 @@ export function CultureRegionsSlide({
   foodCulture,
   regions,
   colors,
+  country,
 }: CultureRegionsSlideProps) {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
@@ -590,12 +594,14 @@ export function CultureRegionsSlide({
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <OverviewCard foodCulture={foodCulture} />
         </div>
+
+        <SimilarCuisinesSection country={country} colors={colors} />
       </div>
     );
   }
 
   return (
-    <div className="p-4 h-full flex flex-col">
+    <div className="p-4 h-full flex flex-col overflow-y-auto">
       <h2
         className="text-xl font-semibold mb-4"
         style={{ color: colors.text }}
@@ -630,6 +636,9 @@ export function CultureRegionsSlide({
           </div>
         </div>
       </div>
+
+      {/* Similar cuisines — world-context section, moved from the Flavor tab */}
+      <SimilarCuisinesSection country={country} colors={colors} />
     </div>
   );
 }
