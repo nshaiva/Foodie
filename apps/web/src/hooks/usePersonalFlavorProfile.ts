@@ -1,7 +1,16 @@
 import { useMemo } from 'react';
 import { useDishes } from './useDishes';
+import { useTasteSurvey, SENTIMENT_RATING, type SurveyAnswer } from './useTasteSurvey';
 import { countries } from '../data/countries';
+import { dishVerdictRating, ratingSignal } from '../utils/ratings';
 import type { FlavorIntensity, UserDish, Dish, SpiceLevel, DishDifficulty } from '../data/types';
+
+// Survey answers count at half the strength of a logged dish
+const SURVEY_WEIGHT = 0.5;
+
+function surveyRating(answer: SurveyAnswer): number {
+  return SENTIMENT_RATING[answer.sentiment as keyof typeof SENTIMENT_RATING] ?? 3;
+}
 
 export interface PersonalFlavorIntensity extends FlavorIntensity {
   dataPoints: number;
@@ -32,42 +41,26 @@ export interface PersonalFlavorProfile {
   } | null;
   topCuisines: CuisineContribution[];
   totalDishes: number;
+  surveyCount: number;
   hasEnoughData: boolean;
   hasEnoughForSpectrums: boolean;
   hasEnoughForTimeline: boolean;
 }
 
-// Helper to find static dish data from user dish
-function findStaticDish(userDish: UserDish): Dish | undefined {
-  const country = countries.find(c => c.id === userDish.countryId);
+// Helper to find static dish data by country + name
+function findStaticDishByName(countryId: string, name: string): Dish | undefined {
+  const country = countries.find(c => c.id === countryId);
   if (!country) return undefined;
 
   return country.popularDishes.find(
-    d => d.name.toLowerCase() === userDish.name.toLowerCase() ||
-         d.englishName?.toLowerCase() === userDish.name.toLowerCase()
+    d => d.name.toLowerCase() === name.toLowerCase() ||
+         d.englishName?.toLowerCase() === name.toLowerCase()
   );
 }
 
-// Get all ratings from a dish (taste rating + per-try ratings)
-function collectAllRatings(dish: UserDish): number[] {
-  const ratings: number[] = [];
-
-  if (dish.tasteRating) {
-    ratings.push(dish.tasteRating);
-  }
-
-  (dish.restaurantTries || []).forEach(t => {
-    if (t.rating) ratings.push(t.rating);
-  });
-
-  return ratings;
-}
-
-// Get average rating for a dish
-function getAvgRating(dish: UserDish): number {
-  const ratings = collectAllRatings(dish);
-  if (ratings.length === 0) return 3; // Default neutral
-  return ratings.reduce((a, b) => a + b, 0) / ratings.length;
+// Helper to find static dish data from user dish
+function findStaticDish(userDish: UserDish): Dish | undefined {
+  return findStaticDishByName(userDish.countryId, userDish.name);
 }
 
 // Count total engagements (dish + its tries)
@@ -114,7 +107,7 @@ function groupByCountry(dishes: UserDish[]): Map<string, UserDish[]> {
 }
 
 // Calculate spice affinity
-function calculateSpiceAffinity(dishes: UserDish[]): AffinitySpectrum {
+function calculateSpiceAffinity(dishes: UserDish[], survey: SurveyAnswer[]): AffinitySpectrum {
   const spiceValues: Record<SpiceLevel, number> = {
     'none': 0,
     'mild': 25,
@@ -123,21 +116,34 @@ function calculateSpiceAffinity(dishes: UserDish[]): AffinitySpectrum {
     'very-hot': 100
   };
 
-  let totalWeight = 0;
-  let weightedSpice = 0;
+  // Signed contributions around the midpoint: loving a hot dish pushes toward
+  // Spicy, hating one pushes toward Mild; unrated dishes don't move the slider.
+  let totalSignal = 0;
+  let signedSum = 0;
 
   dishes.forEach(dish => {
     const staticDish = findStaticDish(dish);
     if (staticDish?.spiceLevel) {
       const spiceValue = spiceValues[staticDish.spiceLevel];
-      const rating = getAvgRating(dish);
-      const weight = rating / 3;
-      totalWeight += weight;
-      weightedSpice += spiceValue * weight;
+      const signal = ratingSignal(dish);
+      totalSignal += Math.abs(signal);
+      signedSum += signal * (spiceValue - 50);
     }
   });
 
-  const position = totalWeight > 0 ? weightedSpice / totalWeight : 50;
+  survey.forEach(answer => {
+    const staticDish = findStaticDishByName(answer.countryId, answer.dishName);
+    if (staticDish?.spiceLevel) {
+      const spiceValue = spiceValues[staticDish.spiceLevel];
+      const signal = ((surveyRating(answer) - 3) / 2) * SURVEY_WEIGHT;
+      totalSignal += Math.abs(signal);
+      signedSum += signal * (spiceValue - 50);
+    }
+  });
+
+  const position = totalSignal > 0
+    ? Math.min(100, Math.max(0, 50 + signedSum / totalSignal))
+    : 50;
 
   let label: string;
   if (position < 33) label = 'Mild Seeker';
@@ -147,35 +153,46 @@ function calculateSpiceAffinity(dishes: UserDish[]): AffinitySpectrum {
   return {
     position,
     label,
-    confidence: Math.min(1, totalWeight / 5),
+    confidence: Math.min(1, totalSignal / 5),
     leftLabel: 'Mild',
     rightLabel: 'Spicy'
   };
 }
 
 // Calculate complexity affinity
-function calculateComplexityAffinity(dishes: UserDish[]): AffinitySpectrum {
+function calculateComplexityAffinity(dishes: UserDish[], survey: SurveyAnswer[]): AffinitySpectrum {
   const difficultyValues: Record<DishDifficulty, number> = {
     'easy': 0,
     'medium': 50,
     'hard': 100
   };
 
-  let totalWeight = 0;
-  let weightedComplexity = 0;
+  let totalSignal = 0;
+  let signedSum = 0;
 
   dishes.forEach(dish => {
     const staticDish = findStaticDish(dish);
     if (staticDish?.difficulty) {
       const complexityValue = difficultyValues[staticDish.difficulty];
-      const rating = getAvgRating(dish);
-      const weight = rating / 3;
-      totalWeight += weight;
-      weightedComplexity += complexityValue * weight;
+      const signal = ratingSignal(dish);
+      totalSignal += Math.abs(signal);
+      signedSum += signal * (complexityValue - 50);
     }
   });
 
-  const position = totalWeight > 0 ? weightedComplexity / totalWeight : 50;
+  survey.forEach(answer => {
+    const staticDish = findStaticDishByName(answer.countryId, answer.dishName);
+    if (staticDish?.difficulty) {
+      const complexityValue = difficultyValues[staticDish.difficulty];
+      const signal = ((surveyRating(answer) - 3) / 2) * SURVEY_WEIGHT;
+      totalSignal += Math.abs(signal);
+      signedSum += signal * (complexityValue - 50);
+    }
+  });
+
+  const position = totalSignal > 0
+    ? Math.min(100, Math.max(0, 50 + signedSum / totalSignal))
+    : 50;
 
   let label: string;
   if (position < 33) label = 'Comfort Food Lover';
@@ -185,7 +202,7 @@ function calculateComplexityAffinity(dishes: UserDish[]): AffinitySpectrum {
   return {
     position,
     label,
-    confidence: Math.min(1, totalWeight / 5),
+    confidence: Math.min(1, totalSignal / 5),
     leftLabel: 'Simple',
     rightLabel: 'Complex'
   };
@@ -265,11 +282,20 @@ function calculateRichnessAffinity(cuisineWeights: Map<string, number>): Affinit
 
 export function usePersonalFlavorProfile(): PersonalFlavorProfile {
   const { dishes } = useDishes();
+  const { ratedAnswers } = useTasteSurvey();
 
   return useMemo(() => {
+    // A survey answer for a dish you've also logged is redundant — the log wins
+    const loggedKeys = new Set(dishes.map(d => `${d.countryId}:${d.name.toLowerCase()}`));
+    const survey = ratedAnswers.filter(
+      a => !loggedKeys.has(`${a.countryId}:${a.dishName.toLowerCase()}`)
+    );
+
     const totalDishes = dishes.length;
-    const hasEnoughData = totalDishes >= 3;
-    const hasEnoughForSpectrums = totalDishes >= 5;
+    const surveyCount = survey.length;
+    const totalSignals = totalDishes + surveyCount;
+    const hasEnoughData = totalSignals >= 3;
+    const hasEnoughForSpectrums = totalSignals >= 5;
     const hasEnoughForTimeline = totalDishes >= 10;
 
     if (!hasEnoughData) {
@@ -278,34 +304,59 @@ export function usePersonalFlavorProfile(): PersonalFlavorProfile {
         spectrums: null,
         topCuisines: [],
         totalDishes,
+        surveyCount,
         hasEnoughData,
         hasEnoughForSpectrums,
         hasEnoughForTimeline,
       };
     }
 
-    // Group dishes by country and calculate cuisine weights
+    // Group both signal sources by country and calculate cuisine weights
     const groupedDishes = groupByCountry(dishes);
-    const cuisineWeights = new Map<string, number>();
+    const groupedSurvey = new Map<string, SurveyAnswer[]>();
+    survey.forEach(a => {
+      const existing = groupedSurvey.get(a.countryId) || [];
+      existing.push(a);
+      groupedSurvey.set(a.countryId, existing);
+    });
 
-    groupedDishes.forEach((countryDishes, countryId) => {
-      // Calculate rating weight
-      const allRatings = countryDishes.flatMap(d => collectAllRatings(d));
-      const avgRating = allRatings.length > 0
-        ? allRatings.reduce((a, b) => a + b, 0) / allRatings.length
-        : 3;
-      const ratingWeight = avgRating / 5;
+    const cuisineWeights = new Map<string, number>();
+    const countryIds = new Set([...groupedDishes.keys(), ...groupedSurvey.keys()]);
+
+    countryIds.forEach(countryId => {
+      const countryDishes = groupedDishes.get(countryId) || [];
+      const countrySurvey = groupedSurvey.get(countryId) || [];
+
+      // Centered rating signal: weighted mean of verdicts, 3★ neutral → −1..+1.
+      // Logged dishes count fully; survey answers at half weight.
+      let verdictSum = 0;
+      let verdictWeight = 0;
+      countryDishes.forEach(d => {
+        verdictSum += dishVerdictRating(d) ?? 3;
+        verdictWeight += 1;
+      });
+      countrySurvey.forEach(a => {
+        verdictSum += surveyRating(a) * SURVEY_WEIGHT;
+        verdictWeight += SURVEY_WEIGHT;
+      });
+      const avgVerdict = verdictWeight > 0 ? verdictSum / verdictWeight : 3;
+      const signal = (avgVerdict - 3) / 2;
 
       // Calculate frequency weight (log scale, capped)
-      const engagements = countEngagements(countryDishes);
+      const engagements = countEngagements(countryDishes) + countrySurvey.length * SURVEY_WEIGHT;
       const frequencyWeight = Math.min(1, Math.log(engagements + 1) / Math.log(20));
 
       // Calculate recency weight (6-month half-life)
-      const mostRecent = getMostRecentDate(countryDishes);
+      let mostRecent = getMostRecentDate(countryDishes);
+      countrySurvey.forEach(a => {
+        const answeredAt = new Date(a.answeredAt);
+        if (answeredAt > mostRecent) mostRecent = answeredAt;
+      });
       const recencyWeight = Math.exp(-daysSince(mostRecent) / 180);
 
-      // Combined weight
-      const weight = (ratingWeight * 0.5) + (frequencyWeight * 0.3) + (recencyWeight * 0.2);
+      // Ratings dominate; a disliked cuisine's weight clamps to zero rather
+      // than contributing negative terms to the weighted vector average.
+      const weight = Math.max(0, (signal * 0.7) + (frequencyWeight * 0.1) + (recencyWeight * 0.2));
       cuisineWeights.set(countryId, weight);
     });
 
@@ -341,22 +392,24 @@ export function usePersonalFlavorProfile(): PersonalFlavorProfile {
       umami: totalWeight > 0 ? flavorSums.umami / totalWeight : 5,
       aromatic: totalWeight > 0 ? flavorSums.aromatic / totalWeight : 5,
       smokeEarth: totalWeight > 0 ? flavorSums.smokeEarth / totalWeight : 5,
-      dataPoints: totalDishes
+      dataPoints: totalSignals
     };
 
     // Calculate spectrums
     const spectrums = hasEnoughForSpectrums ? {
-      spice: calculateSpiceAffinity(dishes),
-      complexity: calculateComplexityAffinity(dishes),
+      spice: calculateSpiceAffinity(dishes, survey),
+      complexity: calculateComplexityAffinity(dishes, survey),
       sweetSavory: calculateSweetSavoryAffinity(cuisineWeights),
       richness: calculateRichnessAffinity(cuisineWeights),
     } : null;
 
     // Get top contributing cuisines
     const topCuisines: CuisineContribution[] = Array.from(cuisineWeights.entries())
+      .filter(([, weight]) => weight > 0)
       .map(([countryId, weight]) => {
         const country = countries.find(c => c.id === countryId);
-        const dishCount = groupedDishes.get(countryId)?.length || 0;
+        const dishCount = (groupedDishes.get(countryId)?.length || 0) +
+          (groupedSurvey.get(countryId)?.length || 0);
         return {
           countryId,
           countryName: country?.name || countryId,
@@ -372,9 +425,10 @@ export function usePersonalFlavorProfile(): PersonalFlavorProfile {
       spectrums,
       topCuisines,
       totalDishes,
+      surveyCount,
       hasEnoughData,
       hasEnoughForSpectrums,
       hasEnoughForTimeline,
     };
-  }, [dishes]);
+  }, [dishes, ratedAnswers]);
 }
