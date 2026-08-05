@@ -4,6 +4,7 @@ import { FavoriteButton } from '../../FavoriteButton';
 import { DishForm } from '../../DishForm';
 import { UnifiedDishCard } from '../UnifiedDishCard';
 import { PlateDot } from '../../Wordmark';
+import { spiceChip, popularityChip, dietaryChips, dessertChip, DIET_BADGE, BEV_TYPE_BADGE } from '../../dishChips';
 import { systemColors } from '../../../data/systemColors';
 import { DISH_CATEGORY_COLORS, BEVERAGE_CATEGORY_COLORS, BEVERAGE_DEFAULT_COLOR } from '../../../data/categoryMeta';
 import type { Dish, Beverage, DietaryInfo, UserDish, RestaurantTry, RegionalCuisine, ColorPalette } from '../../../data/types';
@@ -47,47 +48,6 @@ function CategoryPlate({ color }: { color: string }) {
   return <div className="mb-2"><PlateDot color={color} size={20} /></div>;
 }
 
-// Compact chips: icon/abbreviation only, full meaning in the tooltip
-function spiceChip(level: Dish['spiceLevel']) {
-  if (!level || level === 'none') return null;
-  const cls =
-    level === 'mild' ? 'bg-yellow-100' :
-    level === 'medium' ? 'bg-orange-100' :
-    level === 'hot' ? 'bg-red-100' :
-    'bg-red-200';
-  const label = level === 'very-hot' ? 'Very hot' : level.charAt(0).toUpperCase() + level.slice(1);
-  const chilies = { mild: 1, medium: 2, hot: 3, 'very-hot': 4 }[level];
-  return <span className={`text-xs px-2 py-0.5 rounded ${cls}`} title={`Spice: ${label}`}>{'🌶️'.repeat(chilies)}</span>;
-}
-
-// Ordering advice from `popularity`; "both" gets no tag
-function popularityChip(popularity: Dish['popularity']) {
-  if (popularity === 'local-favorite') {
-    return <span className="text-xs bg-emerald-100 px-2 py-0.5 rounded" title="Local favorite">📍</span>;
-  }
-  if (popularity === 'tourist-classic') {
-    return <span className="text-xs bg-indigo-50 px-2 py-0.5 rounded" title="Tourist classic">📷</span>;
-  }
-  return null;
-}
-
-// Dietary badge colors, shared by card chips and filter toggles
-const DIET_BADGE = {
-  vgt: { label: 'VGT', title: 'Vegetarian', on: 'bg-violet-100 text-violet-800 border-violet-300', text: 'text-violet-700' },
-  vg: { label: 'VG', title: 'Vegan', on: 'bg-green-100 text-green-800 border-green-300', text: 'text-green-700' },
-  gf: { label: 'GF', title: 'Gluten-free', on: 'bg-sky-100 text-sky-800 border-sky-300', text: 'text-sky-700' },
-} as const;
-
-function dietaryChips(d?: DietaryInfo) {
-  if (!d) return null;
-  return (
-    <>
-      {d.isVegan && <span className={`text-xs px-2 py-0.5 rounded font-semibold ${DIET_BADGE.vg.on}`} title={DIET_BADGE.vg.title}>VG</span>}
-      {d.isVegetarian && !d.isVegan && <span className={`text-xs px-2 py-0.5 rounded font-semibold ${DIET_BADGE.vgt.on}`} title={DIET_BADGE.vgt.title}>VGT</span>}
-      {d.isGlutenFree && <span className={`text-xs px-2 py-0.5 rounded font-semibold ${DIET_BADGE.gf.on}`} title={DIET_BADGE.gf.title}>GF</span>}
-    </>
-  );
-}
 
 function categoryLabel(category: Dish['category']): string {
   return category === 'street-food' ? 'Street food' : category.charAt(0).toUpperCase() + category.slice(1);
@@ -108,12 +68,6 @@ function detectRegion(dish: Dish, regionalVariations?: RegionalCuisine[]): strin
   return undefined;
 }
 
-// Shared by drink card chips and the drink-type filter toggles
-const BEV_TYPE_BADGE: Record<Beverage['type'], { label: string; title: string; on: string; text: string }> = {
-  'non-alcoholic': { label: 'N/A', title: 'Non-alcoholic', on: 'bg-emerald-100 text-emerald-800 border-emerald-300', text: 'text-emerald-700' },
-  alcoholic: { label: 'With Alc', title: 'Alcoholic', on: 'bg-amber-100 text-amber-800 border-amber-300', text: 'text-amber-700' },
-  both: { label: 'Alc Optional', title: 'Alcohol optional', on: 'bg-blue-100 text-blue-800 border-blue-300', text: 'text-blue-700' },
-};
 
 type DishFilter = 'all' | 'tried' | 'want';
 
@@ -162,6 +116,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
   const [diet, setDiet] = useState<{ veg: boolean; vegan: boolean; gf: boolean }>({ veg: false, vegan: false, gf: false });
   const [spice, setSpice] = useState<'any' | 'mild' | 'medium' | 'hot'>('any');
   const [popFilter, setPopFilter] = useState<'any' | 'local-favorite' | 'tourist-classic'>('any');
+  const [dessertOnly, setDessertOnly] = useState(false);
   const [bevType, setBevType] = useState<'any' | 'alcoholic' | 'non-alcoholic'>('any');
   const [served, setServed] = useState<'any' | 'hot' | 'cold'>('any');
   const [showDishForm, setShowDishForm] = useState(false);
@@ -214,13 +169,14 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
     return how === 'cold' || how === 'iced';
   };
   const popMatch = (p?: Dish['popularity']) => popFilter === 'any' || p === popFilter;
+  const dessertMatch = (c: Dish['category']) => !dessertOnly || c === 'dessert';
   const advancedFiltersActive =
-    spice !== 'any' || diet.veg || diet.vegan || diet.gf || popFilter !== 'any' || bevType !== 'any' || served !== 'any';
+    spice !== 'any' || diet.veg || diet.vegan || diet.gf || popFilter !== 'any' || dessertOnly || bevType !== 'any' || served !== 'any';
 
   const visiblePopular = popularDishes.filter(dish => {
     if (filter === 'tried' && !triedFor(dish)) return false;
     if (filter === 'want' && !(isOnWishlist(countryId, dish.name) && !triedFor(dish))) return false;
-    return spiceMatch(dish.spiceLevel) && dietMatch(dish.dietary) && popMatch(dish.popularity);
+    return spiceMatch(dish.spiceLevel) && dietMatch(dish.dietary) && popMatch(dish.popularity) && dessertMatch(dish.category);
   });
   // Custom entries carry no spice/dietary metadata, so hide them under advanced filters
   const visibleCustom = filter === 'want' || advancedFiltersActive ? [] : customFood;
@@ -401,6 +357,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
             <>
               {toggleChip(popFilter === 'local-favorite', () => setPopFilter(p => p === 'local-favorite' ? 'any' : 'local-favorite'), '📍 Local')}
               {toggleChip(popFilter === 'tourist-classic', () => setPopFilter(p => p === 'tourist-classic' ? 'any' : 'tourist-classic'), '📷 Tourist')}
+              {toggleChip(dessertOnly, () => setDessertOnly(v => !v), '🍰 Dessert')}
             </>
           )}
         </div>
@@ -443,6 +400,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
 
                     <div className="flex flex-wrap gap-1.5 mt-3">
                       {popularityChip(dish.popularity)}
+                      {dessertChip(dish.category)}
                       {spiceChip(dish.spiceLevel)}
                       {dietaryChips(dish.dietary)}
                     </div>
