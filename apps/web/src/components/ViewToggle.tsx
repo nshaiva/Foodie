@@ -14,9 +14,10 @@ export const ViewToggle = memo(function ViewToggle({ view, onChange }: ViewToggl
         onClick={() => onChange('grid')}
         className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
           view === 'grid'
-            ? 'bg-gray-900 text-white'
+            ? 'text-white'
             : 'btn-press text-gray-600 hover:text-gray-900 hover:bg-gray-100'
         }`}
+        style={view === 'grid' ? { backgroundColor: '#3E5260' } : undefined}
         aria-pressed={view === 'grid'}
       >
         <span className="flex items-center gap-1.5">
@@ -28,9 +29,10 @@ export const ViewToggle = memo(function ViewToggle({ view, onChange }: ViewToggl
         onClick={() => onChange('map')}
         className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
           view === 'map'
-            ? 'bg-gray-900 text-white'
+            ? 'text-white'
             : 'btn-press text-gray-600 hover:text-gray-900 hover:bg-gray-100'
         }`}
+        style={view === 'map' ? { backgroundColor: '#3E5260' } : undefined}
         aria-pressed={view === 'map'}
       >
         <span className="flex items-center gap-1.5">

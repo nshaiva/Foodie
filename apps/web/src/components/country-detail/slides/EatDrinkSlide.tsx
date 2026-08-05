@@ -4,7 +4,7 @@ import { FavoriteButton } from '../../FavoriteButton';
 import { DishForm } from '../../DishForm';
 import { UnifiedDishCard } from '../UnifiedDishCard';
 import { PlateDot } from '../../Wordmark';
-import { spiceChip, popularityChip, dietaryChips, dessertChip, DIET_BADGE, BEV_TYPE_BADGE } from '../../dishChips';
+import { spiceChip, popularityChip, dietaryChips, dessertChip, bevTypeChip, servedChip } from '../../dishChips';
 import { systemColors } from '../../../data/systemColors';
 import { DISH_CATEGORY_COLORS, BEVERAGE_CATEGORY_COLORS, BEVERAGE_DEFAULT_COLOR } from '../../../data/categoryMeta';
 import type { Dish, Beverage, DietaryInfo, UserDish, RestaurantTry, RegionalCuisine, ColorPalette } from '../../../data/types';
@@ -103,7 +103,7 @@ function ExpandableText({ text }: { text: string }) {
 
 export function EatDrinkSlide(props: EatDrinkSlideProps) {
   const {
-    countryId, countryName, popularDishes, popularBeverages, regionalVariations, colors,
+    countryId, countryName, popularDishes, popularBeverages, regionalVariations,
     countryDishes, onAddDish, onUpdateDish, onDeleteDish,
     onAddRestaurantTry, onUpdateRestaurantTry, onDeleteRestaurantTry,
     isOnWishlist, isFavorite, addToWishlist, removeFromWishlist, findWishlistItem,
@@ -117,6 +117,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
   const [spice, setSpice] = useState<'any' | 'mild' | 'medium' | 'hot'>('any');
   const [popFilter, setPopFilter] = useState<'any' | 'local-favorite' | 'tourist-classic'>('any');
   const [dessertOnly, setDessertOnly] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [bevType, setBevType] = useState<'any' | 'alcoholic' | 'non-alcoholic'>('any');
   const [served, setServed] = useState<'any' | 'hot' | 'cold'>('any');
   const [showDishForm, setShowDishForm] = useState(false);
@@ -170,6 +171,10 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
   };
   const popMatch = (p?: Dish['popularity']) => popFilter === 'any' || p === popFilter;
   const dessertMatch = (c: Dish['category']) => !dessertOnly || c === 'dessert';
+  // Active refinement count for the Filters button badge, per mode
+  const activeFilterCount = mode === 'food'
+    ? [diet.veg, diet.vegan, diet.gf, spice !== 'any', popFilter !== 'any', dessertOnly].filter(Boolean).length
+    : [diet.veg, diet.vegan, diet.gf, bevType !== 'any', served !== 'any'].filter(Boolean).length;
   const advancedFiltersActive =
     spice !== 'any' || diet.veg || diet.vegan || diet.gf || popFilter !== 'any' || dessertOnly || bevType !== 'any' || served !== 'any';
 
@@ -196,7 +201,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
   const filterBtn = (value: DishFilter, label: string) => (
     <button
       onClick={() => setFilter(value)}
-      className={`px-3.5 py-1 text-sm font-semibold rounded-full border ${filter === value ? 'transition-colors' : 'btn-press'}`}
+      className={`px-3.5 py-1 text-sm font-semibold rounded-md border ${filter === value ? 'transition-colors' : 'btn-press'}`}
       style={filter === value
         ? { backgroundColor: systemColors.navy, color: '#fff', borderColor: systemColors.navy }
         : { backgroundColor: '#fff', color: systemColors.navyMuted, borderColor: systemColors.border }}
@@ -219,10 +224,11 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
     </button>
   );
 
-  const toggleChip = (active: boolean, onClick: () => void, label: React.ReactNode) => (
+  const toggleChip = (active: boolean, onClick: () => void, label: React.ReactNode, title?: string) => (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${active ? 'transition-colors' : 'btn-press'}`}
+      title={title}
+      className={`px-2.5 py-1 text-xs font-semibold rounded-md border ${active ? 'transition-colors' : 'btn-press'}`}
       style={active
         ? { backgroundColor: systemColors.herb, color: '#fff', borderColor: systemColors.herb }
         : { backgroundColor: '#fff', color: systemColors.navyMuted, borderColor: systemColors.border }}
@@ -285,82 +291,91 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {/* Shared controls: filters + add-my-own apply to whichever tab is active */}
-        <div className="flex items-center gap-2 mb-4 flex-wrap">
+        {/* Primary row: view pills + Filters drawer toggle (prototype B) */}
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
           {filterBtn('all', 'All')}
           {filterBtn('tried', (() => { const n = mode === 'food' ? triedCount : bevTriedCount; return `Tried${n > 0 ? ` (${n})` : ''}`; })())}
           {filterBtn('want', 'Want to try')}
-          <span className="w-px h-5 self-center" style={{ backgroundColor: systemColors.border }} />
-          {([
-            { key: 'veg' as const, badge: DIET_BADGE.vgt, active: diet.veg, toggle: () => setDiet(d => ({ ...d, veg: !d.veg })) },
-            { key: 'vegan' as const, badge: DIET_BADGE.vg, active: diet.vegan, toggle: () => setDiet(d => ({ ...d, vegan: !d.vegan })) },
-            { key: 'gf' as const, badge: DIET_BADGE.gf, active: diet.gf, toggle: () => setDiet(d => ({ ...d, gf: !d.gf })) },
-          ]).map(({ key, badge, active, toggle }) => (
-            <button
-              key={key}
-              onClick={toggle}
-              title={badge.title}
-              className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${
-                active ? badge.on : `btn-press bg-white ${badge.text}`
-              }`}
-              style={active ? undefined : { borderColor: systemColors.border }}
-            >
-              {badge.label}
-            </button>
-          ))}
-          {mode === 'drink' && (
-            <>
-              {(['non-alcoholic', 'alcoholic'] as const).map(t => {
-                const badge = BEV_TYPE_BADGE[t];
-                const active = bevType === t;
-                return (
-                  <button
-                    key={t}
-                    onClick={() => setBevType(prev => prev === t ? 'any' : t)}
-                    title={badge.title}
-                    className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${
-                      active ? badge.on : `btn-press bg-white ${badge.text}`
-                    }`}
-                    style={active ? undefined : { borderColor: systemColors.border }}
-                  >
-                    {badge.label}
-                  </button>
-                );
-              })}
-              {toggleChip(served === 'hot', () => setServed(v => v === 'hot' ? 'any' : 'hot'), '🔥 Hot')}
-              {toggleChip(served === 'cold', () => setServed(v => v === 'cold' ? 'any' : 'cold'), '🧊 Cold')}
-            </>
-          )}
-          {mode === 'food' && (
-            <div className="inline-flex rounded-full border overflow-hidden" style={{ borderColor: systemColors.border }} title="Spice level">
-              {([
-                { value: 'any', label: 'Any' },
-                { value: 'mild', label: '🌶️' },
-                { value: 'medium', label: '🌶️🌶️' },
-                { value: 'hot', label: '🌶️🌶️🌶️' },
-              ] as const).map(seg => (
-                <button
-                  key={seg.value}
-                  onClick={() => setSpice(seg.value)}
-                  title={seg.value === 'any' ? 'Any spice level' : seg.value === 'mild' ? 'Mild' : seg.value === 'medium' ? 'Medium' : 'Hot'}
-                  className={`px-2.5 py-1 text-xs font-semibold ${spice === seg.value ? 'transition-colors' : 'btn-press'}`}
-                  style={spice === seg.value
-                    ? { backgroundColor: systemColors.tomato, color: '#fff' }
-                    : { backgroundColor: '#fff', color: systemColors.navyMuted }}
-                >
-                  {seg.label}
-                </button>
-              ))}
-            </div>
-          )}
-          {mode === 'food' && (
-            <>
-              {toggleChip(popFilter === 'local-favorite', () => setPopFilter(p => p === 'local-favorite' ? 'any' : 'local-favorite'), '📍 Local')}
-              {toggleChip(popFilter === 'tourist-classic', () => setPopFilter(p => p === 'tourist-classic' ? 'any' : 'tourist-classic'), '📷 Tourist')}
-              {toggleChip(dessertOnly, () => setDessertOnly(v => !v), '🍰 Dessert')}
-            </>
-          )}
+          <button
+            onClick={() => setFiltersOpen(o => !o)}
+            className={`px-3.5 py-1 text-sm font-semibold rounded-md border inline-flex items-center gap-1.5 ${filtersOpen ? 'transition-colors' : 'btn-press'}`}
+            style={filtersOpen || activeFilterCount > 0
+              ? { backgroundColor: '#fff', color: systemColors.navy, borderColor: systemColors.navyMuted }
+              : { backgroundColor: '#fff', color: systemColors.navyMuted, borderColor: systemColors.border }}
+          >
+            ⚙ Filters
+            {activeFilterCount > 0 && (
+              <span
+                className="inline-flex items-center justify-center min-w-[1.05rem] h-[1.05rem] rounded-full text-[10px] font-bold text-white"
+                style={{ backgroundColor: systemColors.herb }}
+              >
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
+
+        {/* Filters drawer: labeled groups per mode */}
+        {filtersOpen && (
+          <div
+            className="rounded-xl border px-4 py-3 mb-4 flex flex-col gap-2.5"
+            style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}
+          >
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-bold tracking-widest uppercase w-20 flex-none" style={{ color: systemColors.navyMuted }}>Diet</span>
+              {toggleChip(diet.veg, () => setDiet(d => ({ ...d, veg: !d.veg })), 'VGT', 'Vegetarian')}
+              {toggleChip(diet.vegan, () => setDiet(d => ({ ...d, vegan: !d.vegan })), 'VG', 'Vegan')}
+              {toggleChip(diet.gf, () => setDiet(d => ({ ...d, gf: !d.gf })), 'GF', 'Gluten-free')}
+            </div>
+            {mode === 'food' ? (
+              <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-bold tracking-widest uppercase w-20 flex-none" style={{ color: systemColors.navyMuted }}>Spice</span>
+                  <div className="inline-flex rounded-md border overflow-hidden" style={{ borderColor: systemColors.border }}>
+                    {([
+                      { value: 'any', label: 'Any' },
+                      { value: 'mild', label: '🌶️' },
+                      { value: 'medium', label: '🌶️🌶️' },
+                      { value: 'hot', label: '🌶️🌶️🌶️' },
+                    ] as const).map(seg => (
+                      <button
+                        key={seg.value}
+                        onClick={() => setSpice(seg.value)}
+                        title={seg.value === 'any' ? 'Any spice level' : seg.value === 'mild' ? 'Mild' : seg.value === 'medium' ? 'Medium' : 'Hot'}
+                        className={`px-2.5 py-1 text-xs font-semibold ${spice === seg.value ? 'transition-colors' : 'btn-press'}`}
+                        style={spice === seg.value
+                          ? { backgroundColor: systemColors.herb, color: '#fff' }
+                          : { backgroundColor: '#fff', color: systemColors.navyMuted }}
+                      >
+                        {seg.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-bold tracking-widest uppercase w-20 flex-none" style={{ color: systemColors.navyMuted }}>Who eats it</span>
+                  {toggleChip(popFilter === 'local-favorite', () => setPopFilter(p => p === 'local-favorite' ? 'any' : 'local-favorite'), '📍 Local')}
+                  {toggleChip(popFilter === 'tourist-classic', () => setPopFilter(p => p === 'tourist-classic' ? 'any' : 'tourist-classic'), '📷 Tourist')}
+                  <span className="w-px h-4" style={{ backgroundColor: systemColors.border }} />
+                  {toggleChip(dessertOnly, () => setDessertOnly(v => !v), '🍰 Dessert')}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-bold tracking-widest uppercase w-20 flex-none" style={{ color: systemColors.navyMuted }}>Type</span>
+                  {toggleChip(bevType === 'non-alcoholic', () => setBevType(t => t === 'non-alcoholic' ? 'any' : 'non-alcoholic'), 'N/A', 'Non-alcoholic')}
+                  {toggleChip(bevType === 'alcoholic', () => setBevType(t => t === 'alcoholic' ? 'any' : 'alcoholic'), 'With Alc', 'Alcoholic')}
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-bold tracking-widest uppercase w-20 flex-none" style={{ color: systemColors.navyMuted }}>Served</span>
+                  {toggleChip(served === 'hot', () => setServed(v => v === 'hot' ? 'any' : 'hot'), '🔥 Hot')}
+                  {toggleChip(served === 'cold', () => setServed(v => v === 'cold' ? 'any' : 'cold'), '🧊 Cold')}
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {mode === 'food' ? (
           <>
@@ -393,7 +408,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                     {...dishCrudProps}
                   >
                     <CategoryPlate color={DISH_CATEGORY_COLORS[dish.category] || systemColors.navy} />
-                    <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{dish.name}</h4>
+                    <h4 className="font-bold text-gray-900 pr-12 leading-tight">{dish.name}</h4>
                     {dish.englishName && <p className="text-xs text-gray-400">{dish.englishName}</p>}
                     <p className="text-xs text-gray-400 mb-1">{[region, categoryLabel(dish.category), dish.isStreetFood && dish.category !== 'street-food' ? 'Street food' : undefined].filter(Boolean).join(' · ')}</p>
                     <ExpandableText text={dish.description} />
@@ -411,11 +426,11 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
               {visibleCustom.map((ud) => (
                 <UnifiedDishCard key={ud.id} tried={ud} isCustom {...dishCrudProps}>
                   <CategoryPlate color={systemColors.herb} />
-                  <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{ud.name}</h4>
+                  <h4 className="font-bold text-gray-900 pr-12 leading-tight">{ud.name}</h4>
                   <div className="flex flex-wrap gap-1.5 mt-2">
-                    <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.herbLight, color: systemColors.navy }}>My dish</span>
+                    <span className="text-xs px-2 py-0.5 rounded-md" style={{ backgroundColor: systemColors.herbLight, color: systemColors.navy }}>My dish</span>
                     {ud.region && (
-                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>{ud.region}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-md" style={{ backgroundColor: systemColors.herbLight, color: systemColors.navy }}>{ud.region}</span>
                     )}
                   </div>
                 </UnifiedDishCard>
@@ -462,7 +477,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                 {...dishCrudProps}
               >
                 <CategoryPlate color={(bev.category && BEVERAGE_CATEGORY_COLORS[bev.category]) || BEVERAGE_DEFAULT_COLOR} />
-                <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{bev.name}</h4>
+                <h4 className="font-bold text-gray-900 pr-12 leading-tight">{bev.name}</h4>
                 {bev.englishName && <p className="text-xs text-gray-400">{bev.englishName}</p>}
                 <p className="text-xs text-gray-400 mb-1">
                   {[
@@ -474,12 +489,8 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                 <ExpandableText text={bev.description} />
 
                 <div className="flex flex-wrap gap-1.5 mt-3">
-                  <span className={`text-xs px-2 py-0.5 rounded font-semibold ${BEV_TYPE_BADGE[bev.type].on}`} title={BEV_TYPE_BADGE[bev.type].title}>{BEV_TYPE_BADGE[bev.type].label}</span>
-                  {bev.servedHow && (
-                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: `${colors.secondary}20`, color: colors.secondary }}>
-                      {bev.servedHow === 'room temperature' ? 'Room Temp' : `Served ${bev.servedHow.charAt(0).toUpperCase() + bev.servedHow.slice(1)}`}
-                    </span>
-                  )}
+                  {bevTypeChip(bev.type)}
+                  {servedChip(bev.servedHow)}
                   {dietaryChips(bev.dietary)}
                 </div>
               </UnifiedDishCard>
@@ -488,9 +499,9 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
             {visibleCustomDrinks.map((ud) => (
               <UnifiedDishCard key={ud.id} tried={ud} isCustom {...dishCrudProps}>
                 <CategoryPlate color={BEVERAGE_DEFAULT_COLOR} />
-                <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{ud.name}</h4>
+                <h4 className="font-bold text-gray-900 pr-12 leading-tight">{ud.name}</h4>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.herbLight, color: systemColors.navy }}>My drink</span>
+                  <span className="text-xs px-2 py-0.5 rounded-md" style={{ backgroundColor: systemColors.herbLight, color: systemColors.navy }}>My drink</span>
                 </div>
               </UnifiedDishCard>
             ))}

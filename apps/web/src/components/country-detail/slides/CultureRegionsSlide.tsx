@@ -51,6 +51,7 @@ const alpha2ToNumeric: Record<string, string> = {
   JM: '388',
   US: '840',
   PT: '620',
+  IE: '372',
 };
 
 // Country-specific map configurations (zoomed in to fill container)
@@ -88,6 +89,7 @@ const countryMapConfig: Record<string, {
   JM: { center: [-77.3,18.12], scale: 9000 },
   US: { center: [-96.5,38.5], scale: 700 },
   PT: { center: [-8.1,39.6], scale: 4600 },
+  IE: { center: [-8, 53.3], scale: 4600 },
 };
 
 // Geographic coordinates for region centers
@@ -269,6 +271,12 @@ const regionCoordinates: Record<string, Record<string, [number, number]>> = {
     "Alentejo": [-7.9,38.3],
     "Algarve": [-8.1,37.2],
   },
+  IE: {
+    "Dublin & the East": [-6.4,53.35],
+    "Munster (Cork & Kerry)": [-9,52],
+    "Connacht & the Wild Atlantic Way": [-9.3,53.6],
+    "Ulster & the North": [-7.3,54.8],
+  },
 };
 
 // Get a shortened region name for the bubble label
@@ -308,7 +316,7 @@ function OverviewCard({
     <div className="space-y-4">
       {foodCulture.mealStructure && (
         <div>
-          <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+          <h4 className="text-[10px] font-bold tracking-widest uppercase mb-2 text-gray-500">
             Meal Structure
           </h4>
           <p className="text-gray-600 text-sm leading-relaxed">{foodCulture.mealStructure}</p>
@@ -317,7 +325,7 @@ function OverviewCard({
 
       {foodCulture.diningCustoms && (
         <div>
-          <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+          <h4 className="text-[10px] font-bold tracking-widest uppercase mb-2 text-gray-500">
             Dining Customs
           </h4>
           <p className="text-gray-600 text-sm leading-relaxed">{foodCulture.diningCustoms}</p>
@@ -326,7 +334,7 @@ function OverviewCard({
 
       {foodCulture.historicalInfluences && (
         <div>
-          <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+          <h4 className="text-[10px] font-bold tracking-widest uppercase mb-2 text-gray-500">
             Historical Influences
           </h4>
           <p className="text-gray-600 text-sm leading-relaxed">{foodCulture.historicalInfluences}</p>
@@ -339,30 +347,28 @@ function OverviewCard({
 // Region detail card (shown when a region is selected)
 function RegionDetailCard({
   region,
-  colors,
 }: {
   region: RegionalCuisine;
-  colors: ColorPalette;
 }) {
   return (
     <div className="space-y-4">
       <div>
-        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+        <h4 className="text-[10px] font-bold tracking-widest uppercase mb-2 text-gray-500">
           Overview
         </h4>
         <p className="text-gray-600 text-sm leading-relaxed">{region.description}</p>
       </div>
 
       <div>
-        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+        <h4 className="text-[10px] font-bold tracking-widest uppercase mb-2 text-gray-500">
           Signature Dishes
         </h4>
         <div className="flex flex-wrap gap-1.5">
           {region.signatureDishes.map((dish) => (
             <span
               key={dish}
-              className="text-xs px-2 py-1 rounded"
-              style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}
+              className="text-xs px-2 py-1 rounded-md font-medium"
+              style={{ backgroundColor: '#EDF1E8', color: '#33302A' }}
             >
               {dish}
             </span>
@@ -371,15 +377,15 @@ function RegionDetailCard({
       </div>
 
       <div>
-        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+        <h4 className="text-[10px] font-bold tracking-widest uppercase mb-2 text-gray-500">
           Key Ingredients
         </h4>
         <div className="flex flex-wrap gap-1.5">
           {region.keyIngredients.map((ingredient) => (
             <span
               key={ingredient}
-              className="text-xs px-2 py-1 rounded"
-              style={{ backgroundColor: `${colors.secondary}15`, color: colors.secondary }}
+              className="text-xs px-2 py-1 rounded-md font-medium"
+              style={{ backgroundColor: '#EDF1E8', color: '#33302A' }}
             >
               {ingredient}
             </span>
@@ -389,15 +395,15 @@ function RegionDetailCard({
 
       {region.distinctiveTraits && region.distinctiveTraits.length > 0 && (
         <div>
-          <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+          <h4 className="text-[10px] font-bold tracking-widest uppercase mb-2 text-gray-500">
             Distinctive Traits
           </h4>
           <div className="flex flex-wrap gap-1.5">
             {region.distinctiveTraits.map((trait) => (
               <span
                 key={trait}
-                className="text-xs px-2 py-1 rounded"
-                style={{ backgroundColor: `${colors.accent}20`, color: colors.text }}
+                className="text-xs px-2 py-1 rounded-md font-medium"
+                style={{ backgroundColor: '#EDF1E8', color: '#33302A' }}
               >
                 {trait}
               </span>
@@ -626,10 +632,7 @@ export function CultureRegionsSlide({
         <div className="flex-1 lg:flex-[2] min-h-[200px]">
           <div className="bg-white rounded-lg border border-gray-200 p-4 h-full overflow-y-auto">
             {selectedRegionData ? (
-              <RegionDetailCard
-                region={selectedRegionData}
-                colors={colors}
-              />
+              <RegionDetailCard region={selectedRegionData} />
             ) : (
               <OverviewCard foodCulture={foodCulture} />
             )}

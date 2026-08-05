@@ -10,6 +10,7 @@ import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TasteProfileButton } from '../components/TasteProfileButton';
+import { NextCountrySuggestions } from '../components/NextCountrySuggestions';
 import { WordmarkDot } from '../components/Wordmark';
 
 // Static data: group once at module level, continents and countries both alphabetized
@@ -87,6 +88,8 @@ export function Home() {
         {effectiveView === 'map' ? (
           <WorldMap />
         ) : (
+          <>
+          <NextCountrySuggestions />
           <div className="space-y-8">
             {continentGroups.map(([continent, group]) => (
               <section key={continent}>
@@ -111,6 +114,7 @@ export function Home() {
               </section>
             ))}
           </div>
+          </>
         )}
       </main>
     </div>

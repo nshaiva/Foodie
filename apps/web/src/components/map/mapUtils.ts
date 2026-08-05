@@ -3,15 +3,15 @@ import type { ActivityState } from '../../hooks/useCountryActivity';
 // Soft Pastel Atlas Style Color Scheme
 export const MAP_COLORS = {
   noProfile: '#e5e7eb',        // gray - no food data
-  hasProfile: '#d4e8e0',       // soft sage - profile exists, no dishes logged
-  hasDishes: '#d4c4eb',        // medium lavender - dishes logged
+  hasProfile: '#D5E0CA',       // soft sage - profile exists, no dishes logged
+  hasDishes: '#DA9B80',        // mid terracotta - dishes logged (mid depth-ramp)
 } as const;
 
 // Hover state colors (slightly darker/more saturated)
 export const MAP_HOVER_COLORS = {
   noProfile: '#d1d5db',
-  hasProfile: '#b8d4c8',
-  hasDishes: '#c2aede',
+  hasProfile: '#C2D1B2',
+  hasDishes: '#C97F62',
 } as const;
 
 // Stroke colors for country borders
@@ -20,7 +20,34 @@ export const MAP_STROKE = {
   hover: '#94a3b8',
 } as const;
 
-export function getCountryFillColor(state: ActivityState, isHovered: boolean = false): string {
+// Depth gradient for explored countries: pale clay deepening to full
+// terracotta — the brand color owns the main (explored) layer. Driven by
+// % of popular dishes tried.
+const EXPLORED_DEPTH_STOPS: [number, string][] = [
+  [0, '#EFD9CD'],
+  [50, '#DA9B80'],
+  [100, '#A9503A'],
+];
+
+export function getCountryFillColor(
+  state: ActivityState,
+  isHovered: boolean = false,
+  /** 0-100, % of popular dishes tried — deepens hasDishes countries */
+  depth?: number
+): string {
+  if (state === 'hasDishes' && depth !== undefined) {
+    const clamped = Math.max(0, Math.min(100, depth));
+    let color = EXPLORED_DEPTH_STOPS[EXPLORED_DEPTH_STOPS.length - 1][1];
+    for (let i = 1; i < EXPLORED_DEPTH_STOPS.length; i++) {
+      const [prevStop, prevColor] = EXPLORED_DEPTH_STOPS[i - 1];
+      const [stop, stopColor] = EXPLORED_DEPTH_STOPS[i];
+      if (clamped <= stop) {
+        color = lerpHex(prevColor, stopColor, (clamped - prevStop) / (stop - prevStop));
+        break;
+      }
+    }
+    return isHovered ? lerpHex(color, '#7E3A29', 0.3) : color;
+  }
   if (isHovered) {
     return MAP_HOVER_COLORS[state];
   }
@@ -39,21 +66,26 @@ export function getActivityLabel(state: ActivityState): string {
 }
 
 export const LEGEND_ITEMS = [
-  { state: 'hasDishes' as const, label: 'Dishes Logged', color: MAP_COLORS.hasDishes },
   { state: 'hasProfile' as const, label: 'Available', color: MAP_COLORS.hasProfile },
   { state: 'noProfile' as const, label: 'Coming Soon', color: MAP_COLORS.noProfile },
 ];
+
+// Gradient bar for the explored-depth legend
+export const EXPLORED_DEPTH_GRADIENT = `linear-gradient(to right, ${EXPLORED_DEPTH_STOPS.map(
+  ([stop, color]) => `${color} ${stop}%`
+).join(', ')})`;
 
 // --- Flavor Match layer ---
 
 export type MapLayer = 'explored' | 'flavorMatch';
 
-// Sequential terracotta ramp: pale warm neutral → deep saturated terracotta.
-// Stops at score 0 / 50 / 100; interpolated between.
+// Sequential warm-slate ramp: pale cool gray → ink blue. The cool
+// counterpart to the explored layer's terracotta; can't be confused with it.
+// Stops at score 0 / 50 / 100; interpolated.
 const FLAVOR_MATCH_STOPS: [number, string][] = [
-  [0, '#F3EDE2'],
-  [50, '#E5BBA4'],
-  [100, '#A9503A'],
+  [0, '#E4E8EA'],
+  [50, '#8AA0AC'],
+  [100, '#3E5260'],
 ];
 
 function lerpHex(a: string, b: string, t: number): string {
@@ -94,7 +126,7 @@ export function getFlavorMatchFillColor(
     }
   }
   // Hover: nudge toward the saturated end
-  return isHovered ? lerpHex(color, '#7E3A29', 0.25) : color;
+  return isHovered ? lerpHex(color, '#2A3A45', 0.25) : color;
 }
 
 // Gradient for the flavor-match legend bar
@@ -102,5 +134,6 @@ export const FLAVOR_MATCH_GRADIENT = `linear-gradient(to right, ${FLAVOR_MATCH_S
   ([stop, color]) => `${color} ${stop}%`
 ).join(', ')})`;
 
-// Outline for already-logged countries on the flavor-match layer
-export const FLAVOR_MATCH_LOGGED_STROKE = '#33302A';
+// Outline for already-logged countries on the flavor-match layer —
+// mid-slate, softer than ink against the pale end of the ramp
+export const FLAVOR_MATCH_LOGGED_STROKE = '#647E8E';

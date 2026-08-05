@@ -174,7 +174,7 @@ function OrderList({ countryId }: { countryId: string }) {
                 {index + 1}
               </span>
               <span className="min-w-0">
-                <h4 className="font-semibold text-gray-900 leading-tight">{dish.name}</h4>
+                <h4 className="font-bold text-gray-900 leading-tight">{dish.name}</h4>
                 {dish.pronunciation && (
                   <p className="text-xs italic" style={{ color: systemColors.navyMuted }}>
                     "{dish.pronunciation}"

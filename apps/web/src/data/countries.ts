@@ -29,10 +29,12 @@ import { AR } from './countries/AR';
 import { JM } from './countries/JM';
 import { US } from './countries/US';
 import { PT } from './countries/PT';
+import { IE } from './countries/IE';
 
 export const countries: Country[] = [
   TH, MX, JP, IT, ET, PE, GE, AZ, IN, PK, AF,
   CN, VN, KR, ID, PH, MY, FR, ES, GR, TR, LB, EG, MA, NG, BR, AR, JM, US, PT,
+  IE,
 ];
 
 export function getCountryById(id: string): Country | undefined {

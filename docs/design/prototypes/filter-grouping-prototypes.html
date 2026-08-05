@@ -1,0 +1,98 @@
+<title>Eat &amp; Drink filters — grouping prototypes</title>
+<style>
+  :root { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A;
+    --line:#E7E1D4; --tomato:#C2654A; --sage:#7C8B6F; --sage-soft:#EDF1E8; --navy:#33302A; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; }
+  }
+  :root[data-theme="light"] { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A; --line:#E7E1D4; --sage-soft:#EDF1E8; }
+  :root[data-theme="dark"] { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:2.5rem 1.25rem 5rem;
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
+  .wrap { max-width:880px; margin:0 auto; }
+  h1 { font-size:1.35rem; margin:0 0 .3rem; }
+  .sub { color:var(--ink-soft); font-size:.9rem; margin:0 0 2rem; max-width:66ch; }
+  .proto { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:1.4rem; margin-bottom:2.2rem; }
+  .tag { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--tomato); }
+  .proto h2 { font-size:1.02rem; margin:.15rem 0 .25rem; }
+  .proto .why { font-size:.8rem; color:var(--ink-soft); margin:0 0 1.1rem; max-width:70ch; }
+
+  .pill { font-size:.72rem; font-weight:600; padding:.28rem .7rem; border-radius:8px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); white-space:nowrap; }
+  .pill.pri { font-size:.8rem; padding:.32rem .85rem; }
+  .pill.on-navy { background:var(--navy); border-color:var(--navy); color:var(--bg); }
+  .pill.on { background:var(--sage); border-color:var(--sage); color:#fff; }
+  .row { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+  .stack { display:flex; flex-direction:column; gap:.55rem; }
+  .glabel { font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-right:.15rem; }
+  .divider { width:1px; height:1.15rem; background:var(--line); }
+
+  /* C: boxed clusters */
+  .cluster { display:inline-flex; align-items:center; gap:.3rem; border:1px solid var(--line);
+    border-radius:10px; padding:.25rem .4rem; background:color-mix(in srgb, var(--surface) 60%, var(--bg)); }
+  .cluster .pill { border:none; background:transparent; padding:.18rem .5rem; }
+  .cluster .pill.on { background:var(--sage); color:#fff; border-radius:6px; }
+  .cluster .cicon { font-size:.8rem; margin-left:.15rem; }
+
+  /* B: drawer */
+  .drawerbtn { display:inline-flex; align-items:center; gap:.4rem; }
+  .badge { display:inline-flex; align-items:center; justify-content:center; min-width:1.05rem; height:1.05rem;
+    border-radius:50%; background:var(--sage); color:#fff; font-size:.62rem; font-weight:700; }
+  .panel { border:1px solid var(--line); border-radius:12px; padding: .9rem 1rem; margin-top:.6rem;
+    background:color-mix(in srgb, var(--surface) 60%, var(--bg)); display:flex; flex-direction:column; gap:.6rem; }
+</style>
+
+<div class="wrap">
+  <h1>Filter grouping — three structures</h1>
+  <p class="sub">Same filters in all three (food mode shown): view (All/Tried/Want), diet (VGT/VG/GF), spice scale, popularity (Local/Tourist), Dessert. What changes is how they're chunked. Sage = active, matching the one-tint chip system.</p>
+
+  <div class="proto">
+    <span class="tag">A</span>
+    <h2>Two rows, labeled groups</h2>
+    <p class="why">Row one is the view — the "which dishes am I looking at" tier, bigger pills. Row two is refinement, chunked with tiny uppercase labels. Everything stays visible; the labels do the organizing that dividers were failing to do. Costs one extra line of height.</p>
+    <div class="stack">
+      <div class="row">
+        <span class="pill pri on-navy">All</span><span class="pill pri">Tried (2)</span><span class="pill pri">Want to try</span>
+      </div>
+      <div class="row">
+        <span class="glabel">Diet</span>
+        <span class="pill">VGT</span><span class="pill">VG</span><span class="pill on">GF</span>
+        <span class="divider"></span>
+        <span class="glabel">Spice</span>
+        <span class="pill on">Any</span><span class="pill">🌶</span><span class="pill">🌶🌶</span><span class="pill">🌶🌶🌶</span>
+        <span class="divider"></span>
+        <span class="glabel">Who eats it</span>
+        <span class="pill">📍 Local</span><span class="pill">📷 Tourist</span>
+        <span class="divider"></span>
+        <span class="pill">🍰 Dessert</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="proto">
+    <span class="tag">B</span>
+    <h2>One row + a Filters drawer</h2>
+    <p class="why">The row shrinks to the essentials: view pills + one "Filters" button with an active-count badge. Everything else lives in a collapsible panel (shown open here) with the same labeled groups as A. Cleanest resting state and the most mobile-friendly; costs one tap to reach the refinements.</p>
+    <div class="row">
+      <span class="pill pri on-navy">All</span><span class="pill pri">Tried (2)</span><span class="pill pri">Want to try</span>
+      <span class="pill pri drawerbtn">⚙ Filters <span class="badge">1</span></span>
+    </div>
+    <div class="panel">
+      <div class="row"><span class="glabel">Diet</span><span class="pill">VGT</span><span class="pill">VG</span><span class="pill on">GF</span></div>
+      <div class="row"><span class="glabel">Spice</span><span class="pill on">Any</span><span class="pill">🌶</span><span class="pill">🌶🌶</span><span class="pill">🌶🌶🌶</span></div>
+      <div class="row"><span class="glabel">Who eats it</span><span class="pill">📍 Local</span><span class="pill">📷 Tourist</span><span class="glabel" style="margin-left:.8rem">More</span><span class="pill">🍰 Dessert</span></div>
+    </div>
+  </div>
+
+  <div class="proto">
+    <span class="tag">C</span>
+    <h2>Boxed clusters, one row</h2>
+    <p class="why">Everything stays on one line, but related pills live inside a shared box with an icon prefix — the container does the grouping instead of labels. Compact and scannable; on narrow screens the boxes wrap as whole units, so grouping survives the wrap (the current row's biggest failure).</p>
+    <div class="row">
+      <span class="pill pri on-navy">All</span><span class="pill pri">Tried (2)</span><span class="pill pri">Want to try</span>
+      <span class="cluster"><span class="cicon">🌱</span><span class="pill">VGT</span><span class="pill">VG</span><span class="pill on">GF</span></span>
+      <span class="cluster"><span class="cicon">🌶</span><span class="pill on">Any</span><span class="pill">🌶</span><span class="pill">🌶🌶</span><span class="pill">🌶🌶🌶</span></span>
+      <span class="cluster"><span class="cicon">🍽</span><span class="pill">📍</span><span class="pill">📷</span><span class="pill">🍰</span></span>
+    </div>
+  </div>
+</div>
