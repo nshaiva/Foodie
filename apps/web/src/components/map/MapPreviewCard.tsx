@@ -3,6 +3,9 @@ import type { Country } from '../../data/types';
 import type { CountryActivity } from '../../hooks/useCountryActivity';
 import type { FlavorMatch } from './flavorMatch';
 import { systemColors } from '../../data/systemColors';
+import { ProgressPlate } from '../ProgressPlate';
+import { PlateDot } from '../Wordmark';
+import type { DishProgress } from '../../utils/dishProgress';
 
 interface MapPreviewCardProps {
   countryId: string;
@@ -10,6 +13,7 @@ interface MapPreviewCardProps {
   country: Country | undefined;
   activity: CountryActivity;
   match?: FlavorMatch;
+  progress?: DishProgress;
   x: number;
   y: number;
 }
@@ -19,6 +23,7 @@ export const MapPreviewCard = memo(function MapPreviewCard({
   country,
   activity,
   match,
+  progress,
   x,
   y,
 }: MapPreviewCardProps) {
@@ -65,7 +70,19 @@ export const MapPreviewCard = memo(function MapPreviewCard({
         {hasProfile ? (
           <>
             <div className="flex items-center justify-between mb-1">
-              <h3 className="font-semibold text-gray-900">{country.name}</h3>
+              <h3 className="font-semibold text-gray-900 flex items-center gap-1.5">
+                {progress && progress.percent > 0 ? (
+                  <ProgressPlate
+                    percent={progress.percent}
+                    size={22}
+                    color={country.colorPalette.primary}
+                    title={`${progress.tried} of ${progress.total} dishes tried`}
+                  />
+                ) : (
+                  <PlateDot color={country.colorPalette.primary} size={12} />
+                )}
+                {country.name}
+              </h3>
               <span className="text-xs text-gray-500">{country.region}</span>
             </div>
 

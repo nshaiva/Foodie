@@ -3,6 +3,8 @@ import { countries } from '../data/countries';
 import { systemColors } from '../data/systemColors';
 import { CountryCard } from '../components/CountryCard';
 import { useWishlist } from '../hooks/useWishlist';
+import { useDishes } from '../hooks/useDishes';
+import { countryDishProgress } from '../utils/dishProgress';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
@@ -25,6 +27,7 @@ const continentGroups = Object.entries(
 
 export function Home() {
   const { wishlist } = useWishlist();
+  const { getDishesByCountry } = useDishes();
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('foodie-view-mode', 'map');
   const isMobile = useMediaQuery('(max-width: 767px)');
 
@@ -91,7 +94,11 @@ export function Home() {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {group.map((country) => (
-                    <CountryCard key={country.id} country={country} />
+                    <CountryCard
+                      key={country.id}
+                      country={country}
+                      progress={countryDishProgress(country, getDishesByCountry(country.id))}
+                    />
                   ))}
                 </div>
               </section>

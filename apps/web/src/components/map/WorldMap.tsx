@@ -21,6 +21,7 @@ import {
   type MapLayer,
 } from './mapUtils';
 import { MapPreviewCard } from './MapPreviewCard';
+import { countryDishProgress } from '../../utils/dishProgress';
 import { MapLegend } from './MapLegend';
 import { systemColors } from '../../data/systemColors';
 
@@ -204,17 +205,23 @@ export const WorldMap = memo(function WorldMap() {
         </ZoomableGroup>
       </ComposableMap>
 
-      {tooltipData && (
-        <MapPreviewCard
-          countryId={tooltipData.countryId}
-          countryName={tooltipData.countryName}
-          country={getCountryById(tooltipData.countryId)}
-          activity={getCountryActivity(tooltipData.countryId)}
-          match={flavorMatches?.get(tooltipData.countryId)}
-          x={tooltipData.x}
-          y={tooltipData.y}
-        />
-      )}
+      {tooltipData && (() => {
+        const hoveredCountryData = getCountryById(tooltipData.countryId);
+        return (
+          <MapPreviewCard
+            countryId={tooltipData.countryId}
+            countryName={tooltipData.countryName}
+            country={hoveredCountryData}
+            activity={getCountryActivity(tooltipData.countryId)}
+            match={flavorMatches?.get(tooltipData.countryId)}
+            progress={hoveredCountryData
+              ? countryDishProgress(hoveredCountryData, dishes.filter(d => d.countryId === tooltipData.countryId))
+              : undefined}
+            x={tooltipData.x}
+            y={tooltipData.y}
+          />
+        );
+      })()}
 
       <div className="absolute top-3 left-3 flex gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-sm border border-gray-200">
         <button

@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getCountryById } from '../data/countries';
 import { systemColors } from '../data/systemColors';
 import { useDishes } from '../hooks/useDishes';
+import { countryDishProgress } from '../utils/dishProgress';
 import { useWishlist } from '../hooks/useWishlist';
 import { useFavorites } from '../hooks/useFavorites';
 import {
@@ -91,6 +92,7 @@ export function CountryDetail() {
         capital={country.capital}
         region={country.region}
         colors={colors}
+        progress={countryDishProgress(country, countryDishes)}
       />
 
       <main className="max-w-5xl mx-auto px-4 py-8">

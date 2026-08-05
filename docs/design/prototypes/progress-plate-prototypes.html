@@ -1,0 +1,248 @@
+<title>Progress plates — fill treatments</title>
+<style>
+  :root {
+    --bg: #FAF7F0; --surface: #fff; --ink: #33302A; --ink-soft: #6E6A60;
+    --ink-faint: #9B968A; --line: #E7E1D4; --tomato: #C2654A; --sage: #7C8B6F;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; --tomato:#D07A5C; }
+  }
+  :root[data-theme="light"] { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A; --line:#E7E1D4; --tomato:#C2654A; }
+  :root[data-theme="dark"] { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; --tomato:#D07A5C; }
+
+  body { background: var(--bg); color: var(--ink); margin: 0; padding: 2.5rem 1.25rem 5rem;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 .3rem; }
+  .sub { color: var(--ink-soft); font-size: .92rem; margin: 0 0 2rem; max-width: 64ch; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1.4rem; margin-bottom: 2rem; }
+  .tag { font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--tomato); }
+  .card h2 { font-size: 1.05rem; margin: .15rem 0 .3rem; }
+  .card .why { font-size: .82rem; color: var(--ink-soft); margin: 0 0 1.1rem; max-width: 66ch; }
+  .row { display: flex; align-items: flex-end; gap: 2.2rem; flex-wrap: wrap; }
+  .cell { text-align: center; }
+  .cell .pct { font-size: .72rem; color: var(--ink-faint); margin-top: .45rem; font-variant-numeric: tabular-nums; }
+  .slider-row { display: flex; align-items: center; gap: 1rem; margin-top: 1.3rem; padding-top: 1rem; border-top: 1px dashed var(--line); }
+  .slider-row label { font-size: .78rem; color: var(--ink-soft); }
+  input[type=range] { accent-color: var(--tomato); }
+
+  /* ================= shared plate geometry ================= */
+  .plate { position: relative; border-radius: 50%; display: inline-block; }
+  .s20 { width: 20px; height: 20px; }
+  .s32 { width: 32px; height: 32px; }
+  .s48 { width: 48px; height: 48px; }
+
+  /* A: pie fill — pale logo rings as the empty state, pie wedge fills the well */
+  .pA { background: radial-gradient(circle, color-mix(in srgb, var(--tomato) 15%, transparent) 0 36%, color-mix(in srgb, var(--tomato) 12%, transparent) 36% 60%, color-mix(in srgb, var(--tomato) 8%, transparent) 60% 100%); }
+  .pA::after { content: ''; position: absolute; inset: 18%; border-radius: 50%;
+    background: conic-gradient(var(--tomato) calc(var(--p) * 1%), transparent 0); }
+
+  /* B: ring steps — center dot, mid ring, rim light up in thirds */
+  .pB { background: radial-gradient(circle,
+      var(--c1, color-mix(in srgb, var(--tomato) 15%, transparent)) 0 36%,
+      var(--c2, color-mix(in srgb, var(--tomato) 12%, transparent)) 36% 60%,
+      var(--c3, color-mix(in srgb, var(--tomato) 8%, transparent)) 60% 100%); }
+
+  /* C: progress rim — solid logo dot center, arc sweeps the rim */
+  .pC { background: radial-gradient(circle, var(--tomato) 0 34%, color-mix(in srgb, var(--tomato) 15%, transparent) 34% 58%, transparent 58%); }
+  .pC::after { content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(var(--tomato) calc(var(--p) * 1%), color-mix(in srgb, var(--tomato) 12%, transparent) 0);
+    -webkit-mask: radial-gradient(circle, transparent 0 62%, #000 62% 100%);
+    mask: radial-gradient(circle, transparent 0 62%, #000 62% 100%); }
+
+  /* D: filled center + rim arc sweep */
+  .pD { background: radial-gradient(circle, var(--tomato) 0 40%, transparent 40%); }
+  .pD::before { content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle, transparent 0 40%, color-mix(in srgb, var(--tomato) 10%, transparent) 40% 100%); }
+  .pD::after { content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(var(--tomato) calc(var(--p) * 1%), color-mix(in srgb, var(--tomato) 14%, transparent) 0);
+    -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 58% 100%);
+    mask: radial-gradient(circle, transparent 0 58%, #000 58% 100%); }
+
+  /* E: filled center + rim that brightens with progress */
+  .pE { background: radial-gradient(circle, var(--tomato) 0 40%, transparent 40%); }
+  .pE::after { content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle, transparent 0 52%, var(--tomato) 52% 100%);
+    opacity: calc(0.08 + var(--p) * 0.0092); }
+
+  /* F: pie center + rim arc sweep */
+  .pF { background: radial-gradient(circle, color-mix(in srgb, var(--tomato) 15%, transparent) 0 40%, transparent 40%); }
+  .pF::before { content: ''; position: absolute; inset: 22%; border-radius: 50%;
+    background: conic-gradient(var(--tomato) calc(var(--p) * 1%), transparent 0); }
+  .pF::after { content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(var(--tomato) calc(var(--p) * 1%), color-mix(in srgb, var(--tomato) 14%, transparent) 0);
+    -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 58% 100%);
+    mask: radial-gradient(circle, transparent 0 58%, #000 58% 100%); }
+
+  /* G: logo dot + outer-plate pie (the pick-refinement) */
+  .pG { border: 1px solid color-mix(in srgb, var(--tomato) 40%, transparent);
+    background: radial-gradient(circle, var(--tomato) 0 37%, transparent 37%); }
+  .pG::after { content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(color-mix(in srgb, var(--tomato) 55%, transparent) calc(var(--p) * 1%), color-mix(in srgb, var(--tomato) 9%, transparent) 0);
+    -webkit-mask: radial-gradient(circle, transparent 0 42%, #000 42% 100%);
+    mask: radial-gradient(circle, transparent 0 42%, #000 42% 100%); }
+  .s24 { width: 24px; height: 24px; }
+  .s28 { width: 28px; height: 28px; }
+  .s56 { width: 56px; height: 56px; }
+
+  /* context mocks */
+  .mock-card { border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; width: 240px; background: var(--surface); }
+  .mock-card .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .mock-card h3 { font-size: .95rem; margin: 0 0 .2rem; }
+  .mock-card p { font-size: .74rem; color: var(--ink-soft); margin: 0; }
+  .mock-header { display: flex; align-items: center; gap: .7rem; }
+  .mock-header .name { font-size: 1.25rem; font-weight: 700; }
+  .mock-note { font-size: .72rem; color: var(--ink-faint); margin-top: .4rem; }
+</style>
+
+<div class="wrap">
+  <h1>Progress plates — "% of dishes tried" as the logo mark</h1>
+  <p class="sub">Three fill treatments for the dot-plate. Decided constraints: styled like the logo's concentric rings, fills with progress, hidden at 0%. Drag the slider at the bottom of each card to sweep the fill. Terracotta shown; on country surfaces it could take the country's palette color instead.</p>
+
+  <!-- A -->
+  <div class="card">
+    <span class="tag">A</span>
+    <h2>Pie plate</h2>
+    <p class="why">The literal read of "30% tried = 30% of the plate filled": the plate's inner well fills as a pie wedge, clockwise from 12 o'clock, inside the pale logo rings. Continuous — every new dish visibly nudges it. This is the closest to what you described.</p>
+    <div class="row" data-variant="pA">
+      <div class="cell"><span class="plate pA s48" style="--p:10"></span><div class="pct">10%</div></div>
+      <div class="cell"><span class="plate pA s48" style="--p:30"></span><div class="pct">30%</div></div>
+      <div class="cell"><span class="plate pA s48" style="--p:60"></span><div class="pct">60%</div></div>
+      <div class="cell"><span class="plate pA s48" style="--p:100"></span><div class="pct">100%</div></div>
+      <div class="cell"><span class="plate pA s32" style="--p:60"></span><div class="pct">32px</div></div>
+      <div class="cell"><span class="plate pA s20" style="--p:60"></span><div class="pct">20px</div></div>
+    </div>
+    <div class="slider-row"><label>Sweep:</label><input type="range" min="1" max="100" value="45" data-target="pA"><span class="plate pA s48 live-pA" style="--p:45"></span></div>
+  </div>
+
+  <!-- B -->
+  <div class="card">
+    <span class="tag">B</span>
+    <h2>Course by course</h2>
+    <p class="why">The rings light up in thirds, from the center out: center dot solid after the first third, mid ring after two thirds, full rim at (nearly) all tried. Quantized — less precise, but it makes each ring feel like a course you've cleared, and it's the most "logo" of the three at small sizes.</p>
+    <div class="row">
+      <div class="cell"><span class="plate pB s48" style="--c1:var(--tomato)"></span><div class="pct">&lt; 33% — dot</div></div>
+      <div class="cell"><span class="plate pB s48" style="--c1:var(--tomato); --c2:color-mix(in srgb, var(--tomato) 70%, transparent)"></span><div class="pct">&lt; 66% — + ring</div></div>
+      <div class="cell"><span class="plate pB s48" style="--c1:var(--tomato); --c2:color-mix(in srgb, var(--tomato) 70%, transparent); --c3:color-mix(in srgb, var(--tomato) 35%, transparent)"></span><div class="pct">100% — full plate</div></div>
+      <div class="cell"><span class="plate pB s20" style="--c1:var(--tomato); --c2:color-mix(in srgb, var(--tomato) 70%, transparent)"></span><div class="pct">20px</div></div>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="card">
+    <span class="tag">C</span>
+    <h2>Rim sweep</h2>
+    <p class="why">The logo dot stays solid in the center — the brand mark never looks "empty" — and progress sweeps around the rim as an arc, like a clock or activity ring. Continuous like A, but the center reads as the logo at every percentage; the rim is the meter.</p>
+    <div class="row" data-variant="pC">
+      <div class="cell"><span class="plate pC s48" style="--p:10"></span><div class="pct">10%</div></div>
+      <div class="cell"><span class="plate pC s48" style="--p:30"></span><div class="pct">30%</div></div>
+      <div class="cell"><span class="plate pC s48" style="--p:60"></span><div class="pct">60%</div></div>
+      <div class="cell"><span class="plate pC s48" style="--p:100"></span><div class="pct">100%</div></div>
+      <div class="cell"><span class="plate pC s32" style="--p:60"></span><div class="pct">32px</div></div>
+      <div class="cell"><span class="plate pC s20" style="--p:60"></span><div class="pct">20px</div></div>
+    </div>
+    <div class="slider-row"><label>Sweep:</label><input type="range" min="1" max="100" value="45" data-target="pC"><span class="plate pC s48 live-pC" style="--p:45"></span></div>
+  </div>
+
+  <!-- D -->
+  <div class="card">
+    <span class="tag">D · merge</span>
+    <h2>Full plate, rim sweep</h2>
+    <p class="why">Inner plate always filled solid (the brand mark, never empty) + the outer ring fills as an arc with progress. The rim is the only meter; the center is identity. Continuous and legible small.</p>
+    <div class="row">
+      <div class="cell"><span class="plate pD s48" style="--p:10"></span><div class="pct">10%</div></div>
+      <div class="cell"><span class="plate pD s48" style="--p:30"></span><div class="pct">30%</div></div>
+      <div class="cell"><span class="plate pD s48" style="--p:60"></span><div class="pct">60%</div></div>
+      <div class="cell"><span class="plate pD s48" style="--p:100"></span><div class="pct">100%</div></div>
+      <div class="cell"><span class="plate pD s32" style="--p:60"></span><div class="pct">32px</div></div>
+      <div class="cell"><span class="plate pD s20" style="--p:60"></span><div class="pct">20px</div></div>
+    </div>
+    <div class="slider-row"><label>Sweep:</label><input type="range" min="1" max="100" value="45" data-target="pD"><span class="plate pD s48 live-pD" style="--p:45"></span></div>
+  </div>
+
+  <!-- E -->
+  <div class="card">
+    <span class="tag">E · merge</span>
+    <h2>Full plate, warming rim</h2>
+    <p class="why">Inner plate solid + the whole outer ring gradually deepens in color as progress grows — no arc, the ring just "warms up" from barely-there to full terracotta. The softest read: less precise than an arc, but calm, and it never looks like a loading spinner.</p>
+    <div class="row">
+      <div class="cell"><span class="plate pE s48" style="--p:10"></span><div class="pct">10%</div></div>
+      <div class="cell"><span class="plate pE s48" style="--p:30"></span><div class="pct">30%</div></div>
+      <div class="cell"><span class="plate pE s48" style="--p:60"></span><div class="pct">60%</div></div>
+      <div class="cell"><span class="plate pE s48" style="--p:100"></span><div class="pct">100%</div></div>
+      <div class="cell"><span class="plate pE s32" style="--p:60"></span><div class="pct">32px</div></div>
+      <div class="cell"><span class="plate pE s20" style="--p:60"></span><div class="pct">20px</div></div>
+    </div>
+    <div class="slider-row"><label>Sweep:</label><input type="range" min="1" max="100" value="45" data-target="pE"><span class="plate pE s48 live-pE" style="--p:45"></span></div>
+  </div>
+
+  <!-- F -->
+  <div class="card">
+    <span class="tag">F · merge</span>
+    <h2>Pie + rim sweep together</h2>
+    <p class="why">Both meters at once: the inner well fills as a pie <em>and</em> the rim sweeps in sync. Maximum feedback (the same progress told twice), at the cost of some busyness — worth seeing to rule in or out.</p>
+    <div class="row">
+      <div class="cell"><span class="plate pF s48" style="--p:10"></span><div class="pct">10%</div></div>
+      <div class="cell"><span class="plate pF s48" style="--p:30"></span><div class="pct">30%</div></div>
+      <div class="cell"><span class="plate pF s48" style="--p:60"></span><div class="pct">60%</div></div>
+      <div class="cell"><span class="plate pF s48" style="--p:100"></span><div class="pct">100%</div></div>
+      <div class="cell"><span class="plate pF s32" style="--p:60"></span><div class="pct">32px</div></div>
+      <div class="cell"><span class="plate pF s20" style="--p:60"></span><div class="pct">20px</div></div>
+    </div>
+    <div class="slider-row"><label>Sweep:</label><input type="range" min="1" max="100" value="45" data-target="pF"><span class="plate pF s48 live-pF" style="--p:45"></span></div>
+  </div>
+
+  <!-- G -->
+  <div class="card">
+    <span class="tag">G · refined pick</span>
+    <h2>Logo dot, outer-plate pie</h2>
+    <p class="why">Solid center dot (the logo, always) — and the whole lighter outer plate is itself the pie: a lighter terracotta wedge sweeps it clockwise, the untouched remainder stays a whisper. Thin outline around the full plate keeps the edge crisp. No rim meter. Shown larger across the board.</p>
+    <div class="row">
+      <div class="cell"><span class="plate pG s56" style="--p:10"></span><div class="pct">10%</div></div>
+      <div class="cell"><span class="plate pG s56" style="--p:30"></span><div class="pct">30%</div></div>
+      <div class="cell"><span class="plate pG s56" style="--p:60"></span><div class="pct">60%</div></div>
+      <div class="cell"><span class="plate pG s56" style="--p:100"></span><div class="pct">100%</div></div>
+      <div class="cell"><span class="plate pG s40" style="--p:60; width:40px; height:40px"></span><div class="pct">40px</div></div>
+      <div class="cell"><span class="plate pG s28" style="--p:60"></span><div class="pct">28px</div></div>
+      <div class="cell"><span class="plate pG s24" style="--p:60"></span><div class="pct">24px</div></div>
+    </div>
+    <div class="slider-row"><label>Sweep:</label><input type="range" min="1" max="100" value="45" data-target="pG"><span class="plate pG s56 live-pG" style="--p:45"></span></div>
+  </div>
+
+  <!-- context -->
+  <div class="card">
+    <span class="tag">In context</span>
+    <h2>Where it lives</h2>
+    <p class="why">Variant G at the larger sizes, on the three decided surfaces. Hidden entirely at 0% tried.</p>
+    <div class="row">
+      <div>
+        <div class="mock-card">
+          <div class="top">
+            <div><h3>Mexico</h3><p>Mexico City · Central America</p></div>
+            <span class="plate pG s28" style="--p:38"></span>
+          </div>
+        </div>
+        <div class="mock-note">Country card — top right, beside the continent badge</div>
+      </div>
+      <div>
+        <div class="mock-header"><span class="plate pG s56" style="--p:38"></span><span class="name">Mexico</span></div>
+        <div class="mock-note">Country page header — 3 of 8 dishes tried</div>
+      </div>
+      <div>
+        <div class="mock-card" style="width:200px">
+          <h3>Mexico <span class="plate pG s24" style="--p:38; vertical-align:-5px; margin-left:2px"></span></h3>
+          <p>Earthy, smoky, spicy · 3 dishes logged</p>
+        </div>
+        <div class="mock-note">Map hover card</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('input[type=range]').forEach(r => {
+    r.addEventListener('input', () => {
+      document.querySelector('.live-' + r.dataset.target).style.setProperty('--p', r.value);
+    });
+  });
+</script>
