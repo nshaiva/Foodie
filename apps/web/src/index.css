@@ -25,3 +25,99 @@ h1, h2, h3, h4, h5, h6 {
 #root {
   min-height: 100vh;
 }
+
+/* Shared hover language for clickable cards: "plate pickup + garnish arrow".
+   Add .card-interactive to the card and an optional <span class="card-go">Explore →</span>. */
+.card-interactive {
+  cursor: pointer;
+  position: relative;
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+}
+.card-interactive:hover {
+  transform: rotate(-1.2deg) scale(1.025);
+  border-color: #C2654A; /* tomato */
+  box-shadow: 0 14px 28px -10px rgb(194 101 74 / 0.35);
+}
+.card-interactive .card-go {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #C2654A;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.card-interactive:hover .card-go {
+  opacity: 1;
+  transform: translateX(0);
+}
+.card-interactive:focus-visible {
+  outline: 2px solid #C2654A;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-interactive,
+  .card-interactive .card-go {
+    transition: none;
+  }
+  .card-interactive:hover {
+    transform: none;
+  }
+}
+
+/* While editing inside a picked-up card (forms, notes), settle it flat */
+.card-interactive:focus-within {
+  transform: none;
+}
+
+/* Garnish arrow on a card's primary action: slides in when the card is hovered */
+.card-interactive .card-cta::after {
+  content: "→";
+  display: inline-block;
+  margin-left: 0.3rem;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.card-interactive:hover .card-cta::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Buttons press down (cards lift, buttons press) */
+.btn-press {
+  transition:
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.22s ease, background-color 0.22s ease, color 0.22s ease,
+    opacity 0.22s ease;
+}
+.btn-press:hover {
+  transform: scale(0.96);
+}
+
+/* Mini cards: the pickup at half strength */
+.card-interactive-sm {
+  cursor: pointer;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.card-interactive-sm:hover {
+  transform: rotate(-0.8deg) scale(1.03);
+  border-color: #C2654A;
+  box-shadow: 0 8px 16px -8px rgb(194 101 74 / 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-press, .card-interactive-sm, .card-interactive .card-cta::after {
+    transition: none;
+  }
+  .btn-press:hover, .card-interactive-sm:hover {
+    transform: none;
+  }
+}

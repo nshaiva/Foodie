@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { WantToTryButton } from '../../WantToTryButton';
 import { FavoriteButton } from '../../FavoriteButton';
-import { MyActivitySection } from '../MyActivitySection';
+import { DishForm } from '../../DishForm';
+import { UnifiedDishCard } from '../UnifiedDishCard';
 import { systemColors } from '../../../data/systemColors';
 import type { Dish, Beverage, UserDish, RestaurantTry, RegionalCuisine, ColorPalette } from '../../../data/types';
 
@@ -83,13 +84,6 @@ function detectRegion(dish: Dish, regionalVariations?: RegionalCuisine[]): strin
   return undefined;
 }
 
-function dishRating(ud: UserDish): number | undefined {
-  if (ud.tasteRating) return ud.tasteRating;
-  const ratings = (ud.restaurantTries || []).map(t => t.rating).filter((r): r is number => !!r);
-  if (ratings.length === 0) return undefined;
-  return Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
-}
-
 const typeChipClass: Record<Beverage['type'], string> = {
   alcoholic: 'bg-purple-100 text-purple-800',
   'non-alcoholic': 'bg-green-100 text-green-800',
@@ -98,6 +92,38 @@ const typeChipClass: Record<Beverage['type'], string> = {
 const typeLabel: Record<Beverage['type'], string> = {
   alcoholic: 'Alcoholic', 'non-alcoholic': 'Non-Alcoholic', both: 'Optional Alcohol',
 };
+
+type DishFilter = 'all' | 'tried' | 'want';
+
+/** Description clamped to 2 lines; click to expand/collapse when truncated */
+function ExpandableText({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [truncated, setTruncated] = useState(false);
+  const ref = (el: HTMLParagraphElement | null) => {
+    if (el && !expanded) setTruncated(el.scrollHeight > el.clientHeight + 1);
+  };
+
+  const clickable = truncated || expanded;
+  return (
+    <div>
+      <p
+        ref={ref}
+        onClick={clickable ? () => setExpanded(!expanded) : undefined}
+        className={`text-sm text-gray-600 mt-1 ${expanded ? '' : 'line-clamp-2'} ${clickable ? 'cursor-pointer' : ''}`}
+      >
+        {text}
+      </p>
+      {clickable && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          {expanded ? 'less' : 'more'}
+        </button>
+      )}
+    </div>
+  );
+}
 
 export function EatDrinkSlide(props: EatDrinkSlideProps) {
   const {
@@ -110,13 +136,49 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
 
   const hasBeverages = !!popularBeverages && popularBeverages.length > 0;
   const [mode, setMode] = useState<'food' | 'drink'>('food');
+  const [filter, setFilter] = useState<DishFilter>('all');
+  const [showDishForm, setShowDishForm] = useState(false);
 
-  // Map logged dishes by name so popular cards can show a "Tried" marker
+  // Map logged dishes by name so popular cards render in their "tried" state
   const triedByName = new Map<string, UserDish>();
   countryDishes.forEach(d => triedByName.set(d.name.toLowerCase(), d));
   const triedFor = (dish: Dish) =>
     triedByName.get(dish.name.toLowerCase()) ||
     (dish.englishName ? triedByName.get(dish.englishName.toLowerCase()) : undefined);
+
+  // Logged dishes that don't match any popular dish get their own cards
+  const popularNames = new Set<string>();
+  popularDishes.forEach(d => {
+    popularNames.add(d.name.toLowerCase());
+    if (d.englishName) popularNames.add(d.englishName.toLowerCase());
+  });
+  const customDishes = countryDishes.filter(d => !popularNames.has(d.name.toLowerCase()));
+
+  const triedCount = popularDishes.filter(d => triedFor(d)).length + customDishes.length;
+
+  const visiblePopular = popularDishes.filter(dish => {
+    if (filter === 'tried') return !!triedFor(dish);
+    if (filter === 'want') return isOnWishlist(countryId, dish.name) && !triedFor(dish);
+    return true;
+  });
+  const visibleCustom = filter === 'want' ? [] : customDishes;
+
+  const dishCrudProps = {
+    onUpdateDish, onDeleteDish,
+    onAddRestaurantTry, onUpdateRestaurantTry, onDeleteRestaurantTry,
+  };
+
+  const filterBtn = (value: DishFilter, label: string) => (
+    <button
+      onClick={() => setFilter(value)}
+      className={`px-3.5 py-1 text-sm font-semibold rounded-full border ${filter === value ? 'transition-colors' : 'btn-press'}`}
+      style={filter === value
+        ? { backgroundColor: systemColors.navy, color: '#fff', borderColor: systemColors.navy }
+        : { backgroundColor: '#fff', color: systemColors.navyMuted, borderColor: systemColors.border }}
+    >
+      {label}
+    </button>
+  );
 
   return (
     <div className="p-4 h-full flex flex-col">
@@ -128,14 +190,14 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
           <div className="inline-flex rounded-lg border overflow-hidden" style={{ borderColor: systemColors.border }}>
             <button
               onClick={() => setMode('food')}
-              className="px-4 py-1.5 text-sm font-semibold transition-colors"
+              className={`px-4 py-1.5 text-sm font-semibold ${mode === 'food' ? 'transition-colors' : 'btn-press'}`}
               style={mode === 'food' ? { backgroundColor: systemColors.navy, color: '#fff' } : { backgroundColor: '#fff', color: systemColors.navy }}
             >
               🍽 Food
             </button>
             <button
               onClick={() => setMode('drink')}
-              className="px-4 py-1.5 text-sm font-semibold transition-colors"
+              className={`px-4 py-1.5 text-sm font-semibold ${mode === 'drink' ? 'transition-colors' : 'btn-press'}`}
               style={mode === 'drink' ? { backgroundColor: systemColors.navy, color: '#fff' } : { backgroundColor: '#fff', color: systemColors.navy }}
             >
               🥤 Drinks
@@ -147,60 +209,70 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
       <div className="flex-1 overflow-y-auto">
         {mode === 'food' ? (
           <>
-            {/* Your log — prominent, in context (logging lives here) */}
-            <MyActivitySection
-              embedded
-              countryId={countryId}
-              countryName={countryName}
-              regions={regionalVariations?.map(r => r.name)}
-              regionalVariations={regionalVariations}
-              popularDishes={popularDishes}
-              dishes={countryDishes}
-              onAddDish={onAddDish}
-              onUpdateDish={onUpdateDish}
-              onDeleteDish={onDeleteDish}
-              onAddRestaurantTry={onAddRestaurantTry}
-              onUpdateRestaurantTry={onUpdateRestaurantTry}
-              onDeleteRestaurantTry={onDeleteRestaurantTry}
-            />
+            {/* One list: popular dishes + custom logged dishes; "tried" is a card state */}
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              {filterBtn('all', 'All')}
+              {filterBtn('tried', `Tried${triedCount > 0 ? ` (${triedCount})` : ''}`)}
+              {filterBtn('want', 'Want to try')}
+              <span className="flex-1" />
+              {!showDishForm && (
+                <button
+                  onClick={() => setShowDishForm(true)}
+                  className="btn-press text-sm font-semibold text-white px-3 py-1.5 rounded-md"
+                  style={{ backgroundColor: systemColors.herb }}
+                >
+                  + Add my own
+                </button>
+              )}
+            </div>
 
-            {/* Popular dishes — discovery, with "tried" markers */}
-            <h3 className="text-sm font-semibold mt-6 mb-3" style={{ color: systemColors.navy }}>
-              Popular dishes
-            </h3>
+            {showDishForm && (
+              <div className="mb-4">
+                <DishForm
+                  countryId={countryId}
+                  countryName={countryName}
+                  regions={regionalVariations?.map(r => r.name)}
+                  regionalVariations={regionalVariations}
+                  popularDishes={popularDishes}
+                  onSubmit={(data) => { onAddDish(data); setShowDishForm(false); }}
+                  onCancel={() => setShowDishForm(false)}
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {popularDishes.map((dish) => {
+              {visiblePopular.map((dish) => {
                 const region = detectRegion(dish, regionalVariations);
                 const tried = triedFor(dish);
-                const rating = tried ? dishRating(tried) : undefined;
                 return (
-                  <div key={dish.name} className="relative bg-white rounded-xl border border-gray-200 p-4 transition-shadow hover:shadow-md">
-                    <div className="absolute top-3 right-3 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                      <FavoriteButton
-                        isFavorite={isFavorite(countryId, dish.name)}
-                        onAdd={() => addToFavorites({ countryId, dishName: dish.name, englishName: dish.englishName })}
-                        onRemove={() => { const i = findFavoriteItem(countryId, dish.name); if (i) removeFromFavorites(i.id); }}
-                        compact
-                      />
-                      <WantToTryButton
-                        isOnWishlist={isOnWishlist(countryId, dish.name)}
-                        onAdd={() => addToWishlist({ countryId, dishName: dish.name, englishName: dish.englishName })}
-                        onRemove={() => { const i = findWishlistItem(countryId, dish.name); if (i) removeFromWishlist(i.id); }}
-                        compact
-                      />
-                    </div>
-
+                  <UnifiedDishCard
+                    key={dish.name}
+                    tried={tried}
+                    onTryThis={() => onAddDish({ countryId, name: dish.name })}
+                    cornerActions={
+                      <>
+                        <FavoriteButton
+                          isFavorite={isFavorite(countryId, dish.name)}
+                          onAdd={() => addToFavorites({ countryId, dishName: dish.name, englishName: dish.englishName })}
+                          onRemove={() => { const i = findFavoriteItem(countryId, dish.name); if (i) removeFromFavorites(i.id); }}
+                          compact
+                        />
+                        <WantToTryButton
+                          isOnWishlist={isOnWishlist(countryId, dish.name)}
+                          onAdd={() => addToWishlist({ countryId, dishName: dish.name, englishName: dish.englishName })}
+                          onRemove={() => { const i = findWishlistItem(countryId, dish.name); if (i) removeFromWishlist(i.id); }}
+                          compact
+                        />
+                      </>
+                    }
+                    {...dishCrudProps}
+                  >
                     <div className="text-3xl mb-1.5">{DISH_EMOJI[dish.category] || '🍽️'}</div>
                     <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{dish.name}</h4>
                     {dish.englishName && <p className="text-xs text-gray-400 mb-1">{dish.englishName}</p>}
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">{dish.description}</p>
+                    <ExpandableText text={dish.description} />
 
                     <div className="flex flex-wrap gap-1.5 mt-3">
-                      {tried && (
-                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: systemColors.herb, color: '#fff' }}>
-                          ✓ Tried{rating ? ` · ${'★'.repeat(rating)}` : ''}
-                        </span>
-                      )}
                       {spiceChip(dish.spiceLevel)}
                       {difficultyChip(dish.difficulty)}
                       <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded capitalize">{dish.category}</span>
@@ -214,20 +286,29 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                         <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}>Street</span>
                       )}
                     </div>
-
-                    {!tried && (
-                      <button
-                        onClick={() => onAddDish({ countryId, name: dish.name })}
-                        className="mt-3 text-sm font-medium transition-colors hover:opacity-80"
-                        style={{ color: systemColors.herb }}
-                      >
-                        + I tried this
-                      </button>
-                    )}
-                  </div>
+                  </UnifiedDishCard>
                 );
               })}
+
+              {visibleCustom.map((ud) => (
+                <UnifiedDishCard key={ud.id} tried={ud} isCustom {...dishCrudProps}>
+                  <div className="text-3xl mb-1.5">🍽️</div>
+                  <h4 className="font-semibold text-gray-900 pr-12 leading-tight">{ud.name}</h4>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: systemColors.herbLight, color: systemColors.navy }}>My dish</span>
+                    {ud.region && (
+                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>{ud.region}</span>
+                    )}
+                  </div>
+                </UnifiedDishCard>
+              ))}
             </div>
+
+            {visiblePopular.length === 0 && visibleCustom.length === 0 && (
+              <p className="text-gray-500 text-sm py-8 text-center">
+                {filter === 'tried' ? 'No dishes tried yet — tap "+ I tried this" on any dish' : 'Nothing saved to try yet — tap the bookmark on any dish'}
+              </p>
+            )}
           </>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -236,7 +317,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                 <div className="text-3xl mb-1.5">{(bev.category && BEVERAGE_EMOJI[bev.category]) || '🥤'}</div>
                 <h4 className="font-semibold text-gray-900 leading-tight">{bev.name}</h4>
                 {bev.englishName && <p className="text-xs text-gray-400 mb-1">{bev.englishName}</p>}
-                <p className="text-sm text-gray-600 mt-1 line-clamp-2">{bev.description}</p>
+                <ExpandableText text={bev.description} />
 
                 <div className="flex flex-wrap gap-1.5 mt-3">
                   <span className={`text-xs px-2 py-0.5 rounded ${typeChipClass[bev.type]}`}>{typeLabel[bev.type]}</span>
