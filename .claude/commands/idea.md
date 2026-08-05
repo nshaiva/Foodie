@@ -1,5 +1,5 @@
 ---
-description: Capture a feature idea quickly to the icebox
+description: Capture a feature idea quickly to the roadmap inbox
 ---
 
 # Feature Idea Capture
@@ -8,43 +8,30 @@ User is mid-development and thought of a feature idea. Capture it fast so they c
 
 ## Your Goal
 
-Add the feature to `docs/roadmap/icebox.md` under the appropriate category.
+Add the idea to the **Inbox (unranked)** section of `docs/roadmap/priorities.md`. Do NOT rank it into a tier — that happens during roadmap reviews.
 
 ## How to Get There
 
-**Ask brief questions** to fill gaps - respect the user's time. Usually need:
+**Ask brief questions** to fill gaps - respect the user's time. Usually just:
 - What's the feature in 1-2 sentences
-- Which category it fits (or closest match)
 
-**Skip what's obvious** - If category is clear from description, don't ask.
+**Skip what's obvious** - If the description is clear, don't ask anything.
 
-**Keep it fast** - Total exchange under 1 minute. Get what you need, append to icebox, done.
-
-## Categories
-
-- Study Sessions & Gamification
-- Social Features
-- Card Creation & Import
-- Rich Content Support
-- Card Quality & AI
-- Organization & Deck Management
-- Spaced Repetition Settings
-- Platform Expansion
-- Infrastructure & Observability
+**Keep it fast** - Total exchange under 1 minute. Get what you need, append to the Inbox, done.
 
 ## Format
 
-Append to the appropriate category section in icebox.md:
+Append a bullet to the Inbox section:
 
 ```markdown
-- [Feature Name](features/feature-name.md) - Brief description if helpful
+- **Feature Name** — one-sentence description; note any existing code it builds on if obvious.
 ```
 
-If the idea is simple enough, just add the line item without creating a separate file. If it needs more detail, create `docs/roadmap/features/feature-name.md` with a brief description.
+If the idea needs real detail, create `docs/roadmap/features/feature-name.md` and link it from the bullet.
 
 ## Behavior Rules
 
 - Be conversational - ask what makes sense, not a checklist
-- Max 2-3 questions
-- Bullet points over paragraphs
+- Max 2 questions
 - Don't over-engineer the description
+- Check the tiers + Inbox first: if the idea already exists, say so instead of duplicating

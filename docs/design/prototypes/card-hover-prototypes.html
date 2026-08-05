@@ -1,0 +1,423 @@
+<title>Foodie · Card Hover Prototypes</title>
+<style>
+  :root {
+    --seasalt: #F7F3EC;
+    --surface: #FFFFFF;
+    --border: #E5DFD2;
+    --navy: #33302A;
+    --navy-muted: #6F6A5F;
+    --tomato: #C2654A;
+    --tomato-light: #F0DBD1;
+    --saffron: #D9A441;
+    --saffron-light: #F3E6C7;
+    --herb: #8A9A7B;
+    --herb-light: #E6EAE0;
+    --page-bg: var(--seasalt);
+    --page-text: var(--navy);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page-bg: #26231E;
+      --page-text: #EFEAE0;
+      --surface: #322E27;
+      --border: #464138;
+      --navy: #EFEAE0;
+      --navy-muted: #A8A296;
+      --tomato-light: #4A362E;
+      --saffron-light: #453C28;
+      --herb-light: #363C31;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #26231E; --page-text: #EFEAE0; --surface: #322E27; --border: #464138;
+    --navy: #EFEAE0; --navy-muted: #A8A296; --tomato-light: #4A362E;
+    --saffron-light: #453C28; --herb-light: #363C31;
+  }
+  :root[data-theme="light"] {
+    --page-bg: #F7F3EC; --page-text: #33302A; --surface: #FFFFFF; --border: #E5DFD2;
+    --navy: #33302A; --navy-muted: #6F6A5F; --tomato-light: #F0DBD1;
+    --saffron-light: #F3E6C7; --herb-light: #E6EAE0;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--page-bg);
+    color: var(--page-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 2.5rem 1.25rem 4rem;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; margin: 0 0 .3rem; letter-spacing: -0.01em; }
+  h1 .dot { color: var(--tomato); }
+  .sub { color: var(--navy-muted); font-size: .92rem; margin: 0 0 2.2rem; max-width: 62ch; line-height: 1.5; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem 1.5rem;
+  }
+  .proto { display: flex; flex-direction: column; gap: .7rem; }
+  .proto-label { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--tomato); }
+  .proto-desc { font-size: .82rem; color: var(--navy-muted); line-height: 1.45; margin: 0; min-height: 2.6em; }
+
+  /* ---------- base card (mirrors CountryCard) ---------- */
+  .card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    padding: 1.25rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+  }
+  .card h3 { margin: 0; font-size: 1.05rem; }
+  .card .row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .6rem; gap: .5rem; }
+  .badge { font-size: .68rem; padding: .15rem .55rem; border-radius: 999px; background: var(--tomato-light); white-space: nowrap; }
+  .meta { font-size: .8rem; color: var(--navy-muted); margin: 0 0 .55rem; }
+  .blurb { font-size: .8rem; color: var(--navy-muted); line-height: 1.45; margin: 0 0 .8rem; }
+  .tags { display: flex; gap: .35rem; flex-wrap: wrap; }
+  .tag { font-size: .68rem; padding: .12rem .5rem; border-radius: .25rem; background: var(--herb-light); }
+
+  /* ---------- 1. classic lift ---------- */
+  .v-lift { transition: transform .18s ease-out, box-shadow .18s ease-out, border-color .18s; }
+  .v-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(51,48,42,.22);
+    border-color: var(--tomato);
+  }
+
+  /* ---------- 2. plate pickup (wobble) ---------- */
+  .v-plate { transition: transform .28s cubic-bezier(.34,1.56,.64,1), box-shadow .28s; }
+  .v-plate:hover {
+    transform: rotate(-1.2deg) scale(1.025);
+    box-shadow: 0 14px 28px -10px rgba(51,48,42,.25);
+  }
+
+  /* ---------- 3. sauce swipe ---------- */
+  .v-sauce::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(105deg, transparent 30%, var(--tomato-light) 50%, transparent 70%);
+    transform: translateX(-110%);
+    transition: transform .5s ease;
+    pointer-events: none;
+  }
+  .v-sauce { transition: border-color .25s; }
+  .v-sauce:hover { border-color: var(--tomato); }
+  .v-sauce:hover::before { transform: translateX(110%); }
+
+  /* ---------- 4. garnish arrow ---------- */
+  .v-garnish .go {
+    position: absolute; right: 1.1rem; bottom: .95rem;
+    font-size: .8rem; font-weight: 600; color: var(--tomato);
+    opacity: 0; transform: translateX(-8px);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .v-garnish h3 { display: inline; background-image: linear-gradient(var(--tomato), var(--tomato)); background-size: 0% 2px; background-repeat: no-repeat; background-position: 0 100%; transition: background-size .25s ease; padding-bottom: 2px; }
+  .v-garnish { transition: border-color .2s; }
+  .v-garnish:hover { border-color: var(--tomato); }
+  .v-garnish:hover h3 { background-size: 100% 2px; }
+  .v-garnish:hover .go { opacity: 1; transform: translateX(0); }
+
+  /* ---------- 5. sticker pop ---------- */
+  .v-sticker .badge { transition: transform .3s cubic-bezier(.34,1.8,.64,1); }
+  .v-sticker { transition: transform .2s ease-out, box-shadow .2s; }
+  .v-sticker:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 22px -8px rgba(51,48,42,.2);
+  }
+  .v-sticker:hover .badge { transform: rotate(-6deg) scale(1.18); }
+
+  /* ---------- 6. warm glow ---------- */
+  .v-glow { transition: box-shadow .25s ease, border-color .25s ease, background-color .25s ease; }
+  .v-glow:hover {
+    border-color: var(--saffron);
+    background-color: var(--saffron-light);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--saffron) 25%, transparent);
+  }
+
+  /* ---------- 7. chosen combo: plate pickup + garnish arrow ---------- */
+  .v-combo { transition: transform .28s cubic-bezier(.34,1.56,.64,1), box-shadow .28s, border-color .28s; }
+  .v-combo .go {
+    position: absolute; right: 1.1rem; bottom: .95rem;
+    font-size: .8rem; font-weight: 600; color: var(--tomato);
+    opacity: 0; transform: translateX(-8px);
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .v-combo h3 { display: inline; background-image: linear-gradient(var(--tomato), var(--tomato)); background-size: 0% 2px; background-repeat: no-repeat; background-position: 0 100%; transition: background-size .25s ease; padding-bottom: 2px; }
+  .v-combo:hover {
+    transform: rotate(-1.2deg) scale(1.025);
+    border-color: var(--tomato);
+    box-shadow: 0 14px 28px -10px rgba(194,101,74,.35);
+  }
+  .v-combo:hover h3 { background-size: 100% 2px; }
+  .v-combo:hover .go { opacity: 1; transform: translateX(0); }
+
+  .combo-callout {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--border);
+    padding-top: 2rem;
+    margin-top: .5rem;
+  }
+  .combo-callout .proto-label { font-size: .9rem; }
+  .combo-inner { display: grid; grid-template-columns: minmax(280px, 340px) 1fr; gap: 1.5rem; align-items: start; }
+  @media (max-width: 720px) { .combo-inner { grid-template-columns: 1fr; } }
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    padding: 1rem;
+    font-size: .74rem;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin: 0;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card, .card::before, .card * { transition: none !important; }
+    .pill, .mini { transition: none !important; }
+  }
+
+  /* ================= buttons & small elements ================= */
+  .section-rule { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 2rem; margin-top: .5rem; }
+  .section-rule h2 { font-size: 1.15rem; margin: 0 0 .3rem; }
+  .btn-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+
+  .pill {
+    font: inherit; font-size: .86rem; font-weight: 600;
+    padding: .55rem 1.15rem; border-radius: .55rem;
+    border: 1px solid var(--border); background: var(--surface); color: var(--navy);
+    cursor: pointer;
+  }
+  .pill.active { background: var(--navy); color: var(--page-bg); border-color: var(--navy); }
+
+  /* B1: press-down */
+  .b-press { transition: transform .22s cubic-bezier(.34,1.56,.64,1), border-color .22s, background-color .22s; }
+  .b-press:hover:not(.active) { transform: scale(.96); border-color: var(--tomato); background: var(--tomato-light); }
+
+  /* B2: simmer bounce */
+  .b-simmer { transition: transform .25s cubic-bezier(.34,1.8,.64,1), border-color .25s, color .25s; }
+  .b-simmer:hover:not(.active) { transform: scale(1.07) rotate(-1deg); border-color: var(--tomato); color: var(--tomato); }
+
+  /* B3: fill sweep */
+  .b-fill { position: relative; overflow: hidden; transition: color .25s, border-color .25s; }
+  .b-fill::before { content: ""; position: absolute; inset: 0; background: var(--tomato-light); transform: scaleX(0); transform-origin: left; transition: transform .25s ease; z-index: -1; }
+  .b-fill { z-index: 0; }
+  .b-fill:hover:not(.active) { border-color: var(--tomato); }
+  .b-fill:hover:not(.active)::before { transform: scaleX(1); }
+
+  /* B4: underline garnish */
+  .b-line { position: relative; transition: color .2s; }
+  .b-line::after { content: ""; position: absolute; left: 1.1rem; right: 1.1rem; bottom: .35rem; height: 2px; background: var(--tomato); transform: scaleX(0); transition: transform .22s ease; }
+  .b-line:hover:not(.active) { color: var(--tomato); }
+  .b-line:hover:not(.active)::after { transform: scaleX(1); }
+
+  /* mini cards (similar cuisines) */
+  .mini {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    border: 1px solid var(--border); border-radius: .55rem; background: var(--surface);
+    padding: .8rem 1rem; cursor: pointer; min-width: 220px; text-decoration: none; color: inherit;
+  }
+  .mini b { font-size: .95rem; }
+  .mini .pct { font-size: .8rem; color: var(--navy-muted); transition: color .2s, transform .25s cubic-bezier(.34,1.8,.64,1); }
+
+  /* M1: mini pickup */
+  .m-pickup { transition: transform .25s cubic-bezier(.34,1.56,.64,1), border-color .25s, box-shadow .25s; }
+  .m-pickup:hover { transform: rotate(-.8deg) scale(1.03); border-color: var(--tomato); box-shadow: 0 8px 16px -8px rgba(194,101,74,.35); }
+
+  /* M2: match pop */
+  .m-pop { transition: border-color .2s; }
+  .m-pop:hover { border-color: var(--tomato); }
+  .m-pop:hover .pct { color: var(--tomato); transform: scale(1.2); font-weight: 700; }
+
+  /* M3: nudge right */
+  .m-nudge { transition: transform .2s ease, border-color .2s, box-shadow .2s; }
+  .m-nudge:hover { transform: translateX(5px); border-color: var(--tomato); box-shadow: -4px 0 0 0 var(--tomato); }
+</style>
+
+<div class="wrap">
+  <h1>Card hover prototypes<span class="dot">.</span></h1>
+  <p class="sub">Six treatments on a real country card, in your Terracotta&nbsp;+&nbsp;Sage palette. Hover each one. All variants set <code>cursor:&nbsp;pointer</code>; the question is how much personality the highlight carries. The combo at the bottom is my recommendation.</p>
+
+  <div class="grid">
+    <div class="proto">
+      <span class="proto-label">1 · Classic lift</span>
+      <p class="proto-desc">Rises 4px with a soft shadow and terracotta border. Safe, standard, zero spunk.</p>
+      <a class="card v-lift">
+        <div class="row"><h3>Thailand</h3><span class="badge">Asia</span></div>
+        <p class="meta">Bangkok · Southeast Asia</p>
+        <p class="blurb">Bold, harmonious balance of spicy, sour, sweet, and salty flavors.</p>
+        <div class="tags"><span class="tag">spicy</span><span class="tag">sour</span><span class="tag">aromatic</span></div>
+      </a>
+    </div>
+
+    <div class="proto">
+      <span class="proto-label">2 · Plate pickup</span>
+      <p class="proto-desc">Springy tilt + scale, like lifting a plate off the table. Fun, matches your plate-logo idea.</p>
+      <a class="card v-plate">
+        <div class="row"><h3>Portugal</h3><span class="badge">Europe</span></div>
+        <p class="meta">Lisbon · Iberian Atlantic</p>
+        <p class="blurb">Salt cod, char-grilled fish, custard tarts, and piri-piri heat.</p>
+        <div class="tags"><span class="tag">seafood</span><span class="tag">garlicky</span><span class="tag">rustic</span></div>
+      </a>
+    </div>
+
+    <div class="proto">
+      <span class="proto-label">3 · Sauce swipe</span>
+      <p class="proto-desc">A warm terracotta sheen sweeps across once, like a brushstroke of sauce. Flashy — best used sparingly.</p>
+      <a class="card v-sauce">
+        <div class="row"><h3>Mexico</h3><span class="badge">North America</span></div>
+        <p class="meta">Mexico City · Mesoamerica</p>
+        <p class="blurb">Layered salsas, masa in every form, and chiles as a way of life.</p>
+        <div class="tags"><span class="tag">smoky</span><span class="tag">spicy</span><span class="tag">corn</span></div>
+      </a>
+    </div>
+
+    <div class="proto">
+      <span class="proto-label">4 · Garnish arrow</span>
+      <p class="proto-desc">Title underlines itself and an "Explore →" slides in. Quiet, editorial, very explicit about clickability.</p>
+      <a class="card v-garnish">
+        <div class="row"><h3>Japan</h3><span class="badge">Asia</span></div>
+        <p class="meta">Tokyo · East Asia</p>
+        <p class="blurb">Umami depth, seasonal precision, and reverence for ingredients.</p>
+        <div class="tags"><span class="tag">umami</span><span class="tag">delicate</span><span class="tag">seasonal</span></div>
+        <span class="go">Explore →</span>
+      </a>
+    </div>
+
+    <div class="proto">
+      <span class="proto-label">5 · Sticker pop</span>
+      <p class="proto-desc">The continent badge pops and tilts like a sticker while the card gently scales. Playful without moving the layout.</p>
+      <a class="card v-sticker">
+        <div class="row"><h3>Georgia</h3><span class="badge">Europe</span></div>
+        <p class="meta">Tbilisi · Caucasus</p>
+        <p class="blurb">Walnut sauces, cheese-filled breads, and supra feast culture.</p>
+        <div class="tags"><span class="tag">walnut</span><span class="tag">herby</span><span class="tag">baked</span></div>
+      </a>
+    </div>
+
+    <div class="proto">
+      <span class="proto-label">6 · Warm glow</span>
+      <p class="proto-desc">Card warms to saffron with a soft halo — like a dish under heat lamps. Cozy, but recolors the whole surface.</p>
+      <a class="card v-glow">
+        <div class="row"><h3>Morocco</h3><span class="badge">Africa</span></div>
+        <p class="meta">Rabat · Maghreb</p>
+        <p class="blurb">Tagine slow-cooking, preserved lemon, and ras el hanout perfume.</p>
+        <div class="tags"><span class="tag">spiced</span><span class="tag">sweet-savory</span><span class="tag">slow</span></div>
+      </a>
+    </div>
+
+    <div class="combo-callout">
+      <span class="proto-label">★ Chosen · "Plate pickup + garnish arrow"</span>
+      <p class="proto-desc">The springy plate-pickup tilt (fun), terracotta border + shadow (clickable), title underline, and the Explore → arrow sliding in (explicit affordance). One utility class works app-wide on every card.</p>
+      <div class="combo-inner">
+        <a class="card v-combo">
+          <div class="row"><h3>South Korea</h3><span class="badge">Asia</span></div>
+          <p class="meta">Seoul · East Asia</p>
+          <p class="blurb">Fermented depth, gochujang heat, and communal barbecue ritual.</p>
+          <div class="tags"><span class="tag">fermented</span><span class="tag">spicy</span><span class="tag">grilled</span></div>
+          <span class="go">Explore →</span>
+        </a>
+        <pre><code>/* index.css — one utility for every clickable card */
+.card-interactive {
+  cursor: pointer;
+  position: relative;
+  transition:
+    transform .28s cubic-bezier(.34, 1.56, .64, 1),
+    box-shadow .28s, border-color .28s;
+}
+.card-interactive:hover {
+  transform: rotate(-1.2deg) scale(1.025);
+  border-color: #C2654A;               /* tomato */
+  box-shadow: 0 14px 28px -10px rgb(194 101 74 / .35);
+}
+.card-interactive .card-go {           /* &lt;span class="card-go"&gt;Explore →&lt;/span&gt; */
+  position: absolute; right: 1.1rem; bottom: .95rem;
+  font-size: .8rem; font-weight: 600; color: #C2654A;
+  opacity: 0; transform: translateX(-8px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.card-interactive:hover .card-go { opacity: 1; transform: translateX(0); }
+.card-interactive:focus-visible {      /* keyboard parity */
+  outline: 2px solid #C2654A; outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-interactive, .card-interactive .card-go { transition: none; }
+  .card-interactive:hover { transform: none; }
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="section-rule">
+      <h2>Buttons &amp; small elements</h2>
+      <p class="sub" style="margin-bottom:1.4rem;">Tabs and chips shouldn't do the full plate-pickup — the complementary rule: <strong>cards lift, buttons press</strong>, tied together by the same spring curve and terracotta accent. Hover each row (first pill is the active tab, which stays put).</p>
+    </div>
+
+    <div class="proto" style="grid-column: 1 / -1;">
+      <span class="proto-label">B1 · Press-down ★</span>
+      <p class="proto-desc">Squishes to 96% with a terracotta tint — feels like a physical button, opposite of the cards' lift.</p>
+      <div class="btn-row">
+        <button class="pill active b-press">Flavor</button>
+        <button class="pill b-press">Eat &amp; Drink</button>
+        <button class="pill b-press">Culture &amp; Regions</button>
+      </div>
+    </div>
+
+    <div class="proto" style="grid-column: 1 / -1;">
+      <span class="proto-label">B2 · Simmer bounce</span>
+      <p class="proto-desc">Springs up 7% with a 1° tilt — same personality as the cards, spunkiest option. Can feel busy next to lifting cards.</p>
+      <div class="btn-row">
+        <button class="pill active b-simmer">Flavor</button>
+        <button class="pill b-simmer">Eat &amp; Drink</button>
+        <button class="pill b-simmer">Culture &amp; Regions</button>
+      </div>
+    </div>
+
+    <div class="proto" style="grid-column: 1 / -1;">
+      <span class="proto-label">B3 · Fill sweep</span>
+      <p class="proto-desc">Terracotta tint sweeps in from the left, previewing the selected state. Calm, no movement.</p>
+      <div class="btn-row">
+        <button class="pill active b-fill">Flavor</button>
+        <button class="pill b-fill">Eat &amp; Drink</button>
+        <button class="pill b-fill">Culture &amp; Regions</button>
+      </div>
+    </div>
+
+    <div class="proto" style="grid-column: 1 / -1;">
+      <span class="proto-label">B4 · Underline garnish</span>
+      <p class="proto-desc">Text warms to terracotta and a small underline grows — echoes the card title underline. Most editorial.</p>
+      <div class="btn-row">
+        <button class="pill active b-line">Flavor</button>
+        <button class="pill b-line">Eat &amp; Drink</button>
+        <button class="pill b-line">Culture &amp; Regions</button>
+      </div>
+    </div>
+
+    <div class="section-rule">
+      <h2>Mini cards (Similar Cuisines)</h2>
+    </div>
+
+    <div class="proto">
+      <span class="proto-label">M1 · Mini pickup ★</span>
+      <p class="proto-desc">The card treatment at half strength — same family, scaled to the element.</p>
+      <a class="mini m-pickup"><b>Jamaica</b><span class="pct">40% match</span></a>
+    </div>
+
+    <div class="proto">
+      <span class="proto-label">M2 · Match pop</span>
+      <p class="proto-desc">The % number pops terracotta and grows — points attention at the data.</p>
+      <a class="mini m-pop"><b>United States</b><span class="pct">38% match</span></a>
+    </div>
+
+    <div class="proto">
+      <span class="proto-label">M3 · Nudge right</span>
+      <p class="proto-desc">Slides toward the destination with a terracotta edge — "this navigates somewhere."</p>
+      <a class="mini m-nudge"><b>Peru</b><span class="pct">35% match</span></a>
+    </div>
+  </div>
+</div>
