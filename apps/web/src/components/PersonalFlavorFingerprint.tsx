@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FlavorRadarChart } from './FlavorRadarChart';
 import { AffinitySpectrum } from './AffinitySpectrum';
 import { TasteSurvey } from './TasteSurvey';
+import { DietPreferences } from './DietPreferences';
 import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import type { ColorPalette } from '../data/types';
 
@@ -63,6 +64,7 @@ export function PersonalFlavorFingerprint({ embedded = false }: PersonalFlavorFi
             </Link>
           </div>
         </div>
+        <DietPreferences />
         {surveyOverlay}
       </div>
     );
@@ -180,6 +182,8 @@ export function PersonalFlavorFingerprint({ embedded = false }: PersonalFlavorFi
           </div>
         </div>
       )}
+
+      <DietPreferences />
       {surveyOverlay}
     </div>
   );

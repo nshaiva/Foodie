@@ -48,6 +48,13 @@ export function Home() {
               </p>
             </div>
             <div className="flex items-center gap-4">
+              <Link
+                to="/restaurant"
+                className="btn-press text-sm font-semibold text-white px-3.5 py-2 rounded-lg"
+                style={{ backgroundColor: systemColors.tomato }}
+              >
+                🍽 At a restaurant?
+              </Link>
               <TasteProfileButton />
               <Link
                 to="/wishlist"
