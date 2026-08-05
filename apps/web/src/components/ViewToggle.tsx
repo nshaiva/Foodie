@@ -15,7 +15,7 @@ export const ViewToggle = memo(function ViewToggle({ view, onChange }: ViewToggl
         className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
           view === 'grid'
             ? 'bg-gray-900 text-white'
-            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            : 'btn-press text-gray-600 hover:text-gray-900 hover:bg-gray-100'
         }`}
         aria-pressed={view === 'grid'}
       >
@@ -29,7 +29,7 @@ export const ViewToggle = memo(function ViewToggle({ view, onChange }: ViewToggl
         className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
           view === 'map'
             ? 'bg-gray-900 text-white'
-            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            : 'btn-press text-gray-600 hover:text-gray-900 hover:bg-gray-100'
         }`}
         aria-pressed={view === 'map'}
       >

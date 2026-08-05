@@ -10,6 +10,19 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TasteProfileButton } from '../components/TasteProfileButton';
 import { WordmarkDot } from '../components/Wordmark';
 
+// Static data: group once at module level, continents and countries both alphabetized
+const continentGroups = Object.entries(
+  countries.reduce<Record<string, typeof countries>>((acc, country) => {
+    (acc[country.continent] ??= []).push(country);
+    return acc;
+  }, {})
+)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([continent, group]) => [
+    continent,
+    [...group].sort((a, b) => a.name.localeCompare(b.name)),
+  ] as const);
+
 export function Home() {
   const { wishlist } = useWishlist();
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('foodie-view-mode', 'map');
@@ -64,9 +77,24 @@ export function Home() {
         {effectiveView === 'map' ? (
           <WorldMap />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {countries.map((country) => (
-              <CountryCard key={country.id} country={country} />
+          <div className="space-y-8">
+            {continentGroups.map(([continent, group]) => (
+              <section key={continent}>
+                <h3
+                  className="mb-3 text-sm font-semibold uppercase tracking-wide"
+                  style={{ color: systemColors.navyMuted }}
+                >
+                  {continent}
+                  <span className="ml-2 font-normal normal-case tracking-normal">
+                    {group.length}
+                  </span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {group.map((country) => (
+                    <CountryCard key={country.id} country={country} />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
         )}

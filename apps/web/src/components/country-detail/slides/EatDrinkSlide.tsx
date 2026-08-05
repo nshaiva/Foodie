@@ -62,6 +62,17 @@ function spiceChip(level: Dish['spiceLevel']) {
   return <span className={`text-xs px-2 py-0.5 rounded ${cls}`}>{'🌶️'.repeat(chilies)} {label}</span>;
 }
 
+// Ordering advice from `popularity`; "both" gets no tag
+function popularityChip(popularity: Dish['popularity']) {
+  if (popularity === 'local-favorite') {
+    return <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">📍 Local favorite</span>;
+  }
+  if (popularity === 'tourist-classic') {
+    return <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">📷 Tourist classic</span>;
+  }
+  return null;
+}
+
 function categoryLabel(category: Dish['category']): string {
   return category === 'street-food' ? 'Street food' : category.charAt(0).toUpperCase() + category.slice(1);
 }
@@ -136,6 +147,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
   const [filter, setFilter] = useState<DishFilter>('all');
   const [diet, setDiet] = useState<{ veg: boolean; vegan: boolean; gf: boolean }>({ veg: false, vegan: false, gf: false });
   const [spice, setSpice] = useState<'any' | 'mild' | 'medium' | 'hot'>('any');
+  const [popFilter, setPopFilter] = useState<'any' | 'local-favorite' | 'tourist-classic'>('any');
   const [bevType, setBevType] = useState<'any' | 'alcoholic' | 'non-alcoholic'>('any');
   const [served, setServed] = useState<'any' | 'hot' | 'cold'>('any');
   const [showDishForm, setShowDishForm] = useState(false);
@@ -187,13 +199,14 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
     if (served === 'hot') return how === 'hot';
     return how === 'cold' || how === 'iced';
   };
+  const popMatch = (p?: Dish['popularity']) => popFilter === 'any' || p === popFilter;
   const advancedFiltersActive =
-    spice !== 'any' || diet.veg || diet.vegan || diet.gf || bevType !== 'any' || served !== 'any';
+    spice !== 'any' || diet.veg || diet.vegan || diet.gf || popFilter !== 'any' || bevType !== 'any' || served !== 'any';
 
   const visiblePopular = popularDishes.filter(dish => {
     if (filter === 'tried' && !triedFor(dish)) return false;
     if (filter === 'want' && !(isOnWishlist(countryId, dish.name) && !triedFor(dish))) return false;
-    return spiceMatch(dish.spiceLevel) && dietMatch(dish.dietary);
+    return spiceMatch(dish.spiceLevel) && dietMatch(dish.dietary) && popMatch(dish.popularity);
   });
   // Custom entries carry no spice/dietary metadata, so hide them under advanced filters
   const visibleCustom = filter === 'want' || advancedFiltersActive ? [] : customFood;
@@ -245,6 +258,31 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
         : { backgroundColor: '#fff', color: systemColors.navyMuted, borderColor: systemColors.border }}
     >
       {label}
+    </button>
+  );
+
+  // Last tile of whichever grid is active: dashed ghost card that expands
+  // into the add form in place (spanning the full row)
+  const addMyOwnCell = showDishForm ? (
+    <div className="sm:col-span-2 lg:col-span-3">
+      <DishForm
+        countryId={countryId}
+        countryName={countryName}
+        regions={regionalVariations?.map(r => r.name)}
+        regionalVariations={regionalVariations}
+        popularDishes={popularDishes}
+        onSubmit={(data) => { onAddDish({ ...data, kind: mode === 'drink' ? 'drink' : undefined }); setShowDishForm(false); }}
+        onCancel={() => setShowDishForm(false)}
+      />
+    </div>
+  ) : (
+    <button
+      onClick={() => setShowDishForm(true)}
+      className="btn-press min-h-[140px] rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 text-sm font-semibold"
+      style={{ borderColor: systemColors.herb, color: systemColors.herb }}
+    >
+      <span className="text-2xl leading-none">+</span>
+      Add my own {mode === 'drink' ? 'drink' : 'dish'}
     </button>
   );
 
@@ -316,31 +354,13 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
               ))}
             </div>
           )}
-          <span className="flex-1" />
-          {!showDishForm && (
-            <button
-              onClick={() => setShowDishForm(true)}
-              className="btn-press text-sm font-semibold text-white px-3 py-1.5 rounded-md"
-              style={{ backgroundColor: systemColors.herb }}
-            >
-              + Add my own
-            </button>
+          {mode === 'food' && (
+            <>
+              {toggleChip(popFilter === 'local-favorite', () => setPopFilter(p => p === 'local-favorite' ? 'any' : 'local-favorite'), '📍 Local favorites')}
+              {toggleChip(popFilter === 'tourist-classic', () => setPopFilter(p => p === 'tourist-classic' ? 'any' : 'tourist-classic'), '📷 Tourist classics')}
+            </>
           )}
         </div>
-
-        {showDishForm && (
-          <div className="mb-4">
-            <DishForm
-              countryId={countryId}
-              countryName={countryName}
-              regions={regionalVariations?.map(r => r.name)}
-              regionalVariations={regionalVariations}
-              popularDishes={popularDishes}
-              onSubmit={(data) => { onAddDish({ ...data, kind: mode === 'drink' ? 'drink' : undefined }); setShowDishForm(false); }}
-              onCancel={() => setShowDishForm(false)}
-            />
-          </div>
-        )}
 
         {mode === 'food' ? (
           <>
@@ -379,6 +399,7 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                     <ExpandableText text={dish.description} />
 
                     <div className="flex flex-wrap gap-1.5 mt-3">
+                      {popularityChip(dish.popularity)}
                       {spiceChip(dish.spiceLevel)}
                       {dish.dietary?.isVegan && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegan</span>}
                       {dish.dietary?.isVegetarian && !dish.dietary?.isVegan && <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Vegetarian</span>}
@@ -400,6 +421,8 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                   </div>
                 </UnifiedDishCard>
               ))}
+
+              {addMyOwnCell}
             </div>
 
             {visiblePopular.length === 0 && visibleCustom.length === 0 && (
@@ -474,6 +497,8 @@ export function EatDrinkSlide(props: EatDrinkSlideProps) {
                 </div>
               </UnifiedDishCard>
             ))}
+
+            {addMyOwnCell}
           </div>
           </>
         )}
