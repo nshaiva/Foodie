@@ -14,13 +14,13 @@ export const CN: Country = {
     text: "#3a2b26"          // Dark lacquer brown
   },
   foodCulture: {
-    overview: "Chinese food culture rests on a philosophy older than most written cuisines: the pairing of fan (grain, the meal's anchor) and cai (the dishes that accompany it). A meal is judged not by any single plate but by how its parts converse—textures against textures, warming against cooling, rich against clean. This framework, along with ideas borrowed from traditional medicine about the heating or cooling nature of ingredients, still quietly shapes what appears on family tables from Harbin to Guangzhou.\n\nChina is less one cuisine than a continent of cuisines. The classical 'Eight Great Traditions' (ba da cai xi)—among them Sichuan, Cantonese, Shandong, and Huaiyang—each developed distinct techniques, flavor logics, and prestige dishes over centuries of regional isolation and imperial patronage. Wheat dominates the north in noodles, dumplings, and steamed breads; rice rules the south. A Cantonese cook prizes the unmasked freshness of an ingredient; a Sichuan cook layers twenty-three codified flavor combinations onto it.\n\nEating is China's great social glue. Business is settled over shared lazy-Susan banquets, family bonds are renewed at New Year dumpling-folding sessions, and the everyday greeting 'Chi le ma?'—'Have you eaten?'—doubles as 'How are you?' Restaurants, night markets, and breakfast stalls operate at every price point and hour, and ordering generously for the table is an act of care, not excess.",
-    mealStructure: "Meals center on a staple—steamed rice in the south, noodles or mantou (steamed bread) in the north—surrounded by shared dishes: typically one soup, one or two vegetables, and one or two proteins, all served at once. Breakfast is its own world of congee, soy milk with youtiao (fried dough), baozi, and noodle soups. Banquets follow a loose progression from cold appetizers through stir-fries and braises to a whole fish, soup, and finally fruit.",
-    diningCustoms: "Everyone eats with chopsticks from communal dishes placed at the table's center, transferring food to a personal rice bowl (serving chopsticks are increasingly common). Never stand chopsticks upright in rice—it evokes funeral incense. The host orders for the table and the eldest or most honored guest is served first; refilling others' tea before your own is basic courtesy, acknowledged with a two-finger tap on the table.",
-    historicalInfluences: "The Silk Road brought wheat-milling, sesame, cumin, and grape wine from Central Asia; Buddhism spurred a sophisticated vegetarian tradition of tofu and gluten 'mock meats'; the Columbian Exchange delivered chilies and peanuts in the 16th century, transforming Sichuan and Hunan cooking. Imperial courts refined regional dishes into haute cuisine, while the Chinese diaspora carried and adapted the food across the world—often creating entirely new hybrid cuisines in the process."
+    overview: "Chinese food culture rests on a philosophy older than most written cuisines: the pairing of fan (grain, the meal's anchor) and cai (the dishes that accompany it). A meal is judged not by any single plate but by how its parts converse, textures against textures, warming against cooling, rich against clean. This framework, along with ideas borrowed from traditional medicine about the heating or cooling nature of ingredients, still quietly shapes what appears on family tables from Harbin to Guangzhou.\n\nChina is less one cuisine than a continent of cuisines. The classical 'Eight Great Traditions' (ba da cai xi), among them Sichuan, Cantonese, Shandong, and Huaiyang, each developed distinct techniques, flavor logics, and prestige dishes over centuries of regional isolation and imperial patronage. Wheat dominates the north in noodles, dumplings, and steamed breads; rice rules the south. A Cantonese cook prizes the unmasked freshness of an ingredient; a Sichuan cook layers twenty-three codified flavor combinations onto it.\n\nEating is China's great social glue. Business is settled over shared lazy-Susan banquets, family bonds are renewed at New Year dumpling-folding sessions, and the everyday greeting 'Chi le ma?', 'Have you eaten?', doubles as 'How are you?' Restaurants, night markets, and breakfast stalls operate at every price point and hour, and ordering generously for the table is an act of care, not excess.",
+    mealStructure: "Meals center on a staple, steamed rice in the south, noodles or mantou (steamed bread) in the north, surrounded by shared dishes: typically one soup, one or two vegetables, and one or two proteins, all served at once. Breakfast is its own world of congee, soy milk with youtiao (fried dough), baozi, and noodle soups. Banquets follow a loose progression from cold appetizers through stir-fries and braises to a whole fish, soup, and finally fruit.",
+    diningCustoms: "Everyone eats with chopsticks from communal dishes placed at the table's center, transferring food to a personal rice bowl (serving chopsticks are increasingly common). Never stand chopsticks upright in rice, it evokes funeral incense. The host orders for the table and the eldest or most honored guest is served first; refilling others' tea before your own is basic courtesy, acknowledged with a two-finger tap on the table.",
+    historicalInfluences: "The Silk Road brought wheat-milling, sesame, cumin, and grape wine from Central Asia; Buddhism spurred a sophisticated vegetarian tradition of tofu and gluten 'mock meats'; the Columbian Exchange delivered chilies and peanuts in the 16th century, transforming Sichuan and Hunan cooking. Imperial courts refined regional dishes into haute cuisine, while the Chinese diaspora carried and adapted the food across the world, often creating entirely new hybrid cuisines in the process."
   },
   cuisineProfile: {
-    summary: "Chinese cuisine is a family of regional traditions unified by wok technique, fermented seasonings, and a deep pursuit of umami (xian wei)—ranging from the fiery numbing complexity of Sichuan to the pristine, ingredient-first delicacy of Cantonese cooking.",
+    summary: "Chinese cuisine is a family of regional traditions unified by wok technique, fermented seasonings, and a deep pursuit of umami (xian wei), ranging from the fiery numbing complexity of Sichuan to the pristine, ingredient-first delicacy of Cantonese cooking.",
     flavorProfile: ["umami (xian)", "savory-salty", "numbing-spicy (ma la)", "sweet-sour (tang cu)", "smoky wok breath (wok hei)", "fermented depth"],
     flavorIntensity: {
       heat: 5,
@@ -81,35 +81,35 @@ export const CN: Country = {
   regionalVariations: [
     {
       name: "Sichuan",
-      description: "The southwest basin's cuisine is China's boldest, built on the interplay of chili heat and the electric tingle of Sichuan peppercorn—the famous ma la (numbing-spicy) sensation. Chengdu's codified repertoire counts over twenty distinct flavor profiles, from fish-fragrant to strange-flavor, all layered over fermented doubanjiang from Pixian. Yet Sichuan is not only fire: teahouse snacks and gentle soups balance the drama.",
+      description: "The southwest basin's cuisine is China's boldest, built on the interplay of chili heat and the electric tingle of Sichuan peppercorn, the famous ma la (numbing-spicy) sensation. Chengdu's codified repertoire counts over twenty distinct flavor profiles, from fish-fragrant to strange-flavor, all layered over fermented doubanjiang from Pixian. Yet Sichuan is not only fire: teahouse snacks and gentle soups balance the drama.",
       signatureDishes: ["Mapo Tofu", "Kung Pao Chicken", "Twice-Cooked Pork", "Dan Dan Noodles", "Hot Pot"],
       keyIngredients: ["Sichuan peppercorns", "doubanjiang", "dried chilies", "chili oil", "preserved vegetables"],
       distinctiveTraits: ["Ma la numbing heat", "Layered composite flavors", "Fermented bean pastes", "Fiery communal hot pot"]
     },
     {
       name: "Guangdong (Cantonese)",
-      description: "The Pearl River Delta produces China's most technique-obsessed and least heavy-handed cooking. Freshness is everything—steamed fish is judged by the clock, stir-fries by their wok hei (breath of the wok), and seasoning stays whisper-light so the ingredient speaks. Guangzhou and Hong Kong perfected dim sum, roast meats lacquered to mahogany, and slow-simmered tonic soups.",
+      description: "The Pearl River Delta produces China's most technique-obsessed and least heavy-handed cooking. Freshness is everything, steamed fish is judged by the clock, stir-fries by their wok hei (breath of the wok), and seasoning stays whisper-light so the ingredient speaks. Guangzhou and Hong Kong perfected dim sum, roast meats lacquered to mahogany, and slow-simmered tonic soups.",
       signatureDishes: ["Dim Sum (har gow, siu mai)", "Char Siu", "Steamed Whole Fish", "White Cut Chicken", "Wonton Noodle Soup"],
       keyIngredients: ["fresh seafood", "oyster sauce", "light soy sauce", "ginger", "scallions"],
       distinctiveTraits: ["Ingredient-first restraint", "Masterful steaming and roasting", "Dim sum tradition", "Slow-boiled soups (lou fo tong)"]
     },
     {
       name: "Jiangnan (Shanghai & Huaiyang)",
-      description: "The fertile Yangtze delta around Shanghai, Suzhou, and Hangzhou favors refinement and gentle sweetness. Red-braising in soy, rock sugar, and Shaoxing wine gives dishes a glossy mahogany depth; freshwater fish, crab, and bamboo shoots follow the seasons closely. Huaiyang knife work—tofu shredded into threads—is the benchmark of Chinese banquet technique.",
+      description: "The fertile Yangtze delta around Shanghai, Suzhou, and Hangzhou favors refinement and gentle sweetness. Red-braising in soy, rock sugar, and Shaoxing wine gives dishes a glossy mahogany depth; freshwater fish, crab, and bamboo shoots follow the seasons closely. Huaiyang knife work, tofu shredded into threads, is the benchmark of Chinese banquet technique.",
       signatureDishes: ["Xiaolongbao", "Hongshao Rou (red-braised pork)", "West Lake Fish in Vinegar", "Drunken Chicken", "Lion's Head Meatballs"],
       keyIngredients: ["Shaoxing wine", "rock sugar", "black vinegar", "freshwater fish and crab", "bamboo shoots"],
       distinctiveTraits: ["Sweet-savory red braises", "Delicate knife skills", "Seasonal river delicacies", "Soup-filled dumplings"]
     },
     {
       name: "Northern China (Beijing & Shandong)",
-      description: "The wheat-growing north eats noodles, dumplings, and steamed breads rather than rice, and its Shandong (Lu) tradition—mother cuisine of the imperial court—prizes clear stocks, vinegar, and precise heat control. Beijing layered courtly refinement on top: crackling-skinned Peking duck, zhajiangmian, and hearty lamb hot pot brought by Mongol and Muslim communities.",
+      description: "The wheat-growing north eats noodles, dumplings, and steamed breads rather than rice, and its Shandong (Lu) tradition, mother cuisine of the imperial court, prizes clear stocks, vinegar, and precise heat control. Beijing layered courtly refinement on top: crackling-skinned Peking duck, zhajiangmian, and hearty lamb hot pot brought by Mongol and Muslim communities.",
       signatureDishes: ["Peking Duck", "Zhajiangmian", "Jiaozi (boiled dumplings)", "Mongolian Lamb Hot Pot", "Scallion Pancakes"],
       keyIngredients: ["wheat flour", "scallions", "vinegar", "sweet bean sauce (tianmianjiang)", "lamb"],
       distinctiveTraits: ["Wheat over rice", "Imperial court legacy", "Dumpling and noodle mastery", "Bold alliums and vinegar"]
     },
     {
       name: "Xinjiang (Northwest)",
-      description: "China's far northwest, home to the Uyghur people, cooks a Central Asian cuisine of cumin-dusted lamb skewers grilled over coals, hand-pulled laghman noodles, and naan-like breads baked in tandoor ovens. Halal by tradition, it leans on lamb, wheat, onions, and dried fruit—flavors closer to Samarkand than Shanghai.",
+      description: "China's far northwest, home to the Uyghur people, cooks a Central Asian cuisine of cumin-dusted lamb skewers grilled over coals, hand-pulled laghman noodles, and naan-like breads baked in tandoor ovens. Halal by tradition, it leans on lamb, wheat, onions, and dried fruit, flavors closer to Samarkand than Shanghai.",
       signatureDishes: ["Lamb Skewers (chuan)", "Laghman Noodles", "Big Plate Chicken (dapanji)", "Polo (carrot lamb rice)", "Tandoor Naan"],
       keyIngredients: ["lamb", "cumin", "chili flakes", "hand-pulled noodles", "onions"],
       distinctiveTraits: ["Central Asian and halal traditions", "Charcoal-grilled meats", "Cumin-forward spicing", "Tandoor breads"]
@@ -120,7 +120,7 @@ export const CN: Country = {
       name: "Mapo Doufu",
       englishName: "Mapo Tofu",
       pronunciation: "mah-poh doh-foo",
-      description: "Silken tofu simmered in a crimson sauce of doubanjiang, fermented black beans, and ground pork, finished with a dusting of ground Sichuan peppercorn. The definitive ma la dish—numbing, spicy, and deeply savory.",
+      description: "Silken tofu simmered in a crimson sauce of doubanjiang, fermented black beans, and ground pork, finished with a dusting of ground Sichuan peppercorn. The definitive ma la dish, numbing, spicy, and deeply savory.",
       category: "main",
       regionalOrigin: "Sichuan (Chengdu)",
       keyTraits: ["ma la", "doubanjiang", "silken tofu"],
@@ -133,7 +133,7 @@ export const CN: Country = {
       name: "Beijing Kaoya",
       englishName: "Peking Duck",
       pronunciation: "bay-jing kow-yah",
-      description: "Whole duck air-dried, glazed with maltose, and roasted until the skin shatters like glass. Carved tableside and wrapped in thin pancakes with sweet bean sauce, cucumber, and scallion—the crown jewel of imperial Beijing cooking.",
+      description: "Whole duck air-dried, glazed with maltose, and roasted until the skin shatters like glass. Carved tableside and wrapped in thin pancakes with sweet bean sauce, cucumber, and scallion, the crown jewel of imperial Beijing cooking.",
       category: "main",
       regionalOrigin: "Beijing",
       keyTraits: ["crispy skin", "roasted", "sweet bean sauce"],
@@ -146,7 +146,7 @@ export const CN: Country = {
       name: "Xiaolongbao",
       englishName: "Soup Dumplings",
       pronunciation: "shyow-long-bow",
-      description: "Delicate pleated dumplings from the Shanghai region hiding hot pork broth inside—the soup, set with aspic, melts as the basket steams. Eaten carefully: nibble a corner, sip the broth, then dip in black vinegar with ginger threads.",
+      description: "Delicate pleated dumplings from the Shanghai region hiding hot pork broth inside, the soup, set with aspic, melts as the basket steams. Eaten carefully: nibble a corner, sip the broth, then dip in black vinegar with ginger threads.",
       category: "appetizer",
       regionalOrigin: "Jiangnan (Shanghai)",
       keyTraits: ["soup-filled", "steamed", "pleated dough"],
@@ -159,7 +159,7 @@ export const CN: Country = {
       name: "Gongbao Jiding",
       englishName: "Kung Pao Chicken",
       pronunciation: "gong-bow jee-ding",
-      description: "Diced chicken flash-fried with dried chilies, Sichuan peppercorns, and peanuts in a glossy sweet-sour-savory sauce. A study in the litchi flavor profile—gentle sweetness and vinegar brightness over smoldering heat.",
+      description: "Diced chicken flash-fried with dried chilies, Sichuan peppercorns, and peanuts in a glossy sweet-sour-savory sauce. A study in the litchi flavor profile, gentle sweetness and vinegar brightness over smoldering heat.",
       category: "main",
       regionalOrigin: "Sichuan",
       keyTraits: ["peanuts", "dried chilies", "sweet-sour"],
@@ -198,7 +198,7 @@ export const CN: Country = {
       name: "Lanzhou Lamian",
       englishName: "Hand-Pulled Beef Noodle Soup",
       pronunciation: "lahn-joe lah-myen",
-      description: "Noodles stretched by hand to order and served in a clear beef broth with radish, chili oil, cilantro, and scallion—codified as 'one clear, two white, three red, four green.' A halal northwest classic found on nearly every Chinese street.",
+      description: "Noodles stretched by hand to order and served in a clear beef broth with radish, chili oil, cilantro, and scallion, codified as 'one clear, two white, three red, four green.' A halal northwest classic found on nearly every Chinese street.",
       category: "soup",
       regionalOrigin: "Northwest (Lanzhou)",
       keyTraits: ["hand-pulled noodles", "clear beef broth", "chili oil"],
@@ -212,7 +212,7 @@ export const CN: Country = {
       name: "Hongshao Rou",
       englishName: "Red-Braised Pork Belly",
       pronunciation: "hong-shaow roh",
-      description: "Cubes of pork belly slowly braised in soy sauce, Shaoxing wine, and caramelized rock sugar until glossy, wobbling, and mahogany-dark. The soul dish of Jiangnan home cooking—famously Mao Zedong's favorite.",
+      description: "Cubes of pork belly slowly braised in soy sauce, Shaoxing wine, and caramelized rock sugar until glossy, wobbling, and mahogany-dark. The soul dish of Jiangnan home cooking, famously Mao Zedong's favorite.",
       category: "main",
       regionalOrigin: "Jiangnan (Shanghai)",
       keyTraits: ["red-braised", "caramelized sugar", "melting pork belly"],
@@ -225,7 +225,7 @@ export const CN: Country = {
       name: "Dan Dan Mian",
       englishName: "Dan Dan Noodles",
       pronunciation: "dahn-dahn myen",
-      description: "Springy noodles under a slick of chili oil, sesame paste, Sichuan peppercorn, and crispy pork with preserved mustard greens—tossed at the table into a numbing, nutty tangle. Named for the shoulder poles of Chengdu street hawkers.",
+      description: "Springy noodles under a slick of chili oil, sesame paste, Sichuan peppercorn, and crispy pork with preserved mustard greens, tossed at the table into a numbing, nutty tangle. Named for the shoulder poles of Chengdu street hawkers.",
       category: "street-food",
       regionalOrigin: "Sichuan (Chengdu)",
       keyTraits: ["chili oil", "sesame paste", "ma la"],
@@ -255,7 +255,7 @@ export const CN: Country = {
       name: "Longjing Cha",
       englishName: "Dragon Well Green Tea",
       pronunciation: "long-jing chah",
-      description: "Hangzhou's celebrated pan-fired green tea with flat jade leaves and a chestnut-sweet, faintly vegetal cup. Tea is China's daily drink and social ritual—served constantly at meals, meetings, and teahouses.",
+      description: "Hangzhou's celebrated pan-fired green tea with flat jade leaves and a chestnut-sweet, faintly vegetal cup. Tea is China's daily drink and social ritual, served constantly at meals, meetings, and teahouses.",
       type: "non-alcoholic",
       category: "tea",
       regionalOrigin: "Hangzhou (Zhejiang)",
@@ -281,7 +281,7 @@ export const CN: Country = {
       name: "Suanmeitang",
       englishName: "Sour Plum Drink",
       pronunciation: "swan-may-tahng",
-      description: "Beijing's classic summer cooler simmered from smoked dried plums, hawthorn, rock sugar, and osmanthus flowers—tart, smoky-sweet, and served ice-cold beside hot pot and roast duck.",
+      description: "Beijing's classic summer cooler simmered from smoked dried plums, hawthorn, rock sugar, and osmanthus flowers, tart, smoky-sweet, and served ice-cold beside hot pot and roast duck.",
       type: "non-alcoholic",
       category: "street",
       regionalOrigin: "Beijing",

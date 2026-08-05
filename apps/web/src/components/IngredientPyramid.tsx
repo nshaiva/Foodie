@@ -212,7 +212,7 @@ export function IngredientPyramid({ tiers, colors, cookingFlow }: IngredientPyra
             In practice — the sequence
           </div>
           {/* Same chip styling as the ingredient rows; one scrollable line */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <div className="flex items-center gap-1.5 flex-wrap gap-y-2">
             {cookingFlow!.map((step, index) => (
               <span key={index} className="flex items-center gap-1.5 flex-none">
                 <span

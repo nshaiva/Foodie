@@ -55,6 +55,23 @@ export const WorldMap = memo(function WorldMap() {
     [layer, personalFlavor]
   );
 
+  // Explored-depth per country (% of popular dishes tried) for the
+  // explored layer's gradient
+  const exploredDepth = useMemo(() => {
+    const byCountry = new Map<string, typeof dishes>();
+    dishes.forEach(d => {
+      const list = byCountry.get(d.countryId) ?? [];
+      list.push(d);
+      byCountry.set(d.countryId, list);
+    });
+    const depths = new Map<string, number>();
+    for (const [countryId, list] of byCountry) {
+      const c = getCountryById(countryId);
+      if (c) depths.set(countryId, countryDishProgress(c, list).percent);
+    }
+    return depths;
+  }, [dishes]);
+
   // Min-max of the computed scores, used to stretch the color ramp so
   // clustered high scores still grade visibly.
   const matchDomain = useMemo<[number, number] | undefined>(() => {
@@ -164,13 +181,16 @@ export const WorldMap = memo(function WorldMap() {
                 const match = alpha2 ? flavorMatches?.get(alpha2) : undefined;
                 const fill = flavorMatches
                   ? getFlavorMatchFillColor(match?.score, isHovered, matchDomain)
-                  : getCountryFillColor(activityState, isHovered);
+                  : getCountryFillColor(activityState, isHovered, alpha2 ? exploredDepth.get(alpha2) : undefined);
                 // On the flavor-match layer, outline already-logged countries
-                const isLoggedOnMatchLayer = !!flavorMatches && activityState === 'hasDishes';
+                // Logged countries get an outline on both layers: ink on the
+                // slate flavor layer, deep burnt terracotta on the explored layer
+                const isLogged = activityState === 'hasDishes';
+                const loggedStroke = flavorMatches ? FLAVOR_MATCH_LOGGED_STROKE : '#7E3A29';
                 const stroke = isHovered
                   ? MAP_STROKE.hover
-                  : isLoggedOnMatchLayer
-                    ? FLAVOR_MATCH_LOGGED_STROKE
+                  : isLogged
+                    ? loggedStroke
                     : MAP_STROKE.default;
 
                 return (
@@ -179,7 +199,7 @@ export const WorldMap = memo(function WorldMap() {
                     geography={geo}
                     fill={fill}
                     stroke={stroke}
-                    strokeWidth={isHovered || isLoggedOnMatchLayer ? 1 : 0.5}
+                    strokeWidth={isHovered || isLogged ? 1 : 0.5}
                     style={{
                       default: {
                         outline: 'none',
@@ -231,13 +251,13 @@ export const WorldMap = memo(function WorldMap() {
           }`}
           style={
             layer === 'explored'
-              ? { backgroundColor: systemColors.navy, color: '#fff' }
+              ? { backgroundColor: systemColors.tomato, color: '#fff' }
               : { color: systemColors.navyMuted }
           }
           onMouseEnter={(e) => {
             if (layer !== 'explored') {
-              e.currentTarget.style.backgroundColor = `${systemColors.navy}15`;
-              e.currentTarget.style.color = systemColors.navy;
+              e.currentTarget.style.backgroundColor = `${systemColors.tomato}18`;
+              e.currentTarget.style.color = systemColors.tomato;
             }
           }}
           onMouseLeave={(e) => {
@@ -258,13 +278,13 @@ export const WorldMap = memo(function WorldMap() {
           }`}
           style={
             layer === 'flavorMatch'
-              ? { backgroundColor: systemColors.tomato, color: '#fff' }
+              ? { backgroundColor: '#3E5260', color: '#fff' }
               : { color: systemColors.navyMuted }
           }
           onMouseEnter={(e) => {
             if (layer !== 'flavorMatch' && hasEnoughData) {
-              e.currentTarget.style.backgroundColor = `${systemColors.tomato}18`;
-              e.currentTarget.style.color = systemColors.tomato;
+              e.currentTarget.style.backgroundColor = '#3E526018';
+              e.currentTarget.style.color = '#3E5260';
             }
           }}
           onMouseLeave={(e) => {

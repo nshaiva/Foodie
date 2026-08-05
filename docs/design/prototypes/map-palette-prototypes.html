@@ -1,0 +1,103 @@
+<title>Map layer palettes — flavor-match ramp candidates</title>
+<style>
+  :root { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A;
+    --line:#E7E1D4; --tomato:#C2654A; --sage:#7C8B6F; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; }
+  }
+  :root[data-theme="light"] { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A; --line:#E7E1D4; }
+  :root[data-theme="dark"] { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:2.5rem 1.25rem 5rem;
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size:1.35rem; margin:0 0 .3rem; }
+  .sub { color:var(--ink-soft); font-size:.9rem; margin:0 0 1.6rem; max-width:64ch; }
+  .brandbar { display:flex; align-items:center; gap:1.6rem; background:var(--surface); border:1px solid var(--line);
+    border-radius:12px; padding: .9rem 1.2rem; margin-bottom:1.8rem; flex-wrap:wrap; }
+  .wordmark { font-weight:800; font-size:1.5rem; letter-spacing:-.02em; }
+  .dot { display:inline-block; width:.55em; height:.55em; border-radius:50%; margin-left:.1em;
+    background: radial-gradient(circle, var(--tomato) 0 36%, #C2654A8C 36% 60%, #C2654A33 60% 100%); }
+  .swatchrow { display:flex; align-items:center; gap:.5rem; font-size:.72rem; color:var(--ink-soft); }
+  .sw { width:1.1rem; height:1.1rem; border-radius:4px; border:1px solid var(--line); }
+
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:1.2rem 1.3rem; margin-bottom:1.6rem; }
+  .tag { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--tomato); }
+  .card h2 { font-size:1rem; margin:.15rem 0 .25rem; }
+  .card .why { font-size:.8rem; color:var(--ink-soft); margin:0 0 .9rem; max-width:66ch; }
+  .maps { display:flex; gap:1.6rem; flex-wrap:wrap; }
+  .mapmock { flex:1; min-width:280px; }
+  .mapmock .lbl { font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.4rem; }
+  .tiles { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; background:#FAF6EF; border:1px solid var(--line);
+    border-radius:10px; padding:10px; }
+  .t { height:34px; border-radius:6px; border:1px solid #fff; }
+  .t.outline { border:1.5px solid #33302A; }
+  .bar { height:10px; border-radius:5px; margin-top:.55rem; border:1px solid var(--line); }
+  .barlbl { display:flex; justify-content:space-between; font-size:.68rem; color:var(--ink-faint); margin-top:.2rem; }
+</style>
+
+<div class="wrap">
+  <h1>Flavor-match ramp — candidates next to the brand</h1>
+  <p class="sub">The Explored layer now owns the terracotta ramp (left mock in every card, identical throughout). Each card tries a different ramp for the Flavor Match layer (right mock). Tiles simulate countries: a spread of match strengths, plus beige unexplored, gray coming-soon, and one black-outlined tile (a country you've already logged, shown on the match layer).</p>
+
+  <div class="brandbar">
+    <span class="wordmark">foodie<span class="dot"></span></span>
+    <span class="swatchrow"><span class="sw" style="background:#C2654A"></span>terracotta</span>
+    <span class="swatchrow"><span class="sw" style="background:#7C8B6F"></span>sage/herb</span>
+    <span class="swatchrow"><span class="sw" style="background:#C99A2E"></span>saffron</span>
+    <span class="swatchrow"><span class="sw" style="background:#33302A"></span>ink</span>
+    <span class="swatchrow"><span class="sw" style="background:#F2E7DC"></span>beige (unexplored)</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+  const EXPLORED = ['#EFD9CD', '#E4B49D', '#DA9B80', '#C97F62', '#A9503A'];
+  const BEIGE = '#F2E7DC', GRAY = '#e5e7eb';
+
+  const variants = [
+    { tag: 'A', name: 'Sage → deep olive (green, from the palette)', why: "The app's own green. Terracotta and olive are a classic earth pairing — the two layers read as siblings, and the deep end is rich without going neon. Watch: the pale end sits close to the old sage 'Available' tint, but unexplored is beige now, so no clash.", ramp: ['#E7EDE0','#B9C6A6','#9AAC82','#7C8B6F','#57654B'] },
+    { tag: 'B', name: 'Dusty rose → berry', why: 'Warm pink family (the sweet-axis color lives here too). Feminine, warm, clearly different from terracotta while blending with it — rose is terracotta with the orange taken out. Risk: at mid strength it can read close to the terracotta ramp.', ramp: ['#F4E3E4','#E0B4BC','#CE8D9C','#B76B80','#8E4A5B'] },
+    { tag: 'C', name: 'Warm slate → ink blue', why: 'The cool option: cream-blue deepening toward the ink navy the app uses for text. Maximum contrast with terracotta — the two layers could never be confused — and black outlines disappear elegantly into the deep end. Coolness is the point and the risk.', ramp: ['#E4E8EA','#AFBEC6','#8AA0AC','#647E8E','#3E5260'] },
+    { tag: 'D', name: 'Umber → espresso', why: "Warm brown (the umami-axis family). Deeply earthy, blends seamlessly with terracotta and beige — almost monochrome-warm map. Risk: at small sizes brown and terracotta mid-tones get hard to tell apart.", ramp: ['#EDE2D6','#C9AC90','#A9866A','#8A6549','#5F4128'] },
+    { tag: 'E', name: 'Saffron gold (current, for comparison)', why: "What's on the map right now — the mustard you're not sold on. Kept here so the alternatives have a baseline.", ramp: ['#F0E4C4','#E5CC90','#DDBB6B','#CB9F42','#B58225'] },
+  ];
+
+  function tiles(ramp) {
+    // fixed pseudo-random layout: mix of ramp strengths, beige, gray, one outlined
+    const cells = [
+      ramp[1], BEIGE, ramp[3], GRAY, ramp[2], BEIGE,
+      GRAY, ramp[4], BEIGE, ramp[0], GRAY, ramp[2],
+      ramp[3], GRAY, {c: ramp[4], o: true}, BEIGE, ramp[1], GRAY,
+    ];
+    return cells.map(x => typeof x === 'string'
+      ? `<div class="t" style="background:${x}"></div>`
+      : `<div class="t outline" style="background:${x.c}"></div>`).join('');
+  }
+  const exploredTiles = [
+    EXPLORED[1], BEIGE, EXPLORED[3], GRAY, EXPLORED[2], BEIGE,
+    GRAY, EXPLORED[4], BEIGE, EXPLORED[0], GRAY, EXPLORED[2],
+    EXPLORED[3], GRAY, EXPLORED[4], BEIGE, EXPLORED[1], GRAY,
+  ].map(c => `<div class="t" style="background:${c}"></div>`).join('');
+
+  document.getElementById('grid').innerHTML = variants.map(v => `
+    <div class="card">
+      <span class="tag">${v.tag}</span>
+      <h2>${v.name}</h2>
+      <p class="why">${v.why}</p>
+      <div class="maps">
+        <div class="mapmock">
+          <div class="lbl">Explored (fixed — terracotta)</div>
+          <div class="tiles">${exploredTiles}</div>
+          <div class="bar" style="background:linear-gradient(to right, ${EXPLORED.join(',')})"></div>
+          <div class="barlbl"><span>tasted</span><span>well explored</span></div>
+        </div>
+        <div class="mapmock">
+          <div class="lbl">Flavor match (candidate ${v.tag})</div>
+          <div class="tiles">${tiles(v.ramp)}</div>
+          <div class="bar" style="background:linear-gradient(to right, ${v.ramp.join(',')})"></div>
+          <div class="barlbl"><span>less your taste</span><span>more your taste</span></div>
+        </div>
+      </div>
+    </div>`).join('');
+</script>

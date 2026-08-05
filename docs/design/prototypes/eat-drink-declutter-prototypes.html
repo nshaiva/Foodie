@@ -1,0 +1,126 @@
+<title>Eat &amp; Drink — decluttered card &amp; filter prototypes</title>
+<style>
+  :root { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A;
+    --line:#E7E1D4; --tomato:#C2654A; --sage:#7C8B6F; --sage-soft:#EDF1E8; --slate:#3E5260; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; }
+  }
+  :root[data-theme="light"] { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A; --line:#E7E1D4; --sage-soft:#EDF1E8; }
+  :root[data-theme="dark"] { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:2.5rem 1.25rem 5rem;
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
+  .wrap { max-width:980px; margin:0 auto; }
+  h1 { font-size:1.35rem; margin:0 0 .3rem; }
+  .sub { color:var(--ink-soft); font-size:.9rem; margin:0 0 2rem; max-width:66ch; }
+  .proto { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:1.5rem; margin-bottom:2.5rem; }
+  .tag { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--tomato); }
+  .proto h2 { font-size:1.05rem; margin:.15rem 0 .25rem; }
+  .proto .why { font-size:.8rem; color:var(--ink-soft); margin:0 0 1.2rem; max-width:70ch; }
+
+  /* shared card scaffold */
+  .frow { display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:.8rem; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:1rem; position:relative; }
+  .plate { width:20px; height:20px; border-radius:50%; margin-bottom:.5rem;
+    background: radial-gradient(circle, var(--pc,#C2654A) 0 36%, color-mix(in srgb, var(--pc,#C2654A) 55%, transparent) 36% 60%, color-mix(in srgb, var(--pc,#C2654A) 20%, transparent) 60% 100%); }
+  .card h3 { font-size:.98rem; margin:0; }
+  .card .meta { font-size:.72rem; color:var(--ink-faint); margin:.1rem 0 .35rem; }
+  .card .desc { font-size:.8rem; color:var(--ink-soft); margin:0 0 .6rem; }
+  .card .try { font-size:.8rem; font-weight:600; color:var(--sage); margin-top:.6rem; display:block; }
+  .chips { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+
+  /* ============ A: single-tint system ============ */
+  .vA .fpill { font-size:.72rem; font-weight:600; padding:.28rem .7rem; border-radius:999px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .vA .fpill.on { background:var(--sage); border-color:var(--sage); color:#fff; }
+  .vA .chip { font-size:.7rem; font-weight:600; padding:.18rem .55rem; border-radius:6px;
+    background:var(--sage-soft); color:var(--ink); }
+
+  /* ============ B: no boxes — inline text ============ */
+  .vB .fpill { font-size:.72rem; font-weight:600; padding:.28rem .7rem; border-radius:999px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .vB .fpill.on { border-color:var(--ink); color:var(--ink); font-weight:700; }
+  .vB .chips { gap:.15rem; font-size:.74rem; color:var(--ink-soft); }
+  .vB .chip { padding:0; background:none; }
+  .vB .chip + .chip::before { content:'·'; margin:0 .35rem; color:var(--ink-faint); }
+  .vB .chip b { font-weight:600; color:var(--ink-soft); letter-spacing:.02em; }
+
+  /* ============ C: outline chips, ink only ============ */
+  .vC .fpill { font-size:.72rem; font-weight:600; padding:.28rem .7rem; border-radius:999px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .vC .fpill.on { background:var(--ink); border-color:var(--ink); color:var(--bg); }
+  .vC .chip { font-size:.68rem; font-weight:600; padding:.16rem .5rem; border-radius:5px;
+    border:1px solid var(--line); background:transparent; color:var(--ink-soft); letter-spacing:.02em; }
+
+  .divider { width:1px; height:1.1rem; background:var(--line); }
+</style>
+
+<div class="wrap">
+  <h1>Eat &amp; Drink, decluttered — three treatments</h1>
+  <p class="sub">Same Mexico content in all three. What changes: how much color the filter row and card chips are allowed to use. Icons and labels carry the meaning everywhere; color stops being a per-category costume.</p>
+
+  <div class="proto vA">
+    <span class="tag">A</span>
+    <h2>One tint for everything</h2>
+    <p class="why">Every chip on every card is the same quiet sage tint — no blue GF, no violet VGT, no red spice box. Active filters are solid sage; inactive are white outlines. Meaning lives entirely in the icon/label. Calm, coherent, still clearly "chips."</p>
+    <div class="frow" id="fA"></div>
+    <div class="cards" id="cA"></div>
+  </div>
+
+  <div class="proto vB">
+    <span class="tag">B</span>
+    <h2>No boxes at all</h2>
+    <p class="why">The most minimal: card chips dissolve into one muted text line — 📍 · 🌶🌶 · VGT · GF — separated by dots, no backgrounds anywhere. Active filters just turn ink-dark. The cards get very quiet and editorial; the risk is losing the tap-target feel and some glanceability.</p>
+    <div class="frow" id="fB"></div>
+    <div class="cards" id="cB"></div>
+  </div>
+
+  <div class="proto vC">
+    <span class="tag">C</span>
+    <h2>Hairline outline chips</h2>
+    <p class="why">Chips keep their shape but lose all fills: hairline borders, ink-gray text. Active filters go solid ink (like the Food/Drinks toggle). The middle path — structured like A, restrained like B, and the strongest "modern menu" feel of the three.</p>
+    <div class="frow" id="fC"></div>
+    <div class="cards" id="cC"></div>
+  </div>
+</div>
+
+<script>
+  const filters = [
+    { t: 'All', on: true }, { t: 'Tried (2)' }, { t: 'Want to try' }, { d: 1 },
+    { t: 'VGT' }, { t: 'VG' }, { t: 'GF', on: true }, { d: 1 },
+    { t: '📍 Local' }, { t: '📷 Tourist' }, { t: '🍰 Dessert' },
+  ];
+  const dishes = [
+    { pc: '#C2654A', name: 'Tacos', meta: 'Central Mexico · Main · Street food',
+      desc: 'Soft corn tortillas filled with endless variations, carne asada to al pastor.',
+      chips: ['📍', '🌶🌶', 'GF'] },
+    { pc: '#7C8B6F', name: 'Pozole', meta: 'Soup',
+      desc: 'Hearty hominy soup with pork or chicken in a red or green chili broth.',
+      chips: ['📍', '🌶🌶', 'GF'] },
+    { pc: '#C46A88', name: 'Churros', meta: 'Dessert · Street food',
+      desc: 'Fried dough pastry coated in cinnamon sugar, often with chocolate sauce.',
+      chips: ['📷', '🍰', 'VGT'] },
+  ];
+  function renderFilters(el) {
+    el.innerHTML = filters.map(f => f.d
+      ? '<span class="divider"></span>'
+      : `<span class="fpill${f.on ? ' on' : ''}">${f.t}</span>`).join('');
+  }
+  function renderCards(el, variant) {
+    el.innerHTML = dishes.map(d => `
+      <div class="card">
+        <div class="plate" style="--pc:${d.pc}"></div>
+        <h3>${d.name}</h3>
+        <div class="meta">${d.meta}</div>
+        <p class="desc">${d.desc}</p>
+        <div class="chips">${d.chips.map(c => {
+          const isText = /^[A-Z]/.test(c);
+          return `<span class="chip">${isText && variant === 'B' ? '<b>' + c + '</b>' : c}</span>`;
+        }).join('')}</div>
+        <span class="try">+ I tried this</span>
+      </div>`).join('');
+  }
+  renderFilters(document.getElementById('fA')); renderCards(document.getElementById('cA'), 'A');
+  renderFilters(document.getElementById('fB')); renderCards(document.getElementById('cB'), 'B');
+  renderFilters(document.getElementById('fC')); renderCards(document.getElementById('cC'), 'C');
+</script>

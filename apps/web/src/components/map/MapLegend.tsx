@@ -2,6 +2,7 @@ import { memo } from 'react';
 import {
   LEGEND_ITEMS,
   FLAVOR_MATCH_GRADIENT,
+  EXPLORED_DEPTH_GRADIENT,
   MAP_COLORS,
   type MapLayer,
 } from './mapUtils';
@@ -14,7 +15,15 @@ export const MapLegend = memo(function MapLegend({ layer }: MapLegendProps) {
   return (
     <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm border border-gray-200">
       {layer === 'explored' ? (
-        <div className="flex flex-wrap gap-x-4 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-600">Tasted</span>
+            <div
+              className="w-16 h-3 rounded-sm border border-gray-300"
+              style={{ background: EXPLORED_DEPTH_GRADIENT }}
+            />
+            <span className="text-xs text-gray-600">Well explored</span>
+          </div>
           {LEGEND_ITEMS.map(({ state, label, color }) => (
             <div key={state} className="flex items-center gap-1.5">
               <div

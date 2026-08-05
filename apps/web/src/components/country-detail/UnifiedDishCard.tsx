@@ -57,8 +57,10 @@ export function UnifiedDishCard({
   const [editName, setEditName] = useState('');
   const [editNotes, setEditNotes] = useState('');
   const [editRating, setEditRating] = useState(0);
-  const [showRatingInfo, setShowRatingInfo] = useState(false);
   const [justTried, setJustTried] = useState(false);
+  // True while the edit panel is the auto-opened first-log prompt; canceling
+  // that one un-logs the dish instead of leaving an accidental unrated entry
+  const [isInitialPrompt, setIsInitialPrompt] = useState(false);
 
   // "+ I tried this" flows straight into the rating prompt once the entry exists
   useEffect(() => {
@@ -67,9 +69,18 @@ export function UnifiedDishCard({
       setEditNotes(tried.notes || '');
       setEditRating(tried.tasteRating || 0);
       setIsEditing(true);
+      setIsInitialPrompt(true);
       setJustTried(false);
     }
   }, [justTried, tried]);
+
+  const cancelEdit = () => {
+    if (isInitialPrompt && tried) {
+      onDeleteDish(tried.id);
+    }
+    setIsInitialPrompt(false);
+    setIsEditing(false);
+  };
 
   const tries = tried?.restaurantTries || [];
   const verdict = tried ? dishVerdictRating(tried) : undefined;
@@ -91,6 +102,7 @@ export function UnifiedDishCard({
       notes: editNotes.trim() || undefined,
       tasteRating: editRating || undefined,
     });
+    setIsInitialPrompt(false);
     setIsEditing(false);
   };
 
@@ -153,7 +165,7 @@ export function UnifiedDishCard({
                   Save
                 </button>
                 <button
-                  onClick={() => setIsEditing(false)}
+                  onClick={cancelEdit}
                   className="text-sm px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
                 >
                   Cancel
@@ -164,32 +176,27 @@ export function UnifiedDishCard({
             <>
               <div className="flex items-center gap-2">
                 <span
-                  className="text-xs px-2 py-0.5 rounded-full font-medium text-white"
-                  style={{ backgroundColor: systemColors.herb }}
+                  className="text-sm font-bold leading-none"
+                  style={{ color: systemColors.herb }}
+                  title={rating && derived ? `Tried — avg of ${ratedTryCount(tried)} rated ${ratedTryCount(tried) === 1 ? 'try' : 'tries'}` : 'Tried'}
                 >
-                  ✓ Tried
+                  ✓
                 </span>
-                {rating && <RatingStars rating={rating} />}
-                {rating && derived && (
-                  <span className="text-[11px] text-gray-400">avg of {ratedTryCount(tried)} {ratedTryCount(tried) === 1 ? 'try' : 'tries'}</span>
+                {rating ? <RatingStars rating={rating} /> : (
+                  <button
+                    onClick={startEdit}
+                    className="btn-press text-xs font-medium"
+                    style={{ color: systemColors.saffron }}
+                  >
+                    ☆ Rate it
+                  </button>
                 )}
-                {rating && (
-                  <span className="relative inline-flex">
-                    <button
-                      onClick={() => setShowRatingInfo(!showRatingInfo)}
-                      className="text-gray-300 hover:text-gray-500 text-xs leading-none transition-colors"
-                      title="How ratings work"
-                      aria-label="How ratings work"
-                    >
-                      ⓘ
-                    </button>
-                    {showRatingInfo && (
-                      <span className="absolute left-1/2 -translate-x-1/2 top-5 z-10 w-56 text-[11px] leading-snug text-gray-600 bg-white border border-gray-200 rounded-lg shadow-md p-2.5 normal-case font-normal">
-                        Stars you set on the dish are your overall take on it. Without one, we show the average of your rated visits.
-                      </span>
-                    )}
-                  </span>
-                )}
+                <button
+                  onClick={() => setShowTries(!showTries)}
+                  className="card-cta text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                >
+                  {showTries ? '▾' : '▸'} {tries.length} {tries.length === 1 ? 'try' : 'tries'}
+                </button>
                 <span className="ml-auto flex gap-1">
                   <button
                     onClick={startEdit}
@@ -215,13 +222,6 @@ export function UnifiedDishCard({
               </div>
 
               {tried.notes && <p className="text-sm text-gray-600 mt-1.5">{tried.notes}</p>}
-
-              <button
-                onClick={() => setShowTries(!showTries)}
-                className="card-cta text-xs text-gray-500 hover:text-gray-800 mt-1.5 transition-colors"
-              >
-                {showTries ? '▾' : '▸'} Tries ({tries.length})
-              </button>
 
               {showTries && (
                 <div className="mt-1.5 space-y-1.5">
