@@ -36,8 +36,8 @@ when priorities conflict, the restaurant-moment thesis wins.
 - **Mobile**: React Native (iOS first, not yet started)
 - **Charts**: Recharts (radar), D3.js (force layouts)
 - **Maps**: react-simple-maps (TopoJSON uses ISO numeric codes; `countryGeoMapping.ts` converts to our alpha-2 IDs)
-- **Storage**: localStorage (Supabase planned for future)
-- **Hosting**: Vercel
+- **Storage**: localStorage is the source of truth; optional Supabase mirror for cross-device sync
+- **Hosting**: Vercel (auto-deploys from `main`; Root Directory is `apps/web`)
 - **Content**: Pre-generated country profiles via Claude/OpenAI
 
 ## Project Structure
@@ -114,6 +114,22 @@ Analyzes user's logged dishes to generate a personalized taste profile:
 - `foodie-dishes`: Dishes with restaurant tries and cooking attempts
 - `foodie-wishlist`: Saved dishes to try (bookmark icon)
 - `foodie-favorites`: Favorite dishes (heart icon)
+- `foodie-diet-prefs`, `foodie-taste-survey`: food preferences and survey answers
+- `foodie-map-layer`, `foodie-view-mode`: per-device view prefs — **not synced**
+
+All access goes through `hooks/useLocalStorage.ts`. Add new user data there
+rather than touching `window.localStorage` directly, so it participates in
+backup and sync automatically.
+
+**Sync & backup** (`data/syncKeys.ts`, `hooks/useCloudSync.ts`):
+- The five profile keys above sync; the two view-pref keys deliberately don't.
+- localStorage stays the read path (fast, offline). Supabase holds one `jsonb`
+  row per user, pushed ~1.5s after the last edit and pulled on sign-in/focus.
+- Whole-document **last-write-wins** — simultaneous edits on two devices lose
+  the earlier save. Per-entity tables are roadmap #22.
+- Inert without `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`; supabase-js
+  tree-shakes out entirely when unset. Setup: `docs/supabase-setup.md`.
+- Export/import backup (`utils/dataTransfer.ts`) works with no account.
 
 ## Routing Structure
 

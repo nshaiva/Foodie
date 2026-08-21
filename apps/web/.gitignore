@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local env (cloud sync credentials)
+.env
+.env.local

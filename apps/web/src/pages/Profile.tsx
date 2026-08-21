@@ -1,6 +1,7 @@
 import { systemColors } from '../data/systemColors';
 import { Wordmark } from '../components/Wordmark';
 import { PersonalFlavorFingerprint } from '../components/PersonalFlavorFingerprint';
+import { AccountPanel } from '../components/AccountPanel';
 
 export function Profile() {
   return (
@@ -19,10 +20,11 @@ export function Profile() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
           <PersonalFlavorFingerprint embedded />
         </div>
+        <AccountPanel />
       </main>
     </div>
   );
