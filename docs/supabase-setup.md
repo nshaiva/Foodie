@@ -12,6 +12,16 @@ Setting it up takes about ten minutes and costs nothing at personal scale.
 2. Pick any region close to you; the free tier is far beyond what this app needs.
 3. Wait for provisioning to finish (a couple of minutes).
 
+### Security settings during project creation
+
+The new-project form has a **Security** section. Set it like this:
+
+| Setting | Value | Why |
+|---|---|---|
+| Enable Data API | **on** | supabase-js speaks to this REST API. Off means nothing works. |
+| Automatically expose new tables | **off** | Supabase's own recommendation. Costs one extra `grant` in step 2. |
+| Enable automatic RLS | **on** | Safety net so a future table can't ship without row-level security. |
+
 ## 2. Create the table
 
 Open the **SQL Editor** and run this. It creates the one table sync uses and
@@ -38,10 +48,23 @@ create policy "Users update their own profile"
   on public.profiles for update
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- Required because "Automatically expose new tables" is off (see step 1).
+-- Only `authenticated` — signed-out visitors never touch this table, so `anon`
+-- deliberately gets nothing. No `delete`: the app only ever upserts.
+grant select, insert, update on public.profiles to authenticated;
 ```
 
-Row-level security is the part that matters. Without those policies the anon
-key would let anyone read every row.
+**Grants and RLS are two different layers**, and you need both. Grants decide
+whether a role may touch the table at all; RLS decides which rows it sees. Skip
+the policies and the anon key would expose every row. Skip the `grant` and the
+app fails at runtime with `permission denied for table profiles`, because
+disabling automatic exposure removes the default grants Supabase used to hand
+out.
+
+This ends up tighter than Supabase's old default, which granted
+select/insert/update/delete on every public table to `anon`, `authenticated`,
+and `service_role`.
 
 ## 3. Configure redirect URLs
 
