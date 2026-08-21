@@ -157,7 +157,11 @@ export function useCloudSync(): CloudSync {
     if (!supabase) return { error: 'Cloud sync is not configured.' };
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin + '/profile' },
+      // Come back to the page you signed in from. Sign-in is now reachable from
+      // every header, so landing on /profile from a country page would lose your
+      // place. Requires the deployed origin to be in Supabase's redirect
+      // allowlist as a wildcard (…/**), not just the bare site URL.
+      options: { emailRedirectTo: window.location.href },
     });
     return error ? { error: error.message } : {};
   }, []);

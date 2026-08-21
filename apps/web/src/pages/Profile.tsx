@@ -1,5 +1,6 @@
 import { systemColors } from '../data/systemColors';
 import { Wordmark } from '../components/Wordmark';
+import { SignInButton } from '../components/SignInButton';
 import { PersonalFlavorFingerprint } from '../components/PersonalFlavorFingerprint';
 import { AccountPanel } from '../components/AccountPanel';
 
@@ -8,8 +9,9 @@ export function Profile() {
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
       <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="mb-2">
+          <div className="mb-2 flex items-start justify-between gap-3">
             <Wordmark className="text-2xl" />
+            <SignInButton />
           </div>
           <h1 className="text-3xl font-bold" style={{ color: systemColors.navy }}>
             My Taste Profile

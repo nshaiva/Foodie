@@ -199,7 +199,13 @@ export function CountryDetail() {
     return regionNameFor(source, regions, country.id);
   };
 
-  const nothingMatches = inFocus.length === 0;
+  // A focused region keeps its section even with nothing in it: the description
+  // is the point of the region lens, and a region we hold no dishes for is
+  // exactly when it's the only thing we have to offer. Only the region lens
+  // renders that card though, so under the Type lens an empty focused region
+  // would show literally nothing and the page-wide empty state is still right.
+  const nothingMatches = inFocus.length === 0 && !(focusedRegion && effectiveLens === 'region');
+  const narrowedByFilters = filters.activeFilterCount > 0 || filters.query.trim() !== '' || filters.view !== 'all';
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
@@ -279,6 +285,18 @@ export function CountryDetail() {
                 onClearFocus={() => setFocus(null)}
                 colors={colors}
                 tiers={country.cuisineProfile.ingredientTiers}
+                emptyNote={narrowedByFilters ? (
+                  <p className="text-sm italic" style={{ color: systemColors.navyMuted }}>
+                    Nothing here matches what you're filtering for.{' '}
+                    <button
+                      onClick={filters.reset}
+                      className="not-italic font-semibold"
+                      style={{ color: systemColors.tomato }}
+                    >
+                      Clear filters
+                    </button>
+                  </p>
+                ) : undefined}
               >
                 <EntryGrid
                   entries={group.entries}
