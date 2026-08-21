@@ -1,3 +1,2 @@
-export { CultureRegionsSlide } from './CultureRegionsSlide';
 export { ProfileSlide } from './ProfileSlide';
-export { EatDrinkSlide } from './EatDrinkSlide';
+export { SimilarCuisinesSection } from './SimilarCuisinesSection';

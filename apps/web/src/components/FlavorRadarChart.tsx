@@ -6,7 +6,6 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-  Tooltip,
 } from 'recharts';
 import type { FlavorIntensity, ColorPalette, IngredientTiers, FlavorAxisId } from '../data/types';
 import { FLAVOR_AXIS_META, driversForAxis, hasFlavorAxisData } from '../data/flavorAxisMeta';
@@ -19,15 +18,6 @@ interface FlavorRadarChartProps {
   ingredientTiers?: IngredientTiers;
   size?: number;
 }
-
-const axisDescriptions: Record<FlavorAxisId, string> = {
-  heat: 'Spiciness and chili intensity',
-  acidity: 'Sour, tangy, citrus brightness',
-  sweetness: 'Sweet notes in savory dishes',
-  umami: 'Savory depth, fermented flavors',
-  aromatic: 'Herbs, spices, fragrance',
-  smokeEarth: 'Smoky, earthy, charred notes',
-};
 
 const axisLabels: Record<FlavorAxisId, string> = {
   heat: 'Heat',
@@ -58,29 +48,6 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: F
     { axis: 'Smoke', value: flavorIntensity.smokeEarth, fullMark: 10, key: 'smokeEarth' as FlavorAxisId },
   ];
   const keyByDisplay = new Map(data.map(d => [d.axis, d.key]));
-
-  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: { axis: string; value: number; key: FlavorAxisId } }> }) => {
-    if (active && payload && payload.length) {
-      const item = payload[0].payload;
-      return (
-        <div
-          className="rounded-lg shadow-lg p-3 border"
-          style={{
-            backgroundColor: colors.background,
-            borderColor: `${colors.primary}40`,
-          }}
-        >
-          <p className="font-medium" style={{ color: colors.primary }}>
-            {axisLabels[item.key]}: {item.value}/10
-          </p>
-          <p className="text-sm text-gray-600 mt-1">
-            {axisDescriptions[item.key]}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   // Clickable axis label, "seasoned plate" treatment: an empty plate dot in
   // the axis color carries the tap cue; hover/selection fills the plate and
@@ -157,7 +124,6 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: F
               fillOpacity={0.3}
               strokeWidth={2}
             />
-            <Tooltip content={<CustomTooltip />} />
           </RadarChart>
         </ResponsiveContainer>
       </div>

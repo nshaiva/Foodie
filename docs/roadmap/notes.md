@@ -1,6 +1,15 @@
+at the restaurant should group some things w the mobile first view what are other ui quick wins
 
-When I add a new dish that I'm adding as a custom dish, call the Claude Anthropic API to be able to populate the information about that dish when it's a newly added dish, but impose a limit on how many times this can be done. Or maybe we need to explore how to do this without using too many tokens and spending too much money. Maybe you could do it as a bulk task or only be able to do one a day. 
+filter and search countries in map or grid view and it scrolls to that region of the page // or filter by region
 
-i dont think the survey captured my real preferences i know indian food better so i could be more picky 
+move filter button away
 
-remove the two headings on how it's cooked
+remove em dashes
+
+ethiopia doesnt have a map?
+
+grid and taste profile need hand icons
+
+
+
+what is vercel vite and supabase simply what is the tech stack here and explain simply 

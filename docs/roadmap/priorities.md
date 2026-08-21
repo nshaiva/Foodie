@@ -25,6 +25,47 @@ Items within each tier are grouped by the goal they serve:
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Unified country page** (2026-08-21, G1/G2) — the three-tab carousel is gone.
+  The country page is now one list of everything you can eat and drink there,
+  grouped by a lens you pick (Region or Type). Section headers stay
+  quiet — name and count — until you **focus** a region from the header or a map
+  bubble, which opens its full description, derived flavor chips and key
+  ingredients, and narrows the list to it. Focus lives in the URL
+  (`?region=sichuan`), so the phone back gesture returns to the list instead of
+  leaving the page and a region view can be linked to — the app's first
+  deep-linkable state. Flavor (radar + ingredient pyramid) and food culture keep
+  a home as disclosures below the list.
+  **The join that made it viable:** `utils/dishRegion.ts` reads a region's name
+  as a set of aliases (`"Northern China (Beijing & Shandong)"` also answers to
+  "beijing"), splitting on `&`, `,` and `/` in both the main name and any
+  parenthetical, plus a small per-country alias table. That took dish→region
+  from 8/15 to 13/15 on China, 1/13 to 4/13 on Mexico, and **0/15 to 12/15 on
+  Ireland**, with no data edits. "Nationwide" is a first-class outcome rather
+  than a failure, and an origin we can't match lands in "Elsewhere" instead of
+  vanishing. Replaces two divergent `detectRegion` copies.
+  New: `utils/dishRegion.ts`, `utils/groupDishes.ts`, `hooks/useDishFilters.ts`,
+  `components/country-detail/{LensControls,DishSection,EntryGrid}.tsx`,
+  `components/map/RegionalMap.tsx`, `data/regionMapConfig.ts`.
+  Deleted: `components/carousel/*` (273 lines), the `embla-carousel-react`
+  dependency, `EatDrinkSlide` (516), `CultureRegionsSlide` (647), and the
+  `h-[920px]` cage that forced every tab to scroll inside a box.
+  Prototypes: `unified-country-page-prototypes.html`,
+  `unified-country-density.html`, `quiet-cards-variants.html`.
+  **Polish pass (same day).** Grouping and filtering stopped sharing a visual
+  language: All / Tried / Want is the prominent segmented control because it
+  changes *what* you see, while "Grouped by Region ▾" is a quiet dropdown you set
+  rarely. That also fixed a real bug — "Tried" and "All" each appeared twice on
+  screen meaning different things — and the grouping options are now only Region
+  and Type, since a third "no grouping" choice just undid the other two. Whatever
+  is narrowing the list shows as removable chips under the controls, so the
+  region focus stays visible with the filter drawer shut. Region focus became a
+  filter applied *before* grouping, which fixed a blank page when switching to
+  Type with a region selected. The map is taller, squarer and pinch/scroll
+  zoomable with smaller bubbles so Beijing and Shanghai stop colliding. A
+  `CuisineTeaser` under the summary shows the top three flavor axes and opens the
+  full fingerprint, so the first screen hints the page teaches something. Removed:
+  the radar's Recharts tooltip, which fired on the polygon vertices and competed
+  with the axis-label hover, and the ingredient pyramid's per-tier prose.
 - **Taste profile backup + cloud sync** (2026-08-20, Foundation) — the app went
   live on Vercel, which created a real problem: logging a dish on your phone at
   a restaurant and reviewing it on desktop meant two localStorage stores that
@@ -129,7 +170,7 @@ at Tier 2.
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
 | 1 | **Dish twins** | "Khachapuri is Georgia's answer to pizza" — pre-generatable content (rides the #9 batch), great for discovery; pairs with similar-cuisines section. | M (mostly content) |
-| 2 | **Dish ↔ region cross-linking + regions-explored progress** | Expanded 2026-08-05: better connect Eat & Drink to Culture & Regions. Three parts: (a) **dish → region**: the region in a dish's meta line ("Puebla · Main") becomes tappable, jumping to the Culture & Regions tab with that region selected; (b) **region → dishes**: a region's detail panel shows its signature dishes with tried-state, each tapping back to the dish card; (c) **explored progress**: light up regions you've logged dishes from on the regional map. Design pass needed before build — sketch the navigation flow first. Caveat: dish→region matching via `regionalOrigin`/`detectRegion()` is fuzzy; must tolerate unmapped dishes. | M–L |
+| 2 | ~~**Dish ↔ region cross-linking**~~ — **shipped 2026-08-21** as the unified country page (see Built). What remains is content, not code: **9 of Mexico's 13 items carry no `regionalOrigin` at all**, so three MX regions render empty and 9 dishes land in "Across Mexico". Ireland has one unmatched origin ("Rural west and north"). Both ride the #9 batch — add `regionalOrigin` to every dish and prefer names that match a region's own vocabulary. | Content |
 
 ### G3 ✦ Know my own palate
 
@@ -139,7 +180,7 @@ at Tier 2.
 | 4 | **Personal spice affinity map** | Added 2026-08-05 from discussion. Which spices is Nikita actually drawn to, beyond the 6-axis flavor profile? **Plan:** (1) pre-generate `keySpices` per dish for all ~300 dishes — rides in the consolidated MVP-gate content batch (#9); (2) normalize into a curated ontology of ~15 spice families (chiles, warm spices, alliums, souring agents, fermented, herbs…); (3) score with **cross-cuisine repetition** (a spice recurring in loved dishes across unrelated cuisines = real signal) + **frequency weighting** (TF-IDF-style — distinctive spices score, garlic doesn't); survey answers count as signal too; (4) visualize as a D3 force layout — spice families as clusters, bubbles sized by affinity. **Research task at build time:** spice science — terpenes / shared aroma-compound data (food-pairing theory) to draw connections *between* spices ("you like citrusy terpenes: coriander, lemongrass, sichuan pepper share them"). Needs ~15–20 rated dishes before patterns beat noise. Supersedes the personal half of #18. | M–L |
 | 5 | **Survey familiarity weighting** | Moved from Tier 1 to bottom of Tier 2 (2026-08-05). Nikita's trust issue: "I know Indian food better so I could be more picky." **Decided: direct question.** First time a country appears in the survey, ask "How well do you know this cuisine?" (barely / somewhat / very well) → stored per country (`foodie-cuisine-familiarity`), scales that country's answer weights (~0.5× / 1× / 1.5×) in the profile hook. Asked once per country, pre-filled on retake. Later option: show familiarity as confidence/opacity on the radar. | M |
 | 6 | **Edit taste-survey answers** | Added 2026-08-05, ranked near the end of Tier 2. An easy place to review and change past survey answers (Love/Like/Nope per dish) instead of only retaking the deck. Likely a list view inside the Taste Profile slide-over: answered dishes grouped by country, tap to flip the sentiment or clear it. Pairs naturally with #5 (familiarity weighting), which also lives in survey answers — consider building the two together. | S |
-| 7 | **Card plate dots → dominant-flavor colors** | Added 2026-08-05, end of Tier 2 by design. Evolve the shipped plate dots: the dot on each dish/drink card stops encoding *category* and instead takes the color of the dish's **dominant flavor axis** (heat, acidity, sweet, umami, aromatic, smoke/earth — the same fixed axis colors as the Flavor tab's build view, matrix, and radar, from `flavorAxisMeta.ts`). One color language across the whole country page: glance at a card, know what the dish mostly tastes like. **Prereq:** per-dish dominant-axis data — falls out of the #9 content batch, so build after it runs. Category colors (`categoryMeta.ts`) are the interim; category info stays in the card's meta line. | S (once data exists) |
+| 7 | **Card plate dots → dominant-flavor colors** | Added 2026-08-05, end of Tier 2 by design. Evolve the shipped plate dots: the dot on each dish/drink card stops encoding *category* and instead takes the color of the dish's **dominant flavor axis** (heat, acidity, sweet, umami, aromatic, smoke/earth — the same fixed axis colors as the Flavor tab's build view, matrix, and radar, from `flavorAxisMeta.ts`). One color language across the whole country page: glance at a card, know what the dish mostly tastes like. **Prereq:** per-dish dominant-axis data — falls out of the #9 content batch, so build after it runs. Category colors (`categoryMeta.ts`) are the interim; category info stays in the card's meta line. **Revised 2026-08-21 (Nikita): check whether per-dish flavor data is overkill before committing to it.** Dissecting six axes for every one of ~300 dishes is the expensive path and probably not necessary for a dot. Explore cheaper sources first, in order: (a) the dish's existing `keyTraits` — a hand-written trait→axis table over the ~40 distinct traits in the data, one table instead of 300 judgments; (b) the dish's **region** fingerprint via `regionFingerprint()` in `dishRegion.ts`, which already derives axes from `keyIngredients` and which the region chips use today, so dishes inherit their region's dominant axis for free; (c) the country's `flavorIntensity` as the floor. Measured during the prototype: the `keyTraits → ingredient → axis` bridge resolves only 5 of 10 CN dishes on its own because traits like "crispy skin" and "soup-filled" name techniques rather than ingredients — so (a) alone is not enough, but (a) falling back to (b) may well be. Spend a session measuring coverage of the cascade across MX/CN/IE before adding a single field to the content batch. Only if coverage stays poor does this need per-dish data from #9. | S (cascade) / S once #9 data exists |
 
 ### Foundation — MVP gate (do last in Tier 2)
 

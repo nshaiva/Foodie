@@ -149,58 +149,44 @@ backup and sync automatically.
 - **Violet** - Cooking attempts
 - **Rose** - Wishlist
 
-## Country Detail Carousel
+## Country Detail Page
 
-The Country Detail page uses a carousel with three slides:
+One scrolling view — the three-tab carousel was removed 2026-08-21. Everything
+you can eat or drink in a country is a single list, grouped by a lens.
 
-### Tab 1: Culture & Regions
-- Combined slide showing food culture and regional cuisines
-- **Left panel**: Interactive regional map with clickable bubbles
-  - Uses react-simple-maps for country geography
-  - Region bubbles show short names, click to select
-  - Click map background to return to Overview
-  - Label badge shows current selection ("Overview" or region name)
-- **Right panel**: Swaps between two views:
-  - **Overview** (default): Meal Structure, Dining Customs, Historical Influences
-  - **Region detail**: Overview, Signature Dishes, Key Ingredients, Distinctive Traits
-- Countries without regional data show only the culture overview
+**Lenses** (`utils/groupDishes.ts`): Region · Type · Tried · All. Grouping is a
+pure reducer over the already-filtered entries, so switching lens never changes
+*which* dishes show, only how they're arranged. The Region lens is absent
+entirely for countries with no `regionalVariations`.
 
-### Tab 2: Profile (Cuisine Visualizations)
-Three visualizations for the cuisine profile:
+**Region focus.** Section headers show name and count only. Tapping a header or
+a map bubble focuses that region — full description, derived flavor chips, key
+ingredients, list narrowed to it. Focus lives in the URL as `?region=<slug>`
+(`useSearchParams`), so browser back works and region views are linkable.
 
-#### Flavor Radar Chart (Flavor Fingerprint)
-- Hexagonal radar chart showing flavor intensity (1-10 scale)
-- Axes: Heat, Acidity, Sweet, Umami, Aromatic, Smoke/Earth
-- Uses Recharts library
-- Country color palette for styling
-- Interpretive text below chart summarizing the cuisine's flavor profile
-- Data: `flavorIntensity.interpretation` field
+**Dish → region** (`utils/dishRegion.ts`): `resolveRegion()` returns `region`,
+`nationwide`, `orphan`, or `none`. A region's name is read as a set of aliases —
+split on `&`, `,`, `/` across both the main name and any parenthetical — plus a
+small per-country `REGION_ALIASES` table. Items that resolve to `nationwide` or
+`none` share an "Across {country}" bucket; `orphan` gets "Elsewhere" so a
+failed match is visible rather than silently dropped. Use this rather than
+writing another `detectRegion`.
 
-#### Ingredient Pyramid (Ingredients & Spices)
-- Tiered layout showing ingredients by importance:
-  - **Foundation**: Essential ingredients you can't cook without
-  - **Aromatic Core**: Signature aromatics defining the cuisine
-  - **Flavor Builders**: Supporting ingredients for depth
-  - **Staples**: Base starches and proteins
-- Tier labels with hover tooltips explaining each tier's role
-- Each ingredient has hover tooltip with concise description format: `[Alt name] · [Category/Role] · [Key trait]`
-- Data: `ingredientTiers` with `TieredIngredient` objects containing `name`, `emoji`, `description`
+`regionFingerprint()` derives a region's flavor axes from its `keyIngredients`;
+coverage is uneven, so it returns a match count and callers hide chips below
+`FINGERPRINT_MIN_MATCHES`.
 
-#### Cooking Flow
-- Visual flow showing typical cooking progression for each cuisine
-- Emoji-labeled steps connected by arrows
-- Responsive layout:
-  - Desktop (lg+): Horizontal wrap
-  - Tablet (sm-lg): Horizontal scroll with fade indicators
-  - Mobile (<sm): Vertical stack with down arrows
-- Data stored in `cuisineProfile.cookingFlow` as array of `CookingStep` objects
+**Key files**: `pages/CountryDetail.tsx`, `hooks/useDishFilters.ts`,
+`components/country-detail/{LensControls,DishSection,EntryGrid}.tsx`,
+`components/map/RegionalMap.tsx`, `data/regionMapConfig.ts` (hand-maintained
+coordinates; a country missing from them falls back to a button grid).
 
-### Tab 3: Dishes
-- Expandable list of popular dishes
-- Each dish shows: name, key traits, region, spice level
-- Expand to see: description, category, difficulty rating, dietary info
-- Difficulty badges: Easy (green), Medium (amber), Hard (rose)
-- Favorite (heart) and Want to Try (bookmark) buttons
+**Below the list**: Flavor fingerprint (radar + ingredient pyramid) and Food
+culture (meal structure, customs, influences, similar cuisines) as disclosures.
+
+Filters live in `useDishFilters`. Food-only filters (spice, popularity, dessert)
+exclude drinks outright and drink-only filters exclude food — filtering for
+"hot" should not return tea.
 
 ## Build Commands
 
