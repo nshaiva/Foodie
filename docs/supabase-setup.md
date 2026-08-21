@@ -49,11 +49,40 @@ create policy "Users update their own profile"
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
--- Required because "Automatically expose new tables" is off (see step 1).
+-- Start from zero. Supabase's default privileges hand out REFERENCES, TRIGGER
+-- and TRUNCATE even when "Automatically expose new tables" is off, and TRUNCATE
+-- is NOT governed by row-level security — it empties the whole table whatever
+-- the policies say. Revoking first means the grant below is the complete list.
+revoke all on public.profiles from anon;
+revoke all on public.profiles from authenticated;
+
 -- Only `authenticated` — signed-out visitors never touch this table, so `anon`
 -- deliberately gets nothing. No `delete`: the app only ever upserts.
 grant select, insert, update on public.profiles to authenticated;
 ```
+
+### Verify it landed
+
+```sql
+select
+  (select relrowsecurity from pg_class where oid = 'public.profiles'::regclass)
+    as rls_enabled,
+  (select count(*) from pg_policies
+     where schemaname = 'public' and tablename = 'profiles')
+    as policy_count,
+  (select string_agg(privilege_type, ', ' order by privilege_type)
+     from information_schema.role_table_grants
+     where table_schema = 'public' and table_name = 'profiles'
+       and grantee = 'authenticated')
+    as authenticated_grants,
+  (select string_agg(privilege_type, ', ' order by privilege_type)
+     from information_schema.role_table_grants
+     where table_schema = 'public' and table_name = 'profiles'
+       and grantee = 'anon')
+    as anon_grants;
+```
+
+Expect `true`, `3`, `INSERT, SELECT, UPDATE`, and an empty `anon_grants`.
 
 **Grants and RLS are two different layers**, and you need both. Grants decide
 whether a role may touch the table at all; RLS decides which rows it sees. Skip
