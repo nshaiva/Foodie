@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { systemColors } from '../data/systemColors';
 import { isCloudConfigured } from '../lib/supabase';
-import { useCloudSync, type SyncStatus } from '../hooks/useCloudSync';
+import type { SyncStatus } from '../hooks/useCloudSync';
+import { useCloudSyncContext } from '../hooks/cloudSyncContext';
 import { readSnapshot } from '../data/syncKeys';
 import { describeSnapshot, exportProfile, importProfile, ImportError } from '../utils/dataTransfer';
 
@@ -35,7 +36,7 @@ const buttonStyle = {
 };
 
 export function AccountPanel() {
-  const { session, status, signIn, signOut } = useCloudSync();
+  const { session, status, signIn, signOut } = useCloudSyncContext();
 
   const [email, setEmail] = useState('');
   const [linkSent, setLinkSent] = useState(false);

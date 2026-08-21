@@ -12,6 +12,8 @@ interface DishSectionProps {
   onClearFocus: () => void;
   colors: ColorPalette;
   tiers?: IngredientTiers;
+  /** Shown in place of the grid when the group has nothing in it. */
+  emptyNote?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -23,9 +25,13 @@ interface DishSectionProps {
  * Focusing a region (from here or from the map) is what earns the full
  * description and its derived flavor chips: you're taught once you've shown
  * interest, and the other regions get out of the way.
+ *
+ * A region with no dishes still renders its full focused card. The description
+ * is the whole point of the region lens, and a region we hold no dishes for is
+ * exactly when it's the only thing we have to offer.
  */
 export function DishSection({
-  group, focused, onFocus, onClearFocus, colors, tiers, children,
+  group, focused, onFocus, onClearFocus, colors, tiers, emptyNote, children,
 }: DishSectionProps) {
   const region = group.region;
   const fingerprint = region ? regionFingerprint(region, tiers) : undefined;
@@ -86,9 +92,13 @@ export function DishSection({
         </div>
 
         {group.entries.length > 0 ? children : (
-          <p className="text-sm italic py-2" style={{ color: systemColors.navyMuted }}>
-            No dishes recorded from this region yet.
-          </p>
+          <div className="py-2">
+            {emptyNote ?? (
+              <p className="text-sm italic" style={{ color: systemColors.navyMuted }}>
+                No dishes recorded from this region yet.
+              </p>
+            )}
+          </div>
         )}
       </section>
     );

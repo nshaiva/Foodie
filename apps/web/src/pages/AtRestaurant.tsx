@@ -9,6 +9,7 @@ import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useDietPrefs } from '../hooks/useDietPrefs';
 import { rankDishesForOrdering } from '../utils/orderRanking';
 import { Wordmark, PlateDot } from '../components/Wordmark';
+import { SignInButton } from '../components/SignInButton';
 import { UnifiedDishCard } from '../components/country-detail/UnifiedDishCard';
 import { FavoriteButton } from '../components/FavoriteButton';
 import { WantToTryButton } from '../components/WantToTryButton';
@@ -28,11 +29,14 @@ export function AtRestaurant() {
       <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
         <div className="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
           <Wordmark className="text-xl" />
-          {country && (
-            <Link to="/restaurant" className="text-sm font-medium btn-press" style={{ color: systemColors.navyMuted }}>
-              ↩ Change cuisine
-            </Link>
-          )}
+          <div className="flex items-center gap-3">
+            {country && (
+              <Link to="/restaurant" className="text-sm font-medium btn-press" style={{ color: systemColors.navyMuted }}>
+                ↩ Change cuisine
+              </Link>
+            )}
+            <SignInButton />
+          </div>
         </div>
       </header>
 

@@ -10,6 +10,7 @@ import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TasteProfileButton } from '../components/TasteProfileButton';
+import { SignInButton } from '../components/SignInButton';
 import { NextCountrySuggestions } from '../components/NextCountrySuggestions';
 import { WordmarkDot } from '../components/Wordmark';
 
@@ -48,7 +49,7 @@ export function Home() {
                 Explore cuisines from around the world
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
               <Link
                 to="/restaurant"
                 className="btn-press text-sm font-semibold text-white px-3.5 py-2 rounded-lg"
@@ -70,6 +71,7 @@ export function Home() {
                 </span>
                 Wishlist
               </Link>
+              <SignInButton />
             </div>
           </div>
         </div>
