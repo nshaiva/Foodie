@@ -25,6 +25,32 @@ Items within each tier are grouped by the goal they serve:
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Taste profile backup + cloud sync** (2026-08-20, Foundation) — the app went
+  live on Vercel, which created a real problem: logging a dish on your phone at
+  a restaurant and reviewing it on desktop meant two localStorage stores that
+  silently diverge. Two layers shipped in one pass. **Backup** (no account, works
+  now): Export / Import buttons in a new "Account & data" section on `/profile`
+  write the whole profile to a dated JSON file; import validates the payload,
+  whitelists known keys, and confirms with current counts before overwriting.
+  **Cloud sync** (dormant until credentials are set): Supabase magic-link email
+  auth plus whole-profile sync — pushed ~1.5s after the last edit, pulled on
+  sign-in and on tab focus. Five keys sync; `foodie-map-layer` and
+  `foodie-view-mode` deliberately don't (per-device view prefs). First sign-in
+  merges *upward* so local data seeds an empty cloud row rather than being wiped
+  by it. No call sites changed — everything already flowed through
+  `useLocalStorage`, which now also re-reads on an external-change event.
+  supabase-js tree-shakes out entirely when unconfigured (1.28MB vs 1.50MB), so
+  it costs nothing until switched on. Known limit: last-write-wins on the whole
+  document; simultaneous edits on two devices lose the earlier save. Setup:
+  `docs/supabase-setup.md`. Files: `data/syncKeys.ts`, `utils/dataTransfer.ts`,
+  `lib/supabase.ts`, `hooks/useCloudSync.ts`, `components/AccountPanel.tsx`.
+- **Deployed to Vercel** (2026-08-20, Foundation) — live at
+  `foodie-henna-one.vercel.app`, auto-deploying from `main` with preview URLs per
+  PR. Root Directory `apps/web`; `vercel.json` SPA rewrite so `/country/:id` and
+  `/restaurant` survive direct visits and refreshes; brand plate-dot favicon
+  replacing the dead `/vite.svg` reference; `.npmrc` with `legacy-peer-deps`
+  because react-simple-maps 3.0.0 pins a React 16/17/18 peer range and has no
+  stable React 19 release, which only surfaced on Vercel's clean `npm ci`.
 - **Next-country suggestions + visual identity round** (2026-08-05, G2/Foundation) —
   "Where next, by your taste" strip on the Home grid (top 3 flavor-matched
   unexplored countries with match % and driver axes). Plus the big coherence
@@ -109,7 +135,7 @@ at Tier 2.
 
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
-| 3 | **Custom-dish AI enrichment (Claude API)** | From notes: auto-populate description/traits/spice when adding a custom dish — richer data feeding the palate profile. **Discussed 2026-08-05:** cost is a non-issue at personal scale (~$0.002/dish with Haiku ≈ $0.60/mo at 10/day; Haiku is sufficient for this task). Build v1 as **bring-your-own-key** (Nikita pastes her key in a settings panel, stored in localStorage, browser-direct calls) with a simple daily counter as a runaway-bug guard only. **If the app is published publicly:** move the key into a Vercel serverless proxy with per-visitor daily caps + a global monthly budget kill-switch + locked-down prompt shape; optionally keep BYO-key as the unlimited tier. Prompt/UI unchanged either way — only where the key lives. | M |
+| 3 | **Custom-dish AI enrichment (Claude API)** — ⏸ **deferred to post-MVP (2026-08-20)** | Moved out of the active Tier 2 queue: it's an input-side nicety, while #2 dish↔region is core-loop. Number kept rather than renumbered so the `#N` references scattered through this file stay valid. **Hosting note (2026-08-20):** the "Vercel serverless proxy" assumption below is superseded — the proxy doesn't have to live where the app is hosted, and Cloudflare AI Gateway gives rate limiting, caching, and analytics as config rather than hand-written code. Revisit host choice at build time; if Supabase is already in place by then, its Edge Functions avoid adding a third vendor. Original notes: From notes: auto-populate description/traits/spice when adding a custom dish — richer data feeding the palate profile. **Discussed 2026-08-05:** cost is a non-issue at personal scale (~$0.002/dish with Haiku ≈ $0.60/mo at 10/day; Haiku is sufficient for this task). Build v1 as **bring-your-own-key** (Nikita pastes her key in a settings panel, stored in localStorage, browser-direct calls) with a simple daily counter as a runaway-bug guard only. **If the app is published publicly:** move the key into a Vercel serverless proxy with per-visitor daily caps + a global monthly budget kill-switch + locked-down prompt shape; optionally keep BYO-key as the unlimited tier. Prompt/UI unchanged either way — only where the key lives. | M |
 | 4 | **Personal spice affinity map** | Added 2026-08-05 from discussion. Which spices is Nikita actually drawn to, beyond the 6-axis flavor profile? **Plan:** (1) pre-generate `keySpices` per dish for all ~300 dishes — rides in the consolidated MVP-gate content batch (#9); (2) normalize into a curated ontology of ~15 spice families (chiles, warm spices, alliums, souring agents, fermented, herbs…); (3) score with **cross-cuisine repetition** (a spice recurring in loved dishes across unrelated cuisines = real signal) + **frequency weighting** (TF-IDF-style — distinctive spices score, garlic doesn't); survey answers count as signal too; (4) visualize as a D3 force layout — spice families as clusters, bubbles sized by affinity. **Research task at build time:** spice science — terpenes / shared aroma-compound data (food-pairing theory) to draw connections *between* spices ("you like citrusy terpenes: coriander, lemongrass, sichuan pepper share them"). Needs ~15–20 rated dishes before patterns beat noise. Supersedes the personal half of #18. | M–L |
 | 5 | **Survey familiarity weighting** | Moved from Tier 1 to bottom of Tier 2 (2026-08-05). Nikita's trust issue: "I know Indian food better so I could be more picky." **Decided: direct question.** First time a country appears in the survey, ask "How well do you know this cuisine?" (barely / somewhat / very well) → stored per country (`foodie-cuisine-familiarity`), scales that country's answer weights (~0.5× / 1× / 1.5×) in the profile hook. Asked once per country, pre-filled on retake. Later option: show familiarity as confidence/opacity on the radar. | M |
 | 6 | **Edit taste-survey answers** | Added 2026-08-05, ranked near the end of Tier 2. An easy place to review and change past survey answers (Love/Like/Nope per dish) instead of only retaking the deck. Likely a list view inside the Taste Profile slide-over: answered dishes grouped by country, tap to flip the sentiment or clear it. Pairs naturally with #5 (familiarity weighting), which also lives in survey answers — consider building the two together. | S |
@@ -165,7 +191,7 @@ at Tier 2.
 |---|---------|-------|
 | 20 | **Custom collections & tags** | Organization power tools; wait for logging volume. |
 | 21 | **Seasonal highlights, meal companions** | Nice-to-haves. (Pronunciation lives in the shipped at-the-restaurant view, where it actually matters.) |
-| 22 | **Supabase sync / mobile app** | Platform work; unlocks multi-device but changes nothing day-to-day until then. |
+| 22 | **Normalized sync tables / mobile app** | Scope reduced 2026-08-20: magic-link auth and whole-profile sync **shipped** (see Built), so multi-device already works. What remains is (a) per-entity Postgres tables replacing the single JSON blob, which buys real conflict resolution instead of last-write-wins and is the hard prereq for #23's cross-user aggregation, and (b) the React Native app. Neither is worth doing until the blob's last-write-wins actually bites or a second user exists. |
 | 23 | **Revenue model: menu-insight data for restaurants** | Added 2026-08-05. The long-term business case: aggregate flavor fingerprints + dish ratings across cuisines into recommendation data ("diners with X palate love Y dishes"), sellable to restaurants deciding what to put on their menus. Hard prereqs: multi-user product with real scale (depends on #22 Supabase + public launch), and a privacy/consent model since it monetizes user data — aggregate/anonymized only. Nothing to build now; it's a lens for keeping the rating + fingerprint data structured and aggregatable as those systems evolve. |
 
 ---
@@ -183,6 +209,16 @@ Quick captures land here; ranked into tiers during roadmap reviews.
 
 ## Suggested next session
 
-Tier 1 fully shipped (see Built). Next up: **#3 AI enrichment** (last self-contained build) or the **#2 dish↔region design pass**. Mexico, China, and Ireland are the sandbox for all data changes until the
-#9 batch at the MVP gate. Natural calendar trigger elsewhere: build the annual recap half
-of #15 in **December**, when a year of data makes it fun.
+Tier 1 fully shipped (see Built). **#2 dish↔region cross-linking** is the live
+thread: the design pass is planned and approved (variants A/B/C plus a CN
+name-matching report) but the prototype isn't built yet — that's where to pick
+up. Note #3 AI enrichment moved to post-MVP on 2026-08-20 as an input-side
+nicety while #2 is core-loop.
+
+Mexico, China, and Ireland remain the sandbox for all data changes until the #9
+batch at the MVP gate. Natural calendar trigger elsewhere: build the annual
+recap half of #15 in **December**, when a year of data makes it fun.
+
+Open loop from the sync round: cloud sync is code-complete but inert until a
+Supabase project exists and its two env vars are set locally and on Vercel
+(`docs/supabase-setup.md`). Backup/restore works today without it.
