@@ -1,0 +1,283 @@
+<title>Lens switcher — how much chrome is too much?</title>
+<style>
+  :root { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A;
+    --line:#E7E1D4; --tomato:#C2654A; --sage:#7C8B6F; --sage-soft:#EDF1E8; --saffron:#D9A441;
+    --cn:#a63a2e; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2;
+      --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; }
+  }
+  :root[data-theme="light"] { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60;
+    --ink-faint:#9B968A; --line:#E7E1D4; --sage-soft:#EDF1E8; }
+  :root[data-theme="dark"] { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2;
+    --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; }
+
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:2rem 1.25rem 5rem;
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
+  .wrap { max-width:1200px; margin:0 auto; }
+  h1 { font-size:1.3rem; margin:0 0 .3rem; text-wrap:balance; }
+  .sub { color:var(--ink-soft); font-size:.86rem; margin:0 0 1.4rem; max-width:66ch; }
+
+  .bar { display:flex; gap:.9rem; align-items:center; flex-wrap:wrap; padding:.6rem 0 .9rem;
+    border-bottom:1px solid var(--line); margin-bottom:1.5rem; position:sticky; top:0;
+    background:var(--bg); z-index:20; }
+  .lab { font-size:.58rem; font-weight:700; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--ink-faint); }
+  button { font:inherit; cursor:pointer; }
+  .tb { font-size:.74rem; font-weight:600; padding:.28rem .68rem; border-radius:8px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .tb.on { background:var(--ink); border-color:var(--ink); color:var(--bg); }
+  button:focus-visible { outline:2px solid var(--tomato); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+
+  /* ---- ladder ---- */
+  .ladder { display:flex; gap:1.5rem; align-items:flex-start; flex-wrap:wrap; }
+  .col { flex:1 1 340px; min-width:0; }
+  .colhead { margin-bottom:.5rem; }
+  .colhead b { font-size:.9rem; }
+  .colhead .tag { font-size:.6rem; font-weight:700; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--tomato); display:block; }
+  .tests { font-size:.74rem; color:var(--ink-soft); margin:.25rem 0 .7rem; }
+
+  .device { background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    container-type:inline-size; overflow:hidden; }
+  .device.phone { width:390px; max-width:100%; }
+  .cap { font-size:.56rem; font-weight:700; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--ink-faint); padding:.4rem .8rem; border-bottom:1px solid var(--line);
+    background:color-mix(in srgb, var(--surface) 50%, var(--bg)); }
+  .page { padding:.8rem; }
+
+  /* ---- shared app chrome ---- */
+  .cname { font-size:1rem; font-weight:700; }
+  .cmeta { font-size:.66rem; color:var(--ink-faint); margin-bottom:.6rem; }
+  .lensrow { display:flex; gap:.25rem; overflow-x:auto; padding-bottom:.5rem; margin-bottom:.7rem;
+    border-bottom:1px solid var(--line); }
+  .lp { font-size:.7rem; font-weight:600; padding:.22rem .58rem; border-radius:7px; white-space:nowrap;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .lp.on { background:var(--sage); border-color:var(--sage); color:#fff; }
+
+  /* ---- A: bare ---- */
+  .seclabel { font-size:.58rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--ink-faint); padding:.7rem 0 .3rem; }
+  .seclabel .n { color:var(--ink-faint); font-weight:600; }
+  .row { display:flex; align-items:baseline; gap:.5rem; padding:.32rem 0;
+    border-bottom:1px solid color-mix(in srgb, var(--line) 55%, transparent); }
+  .row .nm { font-size:.82rem; font-weight:600; }
+  .row .tr { font-size:.68rem; color:var(--ink-faint); flex:1; min-width:0;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .row .mk { font-size:.72rem; color:var(--sage); flex:none; }
+
+  /* ---- B: quiet cards ---- */
+  .qhead { display:flex; align-items:baseline; gap:.4rem; padding:.75rem 0 .4rem; }
+  .qhead b { font-size:.8rem; }
+  .qhead .n { font-size:.66rem; color:var(--ink-faint); }
+  .qgrid { display:grid; grid-template-columns:1fr; gap:.45rem; }
+  @container (min-width:520px) { .qgrid { grid-template-columns:1fr 1fr; } }
+  @container (min-width:800px) { .qgrid { grid-template-columns:1fr 1fr 1fr; } }
+  .qc { border:1px solid var(--line); border-radius:10px; padding:.5rem .6rem; background:var(--surface);
+    display:flex; justify-content:space-between; gap:.4rem; align-items:flex-start; }
+  .qc.tried { border-color:var(--sage); box-shadow:inset 3px 0 0 var(--sage); }
+  .qc .nm { font-size:.8rem; font-weight:700; line-height:1.2; }
+  .qc .en { font-size:.66rem; color:var(--ink-faint); }
+  .qc .tr { font-size:.66rem; color:var(--ink-soft); margin-top:.15rem; }
+  .qc .mk { font-size:.7rem; color:var(--sage); flex:none; }
+  .disc { font-size:.66rem; font-weight:600; color:var(--ink-faint); background:none;
+    border:none; padding:.3rem 0; }
+
+  /* ---- C: rich ---- */
+  .rhead { padding:.75rem 0 .45rem; border-bottom:1px solid var(--line); margin-bottom:.5rem; }
+  .rtitle { display:flex; align-items:baseline; gap:.4rem; flex-wrap:wrap; }
+  .rtitle b { font-size:.84rem; }
+  .rtitle .n { font-size:.66rem; color:var(--ink-faint); }
+  .only { font-size:.6rem; font-weight:700; color:var(--tomato); background:none; border:none; }
+  .blurb { font-size:.7rem; color:var(--ink-soft); margin:.28rem 0 0; display:-webkit-box;
+    -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .more { font-size:.6rem; font-weight:700; color:var(--ink-faint); background:none; border:none; padding:0; }
+  .axrow { display:flex; gap:.22rem; flex-wrap:wrap; margin-top:.3rem; }
+  .ax { font-size:.58rem; font-weight:700; padding:.06rem .38rem; border-radius:5px; color:#fff; }
+  .rgrid { display:grid; grid-template-columns:1fr; gap:.55rem; }
+  @container (min-width:520px) { .rgrid { grid-template-columns:1fr 1fr; } }
+  @container (min-width:800px) { .rgrid { grid-template-columns:1fr 1fr 1fr; } }
+  .rc { border:1px solid var(--line); border-radius:11px; padding:.6rem .7rem; background:var(--surface);
+    display:flex; flex-direction:column; gap:.22rem; }
+  .rc.tried { border-color:var(--sage); box-shadow:inset 3px 0 0 var(--sage); }
+  .dot { width:14px; height:14px; border-radius:50%;
+    background:radial-gradient(circle, var(--cn) 0 36%, color-mix(in srgb, var(--cn) 55%, transparent) 36% 60%, color-mix(in srgb, var(--cn) 18%, transparent) 60% 100%); }
+  .rc .nm { font-size:.82rem; font-weight:700; line-height:1.2; }
+  .rc .en { font-size:.66rem; color:var(--ink-faint); }
+  .rc .mt { font-size:.63rem; color:var(--ink-faint); }
+  .rc .ds { font-size:.7rem; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:2;
+    -webkit-box-orient:vertical; overflow:hidden; }
+  .chips { display:flex; gap:.22rem; flex-wrap:wrap; }
+  .chip { font-size:.6rem; font-weight:600; padding:.06rem .36rem; border-radius:5px;
+    background:var(--sage-soft); color:var(--ink); }
+  .stars { color:var(--saffron); font-size:.72rem; }
+  .act { font-size:.65rem; font-weight:600; color:var(--tomato); border:1px dashed var(--line);
+    background:none; border-radius:7px; padding:.2rem .45rem; align-self:flex-start; }
+  .ctrls { display:flex; gap:.3rem; align-items:center; flex-wrap:wrap; margin-bottom:.6rem; }
+  .srch { flex:1 1 8rem; min-width:5rem; font:inherit; font-size:.72rem; padding:.28rem .5rem;
+    border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); }
+  .mapmini { border:1px solid var(--line); border-radius:10px; padding:.4rem; margin-bottom:.6rem;
+    background:color-mix(in srgb, var(--surface) 60%, var(--bg)); }
+  .mapmini svg { width:100%; height:auto; display:block; }
+  .bub circle { fill:var(--cn); opacity:.8; }
+  .bub text { fill:#fff; font-size:10px; font-weight:700; text-anchor:middle; }
+
+  .note { font-size:.78rem; color:var(--ink-soft); border-left:3px solid var(--tomato);
+    padding:.15rem 0 .15rem .65rem; margin:1.6rem 0 0; max-width:70ch; }
+</style>
+
+<div class="wrap">
+  <h1>Lens switcher — how much chrome is too much?</h1>
+  <p class="sub">
+    Same idea in all three: one dish list, grouped by whichever lens you pick. What changes is only how much
+    decoration wraps each dish and each section. China, abbreviated copy — this is a weight test, not a data test.
+  </p>
+
+  <div class="bar">
+    <span class="lab">Group by</span>
+    <button class="tb on" data-l="region">Region</button>
+    <button class="tb" data-l="category">Category</button>
+    <button class="tb" data-l="tried">Tried</button>
+    <span style="width:.6rem"></span>
+    <span class="lab">Width</span>
+    <button class="tb on" data-w="phone">Phone 390</button>
+    <button class="tb" data-w="full">Full</button>
+  </div>
+
+  <div class="ladder" id="ladder"></div>
+
+  <p class="note">
+    The question is which of these is the <em>least</em> chrome that still tells you what a dish is and where it's
+    from. Switch the lens to Category — section headers lose their prose entirely there, so whichever version still
+    reads well is the one that isn't leaning on region blurbs to feel finished.
+  </p>
+</div>
+
+<script>
+/* abbreviated CN data — enough to judge weight, not to judge content */
+const AXC={heat:'#C0392B',umami:'#6B4F3A',aromatic:'#6E8B5E',sweetness:'#C46A88',acidity:'#C99A2E',smoke:'#5C5652'};
+const D=[
+ {n:'Mapo Doufu',   e:'Mapo Tofu',        r:'Sichuan',        c:'Main',   t:'ma la · doubanjiang',   star:4, chips:['🌶️🌶️🌶️','VGT']},
+ {n:'Gongbao Jiding',e:'Kung Pao Chicken',r:'Sichuan',        c:'Main',   t:'peanuts · sweet-sour',  chips:['🌶️🌶️','📷']},
+ {n:'Dan Dan Mian', e:'Dan Dan Noodles',  r:'Sichuan',        c:'Street', t:'chili oil · sesame',    chips:['🌶️🌶️🌶️','VGT']},
+ {n:'Beijing Kaoya',e:'Peking Duck',      r:'Northern China', c:'Main',   t:'crispy skin · roasted', chips:['📷']},
+ {n:'Jiaozi',       e:'Boiled Dumplings', r:'Northern China', c:'Main',   t:'hand-wrapped',          chips:['VGT']},
+ {n:'Congyou Bing', e:'Scallion Pancakes',r:'Northern China', c:'Street', t:'flaky · pan-fried',     chips:['VG']},
+ {n:'Suanmeitang',  e:'Sour Plum Drink',  r:'Northern China', c:'Drink',  t:'smoked plum · iced',    chips:['🧊']},
+ {n:'Xiaolongbao',  e:'Soup Dumplings',   r:'Jiangnan',       c:'Small',  t:'soup-filled · steamed', star:5, chips:[]},
+ {n:'Hongshao Rou', e:'Red-Braised Pork', r:'Jiangnan',       c:'Main',   t:'red-braised · glossy',  chips:['📍']},
+ {n:'Char Siu',     e:'BBQ Pork',         r:'Guangdong',      c:'Main',   t:'sweet glaze · five-spice', want:1, chips:[]},
+ {n:'Lanzhou Lamian',e:'Beef Noodle Soup',r:'Xinjiang',       c:'Soup',   t:'hand-pulled · broth',   chips:['🌶️','📍']},
+ {n:'Longjing Cha', e:'Dragon Well Tea',  r:'—',              c:'Drink',  t:'pan-fired · chestnut',  chips:['🔥']},
+ {n:'Baijiu',       e:'White Spirit',     r:'—',              c:'Drink',  t:'sorghum · fiery',       chips:['Alc']},
+];
+const BLURB={
+ 'Sichuan':"China's boldest cooking — chili heat plus the electric tingle of Sichuan peppercorn, the famous ma la. Over twenty codified flavor profiles, layered over fermented doubanjiang.",
+ 'Northern China':"Wheat country: noodles, dumplings and steamed breads rather than rice. Clear stocks, vinegar and precise heat control, with Beijing's courtly refinement on top.",
+ 'Jiangnan':"The Yangtze delta favours refinement and gentle sweetness — red-braising in soy, rock sugar and Shaoxing wine for a glossy mahogany depth.",
+ 'Guangdong':"The least heavy-handed cooking in China. Freshness is everything and seasoning stays whisper-light so the ingredient speaks.",
+ 'Xinjiang':"A Central Asian cuisine of cumin-dusted lamb, hand-pulled laghman and tandoor breads — closer to Samarkand than Shanghai.",
+ '—':"Carries no region in the data. Shown rather than silently dropped."
+};
+const FP={'Sichuan':['heat','umami','aromatic'],'Northern China':['acidity','aromatic'],
+ 'Jiangnan':['sweetness','aromatic'],'Guangdong':['umami','aromatic'],'Xinjiang':['heat']};
+const AXL={heat:'Heat',umami:'Umami',aromatic:'Aromatic',sweetness:'Sweet',acidity:'Acidity',smoke:'Smoke'};
+
+const S={lens:'region',w:'phone',open:{},map:{}};
+
+function groups(){
+  if(S.lens==='region'){
+    const order=['Sichuan','Northern China','Jiangnan','Guangdong','Xinjiang','—'];
+    return order.map(k=>({k,label:k==='—'?'Elsewhere in China':k,items:D.filter(d=>d.r===k)}));
+  }
+  if(S.lens==='category'){
+    return [...new Set(D.map(d=>d.c))].map(c=>({k:c,label:c,items:D.filter(d=>d.c===c)}));
+  }
+  return [{k:'t',label:'Tried',items:D.filter(d=>d.star)},
+          {k:'w',label:'Want to try',items:D.filter(d=>d.want)},
+          {k:'n',label:'Not yet',items:D.filter(d=>!d.star&&!d.want)}];
+}
+const lensRow=()=>`<div class="lensrow">${['Region','Category','Flavor','Tried','None']
+  .map(l=>`<span class="lp ${l.toLowerCase()===S.lens?'on':''}">${l}</span>`).join('')}</div>`;
+const head=()=>`<div class="cname">China</div><div class="cmeta">Beijing · 2 of 13 tried</div>`;
+
+/* ---------- A: bare ---------- */
+function A(){
+  return head()+lensRow()+groups().map(g=>!g.items.length?'':
+    `<div class="seclabel">${g.label} <span class="n">${g.items.length}</span></div>
+     ${g.items.map(d=>`<div class="row"><span class="nm">${d.n}</span>
+       <span class="tr">${d.t}</span>${d.star?`<span class="mk">✓</span>`:d.want?`<span class="mk">🔖</span>`:''}</div>`).join('')}`
+  ).join('');
+}
+
+/* ---------- B: quiet cards ---------- */
+function B(){
+  return head()+lensRow()+
+    `<button class="disc" onclick="tog('map','B')">${S.map.B?'▾':'▸'} ${S.map.B?'Hide':'Show'} map</button>
+     ${S.map.B?mini():''}`+
+    groups().map(g=>!g.items.length?'':
+    `<div class="qhead"><b>${g.label}</b><span class="n">${g.items.length}</span></div>
+     <div class="qgrid">${g.items.map(d=>`<div class="qc ${d.star?'tried':''}">
+       <div><div class="nm">${d.n}</div><div class="en">${d.e}</div><div class="tr">${d.t}</div></div>
+       <div class="mk">${d.star?'✓':d.want?'🔖':''}</div></div>`).join('')}</div>`
+  ).join('');
+}
+
+/* ---------- C: rich ---------- */
+function C(){
+  return head()+
+    `<div class="ctrls"><input class="srch" placeholder="Search…">
+      <span class="lp on">Region</span><span class="lp">⚙ 2</span></div>`+
+    mini()+
+    groups().map(g=>{
+      const open=S.open[g.k], fp=S.lens==='region'?FP[g.k]:null, bl=S.lens==='region'?BLURB[g.k]:null;
+      return `<div class="rhead"><div class="rtitle"><b>${g.label}</b>
+        <span class="n">· ${g.items.length}</span><button class="only">only</button></div>
+        ${bl?`<p class="blurb ${open?'open':''}" style="${open?'-webkit-line-clamp:unset':''}">${bl}</p>
+          <button class="more" onclick="tog('open','${g.k}')">${open?'less':'more'}</button>`:''}
+        ${fp?`<div class="axrow">${fp.map(a=>`<span class="ax" style="background:${AXC[a]}">${AXL[a]}</span>`).join('')}</div>`:''}
+      </div>
+      ${g.items.length?`<div class="rgrid">${g.items.map(d=>`<div class="rc ${d.star?'tried':''}">
+        <div class="dot"></div><div class="nm">${d.n}</div><div class="en">${d.e}</div>
+        <div class="mt">${d.r} · ${d.c}</div>
+        <div class="ds">${d.t} — abbreviated description standing in for the real two-line copy.</div>
+        <div class="chips">${(d.chips||[]).map(c=>`<span class="chip">${c}</span>`).join('')}</div>
+        ${d.star?`<div class="stars">${'★'.repeat(d.star)}${'☆'.repeat(5-d.star)}</div>`
+          :`<button class="act">+ I tried this</button>`}</div>`).join('')}</div>`
+        :`<div class="tr" style="font-style:italic;padding:.3rem 0">No dishes yet from this region.</div>`}`;
+    }).join('');
+}
+
+function mini(){
+  const P=[['Xinjiang',96,96],['Northern China',280,106],['Sichuan',168,186],['Jiangnan',298,188],['Guangdong',262,252]];
+  return `<div class="mapmini"><svg viewBox="0 0 400 320" role="img" aria-label="China regions">
+    <path d="M70,120 L60,150 L85,175 L120,185 L140,215 L175,230 L200,262 L245,275 L285,258 L305,225 L330,205 L340,170 L318,140 L330,110 L300,80 L255,68 L205,60 L150,70 L105,85 Z"
+      fill="color-mix(in srgb, var(--cn) 12%, transparent)" stroke="var(--cn)" stroke-width="1.5"/>
+    ${P.map(([n,x,y])=>`<g class="bub"><circle cx="${x}" cy="${y}" r="27"/>
+      <text x="${x}" y="${y+4}">${n.split(' ')[0]}</text></g>`).join('')}
+  </svg></div>`;
+}
+
+const COLS=[
+ {t:'A',n:'Bare',f:A,why:'Rows, not cards. No map, no filters, no descriptions. Tests whether the grouping alone carries the page — at 13 items a list may just be the honest answer.'},
+ {t:'B',n:'Quiet cards',f:B,why:'Cards for tap targets, but one-line headers and no blurb. Map behind a disclosure. The likely landing zone — does a header need prose to feel finished?'},
+ {t:'C',n:'Rich',f:C,why:'What I built last round: blurb, more/less, flavor chips, "only", visible map, filter row, full cards. The control, not a candidate.'}
+];
+
+function tog(kind,k){ S[kind][k]=!S[kind][k]; render(); }
+document.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{
+  S.lens=b.dataset.l; document.querySelectorAll('[data-l]').forEach(x=>x.classList.toggle('on',x===b)); render();});
+document.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{
+  S.w=b.dataset.w; document.querySelectorAll('[data-w]').forEach(x=>x.classList.toggle('on',x===b)); render();});
+
+function render(){
+  document.getElementById('ladder').innerHTML = COLS.map(c=>
+    `<div class="col"><div class="colhead"><span class="tag">${c.t}</span><b>${c.n}</b></div>
+      <p class="tests">${c.why}</p>
+      <div class="device ${S.w==='phone'?'phone':''}"><div class="cap">${S.w==='phone'?'390px':'full width'}</div>
+      <div class="page">${c.f()}</div></div></div>`).join('');
+}
+render();
+</script>

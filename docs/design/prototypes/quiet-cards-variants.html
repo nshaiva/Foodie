@@ -1,0 +1,225 @@
+<title>Quiet cards — three ways to handle region context</title>
+<style>
+  :root { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A;
+    --line:#E7E1D4; --tomato:#C2654A; --sage:#7C8B6F; --sage-soft:#EDF1E8; --saffron:#D9A441; --cn:#a63a2e; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD;
+    --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; } }
+  :root[data-theme="light"] { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60;
+    --ink-faint:#9B968A; --line:#E7E1D4; --sage-soft:#EDF1E8; }
+  :root[data-theme="dark"] { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2;
+    --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; }
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:2rem 1.25rem 4rem;
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
+  .wrap { max-width:1240px; margin:0 auto; }
+  h1 { font-size:1.25rem; margin:0 0 .3rem; text-wrap:balance; }
+  .sub { color:var(--ink-soft); font-size:.85rem; margin:0 0 1.3rem; max-width:64ch; }
+  button { font:inherit; cursor:pointer; }
+  button:focus-visible { outline:2px solid var(--tomato); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+
+  .bar { display:flex; gap:.8rem; align-items:center; flex-wrap:wrap; padding:.5rem 0 .8rem;
+    border-bottom:1px solid var(--line); margin-bottom:1.4rem; position:sticky; top:0; background:var(--bg); z-index:9; }
+  .lab { font-size:.57rem; font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-faint); }
+  .tb { font-size:.73rem; font-weight:600; padding:.26rem .64rem; border-radius:8px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .tb.on { background:var(--ink); border-color:var(--ink); color:var(--bg); }
+
+  .ladder { display:flex; gap:1.4rem; align-items:flex-start; flex-wrap:wrap; }
+  .col { flex:1 1 350px; min-width:0; }
+  .tag { font-size:.59rem; font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--tomato); }
+  .col h2 { font-size:.92rem; margin:.1rem 0 .2rem; }
+  .why { font-size:.74rem; color:var(--ink-soft); margin:0 0 .7rem; }
+  .device { background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    container-type:inline-size; overflow:hidden; width:390px; max-width:100%; }
+  .device.full { width:100%; }
+  .cap { font-size:.55rem; font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-faint);
+    padding:.38rem .8rem; border-bottom:1px solid var(--line); background:color-mix(in srgb,var(--surface) 50%,var(--bg)); }
+  .page { padding:.8rem; }
+
+  .cname { font-size:1rem; font-weight:700; }
+  .cmeta { font-size:.65rem; color:var(--ink-faint); margin-bottom:.55rem; }
+  .lensrow { display:flex; gap:.25rem; overflow-x:auto; padding-bottom:.45rem; margin-bottom:.6rem;
+    border-bottom:1px solid var(--line); }
+  .lp { font-size:.69rem; font-weight:600; padding:.2rem .55rem; border-radius:7px; white-space:nowrap;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .lp.on { background:var(--sage); border-color:var(--sage); color:#fff; }
+
+  .sh { display:flex; align-items:baseline; gap:.4rem; padding:.7rem 0 .35rem; width:100%;
+    background:none; border:none; text-align:left; color:var(--ink); }
+  .sh b { font-size:.79rem; }
+  .sh .n { font-size:.65rem; color:var(--ink-faint); }
+  .sh .go { font-size:.6rem; color:var(--tomato); font-weight:700; margin-left:auto; }
+  .oneline { font-size:.68rem; color:var(--ink-soft); margin:-.2rem 0 .35rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .focus { border:1px solid var(--sage); border-radius:11px; padding:.6rem .7rem; margin:.5rem 0 .6rem;
+    background:var(--sage-soft); }
+  .focus b { font-size:.8rem; }
+  .focus p { font-size:.7rem; color:var(--ink-soft); margin:.25rem 0 0; }
+  .axrow { display:flex; gap:.22rem; flex-wrap:wrap; margin-top:.35rem; }
+  .ax { font-size:.57rem; font-weight:700; padding:.06rem .36rem; border-radius:5px; color:#fff; }
+  .back { font-size:.62rem; font-weight:700; color:var(--tomato); background:none; border:none; padding:.2rem 0 0; }
+
+  .grid { display:grid; grid-template-columns:1fr; gap:.45rem; }
+  @container (min-width:520px) { .grid { grid-template-columns:1fr 1fr; } }
+  @container (min-width:820px) { .grid { grid-template-columns:1fr 1fr 1fr; } }
+  .c { border:1px solid var(--line); border-radius:10px; padding:.5rem .6rem; background:var(--surface);
+    display:flex; justify-content:space-between; gap:.4rem; align-items:flex-start; }
+  .c.tried { border-color:var(--sage); box-shadow:inset 3px 0 0 var(--sage); }
+  .c .nm { font-size:.79rem; font-weight:700; line-height:1.2; }
+  .c .en { font-size:.65rem; color:var(--ink-faint); }
+  .chips { display:flex; gap:.2rem; flex-wrap:wrap; margin-top:.22rem; }
+  .chip { font-size:.58rem; font-weight:600; padding:.05rem .34rem; border-radius:5px;
+    background:var(--sage-soft); color:var(--ink); }
+  .rt { flex:none; text-align:right; }
+  .stars { color:var(--saffron); font-size:.68rem; letter-spacing:-.02em; }
+  .add { font-size:.6rem; font-weight:600; color:var(--tomato); border:1px dashed var(--line);
+    background:none; border-radius:6px; padding:.14rem .36rem; white-space:nowrap; }
+  .mark { font-size:.68rem; }
+  .mapmini { border:1px solid var(--line); border-radius:10px; padding:.35rem; margin-bottom:.55rem;
+    background:color-mix(in srgb,var(--surface) 60%,var(--bg)); }
+  .mapmini svg { width:100%; height:auto; display:block; }
+  .bub circle { fill:var(--cn); opacity:.8; cursor:pointer; }
+  .bub.on circle { opacity:1; stroke:var(--saffron); stroke-width:3; }
+  .bub text { fill:#fff; font-size:10px; font-weight:700; text-anchor:middle; pointer-events:none; }
+  .disc { font-size:.64rem; font-weight:600; color:var(--ink-faint); background:none; border:none; padding:.25rem 0 .4rem; }
+  .note { font-size:.77rem; color:var(--ink-soft); border-left:3px solid var(--tomato);
+    padding:.15rem 0 .15rem .65rem; margin:1.5rem 0 0; max-width:68ch; }
+</style>
+
+<div class="wrap">
+<h1>Quiet cards — three ways to handle region context</h1>
+<p class="sub">Cards, stars and chips are identical in all three. The only difference is <b>when you get told what a region is</b>.
+Abbreviated copy; China.</p>
+
+<div class="bar">
+  <span class="lab">Group by</span>
+  <button class="tb on" data-l="region">Region</button>
+  <button class="tb" data-l="category">Category</button>
+  <span style="width:.5rem"></span>
+  <span class="lab">Width</span>
+  <button class="tb on" data-w="phone">Phone 390</button>
+  <button class="tb" data-w="full">Full</button>
+</div>
+
+<div class="ladder" id="ladder"></div>
+
+<p class="note">Switch to <b>Category</b>: there is no region prose to show, so B1 and B2 look identical while B3's
+one-line slot goes empty. Whichever still feels complete there is the one that isn't leaning on blurbs.</p>
+</div>
+
+<script>
+const AXC={heat:'#C0392B',umami:'#6B4F3A',aromatic:'#6E8B5E',sweetness:'#C46A88',acidity:'#C99A2E'};
+const AXL={heat:'Heat',umami:'Umami',aromatic:'Aromatic',sweetness:'Sweet',acidity:'Acidity'};
+const D=[
+ {n:'Mapo Doufu',e:'Mapo Tofu',r:'Sichuan',c:'Main',star:4,ch:['🌶️🌶️🌶️','VGT']},
+ {n:'Gongbao Jiding',e:'Kung Pao Chicken',r:'Sichuan',c:'Main',ch:['🌶️🌶️','📷']},
+ {n:'Dan Dan Mian',e:'Dan Dan Noodles',r:'Sichuan',c:'Street',ch:['🌶️🌶️🌶️','VGT']},
+ {n:'Beijing Kaoya',e:'Peking Duck',r:'Northern China',c:'Main',ch:['📷']},
+ {n:'Jiaozi',e:'Boiled Dumplings',r:'Northern China',c:'Main',ch:['VGT']},
+ {n:'Congyou Bing',e:'Scallion Pancakes',r:'Northern China',c:'Street',ch:['VG']},
+ {n:'Xiaolongbao',e:'Soup Dumplings',r:'Jiangnan',c:'Small',star:5,ch:[]},
+ {n:'Hongshao Rou',e:'Red-Braised Pork',r:'Jiangnan',c:'Main',ch:['📍']},
+ {n:'Char Siu',e:'BBQ Pork',r:'Guangdong',c:'Main',want:1,ch:[]},
+ {n:'Lanzhou Lamian',e:'Beef Noodle Soup',r:'Xinjiang',c:'Soup',ch:['🌶️','📍']},
+ {n:'Longjing Cha',e:'Dragon Well Tea',r:'—',c:'Drink',ch:['🔥']},
+ {n:'Baijiu',e:'White Spirit',r:'—',c:'Drink',ch:['Alc']}
+];
+const R={
+ 'Sichuan':{one:'Chili heat plus the numbing tingle of Sichuan peppercorn — ma la.',
+   full:"China's boldest cooking. Over twenty codified flavor profiles, layered over fermented doubanjiang from Pixian. Not only fire: teahouse snacks and gentle soups balance the drama.",ax:['heat','umami','aromatic']},
+ 'Northern China':{one:'Wheat country — noodles, dumplings and steamed breads, not rice.',
+   full:"Clear stocks, vinegar and precise heat control from the Shandong tradition, with Beijing's courtly refinement layered on top.",ax:['acidity','aromatic']},
+ 'Jiangnan':{one:'Refinement and gentle sweetness from the Yangtze delta.',
+   full:'Red-braising in soy, rock sugar and Shaoxing wine for a glossy mahogany depth. Freshwater fish and bamboo shoots follow the seasons closely.',ax:['sweetness','aromatic']},
+ 'Guangdong':{one:'The least heavy-handed cooking in China — freshness first.',
+   full:'Technique-obsessed and restrained. Seasoning stays whisper-light so the ingredient speaks; steamed fish is judged by the clock.',ax:['umami','aromatic']},
+ 'Xinjiang':{one:'Central Asian: cumin lamb, hand-pulled laghman, tandoor bread.',
+   full:'Halal by tradition, leaning on lamb, wheat, onions and dried fruit — flavors closer to Samarkand than Shanghai.',ax:['heat']},
+ '—':{one:'No region recorded in the data.',full:'These carry a place name that maps to no region, or none at all. Shown rather than silently dropped.',ax:[]}
+};
+const ORDER=['Sichuan','Northern China','Jiangnan','Guangdong','Xinjiang','—'];
+const S={lens:'region',w:'phone',focus:{},map:{}};
+
+const groups=()=> S.lens==='region'
+  ? ORDER.map(k=>({k,label:k==='—'?'Elsewhere':k,items:D.filter(d=>d.r===k)}))
+  : [...new Set(D.map(d=>d.c))].map(c=>({k:c,label:c,items:D.filter(d=>d.c===c)}));
+
+const card=d=>`<div class="c ${d.star?'tried':''}">
+  <div><div class="nm">${d.n}</div><div class="en">${d.e}</div>
+    ${d.ch.length?`<div class="chips">${d.ch.map(c=>`<span class="chip">${c}</span>`).join('')}</div>`:''}</div>
+  <div class="rt">${d.star?`<div class="stars">${'★'.repeat(d.star)}${'☆'.repeat(5-d.star)}</div>`
+    :d.want?`<span class="mark">🔖</span>`:`<button class="add">+ tried</button>`}</div></div>`;
+
+const head=()=>`<div class="cname">China</div><div class="cmeta">Beijing · 2 of 12 tried</div>
+  <div class="lensrow">${['Region','Category','Flavor','Tried','None']
+    .map(l=>`<span class="lp ${l.toLowerCase()===S.lens?'on':''}">${l}</span>`).join('')}</div>`;
+
+function mini(v,sel){
+  const P=[['Xinjiang',96,96],['Northern China',280,106],['Sichuan',168,186],['Jiangnan',298,188],['Guangdong',262,252]];
+  return `<div class="mapmini"><svg viewBox="0 0 400 320" role="img" aria-label="China regions">
+   <path d="M70,120 L60,150 L85,175 L120,185 L140,215 L175,230 L200,262 L245,275 L285,258 L305,225 L330,205 L340,170 L318,140 L330,110 L300,80 L255,68 L205,60 L150,70 L105,85 Z"
+     fill="color-mix(in srgb,var(--cn) 12%,transparent)" stroke="var(--cn)" stroke-width="1.5"/>
+   ${P.map(([n,x,y])=>`<g class="bub ${sel===n?'on':''}" onclick="setFocus('${v}','${n}')">
+     <circle cx="${x}" cy="${y}" r="27"/><text x="${x}" y="${y+4}">${n.split(' ')[0]}</text></g>`).join('')}
+  </svg></div>`;
+}
+
+/* B1 — no prose anywhere */
+function B1(){
+  return head()+`<button class="disc" onclick="tog('map','B1')">${S.map.B1?'▾ Hide':'▸ Show'} map</button>
+    ${S.map.B1?mini('B1',null):''}`+
+    groups().map(g=>!g.items.length?'':
+      `<div class="sh"><b>${g.label}</b><span class="n">${g.items.length}</span></div>
+       <div class="grid">${g.items.map(card).join('')}</div>`).join('');
+}
+
+/* B2 — blurb only when focused */
+function B2(){
+  const f=S.focus.B2;
+  if(f&&S.lens==='region'){
+    const items=D.filter(d=>d.r===f), r=R[f];
+    return head()+mini('B2',f)+
+      `<div class="focus"><b>${f}</b><p>${r.full}</p>
+        ${r.ax.length?`<div class="axrow">${r.ax.map(a=>`<span class="ax" style="background:${AXC[a]}">${AXL[a]}</span>`).join('')}</div>`:''}
+        <button class="back" onclick="setFocus('B2',null)">← All of China</button></div>
+      <div class="grid">${items.map(card).join('')}</div>`;
+  }
+  return head()+`<button class="disc" onclick="tog('map','B2')">${S.map.B2?'▾ Hide':'▸ Show'} map</button>
+    ${S.map.B2?mini('B2',null):''}`+
+    groups().map(g=>!g.items.length?'':
+      `<button class="sh" onclick="setFocus('B2','${g.k}')"><b>${g.label}</b>
+        <span class="n">${g.items.length}</span>${S.lens==='region'?'<span class="go">open →</span>':''}</button>
+       <div class="grid">${g.items.map(card).join('')}</div>`).join('');
+}
+
+/* B3 — one truncated line, always */
+function B3(){
+  return head()+`<button class="disc" onclick="tog('map','B3')">${S.map.B3?'▾ Hide':'▸ Show'} map</button>
+    ${S.map.B3?mini('B3',null):''}`+
+    groups().map(g=>!g.items.length?'':
+      `<div class="sh"><b>${g.label}</b><span class="n">${g.items.length}</span></div>
+       ${S.lens==='region'&&R[g.k]?`<div class="oneline">${R[g.k].one}</div>`:''}
+       <div class="grid">${g.items.map(card).join('')}</div>`).join('');
+}
+
+const COLS=[
+ {t:'B1',n:'No prose',f:B1,why:'Headers are name and count, full stop. Region descriptions live somewhere else entirely — a footer or the map. The lightest, and the most honest about the fact that most scrolling isn\'t reading.'},
+ {t:'B2',n:'Blurb on focus',f:B2,why:'Quiet while browsing. Tap a header or a map bubble and the page focuses that one region: full description, flavor chips, just its dishes. You get taught only once you\'ve shown interest.'},
+ {t:'B3',n:'One line always',f:B3,why:'Every region header carries a single truncated line of prose. Constant low-level context, never a wall — but it goes blank under any other lens.'}
+];
+function tog(k,v){S[k][v]=!S[k][v];render();}
+function setFocus(v,r){S.focus[v]=r;render();}
+document.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{S.lens=b.dataset.l;
+  document.querySelectorAll('[data-l]').forEach(x=>x.classList.toggle('on',x===b));render();});
+document.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{S.w=b.dataset.w;
+  document.querySelectorAll('[data-w]').forEach(x=>x.classList.toggle('on',x===b));render();});
+function render(){
+  document.getElementById('ladder').innerHTML=COLS.map(c=>
+    `<div class="col"><span class="tag">${c.t}</span><h2>${c.n}</h2><p class="why">${c.why}</p>
+     <div class="device ${S.w==='full'?'full':''}"><div class="cap">${S.w==='phone'?'390px':'full width'}</div>
+     <div class="page">${c.f()}</div></div></div>`).join('');
+}
+render();
+</script>

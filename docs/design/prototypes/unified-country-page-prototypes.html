@@ -1,0 +1,804 @@
+<title>Unified country page — four iterations</title>
+<style>
+  :root { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A;
+    --line:#E7E1D4; --tomato:#C2654A; --sage:#7C8B6F; --sage-soft:#EDF1E8; --navy:#33302A;
+    --saffron:#D9A441;
+    --cn-primary:#a63a2e; --cn-secondary:#3d5a4c; --cn-accent:#c9a253;
+    --ax-heat:#C0392B; --ax-acidity:#C99A2E; --ax-sweetness:#C46A88;
+    --ax-umami:#6B4F3A; --ax-aromatic:#6E8B5E; --ax-smokeEarth:#5C5652; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; }
+  }
+  :root[data-theme="light"] { --bg:#FAF7F0; --surface:#fff; --ink:#33302A; --ink-soft:#6E6A60; --ink-faint:#9B968A; --line:#E7E1D4; --sage-soft:#EDF1E8; }
+  :root[data-theme="dark"] { --bg:#211F1B; --surface:#2B2823; --ink:#EDE8DD; --ink-soft:#B5AFA2; --ink-faint:#837D70; --line:#3D392F; --sage-soft:#31362B; }
+
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:2.5rem 1.25rem 6rem;
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
+  .wrap { max-width:1180px; margin:0 auto; }
+  h1 { font-size:1.45rem; margin:0 0 .3rem; }
+  .sub { color:var(--ink-soft); font-size:.9rem; margin:0 0 1.6rem; max-width:74ch; }
+  .sub code { background:var(--sage-soft); padding:.05rem .3rem; border-radius:4px; font-size:.85em; }
+
+  /* ---------- data report ---------- */
+  .report { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:1.3rem 1.4rem; margin-bottom:1.6rem; }
+  .report h2 { font-size:1rem; margin:0 0 .2rem; }
+  .report p { font-size:.82rem; color:var(--ink-soft); margin:.2rem 0 1rem; max-width:78ch; }
+  table { border-collapse:collapse; width:100%; font-size:.78rem; margin-bottom:.4rem; }
+  th, td { text-align:left; padding:.34rem .6rem; border-bottom:1px solid var(--line); }
+  th { font-size:.64rem; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-faint); font-weight:700; }
+  td.num { font-variant-numeric:tabular-nums; }
+  .ok { color:var(--sage); font-weight:700; }
+  .bad { color:var(--tomato); font-weight:700; }
+  .headline { display:flex; gap:1.4rem; flex-wrap:wrap; margin:.2rem 0 1rem; }
+  .stat { background:color-mix(in srgb, var(--surface) 55%, var(--bg)); border:1px solid var(--line);
+    border-radius:12px; padding:.6rem .9rem; min-width:9rem; }
+  .stat b { display:block; font-size:1.35rem; line-height:1.1; }
+  .stat span { font-size:.68rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.08em; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar { position:sticky; top:0; z-index:50; background:var(--bg);
+    border-bottom:1px solid var(--line); padding:.7rem 0 .8rem; margin-bottom:1.6rem;
+    display:flex; gap:.9rem; align-items:center; flex-wrap:wrap; }
+  .tbgroup { display:flex; gap:.3rem; align-items:center; }
+  .tblabel { font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-right:.15rem; }
+  button { font:inherit; cursor:pointer; }
+  .tb { font-size:.74rem; font-weight:600; padding:.3rem .7rem; border-radius:8px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .tb.on { background:var(--navy); border-color:var(--navy); color:var(--bg); }
+  .chk { font-size:.74rem; color:var(--ink-soft); display:flex; align-items:center; gap:.35rem; cursor:pointer; }
+
+  /* ---------- device frame + container queries ---------- */
+  .stage { display:flex; gap:1.5rem; align-items:flex-start; }
+  .frame { background:var(--surface); border:1px solid var(--line); border-radius:16px;
+    container-type:inline-size; overflow:hidden; }
+  .frame.desktop { flex:1; min-width:0; }
+  .frame.phone { width:390px; flex:0 0 390px; }
+  .framecap { font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-faint); padding:.5rem .9rem; border-bottom:1px solid var(--line);
+    background:color-mix(in srgb, var(--surface) 50%, var(--bg)); }
+  .page { padding:.9rem; }
+
+  /* ---------- shared app chrome ---------- */
+  .chead { display:flex; align-items:center; gap:.5rem; margin-bottom:.15rem; }
+  .cdot { width:15px; height:15px; border-radius:50%; flex:none;
+    background:radial-gradient(circle, var(--cn-primary) 0 36%, color-mix(in srgb, var(--cn-primary) 55%, transparent) 36% 60%, color-mix(in srgb, var(--cn-primary) 20%, transparent) 60% 100%); }
+  .cname { font-size:1.05rem; font-weight:700; }
+  .cmeta { font-size:.7rem; color:var(--ink-faint); margin-bottom:.5rem; }
+  .csum { font-size:.76rem; color:var(--ink-soft); margin:0 0 .8rem; }
+
+  .controls { display:flex; gap:.4rem; align-items:center; flex-wrap:wrap; margin-bottom:.7rem;
+    padding-bottom:.7rem; border-bottom:1px solid var(--line); }
+  .search { flex:1 1 11rem; min-width:7rem; font:inherit; font-size:.78rem; padding:.35rem .65rem;
+    border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); }
+  .search:focus { outline:2px solid color-mix(in srgb, var(--tomato) 55%, transparent); outline-offset:1px; }
+  .pill { font-size:.7rem; font-weight:600; padding:.26rem .62rem; border-radius:8px; white-space:nowrap;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .pill.on { background:var(--sage); border-color:var(--sage); color:#fff; }
+  .pill.on-navy { background:var(--navy); border-color:var(--navy); color:var(--bg); }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; }
+  .seg .pill { border:none; border-radius:0; }
+  .badge { display:inline-flex; align-items:center; justify-content:center; min-width:1rem; height:1rem;
+    border-radius:50%; background:var(--sage); color:#fff; font-size:.58rem; font-weight:700; margin-left:.3rem; }
+  .drawer { border:1px solid var(--line); border-radius:12px; padding:.7rem .8rem; margin-bottom:.8rem;
+    background:color-mix(in srgb, var(--surface) 60%, var(--bg)); display:flex; flex-direction:column; gap:.5rem; }
+  .drow { display:flex; gap:.3rem; align-items:center; flex-wrap:wrap; }
+  .glabel { font-size:.58rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); min-width:4.4rem; }
+
+  /* ---------- dish grid ---------- */
+  .grid { display:grid; grid-template-columns:1fr; gap:.6rem; }
+  @container (min-width:560px) { .grid { grid-template-columns:1fr 1fr; } }
+  @container (min-width:860px) { .grid { grid-template-columns:1fr 1fr 1fr; } }
+  .card { border:1px solid var(--line); border-radius:12px; padding:.65rem .75rem; background:var(--surface);
+    display:flex; flex-direction:column; gap:.28rem; }
+  .card.tried { border-color:var(--sage); box-shadow:inset 3px 0 0 var(--sage); }
+  .card .top { display:flex; align-items:flex-start; justify-content:space-between; gap:.4rem; }
+  .pdot { width:15px; height:15px; border-radius:50%; flex:none; margin-bottom:.15rem; }
+  .dname { font-size:.84rem; font-weight:700; line-height:1.25; }
+  .deng { font-size:.68rem; color:var(--ink-faint); font-weight:500; }
+  .dmeta { font-size:.66rem; color:var(--ink-faint); }
+  .ddesc { font-size:.72rem; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .chips { display:flex; gap:.25rem; flex-wrap:wrap; margin-top:.1rem; }
+  .chip { font-size:.62rem; font-weight:600; padding:.1rem .4rem; border-radius:6px;
+    background:var(--sage-soft); color:var(--ink); white-space:nowrap; }
+  .stars { color:var(--saffron); font-size:.76rem; letter-spacing:.04em; }
+  .cardact { font-size:.68rem; font-weight:600; color:var(--tomato); border:1px dashed var(--line);
+    background:transparent; border-radius:8px; padding:.22rem .5rem; margin-top:.2rem; align-self:flex-start; }
+  .corner { display:flex; gap:.2rem; font-size:.78rem; flex:none; }
+  .ghost { border:1.5px dashed var(--line); border-radius:12px; min-height:104px; display:flex;
+    align-items:center; justify-content:center; color:var(--ink-faint); font-size:.75rem; font-weight:600; }
+  .empty { border:1px dashed var(--line); border-radius:12px; padding:2rem 1rem; text-align:center;
+    color:var(--ink-soft); font-size:.8rem; grid-column:1/-1; }
+  .empty b { display:block; color:var(--ink); margin-bottom:.2rem; }
+
+  /* ---------- section headers (lens) ---------- */
+  .sect { margin-bottom:1.1rem; }
+  .sechead { position:sticky; top:0; background:var(--surface); z-index:2; padding:.4rem 0 .45rem;
+    border-bottom:1px solid var(--line); margin-bottom:.55rem; }
+  .sectitle { display:flex; align-items:baseline; gap:.45rem; flex-wrap:wrap; }
+  .sectitle b { font-size:.86rem; }
+  .seccount { font-size:.68rem; color:var(--ink-faint); font-variant-numeric:tabular-nums; }
+  .seconly { font-size:.62rem; font-weight:700; color:var(--tomato); background:none; border:none; padding:0 0 0 .2rem; }
+  .secblurb { font-size:.7rem; color:var(--ink-soft); margin:.25rem 0 0; display:-webkit-box;
+    -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .secblurb.open { -webkit-line-clamp:unset; }
+  .more { font-size:.62rem; font-weight:700; color:var(--ink-faint); background:none; border:none; padding:0; }
+  .axchips { display:flex; gap:.25rem; flex-wrap:wrap; margin-top:.3rem; }
+  .axchip { font-size:.6rem; font-weight:700; padding:.08rem .4rem; border-radius:5px; color:#fff; }
+  .secempty { font-size:.72rem; color:var(--ink-faint); font-style:italic; padding:.5rem 0 .2rem; }
+
+  /* ---------- map ---------- */
+  .mapbox { border:1px solid var(--line); border-radius:12px; background:color-mix(in srgb, var(--surface) 60%, var(--bg));
+    padding:.5rem; margin-bottom:.8rem; position:relative; }
+  .mapsvg { width:100%; height:auto; display:block; }
+  .bub { cursor:pointer; }
+  .bub circle { fill:var(--cn-primary); opacity:.82; transition:all .12s; }
+  .bub.sel circle { opacity:1; stroke:var(--cn-accent); stroke-width:3; }
+  .bub.zero circle { fill:var(--ink-faint); opacity:.42; }
+  .bub text { fill:#fff; font-size:11px; font-weight:700; text-anchor:middle; pointer-events:none; }
+  .bub .cnt { font-size:9px; opacity:.85; }
+  .maphint { font-size:.64rem; color:var(--ink-faint); text-align:center; padding-top:.2rem; }
+  .elsewhere { display:flex; gap:.3rem; flex-wrap:wrap; margin-top:.4rem; }
+
+  /* ---------- facet rail ---------- */
+  .railwrap { display:block; }
+  @container (min-width:760px) { .railwrap { display:grid; grid-template-columns:210px 1fr; gap:1rem; align-items:start; } }
+  .rail { border:1px solid var(--line); border-radius:12px; padding:.6rem .7rem; margin-bottom:.8rem;
+    background:color-mix(in srgb, var(--surface) 60%, var(--bg)); }
+  @container (min-width:760px) { .rail { position:sticky; top:.5rem; margin-bottom:0; } }
+  .facet { margin-bottom:.7rem; }
+  .facet h4 { font-size:.58rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-faint); margin:0 0 .3rem; }
+  .frow { display:flex; justify-content:space-between; align-items:center; width:100%; font-size:.72rem;
+    padding:.18rem .3rem; border-radius:6px; border:none; background:none; color:var(--ink); text-align:left; }
+  .frow:hover { background:var(--sage-soft); }
+  .frow.on { background:var(--sage); color:#fff; font-weight:700; }
+  .frow .n { font-size:.66rem; color:var(--ink-faint); font-variant-numeric:tabular-nums; }
+  .frow.on .n { color:#fff; }
+  .frow.z { color:var(--ink-faint); }
+  .railchips { display:flex; gap:.25rem; overflow-x:auto; padding-bottom:.2rem; }
+
+  /* ---------- split ---------- */
+  .split { display:block; }
+  @container (min-width:820px) { .split { display:grid; grid-template-columns:40% 1fr; gap:1rem; align-items:start; } }
+  @container (min-width:820px) { .split .left { position:sticky; top:.5rem; } }
+  .splitnote { font-size:.68rem; color:var(--tomato); font-weight:600; padding:.4rem .55rem;
+    border:1px dashed var(--tomato); border-radius:8px; margin-bottom:.6rem; }
+  @container (min-width:820px) { .splitnote { display:none; } }
+
+  /* ---------- accordions ---------- */
+  .acc { border:1px solid var(--line); border-radius:12px; margin-top:.8rem; overflow:hidden; }
+  .acchead { width:100%; display:flex; justify-content:space-between; align-items:center;
+    padding:.55rem .75rem; background:color-mix(in srgb, var(--surface) 60%, var(--bg));
+    border:none; font-size:.78rem; font-weight:700; color:var(--ink); }
+  .accbody { padding:.75rem; border-top:1px solid var(--line); font-size:.75rem; color:var(--ink-soft); }
+  .radarwrap { display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-start; }
+  .radarnote { font-size:.66rem; color:var(--tomato); font-weight:600; }
+  .tier { display:flex; gap:.3rem; align-items:center; margin-bottom:.3rem; flex-wrap:wrap; }
+  .tierlab { font-size:.56rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--ink-faint); min-width:4.6rem; }
+
+  /* wide content scrolls in its own box; the page body never goes sideways */
+  .tscroll { overflow-x:auto; }
+  table { min-width:30rem; }
+
+  /* keyboard focus + reduced motion */
+  button:focus-visible, input:focus-visible, .bub:focus-visible {
+    outline:2px solid var(--tomato); outline-offset:2px; border-radius:6px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  }
+
+  .callout { font-size:.72rem; color:var(--ink-soft); border-left:3px solid var(--tomato);
+    padding:.2rem 0 .2rem .6rem; margin:.7rem 0; }
+  .vtitle { display:flex; align-items:baseline; gap:.6rem; margin-bottom:.25rem; flex-wrap:wrap; }
+  .vtitle h2 { font-size:1.05rem; margin:0; }
+  .tag { font-size:.64rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--tomato); }
+  .why { font-size:.8rem; color:var(--ink-soft); margin:0 0 1rem; max-width:76ch; }
+  .verdict { font-size:.76rem; margin:.9rem 0 0; padding:.5rem .7rem; border-radius:10px;
+    background:var(--sage-soft); color:var(--ink); }
+  .verdict.no { background:color-mix(in srgb, var(--tomato) 12%, transparent); }
+</style>
+
+<div class="wrap">
+<h1>Unified country page — four iterations</h1>
+<p class="sub">
+  Today the country page is a fixed-height carousel with three siloed tabs (Flavor · Eat &amp; Drink · Culture &amp; Regions).
+  These four prototypes each collapse it into <b>one</b> view. All data is transcribed from the real
+  <code>CN.ts</code> — 10 dishes, 5 drinks, 5 regions — so every count below is honest, including the ugly ones.
+  Use the device toggle to check the phone case; the thesis says the primary moment happens on a phone.
+</p>
+
+<!-- ============ DATA REPORT ============ -->
+<div class="report">
+  <h2>First: does dish → region actually work?</h2>
+  <p>
+    Every region feature depends on this join. China is our <i>best-data</i> country — every dish carries
+    <code>regionalOrigin</code> — so these are ceiling numbers, not floor numbers.
+    <b>Today's rule</b> (<code>detectRegion</code>) strips the parenthetical from the dish's origin and compares to region names.
+    <b>Token-aware</b> also parses the parenthetical <i>in region names</i> into aliases
+    (<code>"Northern China (Beijing &amp; Shandong)"</code> → <code>northern china</code>, <code>beijing</code>, <code>shandong</code>).
+  </p>
+  <div class="headline">
+    <div class="stat"><b class="bad">8 / 15</b><span>strict — today</span></div>
+    <div class="stat"><b class="ok">11 / 15</b><span>token-aware</span></div>
+    <div class="stat"><b>0 data edits</b><span>to get there</span></div>
+  </div>
+  <div class="tscroll"><table id="matchTable"></table></div>
+  <p style="margin-top:.7rem">
+    Denominator is all 15 items. Two drinks (Doujiang, Baijiu) carry no <code>regionalOrigin</code> at all and can never
+    match — so of the 13 that could, token-aware gets 11.
+    Under today's rule <b>Xinjiang gets zero dishes</b> while being a full-size bubble on the map; token-aware gives it one.
+    The four remaining orphans are Hangzhou and Shaoxing (both Zhejiang — a two-entry alias table away) plus those two
+    origin-less drinks. <b>Conclusion: the region lens is viable now</b>, without waiting on the content batch.
+  </p>
+
+  <h2 style="margin-top:1.4rem">Can region headers carry flavor chips?</h2>
+  <p>
+    There is no region-level flavor data. It <i>is</i> derivable by matching <code>RegionalCuisine.keyIngredients</code>
+    against the ingredients that carry <code>flavorAxes</code>. Coverage is uneven, which is the point of showing it:
+  </p>
+  <div class="tscroll"><table id="fingerTable"></table></div>
+  <p style="margin-top:.7rem">
+    Sichuan gets a rich fingerprint; <b>Xinjiang gets one axis</b>. So region headers can carry flavor chips only if the
+    thin case degrades gracefully — shown in iteration 4.
+  </p>
+
+  <h2 style="margin-top:1.4rem">Dish → flavor axis is much weaker</h2>
+  <p>
+    Bridging <code>dish.keyTraits</code> → ingredient names → axes resolves only <b class="bad">5 of 10</b> dishes, even
+    with loose substring matching. Peking Duck, Xiaolongbao, Jiaozi, Red-Braised Pork and Scallion Pancakes get nothing —
+    their traits ("crispy skin", "soup-filled", "caramelized sugar") name techniques and textures, not ingredients.
+    That is why the <b>Flavor lens is the weakest</b> of the five groupings. Iteration 4 renders it looking bad rather
+    than hiding it; if this lens ships, it needs per-dish axis data from the content batch, not a bridge.
+  </p>
+</div>
+
+<!-- ============ TOOLBAR ============ -->
+<div class="toolbar">
+  <div class="tbgroup"><span class="tblabel">Iteration</span>
+    <button class="tb" data-v="1">1 · Search-first</button>
+    <button class="tb" data-v="2">2 · Map + list</button>
+    <button class="tb" data-v="3">3 · Facet rail</button>
+    <button class="tb on" data-v="4">4 · Lens switcher</button>
+  </div>
+  <div class="tbgroup"><span class="tblabel">Width</span>
+    <button class="tb on" data-d="desktop">Desktop</button>
+    <button class="tb" data-d="phone">Phone 390</button>
+    <button class="tb" data-d="both">Both</button>
+  </div>
+  <label class="chk"><input type="checkbox" id="hideSearch"> hide search (is it load-bearing at n=15?)</label>
+  <label class="chk"><input type="checkbox" id="emptyTest"> force empty (vegan + hot)</label>
+</div>
+
+<div id="vtitle"></div>
+<div class="stage" id="stage"></div>
+<div id="verdict"></div>
+</div>
+
+<script>
+/* ============================================================
+   REAL CN DATA — transcribed from apps/web/src/data/countries/CN.ts
+   ============================================================ */
+const AX = {
+  heat:{label:'Heat',c:'var(--ax-heat)'}, acidity:{label:'Acidity',c:'var(--ax-acidity)'},
+  sweetness:{label:'Sweet',c:'var(--ax-sweetness)'}, umami:{label:'Umami',c:'var(--ax-umami)'},
+  aromatic:{label:'Aromatic',c:'var(--ax-aromatic)'}, smokeEarth:{label:'Smoke/Earth',c:'var(--ax-smokeEarth)'}
+};
+const INTENSITY = { heat:5, acidity:4, sweetness:4, umami:9, aromatic:6, smokeEarth:7 };
+
+// ingredient name -> axes (only those that carry flavorAxes in CN.ts)
+const ING = {
+  'soy sauce':['umami'], 'shaoxing wine':['aromatic','sweetness'], 'ginger & scallion':['aromatic'],
+  'sesame oil':['smokeEarth','aromatic'], 'black vinegar':['acidity','sweetness'], 'garlic':['aromatic'],
+  'sichuan peppercorn':['heat','aromatic'], 'star anise':['aromatic','sweetness'],
+  'dried chilies':['heat','smokeEarth'], 'doubanjiang':['heat','umami'],
+  'fermented black beans':['umami','smokeEarth'], 'white pepper':['heat','smokeEarth'],
+  'oyster sauce':['umami','sweetness'], 'hoisin sauce':['sweetness','umami'], 'rock sugar':['sweetness'],
+  'five-spice':['aromatic','sweetness'], 'dried shiitake':['umami','smokeEarth'],
+  'chili oil':['heat','aromatic'], 'cilantro':['aromatic','acidity'], 'preserved vegetables':['acidity','umami']
+};
+
+const REGIONS = [
+  { name:'Sichuan', blurb:"China's boldest cooking, built on chili heat and the electric tingle of Sichuan peppercorn — the famous ma la. Chengdu's repertoire counts over twenty distinct flavor profiles, all layered over fermented doubanjiang from Pixian. Yet Sichuan is not only fire: teahouse snacks and gentle soups balance the drama.",
+    key:['Sichuan peppercorns','doubanjiang','dried chilies','chili oil','preserved vegetables'], xy:[168,186] },
+  { name:'Guangdong (Cantonese)', blurb:"The Pearl River Delta produces China's most technique-obsessed and least heavy-handed cooking. Freshness is everything; steamed fish is judged by the clock, stir-fries by their wok hei, and seasoning stays whisper-light so the ingredient speaks.",
+    key:['fresh seafood','oyster sauce','light soy sauce','ginger','scallions'], xy:[262,252] },
+  { name:'Jiangnan (Shanghai & Huaiyang)', blurb:"The fertile Yangtze delta favors refinement and gentle sweetness. Red-braising in soy, rock sugar, and Shaoxing wine gives dishes a glossy mahogany depth; freshwater fish, crab, and bamboo shoots follow the seasons closely.",
+    key:['Shaoxing wine','rock sugar','black vinegar','freshwater fish and crab','bamboo shoots'], xy:[298,188] },
+  { name:'Northern China (Beijing & Shandong)', blurb:"The wheat-growing north eats noodles, dumplings, and steamed breads rather than rice. Its Shandong tradition prizes clear stocks, vinegar, and precise heat control; Beijing layered courtly refinement on top.",
+    key:['wheat flour','scallions','vinegar','sweet bean sauce (tianmianjiang)','lamb'], xy:[280,106] },
+  { name:'Xinjiang (Northwest)', blurb:"China's far northwest cooks a Central Asian cuisine of cumin-dusted lamb skewers, hand-pulled laghman noodles, and tandoor breads. Halal by tradition, it leans on lamb, wheat, onions, and dried fruit — flavors closer to Samarkand than Shanghai.",
+    key:['lamb','cumin','chili flakes','hand-pulled noodles','onions'], xy:[96,96] }
+];
+
+const DISHES = [
+  { n:'Mapo Doufu', e:'Mapo Tofu', cat:'main', origin:'Sichuan (Chengdu)', spice:'hot', pop:'both',
+    traits:['ma la','doubanjiang','silken tofu'], diet:{veg:1,df:1,nf:1},
+    d:'Silken tofu simmered in a crimson sauce of doubanjiang, fermented black beans, and ground pork, finished with ground Sichuan peppercorn.' },
+  { n:'Beijing Kaoya', e:'Peking Duck', cat:'main', origin:'Beijing', spice:'none', pop:'tourist-classic',
+    traits:['crispy skin','roasted','sweet bean sauce'], diet:{df:1,nf:1},
+    d:'Whole duck air-dried, glazed with maltose, and roasted until the skin shatters like glass. Carved tableside and wrapped in thin pancakes.' },
+  { n:'Xiaolongbao', e:'Soup Dumplings', cat:'appetizer', origin:'Jiangnan (Shanghai)', spice:'none', pop:'both',
+    traits:['soup-filled','steamed','pleated dough'], diet:{df:1,nf:1},
+    d:'Delicate pleated dumplings hiding hot pork broth inside — the soup, set with aspic, melts as the basket steams.' },
+  { n:'Gongbao Jiding', e:'Kung Pao Chicken', cat:'main', origin:'Sichuan', spice:'medium', pop:'tourist-classic',
+    traits:['peanuts','dried chilies','sweet-sour'], diet:{df:1},
+    d:'Diced chicken flash-fried with dried chilies, Sichuan peppercorns, and peanuts in a glossy sweet-sour-savory sauce.' },
+  { n:'Jiaozi', e:'Boiled Dumplings', cat:'main', origin:'Northern China', spice:'none', pop:'both',
+    traits:['hand-wrapped','boiled','vinegar dip'], diet:{veg:1,df:1,nf:1},
+    d:'Crescent dumplings of pork and cabbage in hand-rolled wheat wrappers, boiled and dipped in vinegar with chili oil.' },
+  { n:'Char Siu', e:'Cantonese BBQ Pork', cat:'main', origin:'Guangdong', spice:'none', pop:'both',
+    traits:['roasted','sweet glaze','five-spice'], diet:{df:1,nf:1},
+    d:'Pork shoulder marinated in hoisin, honey, and five-spice, then roasted until lacquered mahogany-red.' },
+  { n:'Lanzhou Lamian', e:'Hand-Pulled Beef Noodle Soup', cat:'soup', origin:'Northwest (Lanzhou)', spice:'mild', pop:'local-favorite',
+    traits:['hand-pulled noodles','clear beef broth','chili oil'], street:1, diet:{df:1,nf:1},
+    d:"Noodles stretched by hand to order in a clear beef broth with radish, chili oil, cilantro, and scallion." },
+  { n:'Hongshao Rou', e:'Red-Braised Pork Belly', cat:'main', origin:'Jiangnan (Shanghai)', spice:'none', pop:'local-favorite',
+    traits:['red-braised','caramelized sugar','melting pork belly'], diet:{df:1,nf:1},
+    d:'Cubes of pork belly slowly braised in soy, Shaoxing wine, and caramelized rock sugar until glossy and mahogany-dark.' },
+  { n:'Dan Dan Mian', e:'Dan Dan Noodles', cat:'street-food', origin:'Sichuan (Chengdu)', spice:'hot', pop:'both',
+    traits:['chili oil','sesame paste','ma la'], street:1, diet:{veg:1,df:1},
+    d:'Springy noodles under a slick of chili oil, sesame paste, Sichuan peppercorn, and crispy pork with preserved mustard greens.' },
+  { n:'Congyou Bing', e:'Scallion Pancakes', cat:'street-food', origin:'Northern China', spice:'none', pop:'both',
+    traits:['flaky layers','pan-fried','scallions'], street:1, diet:{vegan:1,veg:1,df:1,nf:1},
+    d:'Unleavened dough coiled with oil and scallions, then pan-fried into flaky, chewy-crisp layers.' }
+];
+
+const DRINKS = [
+  { n:'Longjing Cha', e:'Dragon Well Green Tea', cat:'tea', origin:'Hangzhou (Zhejiang)', type:'non-alcoholic', served:'hot',
+    diet:{vegan:1,veg:1,df:1,gf:1}, drink:1, d:"Hangzhou's celebrated pan-fired green tea with flat jade leaves and a chestnut-sweet cup." },
+  { n:'Doujiang', e:'Fresh Soy Milk', cat:'street', origin:null, type:'non-alcoholic', served:'hot',
+    diet:{vegan:1,veg:1,df:1,gf:1}, drink:1, d:'Warm, freshly ground soy milk served sweet or savory at breakfast stalls.' },
+  { n:'Suanmeitang', e:'Sour Plum Drink', cat:'street', origin:'Beijing', type:'non-alcoholic', served:'iced',
+    diet:{vegan:1,veg:1,df:1,gf:1}, drink:1, d:"Beijing's classic summer cooler simmered from smoked dried plums, hawthorn, and osmanthus." },
+  { n:'Baijiu', e:'White Spirit', cat:'spirit', origin:null, type:'alcoholic', served:null,
+    diet:{vegan:1,veg:1,df:1}, drink:1, d:"The world's most consumed spirit: a fiery grain liquor distilled from fermented sorghum." },
+  { n:'Shaoxing Huangjiu', e:'Shaoxing Rice Wine', cat:'wine', origin:'Shaoxing (Zhejiang)', type:'alcoholic', served:'room',
+    diet:{df:1}, drink:1, d:'Amber rice wine from Zhejiang, aged for a nutty, sherry-like depth.' }
+];
+
+const ALL = [...DISHES, ...DRINKS];
+
+/* simulated user state */
+const TRIED = { 'Mapo Doufu':4, 'Xiaolongbao':5 };
+const WANT  = new Set(['Char Siu']);
+
+/* ============================================================
+   JOINS
+   ============================================================ */
+const short = s => s && s.includes('(') ? s.split('(')[0].trim() : s;
+function regionTokens(r){
+  const t=[r.name.toLowerCase(), short(r.name).toLowerCase()];
+  const p=r.name.match(/\(([^)]+)\)/);
+  if(p) p[1].split(/&|,/).forEach(x=>t.push(x.trim().toLowerCase()));
+  return t;
+}
+const TOKENS = REGIONS.map(r=>({r, tok:regionTokens(r)}));
+
+function resolveStrict(item){
+  if(!item.origin) return null;
+  const s = short(item.origin).toLowerCase();
+  const hit = REGIONS.find(r=>short(r.name).toLowerCase()===s);
+  return hit ? hit.name : null;
+}
+function resolveToken(item){
+  if(!item.origin) return null;
+  const s = short(item.origin).toLowerCase();
+  const hit = TOKENS.find(x=>x.tok.includes(s));
+  return hit ? hit.r.name : null;
+}
+const regionOf = item => resolveToken(item);   // the prototype uses the good rule
+
+/* region flavor fingerprint from keyIngredients */
+function fingerprint(r){
+  const counts={}, matched=[];
+  r.key.forEach(k=>{
+    const kl=k.toLowerCase();
+    const hit=Object.keys(ING).find(i=>i===kl || kl.includes(i) || i.includes(kl.split(' ')[0]));
+    if(hit){ matched.push(k); ING[hit].forEach(a=>counts[a]=(counts[a]||0)+1); }
+  });
+  const axes=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+  return { matched:matched.length, total:r.key.length, axes };
+}
+
+/* dish -> axis (the weak bridge) */
+function dishAxes(item){
+  if(!item.traits) return [];
+  const out=new Set();
+  item.traits.forEach(t=>{
+    const tl=t.toLowerCase();
+    const hit=Object.keys(ING).find(i=>i===tl || tl.includes(i) || i.includes(tl));
+    if(hit) ING[hit].forEach(a=>out.add(a));
+  });
+  return [...out];
+}
+
+/* ============================================================
+   REPORT TABLES
+   ============================================================ */
+(function(){
+  let rows='<tr><th>Item</th><th>regionalOrigin</th><th>Strict (today)</th><th>Token-aware</th></tr>';
+  ALL.forEach(i=>{
+    const s=resolveStrict(i), t=resolveToken(i);
+    rows+=`<tr><td>${i.n}${i.drink?' <span class="dmeta">(drink)</span>':''}</td>
+      <td>${i.origin||'<span class="dmeta">none</span>'}</td>
+      <td>${s?'<span class="ok">'+short(s)+'</span>':'<span class="bad">orphan</span>'}</td>
+      <td>${t?'<span class="ok">'+short(t)+'</span>':'<span class="bad">orphan</span>'}</td></tr>`;
+  });
+  const sc=ALL.filter(resolveStrict).length, tc=ALL.filter(resolveToken).length;
+  rows+=`<tr><td colspan="2"><b>Matched</b></td><td class="num"><b class="bad">${sc} / ${ALL.length}</b></td><td class="num"><b class="ok">${tc} / ${ALL.length}</b></td></tr>`;
+  REGIONS.forEach(r=>{
+    const a=ALL.filter(i=>resolveStrict(i)===r.name).length, b=ALL.filter(i=>resolveToken(i)===r.name).length;
+    rows+=`<tr><td colspan="2" class="dmeta">&nbsp;&nbsp;${r.name}</td><td class="num ${a===0?'bad':''}">${a}</td><td class="num ${b===0?'bad':'ok'}">${b}</td></tr>`;
+  });
+  document.getElementById('matchTable').innerHTML=rows;
+
+  let f='<tr><th>Region</th><th>keyIngredients matched</th><th>Derived axes</th></tr>';
+  REGIONS.forEach(r=>{
+    const fp=fingerprint(r);
+    const cls = fp.matched<=1?'bad':(fp.matched>=4?'ok':'');
+    f+=`<tr><td>${short(r.name)}</td><td class="num ${cls}">${fp.matched} / ${fp.total}</td>
+      <td>${fp.axes.length?fp.axes.map(a=>`<span class="axchip" style="background:${AX[a].c}">${AX[a].label}</span>`).join(' '):'<span class="bad">none</span>'}</td></tr>`;
+  });
+  document.getElementById('fingerTable').innerHTML=f;
+})();
+
+/* ============================================================
+   STATE + FILTERS
+   ============================================================ */
+const S = { v:4, dev:'desktop', hideSearch:false, emptyTest:false,
+  q:'', view:'all', lens:'region', region:null, open:{},
+  diet:{veg:false,vegan:false,gf:false}, spice:'any', pop:'any', dessert:false,
+  bev:'any', served:'any', drawer:false, display:'grid' };
+
+// Food-only filters exclude drinks entirely when active, and drink-only filters
+// exclude food. Filtering for "hot" should not return you a pot of tea.
+function spiceOK(i){ if(S.spice==='any') return true; if(i.drink) return false;
+  if(S.spice==='mild') return i.spice==='none'||i.spice==='mild';
+  if(S.spice==='medium') return i.spice==='medium';
+  return i.spice==='hot'||i.spice==='very-hot'; }
+function dietOK(i){ const d=i.diet||{};
+  if(S.diet.vegan&&!d.vegan) return false;
+  if(S.diet.veg&&!(d.veg||d.vegan)) return false;
+  if(S.diet.gf&&!d.gf) return false; return true; }
+function popOK(i){ if(S.pop==='any') return true; if(i.drink) return false; return i.pop===S.pop||i.pop==='both'; }
+function bevOK(i){ if(S.bev==='any') return true; if(!i.drink) return false; return i.type===S.bev; }
+function servedOK(i){ if(S.served==='any') return true; if(!i.drink) return false;
+  if(S.served==='cold') return i.served==='iced'||i.served==='cold'; return i.served===S.served; }
+function viewOK(i){ if(S.view==='tried') return !!TRIED[i.n];
+  if(S.view==='want') return WANT.has(i.n)&&!TRIED[i.n]; return true; }
+function queryOK(i){ if(!S.q) return true; const q=S.q.toLowerCase();
+  return i.n.toLowerCase().includes(q) || (i.e||'').toLowerCase().includes(q)
+    || (i.traits||[]).some(t=>t.toLowerCase().includes(q)) || (i.origin||'').toLowerCase().includes(q); }
+function regionOK(i){ if(!S.region) return true; return regionOf(i)===S.region; }
+
+function visible(){
+  return ALL.filter(i=>viewOK(i)&&dietOK(i)&&spiceOK(i)&&popOK(i)&&bevOK(i)&&servedOK(i)&&queryOK(i)&&regionOK(i));
+}
+function activeCount(){
+  return [S.diet.veg,S.diet.vegan,S.diet.gf,S.spice!=='any',S.pop!=='any',S.dessert,S.bev!=='any',S.served!=='any'].filter(Boolean).length;
+}
+
+/* ============================================================
+   RENDER PIECES
+   ============================================================ */
+const CATLABEL={main:'Main','street-food':'Street food',appetizer:'Appetizer',soup:'Soup',tea:'Tea',street:'Street',spirit:'Spirit',wine:'Wine'};
+function catColor(i){ if(i.drink) return 'var(--cn-secondary)';
+  return {main:'var(--cn-primary)','street-food':'var(--saffron)',appetizer:'var(--sage)',soup:'var(--cn-accent)'}[i.cat]||'var(--cn-primary)'; }
+
+function card(i){
+  const t=TRIED[i.n], want=WANT.has(i.n);
+  const reg=regionOf(i);
+  const meta=[reg?short(reg):(i.origin?short(i.origin)+' ·orphan':null), CATLABEL[i.cat], i.street?'Street food':null].filter(Boolean).join(' · ');
+  const chips=[];
+  if(!i.drink && i.spice && i.spice!=='none') chips.push(`<span class="chip">${{mild:'🌶️',medium:'🌶️🌶️',hot:'🌶️🌶️🌶️'}[i.spice]||''}</span>`);
+  if(i.diet&&i.diet.vegan) chips.push('<span class="chip">VG</span>');
+  else if(i.diet&&i.diet.veg) chips.push('<span class="chip">VGT</span>');
+  if(i.diet&&i.diet.gf) chips.push('<span class="chip">GF</span>');
+  if(!i.drink&&i.pop==='local-favorite') chips.push('<span class="chip">📍 Local</span>');
+  if(!i.drink&&i.pop==='tourist-classic') chips.push('<span class="chip">📷 Classic</span>');
+  if(i.drink) chips.push(`<span class="chip">${i.type==='alcoholic'?'With alc':'N/A'}</span>`);
+  if(i.drink&&i.served) chips.push(`<span class="chip">${i.served==='hot'?'🔥 Hot':i.served==='iced'?'🧊 Iced':'Room'}</span>`);
+
+  return `<div class="card ${t?'tried':''}">
+    <div class="top">
+      <div>
+        <div class="pdot" style="background:radial-gradient(circle, ${catColor(i)} 0 36%, color-mix(in srgb, ${catColor(i)} 55%, transparent) 36% 60%, color-mix(in srgb, ${catColor(i)} 20%, transparent) 60% 100%)"></div>
+        <div class="dname">${i.n}</div>
+        <div class="deng">${i.e||''}</div>
+      </div>
+      <div class="corner">${want?'🔖':''}${t?'❤️':''}</div>
+    </div>
+    <div class="dmeta">${meta}</div>
+    <div class="ddesc">${i.d}</div>
+    <div class="chips">${chips.join('')}</div>
+    ${t?`<div class="stars">${'★'.repeat(t)}${'☆'.repeat(5-t)} <span class="dmeta">· tried</span></div>`
+       :`<button class="cardact">+ I tried this</button>`}
+  </div>`;
+}
+
+function ghost(){ return `<div class="ghost">+ Add my own</div>`; }
+
+function emptyState(){
+  return `<div class="empty"><b>Nothing matches these filters.</b>
+    ${S.diet.vegan&&S.spice==='hot'?'China has exactly one fully vegan dish (Scallion Pancakes) and it isn\'t spicy.':'Try clearing a filter.'}
+    <div style="margin-top:.5rem"><button class="pill" onclick="reset()">Clear filters</button></div></div>`;
+}
+
+/* ---- map ---- */
+const CHINA_PATH="M70,120 L60,150 L85,175 L120,185 L140,215 L175,230 L200,262 L245,275 L285,258 L305,225 L330,205 L340,170 L318,140 L330,110 L300,80 L255,68 L205,60 L150,70 L105,85 Z";
+function mapSVG(counts, opts={}){
+  const bubs=REGIONS.map(r=>{
+    const n=counts[r.name]||0;
+    const sel=S.region===r.name;
+    return `<g class="bub ${sel?'sel':''} ${n===0?'zero':''}" onclick="tapRegion('${r.name.replace(/'/g,"\\'")}')">
+      <circle cx="${r.xy[0]}" cy="${r.xy[1]}" r="${sel?34:30}"></circle>
+      <text x="${r.xy[0]}" y="${r.xy[1]-1}">${short(r.name)}</text>
+      <text class="cnt" x="${r.xy[0]}" y="${r.xy[1]+12}">${n} dish${n===1?'':'es'}</text>
+    </g>`;}).join('');
+  return `<div class="mapbox">
+    <svg class="mapsvg" viewBox="0 0 400 320" role="img" aria-label="China regions">
+      <path d="${CHINA_PATH}" fill="color-mix(in srgb, var(--cn-primary) 12%, transparent)" stroke="var(--cn-primary)" stroke-width="1.5"/>
+      ${bubs}
+    </svg>
+    <div class="maphint">${opts.hint||'Tap a region'}</div>
+  </div>`;
+}
+function regionCounts(){ const c={}; REGIONS.forEach(r=>c[r.name]=0);
+  ALL.forEach(i=>{ const r=regionOf(i); if(r) c[r]++; }); return c; }
+function orphanCount(){ return ALL.filter(i=>!regionOf(i)).length; }
+
+/* ---- controls ---- */
+function controls(showLens){
+  const ac=activeCount();
+  return `<div class="controls">
+    ${S.hideSearch?'':`<input class="search" placeholder="Search dishes, regions, flavors…" value="${S.q}" oninput="setQ(this.value)">`}
+    <div class="seg">
+      <button class="pill ${S.view==='all'?'on-navy':''}" onclick="setView('all')">All</button>
+      <button class="pill ${S.view==='tried'?'on-navy':''}" onclick="setView('tried')">Tried (${Object.keys(TRIED).length})</button>
+      <button class="pill ${S.view==='want'?'on-navy':''}" onclick="setView('want')">Want</button>
+    </div>
+    ${showLens?`<div class="seg">
+      ${['region','category','flavor','tried','none'].map(l=>`<button class="pill ${S.lens===l?'on':''}" onclick="setLens('${l}')">${l[0].toUpperCase()+l.slice(1)}</button>`).join('')}
+    </div>`:''}
+    <button class="pill ${S.drawer?'on-navy':''}" onclick="toggleDrawer()">⚙ Filters${ac?`<span class="badge">${ac}</span>`:''}</button>
+  </div>
+  ${S.drawer?drawer():''}`;
+}
+function drawer(){
+  return `<div class="drawer">
+    <div class="drow"><span class="glabel">Diet</span>
+      <button class="pill ${S.diet.veg?'on':''}" onclick="tog('veg')">VGT</button>
+      <button class="pill ${S.diet.vegan?'on':''}" onclick="tog('vegan')">VG</button>
+      <button class="pill ${S.diet.gf?'on':''}" onclick="tog('gf')">GF</button></div>
+    <div class="drow"><span class="glabel">Spice</span>
+      ${['any','mild','medium','hot'].map(s=>`<button class="pill ${S.spice===s?'on':''}" onclick="setSpice('${s}')">${s==='any'?'Any':{mild:'🌶️',medium:'🌶️🌶️',hot:'🌶️🌶️🌶️'}[s]}</button>`).join('')}</div>
+    <div class="drow"><span class="glabel">Who eats it</span>
+      <button class="pill ${S.pop==='local-favorite'?'on':''}" onclick="setPop('local-favorite')">📍 Local</button>
+      <button class="pill ${S.pop==='tourist-classic'?'on':''}" onclick="setPop('tourist-classic')">📷 Tourist</button></div>
+    <div class="drow"><span class="glabel">Drinks</span>
+      <button class="pill ${S.bev==='non-alcoholic'?'on':''}" onclick="setBev('non-alcoholic')">N/A</button>
+      <button class="pill ${S.bev==='alcoholic'?'on':''}" onclick="setBev('alcoholic')">With alc</button>
+      <button class="pill ${S.served==='hot'?'on':''}" onclick="setServed('hot')">🔥 Hot</button>
+      <button class="pill ${S.served==='cold'?'on':''}" onclick="setServed('cold')">🧊 Cold</button></div>
+  </div>`;
+}
+function header(){
+  return `<div class="chead"><div class="cdot"></div><div class="cname">China</div></div>
+  <div class="cmeta">Beijing · East Asia · 2 of 15 tried</div>
+  <p class="csum">A family of regional traditions unified by wok technique, fermented seasonings, and a deep pursuit of umami — from the fiery numbing complexity of Sichuan to the pristine delicacy of Cantonese cooking.</p>`;
+}
+function accordions(){
+  return `<div class="acc"><button class="acchead" onclick="acc('flavor')">Flavor fingerprint <span>${S.open.flavor?'−':'+'}</span></button>
+    ${S.open.flavor?`<div class="accbody">${radar()}</div>`:''}</div>
+  <div class="acc"><button class="acchead" onclick="acc('culture')">Food culture &amp; regions <span>${S.open.culture?'−':'+'}</span></button>
+    ${S.open.culture?`<div class="accbody"><p style="margin-top:0"><b>Meal structure.</b> Meals center on a staple — rice in the south, noodles or mantou in the north — surrounded by shared dishes served all at once.</p>
+      <p><b>Dining customs.</b> Everyone eats with chopsticks from communal dishes. Never stand chopsticks upright in rice; it evokes funeral incense.</p>
+      <p style="margin-bottom:0"><b>Similar cuisines.</b> Taiwan · Vietnam · Korea</p></div>`:''}</div>`;
+}
+function radar(){
+  const pts=(scale)=>Object.keys(AX).map((a,idx)=>{
+    const ang=(Math.PI*2*idx/6)-Math.PI/2, r=INTENSITY[a]/10*scale;
+    return [(scale+r*Math.cos(ang)).toFixed(1), (scale+r*Math.sin(ang)).toFixed(1)].join(',');}).join(' ');
+  const ring=(scale)=>`<svg width="${scale*2}" height="${scale*2}" viewBox="0 0 ${scale*2} ${scale*2}">
+    <polygon points="${Object.keys(AX).map((a,idx)=>{const ang=(Math.PI*2*idx/6)-Math.PI/2;
+      return [(scale+scale*Math.cos(ang)).toFixed(1),(scale+scale*Math.sin(ang)).toFixed(1)].join(',');}).join(' ')}"
+      fill="none" stroke="var(--line)"/>
+    <polygon points="${pts(scale)}" fill="color-mix(in srgb, var(--cn-primary) 30%, transparent)" stroke="var(--cn-primary)" stroke-width="2"/></svg>`;
+  return `<div class="radarwrap">
+    <div><div class="dmeta" style="margin-bottom:.3rem">Desktop — 180px radius</div>${ring(90)}</div>
+    <div><div class="dmeta" style="margin-bottom:.3rem">Phone — same chart at 358px content width</div>${ring(64)}
+      <div class="radarnote">⚠︎ Labels omitted here. The real chart needs ~360px; at 358px it must shrink, scroll, or become a bar list.</div></div>
+    <div style="flex:1;min-width:12rem">
+      <div class="tier"><span class="tierlab">Foundation</span><span class="chip">🫗 Soy Sauce</span><span class="chip">🍶 Shaoxing</span><span class="chip">🫚 Ginger</span></div>
+      <div class="tier"><span class="tierlab">Aromatic</span><span class="chip">🌸 Sichuan pep</span><span class="chip">🌶️ Dried chilies</span><span class="chip">🟥 Doubanjiang</span></div>
+      <div class="tier"><span class="tierlab">Builders</span><span class="chip">🦪 Oyster</span><span class="chip">🍯 Hoisin</span><span class="chip">🔴 Chili oil</span></div>
+      <div class="tier"><span class="tierlab">Staples</span><span class="chip">🍚 Rice</span><span class="chip">🍜 Noodles</span><span class="chip">🧊 Tofu</span></div>
+    </div></div>`;
+}
+
+/* ============================================================
+   VARIANTS
+   ============================================================ */
+function v1(){
+  const items=visible();
+  const body = S.display==='map'
+    ? mapSVG(regionCounts(),{hint:'Tap a region to filter the grid'})
+    : `<div class="grid">${items.length?items.map(card).join('')+ghost():emptyState()}</div>`;
+  return `${header()}
+    <div class="controls">
+      ${S.hideSearch?'':`<input class="search" placeholder="Search dishes…" value="${S.q}" oninput="setQ(this.value)">`}
+      <div class="seg"><button class="pill ${S.display==='grid'?'on-navy':''}" onclick="setDisplay('grid')">Grid</button>
+      <button class="pill ${S.display==='map'?'on-navy':''}" onclick="setDisplay('map')">Map</button></div>
+      <div class="seg">
+        <button class="pill ${S.view==='all'?'on-navy':''}" onclick="setView('all')">All</button>
+        <button class="pill ${S.view==='tried'?'on-navy':''}" onclick="setView('tried')">Tried (2)</button>
+        <button class="pill ${S.view==='want'?'on-navy':''}" onclick="setView('want')">Want</button></div>
+      <button class="pill ${S.drawer?'on-navy':''}" onclick="toggleDrawer()">⚙${activeCount()?`<span class="badge">${activeCount()}</span>`:''}</button>
+    </div>
+    ${S.drawer?drawer():''}
+    ${S.region?`<div class="drow" style="margin-bottom:.5rem"><span class="pill on">${short(S.region)} ✕<button class="seconly" onclick="tapRegion(null)" style="color:#fff">clear</button></span></div>`:''}
+    ${body}
+    ${accordions()}`;
+}
+
+function v2(){
+  const items=visible();
+  return `${header()}
+    ${controls(false)}
+    <div class="splitnote">⚠︎ At 390px the split is impossible — this falls back to iteration 1's toggle. The idea only exists on desktop.</div>
+    <div class="split">
+      <div class="left">
+        ${mapSVG(regionCounts(),{hint:'Click a bubble to filter the list →'})}
+        ${S.region?`<div class="accbody" style="border:1px solid var(--line);border-radius:12px">
+          <b>${S.region}</b><p style="margin:.3rem 0 0">${REGIONS.find(r=>r.name===S.region).blurb}</p></div>`
+          :`<div class="accbody" style="border:1px solid var(--line);border-radius:12px"><b>Overview</b>
+          <p style="margin:.3rem 0 0">Meals center on a staple surrounded by shared dishes. Eight great traditions, each with its own flavor logic.</p></div>`}
+      </div>
+      <div class="right"><div class="grid">${items.length?items.map(card).join('')+ghost():emptyState()}</div></div>
+    </div>
+    ${accordions()}`;
+}
+
+function v3(){
+  const items=visible();
+  const counts=regionCounts();
+  const axCounts={}; Object.keys(AX).forEach(a=>axCounts[a]=0);
+  ALL.forEach(i=>dishAxes(i).forEach(a=>axCounts[a]++));
+  return `${header()}
+    ${controls(false)}
+    <div class="railwrap">
+      <div class="rail">
+        <div class="facet"><h4>Regions</h4>
+          ${mapSVG(counts,{hint:''})}
+          ${REGIONS.map(r=>`<button class="frow ${S.region===r.name?'on':''} ${counts[r.name]===0?'z':''}" onclick="tapRegion('${r.name.replace(/'/g,"\\'")}')">
+            <span>${short(r.name)}</span><span class="n">${counts[r.name]}</span></button>`).join('')}
+          <button class="frow z"><span>Elsewhere</span><span class="n">${orphanCount()}</span></button>
+        </div>
+        <div class="facet"><h4>Flavor</h4>
+          ${Object.keys(AX).map(a=>`<button class="frow ${axCounts[a]===0?'z':''}"><span>${AX[a].label}</span><span class="n">${axCounts[a]}</span></button>`).join('')}
+        </div>
+        <div class="facet"><h4>Diet</h4>
+          <button class="frow ${S.diet.veg?'on':''}" onclick="tog('veg')"><span>Vegetarian</span><span class="n">${ALL.filter(i=>i.diet&&(i.diet.veg||i.diet.vegan)).length}</span></button>
+          <button class="frow ${S.diet.vegan?'on':''}" onclick="tog('vegan')"><span>Vegan</span><span class="n">${ALL.filter(i=>i.diet&&i.diet.vegan).length}</span></button>
+        </div>
+      </div>
+      <div><div class="grid">${items.length?items.map(card).join('')+ghost():emptyState()}</div></div>
+    </div>
+    ${accordions()}`;
+}
+
+function v4(){
+  const items=visible();
+  if(!items.length) return `${header()}${controls(true)}<div class="grid">${emptyState()}</div>${accordions()}`;
+
+  let groups=[];
+  if(S.lens==='region'){
+    groups=REGIONS.map(r=>({key:r.name, label:short(r.name), blurb:r.blurb, fp:fingerprint(r),
+      items:items.filter(i=>regionOf(i)===r.name)}));
+    const orph=items.filter(i=>!regionOf(i));
+    groups.push({key:'__else', label:'Elsewhere in China', blurb:'These carry a place name that doesn\'t map to one of the five regions — Hangzhou and Shaoxing (both Zhejiang), plus items with no origin at all. Shown rather than silently dropped.', items:orph});
+  } else if(S.lens==='category'){
+    const cats=[...new Set(items.map(i=>i.cat))];
+    groups=cats.map(c=>({key:c,label:CATLABEL[c]||c,items:items.filter(i=>i.cat===c)}));
+  } else if(S.lens==='flavor'){
+    groups=Object.keys(AX).map(a=>({key:a,label:AX[a].label,color:AX[a].c,items:items.filter(i=>dishAxes(i).includes(a))}));
+    groups.push({key:'__noax',label:'No flavor data',blurb:'The dish→axis bridge resolves only 5 of 10 dishes. These have keyTraits naming techniques and textures ("crispy skin", "soup-filled") rather than ingredients, so they match nothing — the honest weakness of this lens. Drinks have no axis data at all.',items:items.filter(i=>dishAxes(i).length===0)});
+  } else if(S.lens==='tried'){
+    groups=[{key:'t',label:'Tried',items:items.filter(i=>TRIED[i.n])},
+      {key:'w',label:'Want to try',items:items.filter(i=>WANT.has(i.n)&&!TRIED[i.n])},
+      {key:'n',label:'Not yet',items:items.filter(i=>!TRIED[i.n]&&!WANT.has(i.n))}];
+  } else {
+    groups=[{key:'all',label:null,items}];
+  }
+
+  const sections=groups.map(g=>{
+    if(g.label===null) return `<div class="grid">${g.items.map(card).join('')+ghost()}</div>`;
+    const open=S.open['s_'+g.key];
+    return `<div class="sect" id="sec_${g.key}">
+      <div class="sechead">
+        <div class="sectitle">
+          ${g.color?`<span class="axchip" style="background:${g.color}">&nbsp;</span>`:''}
+          <b>${g.label}</b><span class="seccount">· ${g.items.length}</span>
+          ${g.items.length?`<button class="seconly" onclick="tapRegion('${g.key==='__else'?'':g.key.replace(/'/g,"\\'")}')">only</button>`:''}
+        </div>
+        ${g.blurb?`<p class="secblurb ${open?'open':''}">${g.blurb}</p><button class="more" onclick="acc('s_${g.key}')">${open?'less':'more'}</button>`:''}
+        ${g.fp&&g.fp.axes.length?`<div class="axchips">${g.fp.axes.slice(0,4).map(a=>`<span class="axchip" style="background:${AX[a].c}">${AX[a].label}</span>`).join('')}
+          ${g.fp.matched<=1?`<span class="dmeta">· only ${g.fp.matched}/${g.fp.total} ingredients mapped</span>`:''}</div>`:''}
+      </div>
+      ${g.items.length?`<div class="grid">${g.items.map(card).join('')}</div>`
+        :`<div class="secempty">No dishes yet from this region — a content gap, shown rather than hidden.</div>`}
+    </div>`;}).join('');
+
+  return `${header()}
+    ${controls(true)}
+    ${S.region?`<div class="drow" style="margin-bottom:.6rem"><span class="pill on">Filtered to ${short(S.region)}<button class="seconly" style="color:#fff" onclick="tapRegion(null)">✕ clear</button></span></div>`:''}
+    ${S.lens==='region'?mapSVG(regionCounts(),{hint:'Tap a bubble to jump to that section · “only” filters'}):''}
+    ${sections}
+    ${accordions()}`;
+}
+
+const VARIANTS={1:v1,2:v2,3:v3,4:v4};
+const META={
+  1:{tag:'Iteration 1',t:'Search-first grid',
+     why:'One column. Sticky controls bar, then grid or map, then two collapsed accordions for flavor and culture. This is essentially today’s Eat & Drink plus a search box and two footers.',
+     v:'Safest and least interesting. It works, but it answers “where do flavor and culture live?” with “a footer nobody scrolls to” — and it makes the map a mode you have to leave the dishes to see.',no:false},
+  2:{tag:'Iteration 2',t:'Map + list split',
+     why:'Desktop: sticky map on the left, scrolling dish grid on the right, filtering in place. The most spatially satisfying — you see where a dish comes from while you read it.',
+     v:'Reject. The whole idea evaporates at 390px, where it degrades to iteration 1. The thesis says the primary moment is on a phone, so this designs the good version for the secondary device.',no:true},
+  3:{tag:'Iteration 3',t:'Facet rail',
+     why:'A sticky left rail of facets with live counts — regions (with the map as a thumbnail), flavor axes, diet. The main column stays a plain grid.',
+     v:'Strong on desktop and admirably honest: it puts “Xinjiang 1” and “Elsewhere 2” right in the UI. But on mobile the rail collapses into a drawer and it becomes iteration 1 — so on the device that matters it builds nothing new.',no:false},
+  4:{tag:'Iteration 4 · recommended',t:'Lens switcher',
+     why:'One grid, always. A Group-by control reorganizes it — Region, Category, Flavor, Tried, None — and grouping is orthogonal to filtering. Under Region, section headers carry the region’s prose and derived flavor chips, and the map becomes a section navigator rather than a separate mode.',
+     v:'Recommended. It is the only iteration where phone and desktop are the same design; culture prose moves into section headers so you read it on the way to the dishes instead of in a footer; and because Region is just one lens of five, a weak dish→region join demotes one option instead of breaking the page.',no:false}
+};
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+function setQ(v){S.q=v;render(true);}
+function setView(v){S.view=v;render();}
+function setLens(l){S.lens=l;render();}
+function setDisplay(d){S.display=d;render();}
+function setSpice(s){S.spice=S.spice===s?'any':s;render();}
+function setPop(p){S.pop=S.pop===p?'any':p;render();}
+function setBev(b){S.bev=S.bev===b?'any':b;render();}
+function setServed(s){S.served=S.served===s?'any':s;render();}
+function tog(k){S.diet[k]=!S.diet[k];render();}
+function toggleDrawer(){S.drawer=!S.drawer;render();}
+function acc(k){S.open[k]=!S.open[k];render();}
+function reset(){S.diet={veg:false,vegan:false,gf:false};S.spice='any';S.pop='any';S.dessert=false;S.bev='any';S.served='any';S.q='';S.region=null;
+  document.getElementById('emptyTest').checked=false;S.emptyTest=false;render();}
+function tapRegion(n){
+  if(!n){S.region=null;render();return;}
+  if(S.lens==='region'&&S.v===4&&!S.region){ const el=document.getElementById('sec_'+n); if(el){el.scrollIntoView({behavior:(window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"),block:'start'});return;} }
+  S.region = S.region===n ? null : n; render();
+}
+
+document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{
+  S.v=+b.dataset.v; document.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('on',x===b)); render();});
+document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{
+  S.dev=b.dataset.d; document.querySelectorAll('[data-d]').forEach(x=>x.classList.toggle('on',x===b)); render();});
+document.getElementById('hideSearch').onchange=e=>{S.hideSearch=e.target.checked;render();};
+document.getElementById('emptyTest').onchange=e=>{S.emptyTest=e.target.checked;
+  if(e.target.checked){S.diet.vegan=true;S.spice='hot';}else{S.diet.vegan=false;S.spice='any';}render();};
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(keepFocus){
+  const m=META[S.v];
+  document.getElementById('vtitle').innerHTML=
+    `<div class="vtitle"><span class="tag">${m.tag}</span><h2>${m.t}</h2></div><p class="why">${m.why}</p>`;
+  const html=VARIANTS[S.v]();
+  const frames=[];
+  if(S.dev==='desktop'||S.dev==='both') frames.push(`<div class="frame desktop"><div class="framecap">Desktop</div><div class="page">${html}</div></div>`);
+  if(S.dev==='phone'||S.dev==='both') frames.push(`<div class="frame phone"><div class="framecap">Phone · 390px</div><div class="page">${html}</div></div>`);
+  document.getElementById('stage').innerHTML=frames.join('');
+  document.getElementById('verdict').innerHTML=`<div class="verdict ${m.no?'no':''}"><b>Verdict.</b> ${m.v}</div>`;
+  if(keepFocus){ const i=document.querySelector('.search'); if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);} }
+}
+render();
+</script>

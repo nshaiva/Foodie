@@ -17,13 +17,12 @@ const BUILD_LAYERS: {
   key: keyof IngredientTiers;
   step: string;
   label: string;
-  role: string;
   arrowAfter?: string;
 }[] = [
-  { key: 'staples', step: 'Start', label: 'Staples', role: 'The canvas. Neutral on purpose — everything below exists to flavor these.', arrowAfter: 'hot oil goes in' },
-  { key: 'aromaticCore', step: 'First 30 seconds', label: 'Aromatic core', role: 'Bloomed in oil before anything else — this sizzle is the smell of the cuisine.', arrowAfter: 'the main ingredient joins' },
-  { key: 'foundation', step: 'The backbone', label: 'Foundation', role: 'The seasoning base in nearly every dish — if it tastes like this cuisine, these are why.', arrowAfter: 'steer the dish somewhere specific' },
-  { key: 'flavorBuilders', step: 'The character', label: 'Flavor builders', role: 'A few of these at a time — each pulls the dish toward a different flavor.' },
+  { key: 'staples', step: 'Start', label: 'Staples', arrowAfter: 'hot oil goes in' },
+  { key: 'aromaticCore', step: 'First 30 seconds', label: 'Aromatic core', arrowAfter: 'the main ingredient joins' },
+  { key: 'foundation', step: 'The backbone', label: 'Foundation', arrowAfter: 'steer the dish somewhere specific' },
+  { key: 'flavorBuilders', step: 'The character', label: 'Flavor builders' },
 ];
 
 // Matrix rows keep the importance order; staples collapse to a sentence
@@ -86,7 +85,6 @@ function BuildView({ tiers }: { tiers: IngredientTiers }) {
               <div>
                 <div className="text-[10px] font-bold tracking-widest uppercase" style={{ color: systemColors.navyMuted }}>{layer.step}</div>
                 <div className="text-sm font-bold" style={{ color: systemColors.navy }}>{layer.label}</div>
-                <div className="text-xs leading-snug mt-0.5" style={{ color: systemColors.navyMuted }}>{layer.role}</div>
               </div>
               <div className="flex flex-wrap gap-1.5 content-start">
                 {items.map(item => <IngredientChip key={item.name} item={item} />)}

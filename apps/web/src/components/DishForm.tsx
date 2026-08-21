@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { RestaurantTry, RegionalCuisine, Dish } from '../data/types';
 import { systemColors } from '../data/systemColors';
+import { regionNameFor } from '../utils/dishRegion';
 
 type TryType = 'none' | 'restaurant';
 
@@ -21,33 +22,31 @@ interface DishFormProps {
   onCancel: () => void;
 }
 
-// Detect region from dish name
+/**
+ * Best guess at a region for a hand-entered dish name.
+ *
+ * Two signals, in order: an exact name match against one of the country's
+ * popular dishes (whose `regionalOrigin` then runs through the shared resolver),
+ * or a name that appears in some region's `signatureDishes`. Falls back to the
+ * raw origin string when we know where it's from but not which region that is.
+ */
 function detectRegion(
   dishName: string,
+  countryId: string,
   regionalVariations?: RegionalCuisine[],
   popularDishes?: Dish[]
 ): string | undefined {
   if (!dishName.trim()) return undefined;
   const normalizedName = dishName.trim().toLowerCase();
 
-  // Check popular dishes for regional origin
-  if (popularDishes) {
-    const matchedDish = popularDishes.find(
-      d => d.name.toLowerCase() === normalizedName ||
-           d.englishName?.toLowerCase() === normalizedName
-    );
-    if (matchedDish?.regionalOrigin) {
-      if (regionalVariations) {
-        const matchedRegion = regionalVariations.find(r =>
-          matchedDish.regionalOrigin!.toLowerCase().includes(r.name.toLowerCase())
-        );
-        if (matchedRegion) return matchedRegion.name;
-      }
-      return matchedDish.regionalOrigin;
-    }
+  const matchedDish = popularDishes?.find(
+    d => d.name.toLowerCase() === normalizedName ||
+         d.englishName?.toLowerCase() === normalizedName
+  );
+  if (matchedDish?.regionalOrigin) {
+    return regionNameFor(matchedDish, regionalVariations, countryId);
   }
 
-  // Check regional signature dishes
   if (regionalVariations) {
     for (const region of regionalVariations) {
       const isSignatureDish = region.signatureDishes.some(
@@ -86,7 +85,7 @@ export function DishForm({
 
   // Auto-detect region when dish name changes
   useEffect(() => {
-    const detected = detectRegion(name, regionalVariations, popularDishes);
+    const detected = detectRegion(name, countryId, regionalVariations, popularDishes);
     setDetectedRegion(detected);
     if (detected && !region) {
       setRegion(detected);
