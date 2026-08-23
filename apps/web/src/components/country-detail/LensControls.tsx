@@ -129,8 +129,7 @@ export function LensControls({
     { id: 'vegan', label: 'Vegan', active: diet.vegan, toggle: () => setDiet({ ...diet, vegan: !diet.vegan }) },
     { id: 'gf', label: 'Gluten-free', active: diet.gf, toggle: () => setDiet({ ...diet, gf: !diet.gf }) },
     { id: 'mild', label: '🌶️ Mild', active: spice === 'mild', toggle: () => toggleSpice('mild') },
-    { id: 'medium', label: '🌶️🌶️ Medium', active: spice === 'medium', toggle: () => toggleSpice('medium') },
-    { id: 'hot', label: '🌶️🌶️🌶️ Hot', active: spice === 'hot', toggle: () => toggleSpice('hot') },
+    { id: 'spicy', label: '🌶️🌶️ Spicy', active: spice === 'spicy', toggle: () => toggleSpice('spicy') },
     {
       id: 'local',
       label: '📍 Local favorite',

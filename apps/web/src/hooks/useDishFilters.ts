@@ -2,7 +2,14 @@ import { useMemo, useState } from 'react';
 import type { Beverage, DietaryInfo, Dish } from '../data/types';
 
 export type ViewFilter = 'all' | 'tried' | 'want';
-export type SpiceFilter = 'any' | 'mild' | 'medium' | 'hot';
+/**
+ * Two levels, not the five the data carries. At a table you are answering "can
+ * I handle heat or not", and a three-way mild/medium/hot split made you guess
+ * where someone else's "medium" sits. Mild covers `none` and `mild`; Spicy
+ * covers `medium`, `hot` and `very-hot` — which is the same line from either
+ * side, since a heat-avoider skips medium and a heat-seeker accepts it.
+ */
+export type SpiceFilter = 'any' | 'mild' | 'spicy';
 export type PopFilter = 'any' | 'local-favorite' | 'tourist-classic';
 export type BevFilter = 'any' | 'alcoholic' | 'non-alcoholic';
 export type ServedFilter = 'any' | 'hot' | 'cold';
@@ -50,9 +57,9 @@ export function useDishFilters() {
     if (spice !== 'any') {
       const level = dish.spiceLevel;
       if (!level) return false;
-      if (spice === 'mild' && !(level === 'none' || level === 'mild')) return false;
-      if (spice === 'medium' && level !== 'medium') return false;
-      if (spice === 'hot' && !(level === 'hot' || level === 'very-hot')) return false;
+      const mildLevel = level === 'none' || level === 'mild';
+      if (spice === 'mild' && !mildLevel) return false;
+      if (spice === 'spicy' && mildLevel) return false;
     }
     if (popularity !== 'any' && dish.popularity !== popularity) return false;
     if (dessertOnly && dish.category !== 'dessert') return false;
