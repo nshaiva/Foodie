@@ -10,7 +10,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { RegionMap } from '../components/map/RegionMap';
-import { STOCKED_REGIONS } from '../data/culinaryRegions';
+import { STOCKED_REGIONS, getRegion } from '../data/culinaryRegions';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TasteProfileButton } from '../components/TasteProfileButton';
 import { SignInButton } from '../components/SignInButton';
@@ -26,6 +26,7 @@ import { CountryFinder } from '../components/CountryFinder';
  * shouldn't land somewhere organized by a different idea.
  */
 const regionGroups = STOCKED_REGIONS.map(region => [
+  region.id,
   region.name,
   region.countryIds
     .map(id => countries.find(c => c.id === id))
@@ -34,7 +35,7 @@ const regionGroups = STOCKED_REGIONS.map(region => [
 ] as const);
 
 const REGION_COUNTS = regionGroups.map(
-  ([name, group]) => [name, group.length] as const
+  ([id, name, group]) => [id, name, group.length] as const
 );
 
 /** Name, capital, continent and sub-region — the things people actually type. */
@@ -49,6 +50,7 @@ export function Home() {
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('foodie-view-mode', 'map');
   const isMobile = useMediaQuery('(max-width: 767px)');
   const [query, setQuery] = useState('');
+  const [mapFocus, setMapFocus] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const searching = query.trim() !== '';
@@ -62,18 +64,25 @@ export function Home() {
     if (!searching) return regionGroups;
     const q = query.trim().toLowerCase();
     return regionGroups
-      .map(([name, group]) => [name, group.filter(c => matchesCountry(c, q))] as const)
-      .filter(([, group]) => group.length > 0);
+      .map(([id, name, group]) => [id, name, group.filter(c => matchesCountry(c, q))] as const)
+      .filter(([, , group]) => group.length > 0);
   }, [query, searching]);
 
-  const matchCount = visibleGroups.reduce((n, [, group]) => n + group.length, 0);
+  const matchCount = visibleGroups.reduce((n, [, , group]) => n + group.length, 0);
 
-  // Jumping from the map means leaving it first, otherwise there is no section
-  // to scroll to. The ref is populated by the time the layout paints.
-  const jumpTo = (region: string) => {
-    if (effectiveView === 'map') setViewMode('grid');
+  // A chip means "take me to this region", and what that means depends on what
+  // you're looking at. On the map it zooms the map — answering a map question
+  // by switching to the grid was the wrong move. In the grid it scrolls.
+  // Clicking the region you're already in zooms back out.
+  const jumpTo = (regionId: string) => {
+    if (effectiveView === 'map') {
+      setMapFocus(prev => (prev === regionId ? null : regionId));
+      return;
+    }
+    const name = getRegion(regionId)?.name;
+    if (!name) return;
     requestAnimationFrame(() =>
-      sectionRefs.current[region]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      sectionRefs.current[name]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     );
   };
 
@@ -132,6 +141,7 @@ export function Home() {
             onQueryChange={setQuery}
             regions={REGION_COUNTS}
             onJumpTo={jumpTo}
+            activeRegionId={effectiveView === 'map' ? mapFocus : null}
             matchCount={matchCount}
             total={countries.length}
           />
@@ -142,7 +152,11 @@ export function Home() {
              the flavor-match layer colors all 31 at once — which only works
              when everything is visible together. A phone can't show that, so
              it gets regions it can actually tap. */
-          isMobile ? <RegionMap /> : <WorldMap />
+          isMobile ? (
+            <RegionMap focusId={mapFocus} onFocusChange={setMapFocus} />
+          ) : (
+            <WorldMap focus={mapFocus ? getRegion(mapFocus) : null} onClearFocus={() => setMapFocus(null)} />
+          )
         ) : (
           <>
           {/* A suggestion module is noise when you're looking for something specific */}
@@ -165,7 +179,7 @@ export function Home() {
             </div>
           ) : (
           <div className="space-y-8">
-            {visibleGroups.map(([regionName, group]) => (
+            {visibleGroups.map(([, regionName, group]) => (
               <section
                 key={regionName}
                 ref={el => { sectionRefs.current[regionName] = el; }}

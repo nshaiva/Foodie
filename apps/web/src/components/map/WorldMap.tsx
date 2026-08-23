@@ -24,6 +24,7 @@ import { MapPreviewCard } from './MapPreviewCard';
 import { countryDishProgress } from '../../utils/dishProgress';
 import { MapLegend } from './MapLegend';
 import { systemColors } from '../../data/systemColors';
+import type { CulinaryRegion } from '../../data/culinaryRegions';
 
 // Use jsDelivr CDN for world-atlas TopoJSON
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
@@ -35,7 +36,20 @@ interface TooltipData {
   y: number;
 }
 
-export const WorldMap = memo(function WorldMap() {
+/** Base projection scale, so a region's scale can be expressed as a zoom factor. */
+const BASE_SCALE = 130;
+
+interface WorldMapProps {
+  /**
+   * A culinary region to zoom into, or null for the whole world. Controlled by
+   * the page so the region chips can drive the map: clicking one while you're
+   * looking at the map should move the map, not throw you into the grid.
+   */
+  focus?: CulinaryRegion | null;
+  onClearFocus?: () => void;
+}
+
+export const WorldMap = memo(function WorldMap({ focus, onClearFocus }: WorldMapProps) {
   const navigate = useNavigate();
   const { dishes } = useDishes();
   const { getActivityState, getCountryActivity, profiledCountryIds } = useCountryActivity(dishes);
@@ -150,10 +164,24 @@ export const WorldMap = memo(function WorldMap() {
         </div>
       )}
 
+      {focus && (
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-2 rounded-lg border px-2.5 py-1.5 shadow-sm"
+          style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border }}>
+          <span className="text-xs font-bold" style={{ color: systemColors.navy }}>{focus.name}</span>
+          <button
+            onClick={onClearFocus}
+            className="text-xs font-bold"
+            style={{ color: systemColors.tomato }}
+          >
+            Whole world
+          </button>
+        </div>
+      )}
+
       <ComposableMap
         projection="geoMercator"
         projectionConfig={{
-          scale: 130,
+          scale: BASE_SCALE,
           center: [0, 30],
         }}
         style={{
@@ -162,7 +190,10 @@ export const WorldMap = memo(function WorldMap() {
           aspectRatio: '2 / 1',
         }}
       >
-        <ZoomableGroup>
+        <ZoomableGroup
+          center={focus ? focus.zoom.center : [0, 30]}
+          zoom={focus ? focus.zoom.scale / BASE_SCALE : 1}
+        >
           <Geographies geography={GEO_URL}>
             {({ geographies }) => {
               // Signal that geographies have loaded

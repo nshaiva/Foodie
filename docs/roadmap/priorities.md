@@ -186,6 +186,13 @@ at Tier 2.
   Canada and Russia reads as broken; one that labels them as gaps reads as
   incomplete, which is the truth. `STOCKED_REGIONS` is the filtered list the
   grid and chips use.
+  **Region chips now drive the map.** A chip means "take me to this region",
+  and what that means depends on what you're looking at: in the grid it scrolls
+  to that section, and **in map view it zooms the map** rather than throwing you
+  into the grid to answer a map question. The chip shows as active while the map
+  is focused there, and clicking it again zooms back out; the desktop map also
+  gains a "Whole world" affordance. Map focus is one piece of page state driving
+  both maps, so `WorldMap` and `RegionMap` are now controlled by the same value.
 - **Find a country on the home page** (2026-08-23, G2) — a search field and a
   rail of continent chips above the country grid. Search matches name, capital,
   continent and sub-region, so "west africa", "Dublin" and "Peru" all work, and
