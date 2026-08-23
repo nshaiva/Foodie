@@ -1,6 +1,6 @@
 at the restaurant should group some things w the mobile first view what are other ui quick wins — triaged 2026-08-23 as #27
 
-filter and search countries in map or grid view and it scrolls to that region of the page // or filter by region — triaged 2026-08-23 as #28
+filter and search countries in map or grid view and it scrolls to that region of the page // or filter by region — SHIPPED 2026-08-23 as #28 (search + continent jump chips; mobile stays mapless on purpose)
 
 move filter button away — SHIPPED 2026-08-23 as #26: gear + drawer replaced by one chip rail, active chips first, same markup on phone and desktop
 
