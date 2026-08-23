@@ -9,6 +9,7 @@ import { countryDishProgress } from '../utils/dishProgress';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
+import { RegionMap } from '../components/map/RegionMap';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TasteProfileButton } from '../components/TasteProfileButton';
 import { SignInButton } from '../components/SignInButton';
@@ -49,9 +50,10 @@ export function Home() {
 
   const searching = query.trim() !== '';
 
-  // Grid on mobile (the map is hover-driven and unusable at 390px), and grid
-  // while searching, since results are a list no matter which view you were in.
-  const effectiveView = isMobile || searching ? 'grid' : viewMode;
+  // Grid while searching, since results are a list no matter which view you
+  // were in. Mobile now has a map of its own — the region map — because the
+  // world map is hover-driven and unreadable at 390px.
+  const effectiveView = searching ? 'grid' : viewMode;
 
   const visibleGroups = useMemo(() => {
     if (!searching) return continentGroups;
@@ -118,9 +120,7 @@ export function Home() {
           <h2 className="text-lg font-medium" style={{ color: systemColors.navy }}>
             {countries.length} Countries
           </h2>
-          {!isMobile && (
-            <ViewToggle view={viewMode} onChange={setViewMode} />
-          )}
+          <ViewToggle view={viewMode} onChange={setViewMode} />
         </div>
 
         <div className="mb-6">
@@ -135,7 +135,11 @@ export function Home() {
         </div>
 
         {effectiveView === 'map' ? (
-          <WorldMap />
+          /* Two entry points, one idea. The desktop map's job is comparison —
+             the flavor-match layer colors all 31 at once — which only works
+             when everything is visible together. A phone can't show that, so
+             it gets regions it can actually tap. */
+          isMobile ? <RegionMap /> : <WorldMap />
         ) : (
           <>
           {/* A suggestion module is noise when you're looking for something specific */}
