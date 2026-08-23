@@ -21,55 +21,55 @@ interface LensControlsProps {
   onClearRegion: () => void;
 }
 
-/** A removable summary of one thing currently narrowing the list. */
-function ActiveChip({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return (
-    <button
-      onClick={onRemove}
-      className="text-[0.68rem] font-semibold px-2 py-0.5 rounded-full border inline-flex items-center gap-1"
-      style={{
-        backgroundColor: systemColors.herbLight,
-        borderColor: systemColors.herb,
-        color: systemColors.navy,
-      }}
-      title={`Remove ${label}`}
-    >
-      {label}
-      <span aria-hidden style={{ color: systemColors.navyMuted }}>✕</span>
-    </button>
-  );
+/** One filter in the rail. `remove` is set only for filters you can turn off. */
+interface Chip {
+  id: string;
+  label: string;
+  active: boolean;
+  toggle: () => void;
+  /** Excluded from the "how many things are narrowing this list" count. */
+  neutral?: boolean;
 }
 
-function Pill({
-  active, onClick, children, title,
-}: { active?: boolean; onClick: () => void; children: React.ReactNode; title?: string }) {
+function ChipButton({ chip }: { chip: Chip }) {
   return (
     <button
-      onClick={onClick}
-      title={title}
-      aria-pressed={active}
-      className="text-xs font-semibold px-2.5 py-1 rounded-lg border whitespace-nowrap transition-colors"
+      onClick={chip.toggle}
+      aria-pressed={chip.active}
+      className="flex-none text-xs font-semibold px-2.5 py-1 rounded-full border whitespace-nowrap transition-colors"
       style={{
-        backgroundColor: active ? systemColors.herb : systemColors.surface,
-        borderColor: active ? systemColors.herb : systemColors.border,
-        color: active ? '#fff' : systemColors.navyMuted,
+        backgroundColor: chip.active ? systemColors.herbLight : systemColors.surface,
+        borderColor: chip.active ? systemColors.herb : systemColors.border,
+        color: chip.active ? systemColors.navy : systemColors.navyMuted,
       }}
     >
-      {children}
+      {chip.label}
+      {chip.active && (
+        <span aria-hidden className="ml-1" style={{ color: systemColors.navyMuted }}>✕</span>
+      )}
     </button>
   );
 }
 
 /**
- * The country page's control row.
+ * The country page's control row: a search field and a single rail of filters.
  *
- * Two decisions live here and they are deliberately given different weight,
- * because they aren't the same kind of choice. **Filtering** — what subset am I
- * looking at — is the prominent segmented control. **Grouping** — how is it
- * arranged — is a quiet dropdown, since you set it rarely.
+ * Every filter is a chip, and **active chips sort to the front**, so what is
+ * narrowing the list is always the first thing you read — no drawer to open and
+ * no separate summary row restating what you picked. An earlier version hid the
+ * filters behind a gear and listed the active ones underneath it, which meant
+ * three rows of controls before a single dish and a "Showing" line that arrived
+ * after a line about grouping.
  *
- * An earlier version gave both the same row of pills, which put "Tried" and
- * "All" on screen twice meaning different things each time.
+ * Phone and desktop run the same markup and differ in one declaration: the rail
+ * scrolls sideways below `md` and wraps above it. Desktop has the width, so the
+ * filters a drawer would economise on are simply visible. Keeping it to a
+ * breakpoint rather than a JavaScript branch means one component to reason
+ * about and no second layout to keep in step.
+ *
+ * Grouping stays a quiet text dropdown next to the search field. It is not a
+ * filter — it changes how the list is arranged, never which dishes are in it —
+ * so it deliberately doesn't take the chip shape.
  */
 export function LensControls({
   filters, lens, onLensChange, availableLenses, triedCount, hasBeverages,
@@ -93,6 +93,102 @@ export function LensControls({
     };
   }, [menuOpen]);
 
+  const toggleSpice = (value: typeof spice) => setSpice(spice === value ? 'any' : value);
+  const togglePop = (value: typeof popularity) =>
+    setPopularity(popularity === value ? 'any' : value);
+
+  // Canonical order, widest reach first. Active chips are pulled to the front
+  // below, so this is only the resting order.
+  const chips: Chip[] = [];
+
+  if (focusedRegionName) {
+    // Focus is set from the map or a section header, so this chip only ever
+    // removes it — there is nothing sensible to turn "on" from here.
+    chips.push({
+      id: 'region',
+      label: `📍 ${getShortRegionName(focusedRegionName)}`,
+      active: true,
+      toggle: onClearRegion,
+    });
+  }
+
+  chips.push(
+    {
+      id: 'tried',
+      label: triedCount > 0 ? `Tried (${triedCount})` : 'Tried',
+      active: filters.view === 'tried',
+      toggle: () => filters.setView(filters.view === 'tried' ? 'all' : 'tried'),
+    },
+    {
+      id: 'want',
+      label: 'Want to try',
+      active: filters.view === 'want',
+      toggle: () => filters.setView(filters.view === 'want' ? 'all' : 'want'),
+    },
+    { id: 'veg', label: 'Vegetarian', active: diet.veg, toggle: () => setDiet({ ...diet, veg: !diet.veg }) },
+    { id: 'vegan', label: 'Vegan', active: diet.vegan, toggle: () => setDiet({ ...diet, vegan: !diet.vegan }) },
+    { id: 'gf', label: 'Gluten-free', active: diet.gf, toggle: () => setDiet({ ...diet, gf: !diet.gf }) },
+    { id: 'mild', label: '🌶️ Mild', active: spice === 'mild', toggle: () => toggleSpice('mild') },
+    { id: 'medium', label: '🌶️🌶️ Medium', active: spice === 'medium', toggle: () => toggleSpice('medium') },
+    { id: 'hot', label: '🌶️🌶️🌶️ Hot', active: spice === 'hot', toggle: () => toggleSpice('hot') },
+    {
+      id: 'local',
+      label: '📍 Local favorite',
+      active: popularity === 'local-favorite',
+      toggle: () => togglePop('local-favorite'),
+    },
+    {
+      id: 'classic',
+      label: '📷 Tourist classic',
+      active: popularity === 'tourist-classic',
+      toggle: () => togglePop('tourist-classic'),
+    },
+    {
+      id: 'dessert',
+      label: '🍰 Dessert',
+      active: filters.dessertOnly,
+      toggle: () => filters.setDessertOnly(!filters.dessertOnly),
+    },
+  );
+
+  if (hasBeverages) {
+    chips.push(
+      {
+        id: 'no-alcohol',
+        label: 'No alcohol',
+        active: filters.bevType === 'non-alcoholic',
+        toggle: () => filters.setBevType(filters.bevType === 'non-alcoholic' ? 'any' : 'non-alcoholic'),
+      },
+      {
+        id: 'alcohol',
+        label: 'With alcohol',
+        active: filters.bevType === 'alcoholic',
+        toggle: () => filters.setBevType(filters.bevType === 'alcoholic' ? 'any' : 'alcoholic'),
+      },
+      {
+        id: 'served-hot',
+        label: '🔥 Hot drink',
+        active: filters.served === 'hot',
+        toggle: () => filters.setServed(filters.served === 'hot' ? 'any' : 'hot'),
+      },
+      {
+        id: 'served-cold',
+        label: '🧊 Cold drink',
+        active: filters.served === 'cold',
+        toggle: () => filters.setServed(filters.served === 'cold' ? 'any' : 'cold'),
+      },
+    );
+  }
+
+  const activeChips = chips.filter(c => c.active);
+  const restingChips = chips.filter(c => !c.active);
+  const ordered = [...activeChips, ...restingChips];
+
+  const clearAll = () => {
+    filters.reset();
+    if (focusedRegionName) onClearRegion();
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
@@ -106,44 +202,9 @@ export function LensControls({
           style={{ borderColor: systemColors.border, color: systemColors.navy }}
         />
 
-        {/* What you're looking at — the decision you change most */}
-        <div className="flex gap-1">
-          <Pill active={filters.view === 'all'} onClick={() => filters.setView('all')}>All</Pill>
-          <Pill active={filters.view === 'tried'} onClick={() => filters.setView('tried')}>
-            Tried{triedCount > 0 ? ` (${triedCount})` : ''}
-          </Pill>
-          <Pill active={filters.view === 'want'} onClick={() => filters.setView('want')}>Want</Pill>
-        </div>
-
-        {/* Refinements — icon only, so it doesn't compete */}
-        <button
-          onClick={() => filters.setDrawerOpen(!filters.drawerOpen)}
-          aria-expanded={filters.drawerOpen}
-          aria-label={`Filters${filters.activeFilterCount ? `, ${filters.activeFilterCount} active` : ''}`}
-          title="Filters"
-          className="relative w-8 h-8 rounded-lg border flex items-center justify-center text-sm"
-          style={{
-            backgroundColor: filters.drawerOpen ? systemColors.navy : systemColors.surface,
-            borderColor: filters.drawerOpen ? systemColors.navy : systemColors.border,
-            color: filters.drawerOpen ? systemColors.seaSalt : systemColors.navyMuted,
-          }}
-        >
-          ⚙
-          {filters.activeFilterCount > 0 && (
-            <span
-              className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1rem] h-4 px-1 rounded-full text-[0.6rem] font-bold"
-              style={{ backgroundColor: systemColors.herb, color: '#fff' }}
-            >
-              {filters.activeFilterCount}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* How it's arranged — quiet, because you set it rarely */}
-      {availableLenses.length > 1 && (
-        <div className="flex justify-end" ref={menuRef}>
-          <div className="relative">
+        {/* How it's arranged — quiet, and deliberately not chip-shaped */}
+        {availableLenses.length > 1 && (
+          <div className="relative flex-none" ref={menuRef}>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               aria-expanded={menuOpen}
@@ -182,125 +243,28 @@ export function LensControls({
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* What's currently narrowing the list, visible without opening the drawer */}
-      {(focusedRegionName || filters.activeFilterCount > 0) && (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span
-            className="text-[0.6rem] font-bold uppercase tracking-wider"
-            style={{ color: systemColors.navyMuted }}
-          >
-            Showing
-          </span>
-          {focusedRegionName && (
-            <ActiveChip label={`📍 ${getShortRegionName(focusedRegionName)}`} onRemove={onClearRegion} />
-          )}
-          {diet.veg && <ActiveChip label="Vegetarian" onRemove={() => setDiet({ ...diet, veg: false })} />}
-          {diet.vegan && <ActiveChip label="Vegan" onRemove={() => setDiet({ ...diet, vegan: false })} />}
-          {diet.gf && <ActiveChip label="Gluten-free" onRemove={() => setDiet({ ...diet, gf: false })} />}
-          {spice !== 'any' && (
-            <ActiveChip
-              label={spice === 'mild' ? '🌶️ Mild' : spice === 'medium' ? '🌶️🌶️ Medium' : '🌶️🌶️🌶️ Hot'}
-              onRemove={() => setSpice('any')}
-            />
-          )}
-          {popularity !== 'any' && (
-            <ActiveChip
-              label={popularity === 'local-favorite' ? '📍 Local favorite' : '📷 Tourist classic'}
-              onRemove={() => setPopularity('any')}
-            />
-          )}
-          {filters.dessertOnly && <ActiveChip label="🍰 Dessert" onRemove={() => filters.setDessertOnly(false)} />}
-          {filters.bevType !== 'any' && (
-            <ActiveChip
-              label={filters.bevType === 'alcoholic' ? 'With alcohol' : 'No alcohol'}
-              onRemove={() => filters.setBevType('any')}
-            />
-          )}
-          {filters.served !== 'any' && (
-            <ActiveChip
-              label={filters.served === 'hot' ? '🔥 Hot' : '🧊 Cold'}
-              onRemove={() => filters.setServed('any')}
-            />
-          )}
-        </div>
-      )}
-
-      {filters.drawerOpen && (
-        <div
-          className="rounded-xl border p-3 space-y-2"
-          style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}
-        >
-          <FilterRow label="Diet">
-            <Pill active={diet.veg} onClick={() => setDiet({ ...diet, veg: !diet.veg })} title="Vegetarian">VGT</Pill>
-            <Pill active={diet.vegan} onClick={() => setDiet({ ...diet, vegan: !diet.vegan })} title="Vegan">VG</Pill>
-            <Pill active={diet.gf} onClick={() => setDiet({ ...diet, gf: !diet.gf })} title="Gluten-free">GF</Pill>
-          </FilterRow>
-
-          <FilterRow label="Spice">
-            {(['any', 'mild', 'medium', 'hot'] as const).map(s => (
-              <Pill key={s} active={spice === s} onClick={() => setSpice(spice === s ? 'any' : s)}>
-                {s === 'any' ? 'Any' : s === 'mild' ? '🌶️' : s === 'medium' ? '🌶️🌶️' : '🌶️🌶️🌶️'}
-              </Pill>
-            ))}
-          </FilterRow>
-
-          <FilterRow label="Who eats it">
-            <Pill
-              active={popularity === 'local-favorite'}
-              onClick={() => setPopularity(popularity === 'local-favorite' ? 'any' : 'local-favorite')}
-            >📍 Local</Pill>
-            <Pill
-              active={popularity === 'tourist-classic'}
-              onClick={() => setPopularity(popularity === 'tourist-classic' ? 'any' : 'tourist-classic')}
-            >📷 Classic</Pill>
-            <Pill active={filters.dessertOnly} onClick={() => filters.setDessertOnly(!filters.dessertOnly)}>
-              🍰 Dessert
-            </Pill>
-          </FilterRow>
-
-          {hasBeverages && (
-            <FilterRow label="Drinks">
-              <Pill
-                active={filters.bevType === 'non-alcoholic'}
-                onClick={() => filters.setBevType(filters.bevType === 'non-alcoholic' ? 'any' : 'non-alcoholic')}
-              >No alcohol</Pill>
-              <Pill
-                active={filters.bevType === 'alcoholic'}
-                onClick={() => filters.setBevType(filters.bevType === 'alcoholic' ? 'any' : 'alcoholic')}
-              >With alcohol</Pill>
-              <Pill
-                active={filters.served === 'hot'}
-                onClick={() => filters.setServed(filters.served === 'hot' ? 'any' : 'hot')}
-              >🔥 Hot</Pill>
-              <Pill
-                active={filters.served === 'cold'}
-                onClick={() => filters.setServed(filters.served === 'cold' ? 'any' : 'cold')}
-              >🧊 Cold</Pill>
-            </FilterRow>
-          )}
-
-          <p className="text-[0.68rem]" style={{ color: systemColors.navyMuted }}>
-            Spice and “who eats it” apply to food, so setting them hides drinks.
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span
-        className="text-[0.6rem] font-bold uppercase tracking-wider w-[5.5rem] flex-none"
-        style={{ color: systemColors.navyMuted }}
+      {/* One rail: scrolls on a phone, wraps on a desktop. Same chips either way. */}
+      <div
+        className="chip-rail flex gap-1.5 md:flex-wrap"
+        role="group"
+        aria-label="Filter dishes"
       >
-        {label}
-      </span>
-      {children}
+        {ordered.map(chip => (
+          <ChipButton key={chip.id} chip={chip} />
+        ))}
+        {activeChips.length > 1 && (
+          <button
+            onClick={clearAll}
+            className="flex-none text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
+            style={{ color: systemColors.tomato }}
+          >
+            Clear all
+          </button>
+        )}
+      </div>
     </div>
   );
 }

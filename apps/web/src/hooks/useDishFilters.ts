@@ -26,7 +26,6 @@ export function useDishFilters() {
   const [dessertOnly, setDessertOnly] = useState(false);
   const [bevType, setBevType] = useState<BevFilter>('any');
   const [served, setServed] = useState<ServedFilter>('any');
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const dietMatch = (d?: DietaryInfo) =>
     (!diet.veg || !!(d?.isVegetarian || d?.isVegan)) &&
@@ -116,7 +115,6 @@ export function useDishFilters() {
     dessertOnly, setDessertOnly,
     bevType, setBevType,
     served, setServed,
-    drawerOpen, setDrawerOpen,
     matchesDish, matchesBeverage, matchesText,
     refinementActive, activeFilterCount, reset,
   };
