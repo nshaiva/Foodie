@@ -2,7 +2,7 @@ at the restaurant should group some things w the mobile first view what are othe
 
 filter and search countries in map or grid view and it scrolls to that region of the page // or filter by region — triaged 2026-08-23 as #28
 
-move filter button away — triaged 2026-08-23 as #26 (which filter button? country-page gear or at-restaurant)
+move filter button away — SHIPPED 2026-08-23 as #26: gear + drawer replaced by one chip rail, active chips first, same markup on phone and desktop
 
 remove em dashes — already #10; split 2026-08-23 into UI copy (20 files, do now) vs data (453, rides #9)
 

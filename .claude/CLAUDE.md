@@ -188,6 +188,14 @@ Filters live in `useDishFilters`. Food-only filters (spice, popularity, dessert)
 exclude drinks outright and drink-only filters exclude food — filtering for
 "hot" should not return tea.
 
+**The filter rail.** Every filter is a chip in one row and active chips sort to
+the front, so the active set never needs a separate summary. Phone and desktop
+share the markup and differ in one declaration: `.chip-rail` scrolls sideways
+with an edge fade below `md`, and `md:flex-wrap` lets it wrap above. Prefer this
+— a CSS breakpoint on shared markup — over a JavaScript `isMobile` branch. The
+codebase has exactly one such branch (`Home.tsx`, where the world map genuinely
+cannot render at 390px); everything else is a breakpoint.
+
 ## Build Commands
 
 ```bash

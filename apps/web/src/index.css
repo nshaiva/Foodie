@@ -216,3 +216,19 @@ label[for],
 .radar-chart svg {
   overflow: visible;
 }
+
+/* Filter rail: one row that scrolls sideways on a phone and wraps on a desktop
+   (the `md:flex-wrap` comes from the markup). The right-edge fade is the only
+   cue that more chips exist off-screen, so it's removed once the rail wraps and
+   nothing is hidden. */
+.chip-rail {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+}
+.chip-rail::-webkit-scrollbar { display: none; }
+@media (min-width: 768px) {
+  .chip-rail { overflow: visible; mask-image: none; }
+}

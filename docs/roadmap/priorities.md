@@ -25,6 +25,24 @@ Items within each tier are grouped by the goal they serve:
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Filters as one chip rail** (2026-08-23, Foundation) — the country page's
+  gear-and-drawer is gone. Every filter is now a chip in a single row and
+  **active chips sort to the front**, so what's narrowing the list is the first
+  thing you read. That also deletes the separate "Showing" summary row, which
+  had been restating the active filters *underneath* a line about grouping —
+  three rows of controls before a single dish, and state arriving after
+  chrome. Filtering went from three taps (open drawer, tap, close) to one.
+  **Phone and desktop run the same markup**, differing in one declaration: the
+  rail is `overflow-x: auto` with a right-edge fade below `md` and
+  `flex-wrap` above it, where the width exists to just show everything. That
+  was a deliberate choice against a JavaScript `isMobile` branch — the codebase
+  has exactly one of those (the home map, which genuinely cannot render at
+  390px) and every other responsive decision is a CSS breakpoint on shared
+  markup. The All/Tried/Want segmented control folded into the rail as Tried
+  and Want chips ("All" is simply neither pressed), and grouping stayed a quiet
+  text dropdown next to the search field, deliberately not chip-shaped, since
+  it changes how the list is arranged and never which dishes are in it.
+  Prototype: `filter-layouts.html` (four options at 390px).
 - **Hand cursor on every control** (2026-08-23, Foundation) — Tailwind v4's
   preflight stopped putting `cursor: pointer` on `<button>`, and the app only
   got the hand from three opt-in classes (`card-interactive`,
@@ -207,7 +225,6 @@ at Tier 2.
 
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
-| 26 | **Move the filter button** | Added 2026-08-23 from notes, **needs one clarification before it can be built**: whether this means the ⚙ on the country page (icon-only with a count badge as of 2026-08-21) or a control in the at-the-restaurant view. If it's the ⚙ this likely folds into #27 rather than standing alone, since both are about where controls sit on a phone. | XS once scoped |
 | 24 | **Focused region with no dishes still shows nothing** | Added 2026-08-21 from Brazil (`/country/BR?region=gaucho-country`). Focusing Gaúcho Country renders the empty-state card — "Nothing matches these filters. / Clear filters" — and no region description at all, even though the region has one. **Diagnosed:** `nothingMatches = inFocus.length === 0` in `pages/CountryDetail.tsx:202` short-circuits the whole list before `shownGroups` renders, and `shownGroups` is already written to keep an empty focused region (`:157`). So the fix is to make the empty state region-aware rather than page-wide: when a region is focused, still render its `DishSection` header, description, derived flavor chips and key ingredients, and put a smaller "No dishes recorded here yet" note *inside* it. **Why it matters:** the region description is the cultural payload of the region lens, and a region having no dishes in our data is exactly when the description is the only thing we have to offer. It also reads as broken — the copy blames filters when no filter is set. Related but separate: several regions have zero dishes because of missing `regionalOrigin` (#2 leftover, rides #9); this item is the code half and shouldn't wait for the content half. | S |
 | 10 | **Remove all em dashes from text** | Small UI copy fix (added 2026-08-05): sweep UI strings and the generated country/dish content for "—", replace with commas/periods/colons as reads best. Add to the content-generation prompt guidelines so future batches don't reintroduce them. **Split into two halves, 2026-08-23 (counted).** UI copy: **20 component/page files** — a quick sweep, do any time. Generated content: **453 occurrences across `data/countries/*.ts`** — this half should **ride the #9 batch**, because regenerating that prose reintroduces them unless the prompt forbids it, so hand-fixing 453 now is work we'd throw away. Do the UI half standalone; leave the data half to #9. | S (UI) / free with #9 (data) |
 
