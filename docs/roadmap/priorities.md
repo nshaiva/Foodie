@@ -170,6 +170,12 @@ at Tier 2.
   in exactly one region) and `components/map/RegionMap.tsx`, reusing
   `countryMapConfig` centers rather than a second coordinate table.
   Prototype: `continent-region-map.html`.
+  **Follow-up the same day:** the desktop grid and its jump chips now use these
+  same eight regions instead of continents, in declared order rather than
+  alphabetical. One vocabulary across the app — a chip reading "Southeast Asia"
+  leads to a section by that name, and tapping a region on a phone map doesn't
+  land somewhere organised by a different idea. `CULINARY_REGIONS` is now the
+  single source for how countries are grouped anywhere on the home page.
 - **Find a country on the home page** (2026-08-23, G2) — a search field and a
   rail of continent chips above the country grid. Search matches name, capital,
   continent and sub-region, so "west africa", "Dublin" and "Peru" all work, and
