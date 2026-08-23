@@ -1,0 +1,203 @@
+<title>Eight culinary regions</title>
+<style>
+  :root{--ground:#F7F3EC;--surface:#FFFFFF;--ink:#33302A;--muted:#6F6A5F;
+    --accent:#C2654A;--herb:#8A9A7B;--line:#E5DFD2;--land:#DFD8CA;--land-hot:#C2654A;}
+  @media (prefers-color-scheme:dark){:root{--ground:#201D18;--surface:#2B2721;--ink:#EDE7DC;
+    --muted:#A49C8E;--accent:#D9866B;--herb:#9DAE8D;--line:#3C372F;--land:#3E3830;--land-hot:#D9866B;}}
+  :root[data-theme="dark"]{--ground:#201D18;--surface:#2B2721;--ink:#EDE7DC;--muted:#A49C8E;
+    --accent:#D9866B;--herb:#9DAE8D;--line:#3C372F;--land:#3E3830;--land-hot:#D9866B;}
+  :root[data-theme="light"]{--ground:#F7F3EC;--surface:#FFFFFF;--ink:#33302A;--muted:#6F6A5F;
+    --accent:#C2654A;--herb:#8A9A7B;--line:#E5DFD2;--land:#DFD8CA;--land-hot:#C2654A;}
+  body{background:var(--ground);color:var(--ink);margin:0;padding:2rem 1.25rem 4rem;
+    font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;}
+  .wrap{max-width:56rem;margin:0 auto;}
+  h1{font-size:1.6rem;margin:0 0 .3rem;text-wrap:balance;}
+  .sub{color:var(--muted);margin:0 0 1.5rem;max-width:42rem;}
+  .cols{display:grid;grid-template-columns:390px 1fr;gap:2rem;align-items:start;}
+  @media(max-width:760px){.cols{grid-template-columns:1fr}}
+  .eyebrow{font-size:.66rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 .4rem;}
+  .note{color:var(--muted);font-size:.86rem;margin:.55rem 0 0;}
+  .note b{color:var(--ink);font-weight:650;}
+  table{border-collapse:collapse;font-size:.8rem;width:100%;}
+  td,th{text-align:left;padding:4px 10px 4px 0;border-bottom:1px solid var(--line);}
+  th{font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  td.n{font-variant-numeric:tabular-nums;text-align:right;width:3rem;}
+  .bar{display:inline-block;height:4px;border-radius:9px;background:var(--herb);vertical-align:middle;}
+  .phone{width:100%;max-width:390px;border:1px solid var(--line);border-radius:16px;
+    background:var(--surface);overflow:hidden;}
+  .top{display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid var(--line);min-height:38px;}
+  .title{font-size:13px;font-weight:700;}
+  .cnt{font-size:11px;color:var(--muted);margin-left:auto;}
+  .back{font-size:11px;font-weight:700;color:var(--accent);background:none;border:0;padding:2px 4px;cursor:pointer;}
+  .stage{position:relative;height:330px;background:var(--ground);}
+  svg{display:block;width:100%;height:100%;touch-action:manipulation;}
+  .blob{fill:var(--land);stroke:var(--surface);stroke-width:1.5;transition:fill .25s;cursor:pointer;}
+  .blob.hot{fill:var(--land-hot);}
+  .lbl{position:absolute;transform:translate(-50%,-50%);font-size:10px;font-weight:700;color:var(--ink);
+    text-align:center;pointer-events:none;line-height:1.2;max-width:96px;
+    text-shadow:0 1px 2px var(--surface),0 -1px 2px var(--surface),1px 0 2px var(--surface),-1px 0 2px var(--surface);}
+  .lbl small{display:block;font-size:8.5px;font-weight:600;color:var(--muted);}
+  .dot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;
+    gap:2px;font-size:9.5px;font-weight:650;color:var(--ink);white-space:nowrap;}
+  .dot i{width:11px;height:11px;border-radius:50%;background:var(--herb);border:2px solid var(--surface);
+    box-shadow:0 1px 3px rgba(0,0,0,.25);}
+  .dot.untried i{background:var(--line);}
+  .fade{animation:fade .3s ease both;}
+  @keyframes fade{from{opacity:0;transform:translate(-50%,-50%) scale(.9)}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <h1>Eight culinary regions</h1>
+  <p class="sub">Option A's interaction, regrouped. Tap a region to zoom in; “← Back” returns.
+    Groupings chosen by measuring flavor distance, not by continent.</p>
+
+  <div class="cols">
+    <div>
+      <div class="phone" id="p">
+        <div class="top"><span class="title">Explore</span><span class="cnt">31 cuisines</span></div>
+        <div class="stage"></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="eyebrow">How tight each region is</p>
+      <p class="note" style="margin-top:0">Mean flavor distance between members across the six axes.
+        <b>A random pair of the 31 sits at 5.84</b>, so shorter bars are real clusters.</p>
+      <table id="tbl"><tr><th>Region</th><th>n</th><th>Spread</th></tr></table>
+
+      <p class="eyebrow" style="margin-top:1.4rem">What the numbers changed</p>
+      <p class="note"><b>Africa split.</b> As one blob it scored 6.48 — worse than random. Morocco and
+        Egypt belong with the Levant, Anatolia and the Caucasus, and that group is the tightest here at 3.66.</p>
+      <p class="note"><b>Europe did not split.</b> One region scores 3.95; Mediterranean and Northwest
+        halves both come out worse (4.06, 4.12).</p>
+      <p class="note"><b>The Americas keep a hole.</b> US + Brazil + Argentina is the tightest cluster in
+        the whole dataset (2.31 — grill, smoke, low heat), but Mexico and the Caribbean sit between them
+        and are chile-forward, so they're their own region. The shape is discontiguous on purpose.</p>
+      <p class="note"><b>Peru fits nowhere.</b> Acidity 9 is an outlier; it rides with the Americas because
+        a region of one isn't worth tapping.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const W=1000,H=500;
+const REGIONS={
+ 'Mexico & the Caribbean':{d:"M196,174 L268,170 L330,186 L322,214 L266,222 L228,204 L200,190 Z",
+   m:['Mexico','Jamaica'],s:4.00},
+ 'The Americas':{d:"M155,118 L300,110 L318,140 L296,164 L200,168 L162,148 Z M272,228 L330,218 L390,236 L400,276 L362,334 L336,400 L306,374 L292,304 L266,262 Z",
+   m:['United States','Brazil','Argentina','Peru'],s:5.20},
+ 'Europe':{d:"M466,52 L540,42 L598,50 L612,88 L582,124 L532,136 L494,116 L470,88 Z",
+   m:['Ireland','France','Portugal','Spain','Italy','Greece'],s:3.95},
+ 'Mediterranean & Near East':{d:"M470,150 L560,138 L640,132 L672,150 L654,186 L560,196 L488,182 Z",
+   m:['Morocco','Egypt','Türkiye','Lebanon','Georgia','Azerbaijan'],s:3.66},
+ 'Sub-Saharan Africa':{d:"M486,208 L600,200 L646,218 L620,290 L560,340 L516,300 L488,250 Z",
+   m:['Nigeria','Ethiopia'],s:5.20},
+ 'South Asia':{d:"M676,146 L736,140 L762,168 L742,214 L706,240 L684,196 Z",
+   m:['Afghanistan','Pakistan','India'],s:4.85},
+ 'East Asia':{d:"M786,96 L880,84 L922,110 L906,152 L850,172 L802,146 Z",
+   m:['China','South Korea','Japan'],s:4.45},
+ 'Southeast Asia':{d:"M768,186 L836,178 L866,206 L856,258 L806,284 L780,244 Z",
+   m:['Thailand','Vietnam','Malaysia','Indonesia','Philippines'],s:5.27}
+};
+const PLACES={
+ 'Afghanistan':[69,34.5,0],'Azerbaijan':[49.9,40.4,0],'China':[116.4,39.9,1],'Georgia':[44.8,41.7,0],
+ 'Indonesia':[106.8,-6.2,0],'India':[77.2,28.6,1],'Japan':[139.7,35.7,1],'South Korea':[127,37.6,0],
+ 'Lebanon':[35.5,33.9,0],'Malaysia':[101.7,3.1,0],'Philippines':[121,14.6,0],'Pakistan':[73,33.7,0],
+ 'Thailand':[100.5,13.8,1],'Türkiye':[32.9,39.9,0],'Vietnam':[105.8,21,1],
+ 'Spain':[-3.7,40.4,1],'France':[2.35,48.9,1],'Greece':[23.7,38,0],'Ireland':[-6.3,53.3,1],
+ 'Italy':[12.5,41.9,1],'Portugal':[-9.1,38.7,0],
+ 'Egypt':[31.2,30,0],'Ethiopia':[38.7,9,1],'Morocco':[-6.8,34,0],'Nigeria':[7.5,9.1,0],
+ 'Argentina':[-58.4,-34.6,0],'Brazil':[-47.9,-15.8,1],'Peru':[-77,-12,0],
+ 'Jamaica':[-76.8,18,0],'Mexico':[-99.1,19.4,1],'United States':[-77,38.9,1]
+};
+const proj=(lon,lat)=>[(lon+180)/360*W,(90-lat)/180*H];
+const NS="http://www.w3.org/2000/svg";
+const names=Object.keys(REGIONS);
+
+// tightness table, tightest first
+const tbl=document.getElementById('tbl');
+[...names].sort((a,b)=>REGIONS[a].s-REGIONS[b].s).forEach(n=>{
+  const r=REGIONS[n], tr=document.createElement('tr');
+  tr.innerHTML=`<td>${n}</td><td class="n">${r.m.length}</td>
+    <td class="n">${r.s.toFixed(2)}</td>`;
+  const bar=document.createElement('td');
+  bar.innerHTML=`<span class="bar" style="width:${Math.round(r.s/6*70)}px"></span>`;
+  tr.appendChild(bar); tbl.appendChild(tr);
+});
+
+const root=document.getElementById('p');
+const stage=root.querySelector('.stage'), top=root.querySelector('.top');
+const svg=document.createElementNS(NS,'svg');
+svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+const g=document.createElementNS(NS,'g');
+g.style.transition='transform .5s cubic-bezier(.4,0,.2,1)';
+svg.appendChild(g); stage.appendChild(svg);
+const paths={};
+names.forEach(n=>{
+  const p=document.createElementNS(NS,'path');
+  p.setAttribute('d',REGIONS[n].d); p.setAttribute('class','blob');
+  p.addEventListener('click',()=>{cur=n;render()});
+  g.appendChild(p); paths[n]=p;
+});
+const layer=document.createElement('div');
+layer.style.cssText='position:absolute;inset:0;pointer-events:none';
+stage.appendChild(layer);
+let cur=null;
+
+const toScreen=(x,y,z)=>{
+  const r=svg.getBoundingClientRect(), s=Math.min(r.width/W,r.height/H);
+  const ox=(r.width-W*s)/2, oy=(r.height-H*s)/2;
+  const zx=z?z.s*x+z.tx:x, zy=z?z.s*y+z.ty:y;
+  return [ox+zx*s, oy+zy*s];
+};
+const zoomFor=n=>{
+  const b=paths[n].getBBox(), pad=1.5;
+  const s=Math.min(W/(b.width*pad),H/(b.height*pad));
+  return {s,tx:W/2-(b.x+b.width/2)*s,ty:H/2-(b.y+b.height/2)*s};
+};
+function render(){
+  layer.innerHTML='';
+  const t=top.querySelector('.title'), c=top.querySelector('.cnt');
+  if(!cur){
+    g.style.transform='';
+    const bk=top.querySelector('.back'); if(bk) bk.remove();
+    t.textContent='Explore'; c.textContent='31 cuisines';
+    names.forEach(n=>{
+      paths[n].classList.remove('hot');
+      const b=paths[n].getBBox();
+      const [x,y]=toScreen(b.x+b.width/2,b.y+b.height/2,null);
+      const d=document.createElement('div');
+      d.className='lbl'; d.style.left=x+'px'; d.style.top=y+'px';
+      d.innerHTML=`${n}<small>${REGIONS[n].m.length} cuisines</small>`;
+      layer.appendChild(d);
+    });
+  }else{
+    const z=zoomFor(cur);
+    g.style.transform=`translate(${z.tx}px,${z.ty}px) scale(${z.s})`;
+    names.forEach(n=>paths[n].classList.toggle('hot',n===cur));
+    REGIONS[cur].m.forEach((name,i)=>{
+      const p=PLACES[name]; if(!p) return;
+      const [px,py]=proj(p[0],p[1]);
+      const [x,y]=toScreen(px,py,z);
+      const d=document.createElement('div');
+      d.className='dot fade'+(p[2]?'':' untried');
+      d.style.cssText+=`left:${x}px;top:${y}px;animation-delay:${i*22}ms`;
+      d.innerHTML=`<i></i>${name}`;
+      layer.appendChild(d);
+    });
+    t.textContent=cur;
+    c.textContent=`${REGIONS[cur].m.filter(n=>PLACES[n][2]).length} of ${REGIONS[cur].m.length} tried`;
+    if(!top.querySelector('.back')){
+      const b=document.createElement('button');
+      b.className='back'; b.textContent='← Back';
+      b.addEventListener('click',()=>{cur=null;render()});
+      top.insertBefore(b,top.firstChild);
+    }
+  }
+}
+render();
+window.addEventListener('resize',render);
+</script>
