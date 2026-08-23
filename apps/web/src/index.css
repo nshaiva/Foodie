@@ -26,6 +26,24 @@ h1, h2, h3, h4, h5, h6 {
   min-height: 100vh;
 }
 
+/* Anything clickable gets the hand.
+
+   Tailwind v4's preflight stopped applying cursor: pointer to <button>, so the
+   hand only arrived via the opt-in classes below (.card-interactive, .btn-press
+   and friends) — which left most buttons in the app reading as decoration.
+   Doing it here rather than per-component means future buttons get it for free.
+   Disabled buttons keep the default arrow, since a hand on a dead control lies
+   about what will happen. */
+button:not(:disabled):not([aria-disabled='true']),
+summary,
+label[for],
+[role='button']:not([aria-disabled='true']),
+[role='menuitem'],
+[role='menuitemradio'],
+[role='tab'] {
+  cursor: pointer;
+}
+
 /* Shared hover language for clickable cards: "plate pickup + garnish arrow".
    Add .card-interactive to the card and an optional <span class="card-go">Explore →</span>. */
 .card-interactive {

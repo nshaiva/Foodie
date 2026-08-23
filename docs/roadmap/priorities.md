@@ -25,6 +25,18 @@ Items within each tier are grouped by the goal they serve:
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Hand cursor on every control** (2026-08-23, Foundation) — Tailwind v4's
+  preflight stopped putting `cursor: pointer` on `<button>`, and the app only
+  got the hand from three opt-in classes (`card-interactive`,
+  `card-interactive-sm`, `btn-press`). 15 component files had buttons wearing
+  none of them — the Taste Profile button, star ratings, favorite and wishlist
+  buttons, the lens and filter controls — so they read as decoration rather
+  than controls. One rule in `index.css` now covers `button`, `summary`,
+  `label[for]` and the `role="button" | menuitem | menuitemradio | tab`
+  elements, which means components written from here on get it for free.
+  Disabled and `aria-disabled` controls keep the default arrow on purpose: a
+  hand on a dead control promises something that won't happen. Map markers
+  already set the cursor inline, so nothing was missed there.
 - **Unified country page** (2026-08-21, G1/G2) — the three-tab carousel is gone.
   The country page is now one list of everything you can eat and drink there,
   grouped by a lens you pick (Region or Type). Section headers stay
@@ -164,11 +176,13 @@ at Tier 2.
 
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
+| 27 | **At-the-restaurant: mobile-first grouping + UI quick wins** | Added 2026-08-23 from notes. This is the **primary thesis surface** — the "I'm at a table and don't know what to order" moment, which by definition happens on a phone — and it's the only item on the current list that serves the primary goal rather than a secondary one. Nikita's note: "should group some things w the mobile first view". **Tension to decide before building:** the mobile audit (#8) is deliberately held to the MVP gate so surfaces aren't polished twice. Recommendation is a **scoped exception for this one view** and nothing else, because this is the single screen where being bad on a phone means the app fails at its main job. Needs a look together at what "group some things" should mean — likely the order list, since that's what you scan under table pressure. Possibly absorbs #26. | S–M |
 
 ### G2 🗺 Track & explore world cuisines
 
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
+| 28 | **Search and filter countries on the home page, with scroll-to** | Added 2026-08-23 from notes: "filter and search countries in map or grid view and it scrolls to that region of the page // or filter by region". A search box over the home grid *and* the map, plus picking a continent scrolling to that section. The scroll target already exists — `Home.tsx` builds `continentGroups` and renders one `<section>` per continent, so this is a ref per section plus `scrollIntoView`, the same pattern the `CuisineTeaser` already uses to reach the flavor disclosure. Serves G2 exploration (where cuisines sit in the world, what I haven't tried), which is why it ranks behind #27: it helps browsing, not ordering. Note the home map is desktop-only today, so the search box has to work in grid view on a phone. | M |
 | 1 | **Dish twins** | "Khachapuri is Georgia's answer to pizza" — pre-generatable content (rides the #9 batch), great for discovery; pairs with similar-cuisines section. | M (mostly content) |
 | 2 | ~~**Dish ↔ region cross-linking**~~ — **shipped 2026-08-21** as the unified country page (see Built). What remains is content, not code: **9 of Mexico's 13 items carry no `regionalOrigin` at all**, so three MX regions render empty and 9 dishes land in "Across Mexico". Ireland has one unmatched origin ("Rural west and north"). Both ride the #9 batch — add `regionalOrigin` to every dish and prefer names that match a region's own vocabulary. | Content |
 
@@ -187,14 +201,15 @@ at Tier 2.
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
 | 8 | **Mobile audit** | Moved from Tier 1 (2026-08-05): UI is still churning heavily, so a full audit now would be redone feature by feature. **Decided: run once as the MVP gate** — after all other Tier 2 features are built. Pass over the key surfaces — country page (all 3 tabs), Eat & Drink cards + filters, taste survey, profile slide-over, at-the-restaurant view — and make each genuinely good on a phone (touch targets, layout, no hover-dependent affordances). The home map stays desktop-only (grid view covers mobile). Interim rule: build new features mobile-aware so this is a polish pass, not a rebuild. | M |
-| 9 | **Full-country content batch (30 countries)** | Added 2026-08-05. **Decided: don't generate for all countries until the schemas/UI stop moving** — iterate on the sandbox trio, Mexico + China + Ireland (hand-mapped), only, then run one consolidated batch at the MVP gate, alongside the mobile audit. The carpool by then likely includes: `flavorAxes` for the remaining non-sandbox countries (see Built: ingredients redesign), per-dish `keySpices` + dominant flavor axis (#4, #7, per-dish match, the shipped at-the-restaurant scoring), and optionally dish twins (#1) + why-dish-exists (#19). One pass per country instead of five separate runs; generation prompt carries the no-em-dash rule (#10). Cost estimate before launching. | Content batch (~30 agents) |
+| 9 | **Full-country content batch (30 countries)** | Added 2026-08-05. **Decided: don't generate for all countries until the schemas/UI stop moving** — iterate on the sandbox trio, Mexico + China + Ireland (hand-mapped), only, then run one consolidated batch at the MVP gate, alongside the mobile audit. The carpool by then likely includes: `flavorAxes` for the remaining non-sandbox countries (see Built: ingredients redesign), per-dish `keySpices` + dominant flavor axis (#4, #7, per-dish match, the shipped at-the-restaurant scoring), and optionally dish twins (#1) + why-dish-exists (#19). One pass per country instead of five separate runs; generation prompt carries the no-em-dash rule (#10). Cost estimate before launching. **Region gap logged 2026-08-23 (measured, not estimated).** Three of the 31 countries — **Ethiopia, Japan and Peru** — carry no `regionalVariations` at all, so they render no map and no Region lens (the page is behaving correctly; the data isn't there). The map config itself is complete: every one of the other 28 countries has an ISO numeric code, a projection, and a coordinate for **every** region, so nothing falls back to the button grid. Each of the three needs 4–6 regions with a name, a description, and `keyIngredients` specific enough for `regionFingerprint()` to derive chips from. Pair this with the other half of the same problem: dishes whose `regionalOrigin` is missing or doesn't match a region's own vocabulary, which is why Brazil's Gaúcho Country and three Mexican regions render empty (#2 leftover, #24). The batch prompt should write regions and dish origins **together**, so origins use the region names as written. | Content batch (~30 agents) |
 
 ### Foundation
 
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
+| 26 | **Move the filter button** | Added 2026-08-23 from notes, **needs one clarification before it can be built**: whether this means the ⚙ on the country page (icon-only with a count badge as of 2026-08-21) or a control in the at-the-restaurant view. If it's the ⚙ this likely folds into #27 rather than standing alone, since both are about where controls sit on a phone. | XS once scoped |
 | 24 | **Focused region with no dishes still shows nothing** | Added 2026-08-21 from Brazil (`/country/BR?region=gaucho-country`). Focusing Gaúcho Country renders the empty-state card — "Nothing matches these filters. / Clear filters" — and no region description at all, even though the region has one. **Diagnosed:** `nothingMatches = inFocus.length === 0` in `pages/CountryDetail.tsx:202` short-circuits the whole list before `shownGroups` renders, and `shownGroups` is already written to keep an empty focused region (`:157`). So the fix is to make the empty state region-aware rather than page-wide: when a region is focused, still render its `DishSection` header, description, derived flavor chips and key ingredients, and put a smaller "No dishes recorded here yet" note *inside* it. **Why it matters:** the region description is the cultural payload of the region lens, and a region having no dishes in our data is exactly when the description is the only thing we have to offer. It also reads as broken — the copy blames filters when no filter is set. Related but separate: several regions have zero dishes because of missing `regionalOrigin` (#2 leftover, rides #9); this item is the code half and shouldn't wait for the content half. | S |
-| 10 | **Remove all em dashes from text** | Small UI copy fix (added 2026-08-05): sweep UI strings and the generated country/dish content for "—", replace with commas/periods/colons as reads best. Mostly a find-and-rewrite pass over `data/countries/*.ts` prose + component copy; add to the content-generation prompt guidelines so future batches don't reintroduce them. | S |
+| 10 | **Remove all em dashes from text** | Small UI copy fix (added 2026-08-05): sweep UI strings and the generated country/dish content for "—", replace with commas/periods/colons as reads best. Add to the content-generation prompt guidelines so future batches don't reintroduce them. **Split into two halves, 2026-08-23 (counted).** UI copy: **20 component/page files** — a quick sweep, do any time. Generated content: **453 occurrences across `data/countries/*.ts`** — this half should **ride the #9 batch**, because regenerating that prose reintroduces them unless the prompt forbids it, so hand-fixing 453 now is work we'd throw away. Do the UI half standalone; leave the data half to #9. | S (UI) / free with #9 (data) |
 
 ## Tier 3 — Later (bigger or lower-leverage)
 
