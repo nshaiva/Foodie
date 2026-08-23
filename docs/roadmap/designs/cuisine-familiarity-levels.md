@@ -69,13 +69,19 @@ risks.
 
 ## What the data actually holds today
 
-**449 dishes across 31 countries, averaging 14.5 each** (min 12, max 16). That
-is the entire dataset; there is no deeper bench sitting behind the UI.
+**294 dishes across 31 countries, averaging 9.5 each** (min 8, max 10), plus
+155 drinks — 449 items in total. That is the entire dataset; there is no deeper
+bench sitting behind the UI.
+
+*Corrected 2026-08-23: this section previously said "449 dishes, averaging
+14.5", which counted `popularDishes` and `popularBeverages` together. The real
+dish count is 294, so the content lift below is 9.5 → 30 per country, not
+14.5 → 30 — a bigger job than first stated.*
 
 This is the reason the feature can't be built yet. Ship the mechanism against
-today's content and "Off-menu" would reorder the same fifteen dishes — an
-advanced tier with nothing advanced in it. **This is a content problem before
-it is a UI problem.**
+today's content and "Off-menu" would reorder the same nine dishes — an advanced
+tier with nothing advanced in it. **This is a content problem before it is a UI
+problem.**
 
 ## Algorithm
 
@@ -161,9 +167,9 @@ classics — this is what regulars order."*
 
 1. **A per-dish `adventurousness: 1 | 2 | 3`.** The real signal. `popularity`
    is the interim proxy.
-2. **~15 additional dishes per country**, taking each to roughly 30: the
-   current ~15 gateway and everyday dishes plus ~15 regional or deeper ones.
-   This roughly doubles #9's content cost.
+2. **~20 additional dishes per country**, taking each from ~9.5 to roughly 30:
+   the current gateway and everyday set plus ~20 regional or deeper ones. That
+   is closer to tripling #9's dish content than doubling it.
 
 Write the extra dishes with `regionalOrigin` values that match each region's
 own vocabulary, so the same pass also fixes the empty regions (Brazil's Gaúcho

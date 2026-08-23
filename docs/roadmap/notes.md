@@ -17,3 +17,5 @@ what is vercel vite and supabase simply what is the tech stack here and explain 
 familiarity levels per cuisine: beginner sees fewer/basic dishes, advanced sees the nuanced ones — triaged 2026-08-23 as #29 (spec in docs/roadmap/designs/cuisine-familiarity-levels.md)
 
 mobile map: eight culinary regions, tap to zoom — SHIPPED 2026-08-23
+
+menu-item lookup: type what's on the menu, get a description back, optionally save it as a dish — 2026-08-23, reframes #3 (was custom-dish enrichment); un-defer recommended

@@ -1,5 +1,6 @@
 import { PlateDot } from '../Wordmark';
 import { UnifiedDishCard } from './UnifiedDishCard';
+import { ExpandableText } from '../ExpandableText';
 import { FavoriteButton } from '../FavoriteButton';
 import { WantToTryButton } from '../WantToTryButton';
 import { bevTypeChip, dessertChip, dietaryChips, popularityChip, servedChip, spiceChip } from '../dishChips';
@@ -95,7 +96,7 @@ export function EntryGrid({
               <h4 className="font-bold text-gray-900 pr-12 leading-tight">{dish.name}</h4>
               {dish.englishName && <p className="text-xs text-gray-400">{dish.englishName}</p>}
               <p className="text-xs text-gray-400 mb-1">{meta}</p>
-              <p className="text-sm text-gray-600 line-clamp-2">{dish.description}</p>
+              <ExpandableText text={dish.description} />
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {popularityChip(dish.popularity)}
                 {dessertChip(dish.category)}
@@ -121,7 +122,7 @@ export function EntryGrid({
               <h4 className="font-bold text-gray-900 pr-12 leading-tight">{drink.name}</h4>
               {drink.englishName && <p className="text-xs text-gray-400">{drink.englishName}</p>}
               <p className="text-xs text-gray-400 mb-1">{meta}</p>
-              <p className="text-sm text-gray-600 line-clamp-2">{drink.description}</p>
+              <ExpandableText text={drink.description} />
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {bevTypeChip(drink.type)}
                 {servedChip(drink.servedHow)}
