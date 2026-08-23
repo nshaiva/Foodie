@@ -1,12 +1,14 @@
 # Feature Priorities
 
-Ranked backlog + idea inbox, updated 2026-08-05. This is the single roadmap
+Ranked backlog + idea inbox, updated 2026-08-23. This is the single roadmap
 document (the old `features/icebox.md` was merged in). Ranking criteria:
 alignment with the **product thesis** (see CLAUDE.md) and impact on the core
 loop (**explore → log → taste profile → better exploration**) vs. build effort.
-New ideas land in the **Inbox** section at the bottom (via `/idea` or by hand)
-and get ranked into a tier during roadmap reviews. When a feature ships it
-moves to **Built** and the remaining items are renumbered in order.
+New ideas land in the **Inbox** section (via `/idea` or by hand) and get ranked
+into a tier during roadmap reviews. When a feature ships it moves to **Built**,
+which lives at the **bottom of this file** so the open work is what you see
+first. Longer specs for un-built features live in `designs/`; specs for shipped
+ones in `implemented/`.
 
 Items within each tier are grouped by the goal they serve:
 
@@ -17,6 +19,125 @@ Items within each tier are grouped by the goal they serve:
 | **G3 ✦ Know my own palate** | *Tertiary* — flavor fingerprint, spice affinity, self-knowledge |
 | **G4 📖 Cultural depth** | *Quaternary* — history, customs, regions beyond the plate |
 | **Foundation** | Serves the app itself (polish, infra) rather than one goal |
+
+---
+
+## Tier 2 — Next (the good medium-sized ones)
+
+### G1 🍽 Order & learn at the table
+
+| # | Feature | Why | Effort |
+|---|---------|-----|--------|
+| 27 | **At-the-restaurant: mobile-first grouping + UI quick wins** | Added 2026-08-23 from notes. This is the **primary thesis surface** — the "I'm at a table and don't know what to order" moment, which by definition happens on a phone — and it's the only item on the current list that serves the primary goal rather than a secondary one. Nikita's note: "should group some things w the mobile first view". **Tension to decide before building:** the mobile audit (#8) is deliberately held to the MVP gate so surfaces aren't polished twice. Recommendation is a **scoped exception for this one view** and nothing else, because this is the single screen where being bad on a phone means the app fails at its main job. Needs a look together at what "group some things" should mean — likely the order list, since that's what you scan under table pressure. Possibly absorbs #26. | S–M |
+| 29 | **Cuisine familiarity levels (First plate · Second helping · Off-menu)** | Added 2026-08-23 from Nikita. What you're offered depends on how well you already know a cuisine: new to it means **fewer**, more fundamental options (an unfamiliar menu is too much choice, not too little); familiar means a wider spread across regions; deep in it means the nuanced dishes first. Level is **per country, never global**. Earned from behaviour (`countryDishProgress()` plus spread across regions/categories) and cold-started by **#5**'s declared familiarity, which also overrides it permanently — build the two together. Nothing is hidden: the list gets shorter and reorders, with a one-tap "show everything". **Decided 2026-08-23:** (a) names are food-native rather than beginner/advanced, which would rank the eater; (b) **#9 expands to ~30 dishes per country** so the deep tier has something deep in it. **Blocked on content, not code** — there are only 449 dishes total, ~14.5 per country, and that *is* the whole dataset, so shipping the mechanism today would reorder the same 15 dishes. **Food only (2026-08-23):** drinks never truncate — there are exactly 5 per country (155 total), already fewer than a First plate food list, and drink familiarity doesn't track food familiarity. **Setting the level:** logged dishes are the truth; the seed is **already collected** — the survey deck offers 2 dishes per country and "🤔 Haven't tried it" is a distinct answer, so `foodie-taste-survey` records per-country familiarity today with no new question; and a per-country manual override (`foodie-cuisine-level`, add to `syncKeys.ts`) always wins and is never recalculated away. Onboarding questions and favorites-derived levels were considered and rejected — see the spec. Full spec: [`designs/cuisine-familiarity-levels.md`](designs/cuisine-familiarity-levels.md). | M (mechanism) + gated on #9 (content) |
+
+### G2 🗺 Track & explore world cuisines
+
+| # | Feature | Why | Effort |
+|---|---------|-----|--------|
+| 28 | **Search and filter countries on the home page, with scroll-to** | Added 2026-08-23 from notes: "filter and search countries in map or grid view and it scrolls to that region of the page // or filter by region". A search box over the home grid *and* the map, plus picking a continent scrolling to that section. The scroll target already exists — `Home.tsx` builds `continentGroups` and renders one `<section>` per continent, so this is a ref per section plus `scrollIntoView`, the same pattern the `CuisineTeaser` already uses to reach the flavor disclosure. Serves G2 exploration (where cuisines sit in the world, what I haven't tried), which is why it ranks behind #27: it helps browsing, not ordering. Note the home map is desktop-only today, so the search box has to work in grid view on a phone. | M |
+| 1 | **Dish twins** | "Khachapuri is Georgia's answer to pizza" — pre-generatable content (rides the #9 batch), great for discovery; pairs with similar-cuisines section. | M (mostly content) |
+| 2 | ~~**Dish ↔ region cross-linking**~~ — **shipped 2026-08-21** as the unified country page (see Built). What remains is content, not code: **9 of Mexico's 13 items carry no `regionalOrigin` at all**, so three MX regions render empty and 9 dishes land in "Across Mexico". Ireland has one unmatched origin ("Rural west and north"). Both ride the #9 batch — add `regionalOrigin` to every dish and prefer names that match a region's own vocabulary. | Content |
+
+### G3 ✦ Know my own palate
+
+| # | Feature | Why | Effort |
+|---|---------|-----|--------|
+| 3 | **Custom-dish AI enrichment (Claude API)** — ⏸ **deferred to post-MVP (2026-08-20)** | Moved out of the active Tier 2 queue: it's an input-side nicety, while #2 dish↔region is core-loop. Number kept rather than renumbered so the `#N` references scattered through this file stay valid. **Hosting note (2026-08-20):** the "Vercel serverless proxy" assumption below is superseded — the proxy doesn't have to live where the app is hosted, and Cloudflare AI Gateway gives rate limiting, caching, and analytics as config rather than hand-written code. Revisit host choice at build time; if Supabase is already in place by then, its Edge Functions avoid adding a third vendor. Original notes: From notes: auto-populate description/traits/spice when adding a custom dish — richer data feeding the palate profile. **Discussed 2026-08-05:** cost is a non-issue at personal scale (~$0.002/dish with Haiku ≈ $0.60/mo at 10/day; Haiku is sufficient for this task). Build v1 as **bring-your-own-key** (Nikita pastes her key in a settings panel, stored in localStorage, browser-direct calls) with a simple daily counter as a runaway-bug guard only. **If the app is published publicly:** move the key into a Vercel serverless proxy with per-visitor daily caps + a global monthly budget kill-switch + locked-down prompt shape; optionally keep BYO-key as the unlimited tier. Prompt/UI unchanged either way — only where the key lives. | M |
+| 4 | **Personal spice affinity map** | Added 2026-08-05 from discussion. Which spices is Nikita actually drawn to, beyond the 6-axis flavor profile? **Plan:** (1) pre-generate `keySpices` per dish for all ~300 dishes — rides in the consolidated MVP-gate content batch (#9); (2) normalize into a curated ontology of ~15 spice families (chiles, warm spices, alliums, souring agents, fermented, herbs…); (3) score with **cross-cuisine repetition** (a spice recurring in loved dishes across unrelated cuisines = real signal) + **frequency weighting** (TF-IDF-style — distinctive spices score, garlic doesn't); survey answers count as signal too; (4) visualize as a D3 force layout — spice families as clusters, bubbles sized by affinity. **Research task at build time:** spice science — terpenes / shared aroma-compound data (food-pairing theory) to draw connections *between* spices ("you like citrusy terpenes: coriander, lemongrass, sichuan pepper share them"). Needs ~15–20 rated dishes before patterns beat noise. Supersedes the personal half of #18. | M–L |
+| 5 | **Survey familiarity weighting** | Moved from Tier 1 to bottom of Tier 2 (2026-08-05). Nikita's trust issue: "I know Indian food better so I could be more picky." **Decided: direct question.** First time a country appears in the survey, ask "How well do you know this cuisine?" (barely / somewhat / very well) → stored per country (`foodie-cuisine-familiarity`), scales that country's answer weights (~0.5× / 1× / 1.5×) in the profile hook. Asked once per country, pre-filled on retake. Later option: show familiarity as confidence/opacity on the radar. **Linked to #29 (2026-08-23):** this declared familiarity is #29's cold start *and* its permanent override — being told you're a beginner at a cuisine you grew up with is the main way that feature insults someone. Build the two together rather than shipping two independent notions of familiarity. | M |
+| 6 | **Edit taste-survey answers** | Added 2026-08-05, ranked near the end of Tier 2. An easy place to review and change past survey answers (Love/Like/Nope per dish) instead of only retaking the deck. Likely a list view inside the Taste Profile slide-over: answered dishes grouped by country, tap to flip the sentiment or clear it. Pairs naturally with #5 (familiarity weighting), which also lives in survey answers — consider building the two together. | S |
+| 7 | **Card plate dots → dominant-flavor colors** | Added 2026-08-05, end of Tier 2 by design. Evolve the shipped plate dots: the dot on each dish/drink card stops encoding *category* and instead takes the color of the dish's **dominant flavor axis** (heat, acidity, sweet, umami, aromatic, smoke/earth — the same fixed axis colors as the Flavor tab's build view, matrix, and radar, from `flavorAxisMeta.ts`). One color language across the whole country page: glance at a card, know what the dish mostly tastes like. **Prereq:** per-dish dominant-axis data — falls out of the #9 content batch, so build after it runs. Category colors (`categoryMeta.ts`) are the interim; category info stays in the card's meta line. **Revised 2026-08-21 (Nikita): check whether per-dish flavor data is overkill before committing to it.** Dissecting six axes for every one of ~300 dishes is the expensive path and probably not necessary for a dot. Explore cheaper sources first, in order: (a) the dish's existing `keyTraits` — a hand-written trait→axis table over the ~40 distinct traits in the data, one table instead of 300 judgments; (b) the dish's **region** fingerprint via `regionFingerprint()` in `dishRegion.ts`, which already derives axes from `keyIngredients` and which the region chips use today, so dishes inherit their region's dominant axis for free; (c) the country's `flavorIntensity` as the floor. Measured during the prototype: the `keyTraits → ingredient → axis` bridge resolves only 5 of 10 CN dishes on its own because traits like "crispy skin" and "soup-filled" name techniques rather than ingredients — so (a) alone is not enough, but (a) falling back to (b) may well be. Spend a session measuring coverage of the cascade across MX/CN/IE before adding a single field to the content batch. Only if coverage stays poor does this need per-dish data from #9. | S (cascade) / S once #9 data exists |
+
+### Foundation — MVP gate (do last in Tier 2)
+
+| # | Feature | Why | Effort |
+|---|---------|-----|--------|
+| 8 | **Mobile audit** | Moved from Tier 1 (2026-08-05): UI is still churning heavily, so a full audit now would be redone feature by feature. **Decided: run once as the MVP gate** — after all other Tier 2 features are built. Pass over the key surfaces — country page (all 3 tabs), Eat & Drink cards + filters, taste survey, profile slide-over, at-the-restaurant view — and make each genuinely good on a phone (touch targets, layout, no hover-dependent affordances). The home map stays desktop-only (grid view covers mobile). Interim rule: build new features mobile-aware so this is a polish pass, not a rebuild. | M |
+| 9 | **Full-country content batch (30 countries)** | Added 2026-08-05. **Decided: don't generate for all countries until the schemas/UI stop moving** — iterate on the sandbox trio, Mexico + China + Ireland (hand-mapped), only, then run one consolidated batch at the MVP gate, alongside the mobile audit. The carpool by then likely includes: `flavorAxes` for the remaining non-sandbox countries (see Built: ingredients redesign), per-dish `keySpices` + dominant flavor axis (#4, #7, per-dish match, the shipped at-the-restaurant scoring), and optionally dish twins (#1) + why-dish-exists (#19). One pass per country instead of five separate runs; generation prompt carries the no-em-dash rule (#10). Cost estimate before launching. **Region gap logged 2026-08-23 (measured, not estimated).** Three of the 31 countries — **Ethiopia, Japan and Peru** — carry no `regionalVariations` at all, so they render no map and no Region lens (the page is behaving correctly; the data isn't there). The map config itself is complete: every one of the other 28 countries has an ISO numeric code, a projection, and a coordinate for **every** region, so nothing falls back to the button grid. Each of the three needs 4–6 regions with a name, a description, and `keyIngredients` specific enough for `regionFingerprint()` to derive chips from. Pair this with the other half of the same problem: dishes whose `regionalOrigin` is missing or doesn't match a region's own vocabulary, which is why Brazil's Gaúcho Country and three Mexican regions render empty (#2 leftover, #24). The batch prompt should write regions and dish origins **together**, so origins use the region names as written. **Scope increase for #29 (2026-08-23):** take each country from ~15 dishes to **~30** — the current gateway/everyday set plus ~15 regional or deeper dishes — and add a per-dish `adventurousness: 1 | 2 | 3`. Roughly doubles the content cost of this batch. Writing those extra dishes with `regionalOrigin` values that match each region's own vocabulary fixes the region gap above in the same pass. | Content batch (~30 agents) |
+
+### Foundation
+
+| # | Feature | Why | Effort |
+|---|---------|-----|--------|
+| 24 | **Focused region with no dishes still shows nothing** | Added 2026-08-21 from Brazil (`/country/BR?region=gaucho-country`). Focusing Gaúcho Country renders the empty-state card — "Nothing matches these filters. / Clear filters" — and no region description at all, even though the region has one. **Diagnosed:** `nothingMatches = inFocus.length === 0` in `pages/CountryDetail.tsx:202` short-circuits the whole list before `shownGroups` renders, and `shownGroups` is already written to keep an empty focused region (`:157`). So the fix is to make the empty state region-aware rather than page-wide: when a region is focused, still render its `DishSection` header, description, derived flavor chips and key ingredients, and put a smaller "No dishes recorded here yet" note *inside* it. **Why it matters:** the region description is the cultural payload of the region lens, and a region having no dishes in our data is exactly when the description is the only thing we have to offer. It also reads as broken — the copy blames filters when no filter is set. Related but separate: several regions have zero dishes because of missing `regionalOrigin` (#2 leftover, rides #9); this item is the code half and shouldn't wait for the content half. | S |
+| 10 | **Remove all em dashes from text** | Small UI copy fix (added 2026-08-05): sweep UI strings and the generated country/dish content for "—", replace with commas/periods/colons as reads best. Add to the content-generation prompt guidelines so future batches don't reintroduce them. **Split into two halves, 2026-08-23 (counted).** UI copy: **20 component/page files** — a quick sweep, do any time. Generated content: **453 occurrences across `data/countries/*.ts`** — this half should **ride the #9 batch**, because regenerating that prose reintroduces them unless the prompt forbids it, so hand-fixing 453 now is work we'd throw away. Do the UI half standalone; leave the data half to #9. | S (UI) / free with #9 (data) |
+
+## Tier 3 — Later (bigger or lower-leverage)
+
+### G1 🍽 Order & learn at the table
+
+| # | Feature | Notes |
+|---|---------|-------|
+| 11 | **Personalized dish recommendations** | "6–8 dishes per country for you" + "what should I try next?" — both icebox recommendation ideas, one engine; the delivery surface — the at-the-restaurant view — is shipped (see Built). Survey + profile may already cover 80% of the input side. The conversational **Food Preference Discovery** (Claude interview about textures, ingredients, aversions) is the deluxe input path — evaluate after familiarity weighting (#5) ships. |
+
+### G2 🗺 Track & explore world cuisines
+
+| # | Feature | Notes |
+|---|---------|-------|
+| 12 | **Cuisine passport / badges / streaks** | Confirmed Tier 3 (2026-08-05): gamification isn't relevant right now — progress plates (shipped, see Built) cover the satisfying part. Revisit after plates ship, and skeptically (streaks punish normal eating habits in a personal diary). |
+| 13 | **City-level data** | Restaurants by city, not just country. De-prioritized further since the standalone Restaurants section was cut. |
+| 14 | **Log-from-map flow** | Demoted from Tier 2 (2026-08-05): the Eat & Drink "+ I tried this" flow is already fast, so the saved friction is ~2 clicks — possibly icebox material. Cheap alternative worth doing instead someday: deep-link the map hover card straight to the Eat & Drink tab. |
+
+### G3 ✦ Know my own palate
+
+| # | Feature | Notes |
+|---|---------|-------|
+| 15 | **Stats dashboard / annual recap** | Fun once there's more logged data. Folds in icebox items: rating distribution ("tough critic or generous rater?"), exploration trends graph, food-journey heat map. Natural trigger: build the recap in **December** with a year of data. |
+| 16 | **Ingredient discovery** | Track new-to-you ingredients encountered as you log. Needs an ingredient⇄dish mapping to be meaningful — the #4 `keySpices` data is a head start. |
+| 17 | **Shareable taste-profile cards** | Added 2026-08-05. Quick shareable link (or image) rendering a pretty visual card: "my favorite dishes in this cuisine," "my taste profile + favorite countries," etc. One-way share-out of data the app already has (favorites, verdict ratings, flavor radar) — no accounts, feeds, or two-way anything, which is how it stays on the right side of the social/sharing non-goal in the thesis. Link form needs somewhere for data to live (#22 Supabase) or state encoded in the URL; a rendered-image export could ship without either. |
+
+### G4 📖 Cultural depth
+
+| # | Feature | Notes |
+|---|---------|-------|
+| 18 | **Regional flavor profiles + cross-region similarity** | Group each region's key spices into a categorized flavor profile, and "this region tastes like {other country}'s {region}". Deepens Culture & Regions; content-heavy (5 regions × 30 countries). The *personal* spice-preference half moved up to #4; what remains here is the static regional content. |
+| 19 | **"Why this dish exists"** | Moved from Tier 2 (2026-08-05). Historical/cultural context snippet per dish — same pre-generated-content pipeline as dish twins (#1) and the spice data for #4; rides the #9 batch nearly free. |
+
+### Foundation
+
+| # | Feature | Notes |
+|---|---------|-------|
+| 20 | **Custom collections & tags** | Organization power tools; wait for logging volume. |
+| 21 | **Seasonal highlights, meal companions** | Nice-to-haves. (Pronunciation lives in the shipped at-the-restaurant view, where it actually matters.) |
+| 22 | **Normalized sync tables / mobile app** | Scope reduced 2026-08-20: magic-link auth and whole-profile sync **shipped** (see Built), so multi-device already works. What remains is (a) per-entity Postgres tables replacing the single JSON blob, which buys real conflict resolution instead of last-write-wins and is the hard prereq for #23's cross-user aggregation, and (b) the React Native app. Neither is worth doing until the blob's last-write-wins actually bites or a second user exists. |
+| 23 | **Revenue model: menu-insight data for restaurants** | Added 2026-08-05. The long-term business case: aggregate flavor fingerprints + dish ratings across cuisines into recommendation data ("diners with X palate love Y dishes"), sellable to restaurants deciding what to put on their menus. Hard prereqs: multi-user product with real scale (depends on #22 Supabase + public launch), and a privacy/consent model since it monetizes user data — aggregate/anonymized only. Nothing to build now; it's a lens for keeping the rating + fingerprint data structured and aggregatable as those systems evolve. |
+
+---
+
+## Inbox (unranked)
+
+Quick captures land here; ranked into tiers during roadmap reviews.
+
+- **Wishlist map layer** — third layer for the home map toggle (Explored / Flavor Match / **Wishlist**): countries shaded by how many want-to-try dishes you've bookmarked there. The layer plumbing already exists from flavor match. (G2)
+- **Trip mode** — "I'm going to Tokyo" → must-try list + Google Maps export. Iceboxed 2026-08-05: Nikita isn't sold on the idea. Revisit only if a real trip makes it feel worth it. (G1)
+- **Explored map depth gradient** — replace the flat purple "Dishes Logged" fill with a single-hue ramp (pale lavender → deep violet) by dish count; sage stays categorical for available-but-untouched. Reuses the Flavor Match ramp infra (`lerpHex`, domain stretching, gradient legend bar) and `dishCount` from `useCountryActivity`. Raw count first; coverage-based depth (logged ÷ available dishes) as a later refinement. (G2)
+- **Per-dish/drink flavor match** — map the personal flavor profile down to individual foods and drinks: a taste-match indicator on each dish/drink card ("87% you"). Needs per-dish flavor data richer than spiceLevel — the `keySpices` generation in the #9 batch is the likely input; also the scoring ingredient for the shipped at-the-restaurant view and personalized recs (#11), so it may get built as part of those. (G1/G3)
+
+---
+
+## Suggested next session
+
+Updated 2026-08-23, replacing a stale entry that still described #2 as unbuilt
+and cloud sync as inert. Both shipped.
+
+**#27, the at-the-restaurant mobile pass**, is the live thread — the only open
+item serving the primary thesis. One decision is owed before it starts: whether
+to make it a scoped exception to #8, which deliberately holds the mobile audit
+to the MVP gate. It can now reuse the chip rail from #26.
+
+**#9 is quietly the largest item on the board** and should be costed before it
+runs. It now owes: regions for Ethiopia, Japan and Peru; `regionalOrigin` fixes
+for the regions that render empty; ~15 additional dishes per country (#29); a
+per-dish `adventurousness` field (#29); `keySpices` (#4); and the no-em-dash
+rule (#10).
+
+Mexico, China, and Ireland remain the sandbox for all data changes until that
+batch. Natural calendar trigger elsewhere: build the annual recap half of #15
+in **December**, when a year of data makes it fun.
+
+Unverified on a real phone: whether the filter rail's edge fade reads as
+"scroll for more", and whether map bubble taps still register while zoomed.
 
 ---
 
@@ -185,115 +306,3 @@ at Tier 2.
 - Earlier, unnumbered: flavor-match map layer (G2), taste survey (G3), cuisine
   similarity section (G2), verdict rating model (Foundation), drinks section
   (G1), hover system (Foundation), 30-country data set (Foundation).
-
----
-
-## Tier 2 — Next (the good medium-sized ones)
-
-### G1 🍽 Order & learn at the table
-
-| # | Feature | Why | Effort |
-|---|---------|-----|--------|
-| 27 | **At-the-restaurant: mobile-first grouping + UI quick wins** | Added 2026-08-23 from notes. This is the **primary thesis surface** — the "I'm at a table and don't know what to order" moment, which by definition happens on a phone — and it's the only item on the current list that serves the primary goal rather than a secondary one. Nikita's note: "should group some things w the mobile first view". **Tension to decide before building:** the mobile audit (#8) is deliberately held to the MVP gate so surfaces aren't polished twice. Recommendation is a **scoped exception for this one view** and nothing else, because this is the single screen where being bad on a phone means the app fails at its main job. Needs a look together at what "group some things" should mean — likely the order list, since that's what you scan under table pressure. Possibly absorbs #26. | S–M |
-| 29 | **Cuisine familiarity levels (First plate · Second helping · Off-menu)** | Added 2026-08-23 from Nikita. What you're offered depends on how well you already know a cuisine: new to it means **fewer**, more fundamental options (an unfamiliar menu is too much choice, not too little); familiar means a wider spread across regions; deep in it means the nuanced dishes first. Level is **per country, never global**. Earned from behaviour (`countryDishProgress()` plus spread across regions/categories) and cold-started by **#5**'s declared familiarity, which also overrides it permanently — build the two together. Nothing is hidden: the list gets shorter and reorders, with a one-tap "show everything". **Decided 2026-08-23:** (a) names are food-native rather than beginner/advanced, which would rank the eater; (b) **#9 expands to ~30 dishes per country** so the deep tier has something deep in it. **Blocked on content, not code** — there are only 449 dishes total, ~14.5 per country, and that *is* the whole dataset, so shipping the mechanism today would reorder the same 15 dishes. **Food only (2026-08-23):** drinks never truncate — there are exactly 5 per country (155 total), already fewer than a First plate food list, and drink familiarity doesn't track food familiarity. **Setting the level:** logged dishes are the truth; the seed is **already collected** — the survey deck offers 2 dishes per country and "🤔 Haven't tried it" is a distinct answer, so `foodie-taste-survey` records per-country familiarity today with no new question; and a per-country manual override (`foodie-cuisine-level`, add to `syncKeys.ts`) always wins and is never recalculated away. Onboarding questions and favorites-derived levels were considered and rejected — see the spec. Full spec: [`designs/cuisine-familiarity-levels.md`](designs/cuisine-familiarity-levels.md). | M (mechanism) + gated on #9 (content) |
-
-### G2 🗺 Track & explore world cuisines
-
-| # | Feature | Why | Effort |
-|---|---------|-----|--------|
-| 28 | **Search and filter countries on the home page, with scroll-to** | Added 2026-08-23 from notes: "filter and search countries in map or grid view and it scrolls to that region of the page // or filter by region". A search box over the home grid *and* the map, plus picking a continent scrolling to that section. The scroll target already exists — `Home.tsx` builds `continentGroups` and renders one `<section>` per continent, so this is a ref per section plus `scrollIntoView`, the same pattern the `CuisineTeaser` already uses to reach the flavor disclosure. Serves G2 exploration (where cuisines sit in the world, what I haven't tried), which is why it ranks behind #27: it helps browsing, not ordering. Note the home map is desktop-only today, so the search box has to work in grid view on a phone. | M |
-| 1 | **Dish twins** | "Khachapuri is Georgia's answer to pizza" — pre-generatable content (rides the #9 batch), great for discovery; pairs with similar-cuisines section. | M (mostly content) |
-| 2 | ~~**Dish ↔ region cross-linking**~~ — **shipped 2026-08-21** as the unified country page (see Built). What remains is content, not code: **9 of Mexico's 13 items carry no `regionalOrigin` at all**, so three MX regions render empty and 9 dishes land in "Across Mexico". Ireland has one unmatched origin ("Rural west and north"). Both ride the #9 batch — add `regionalOrigin` to every dish and prefer names that match a region's own vocabulary. | Content |
-
-### G3 ✦ Know my own palate
-
-| # | Feature | Why | Effort |
-|---|---------|-----|--------|
-| 3 | **Custom-dish AI enrichment (Claude API)** — ⏸ **deferred to post-MVP (2026-08-20)** | Moved out of the active Tier 2 queue: it's an input-side nicety, while #2 dish↔region is core-loop. Number kept rather than renumbered so the `#N` references scattered through this file stay valid. **Hosting note (2026-08-20):** the "Vercel serverless proxy" assumption below is superseded — the proxy doesn't have to live where the app is hosted, and Cloudflare AI Gateway gives rate limiting, caching, and analytics as config rather than hand-written code. Revisit host choice at build time; if Supabase is already in place by then, its Edge Functions avoid adding a third vendor. Original notes: From notes: auto-populate description/traits/spice when adding a custom dish — richer data feeding the palate profile. **Discussed 2026-08-05:** cost is a non-issue at personal scale (~$0.002/dish with Haiku ≈ $0.60/mo at 10/day; Haiku is sufficient for this task). Build v1 as **bring-your-own-key** (Nikita pastes her key in a settings panel, stored in localStorage, browser-direct calls) with a simple daily counter as a runaway-bug guard only. **If the app is published publicly:** move the key into a Vercel serverless proxy with per-visitor daily caps + a global monthly budget kill-switch + locked-down prompt shape; optionally keep BYO-key as the unlimited tier. Prompt/UI unchanged either way — only where the key lives. | M |
-| 4 | **Personal spice affinity map** | Added 2026-08-05 from discussion. Which spices is Nikita actually drawn to, beyond the 6-axis flavor profile? **Plan:** (1) pre-generate `keySpices` per dish for all ~300 dishes — rides in the consolidated MVP-gate content batch (#9); (2) normalize into a curated ontology of ~15 spice families (chiles, warm spices, alliums, souring agents, fermented, herbs…); (3) score with **cross-cuisine repetition** (a spice recurring in loved dishes across unrelated cuisines = real signal) + **frequency weighting** (TF-IDF-style — distinctive spices score, garlic doesn't); survey answers count as signal too; (4) visualize as a D3 force layout — spice families as clusters, bubbles sized by affinity. **Research task at build time:** spice science — terpenes / shared aroma-compound data (food-pairing theory) to draw connections *between* spices ("you like citrusy terpenes: coriander, lemongrass, sichuan pepper share them"). Needs ~15–20 rated dishes before patterns beat noise. Supersedes the personal half of #18. | M–L |
-| 5 | **Survey familiarity weighting** | Moved from Tier 1 to bottom of Tier 2 (2026-08-05). Nikita's trust issue: "I know Indian food better so I could be more picky." **Decided: direct question.** First time a country appears in the survey, ask "How well do you know this cuisine?" (barely / somewhat / very well) → stored per country (`foodie-cuisine-familiarity`), scales that country's answer weights (~0.5× / 1× / 1.5×) in the profile hook. Asked once per country, pre-filled on retake. Later option: show familiarity as confidence/opacity on the radar. **Linked to #29 (2026-08-23):** this declared familiarity is #29's cold start *and* its permanent override — being told you're a beginner at a cuisine you grew up with is the main way that feature insults someone. Build the two together rather than shipping two independent notions of familiarity. | M |
-| 6 | **Edit taste-survey answers** | Added 2026-08-05, ranked near the end of Tier 2. An easy place to review and change past survey answers (Love/Like/Nope per dish) instead of only retaking the deck. Likely a list view inside the Taste Profile slide-over: answered dishes grouped by country, tap to flip the sentiment or clear it. Pairs naturally with #5 (familiarity weighting), which also lives in survey answers — consider building the two together. | S |
-| 7 | **Card plate dots → dominant-flavor colors** | Added 2026-08-05, end of Tier 2 by design. Evolve the shipped plate dots: the dot on each dish/drink card stops encoding *category* and instead takes the color of the dish's **dominant flavor axis** (heat, acidity, sweet, umami, aromatic, smoke/earth — the same fixed axis colors as the Flavor tab's build view, matrix, and radar, from `flavorAxisMeta.ts`). One color language across the whole country page: glance at a card, know what the dish mostly tastes like. **Prereq:** per-dish dominant-axis data — falls out of the #9 content batch, so build after it runs. Category colors (`categoryMeta.ts`) are the interim; category info stays in the card's meta line. **Revised 2026-08-21 (Nikita): check whether per-dish flavor data is overkill before committing to it.** Dissecting six axes for every one of ~300 dishes is the expensive path and probably not necessary for a dot. Explore cheaper sources first, in order: (a) the dish's existing `keyTraits` — a hand-written trait→axis table over the ~40 distinct traits in the data, one table instead of 300 judgments; (b) the dish's **region** fingerprint via `regionFingerprint()` in `dishRegion.ts`, which already derives axes from `keyIngredients` and which the region chips use today, so dishes inherit their region's dominant axis for free; (c) the country's `flavorIntensity` as the floor. Measured during the prototype: the `keyTraits → ingredient → axis` bridge resolves only 5 of 10 CN dishes on its own because traits like "crispy skin" and "soup-filled" name techniques rather than ingredients — so (a) alone is not enough, but (a) falling back to (b) may well be. Spend a session measuring coverage of the cascade across MX/CN/IE before adding a single field to the content batch. Only if coverage stays poor does this need per-dish data from #9. | S (cascade) / S once #9 data exists |
-
-### Foundation — MVP gate (do last in Tier 2)
-
-| # | Feature | Why | Effort |
-|---|---------|-----|--------|
-| 8 | **Mobile audit** | Moved from Tier 1 (2026-08-05): UI is still churning heavily, so a full audit now would be redone feature by feature. **Decided: run once as the MVP gate** — after all other Tier 2 features are built. Pass over the key surfaces — country page (all 3 tabs), Eat & Drink cards + filters, taste survey, profile slide-over, at-the-restaurant view — and make each genuinely good on a phone (touch targets, layout, no hover-dependent affordances). The home map stays desktop-only (grid view covers mobile). Interim rule: build new features mobile-aware so this is a polish pass, not a rebuild. | M |
-| 9 | **Full-country content batch (30 countries)** | Added 2026-08-05. **Decided: don't generate for all countries until the schemas/UI stop moving** — iterate on the sandbox trio, Mexico + China + Ireland (hand-mapped), only, then run one consolidated batch at the MVP gate, alongside the mobile audit. The carpool by then likely includes: `flavorAxes` for the remaining non-sandbox countries (see Built: ingredients redesign), per-dish `keySpices` + dominant flavor axis (#4, #7, per-dish match, the shipped at-the-restaurant scoring), and optionally dish twins (#1) + why-dish-exists (#19). One pass per country instead of five separate runs; generation prompt carries the no-em-dash rule (#10). Cost estimate before launching. **Region gap logged 2026-08-23 (measured, not estimated).** Three of the 31 countries — **Ethiopia, Japan and Peru** — carry no `regionalVariations` at all, so they render no map and no Region lens (the page is behaving correctly; the data isn't there). The map config itself is complete: every one of the other 28 countries has an ISO numeric code, a projection, and a coordinate for **every** region, so nothing falls back to the button grid. Each of the three needs 4–6 regions with a name, a description, and `keyIngredients` specific enough for `regionFingerprint()` to derive chips from. Pair this with the other half of the same problem: dishes whose `regionalOrigin` is missing or doesn't match a region's own vocabulary, which is why Brazil's Gaúcho Country and three Mexican regions render empty (#2 leftover, #24). The batch prompt should write regions and dish origins **together**, so origins use the region names as written. **Scope increase for #29 (2026-08-23):** take each country from ~15 dishes to **~30** — the current gateway/everyday set plus ~15 regional or deeper dishes — and add a per-dish `adventurousness: 1 | 2 | 3`. Roughly doubles the content cost of this batch. Writing those extra dishes with `regionalOrigin` values that match each region's own vocabulary fixes the region gap above in the same pass. | Content batch (~30 agents) |
-
-### Foundation
-
-| # | Feature | Why | Effort |
-|---|---------|-----|--------|
-| 24 | **Focused region with no dishes still shows nothing** | Added 2026-08-21 from Brazil (`/country/BR?region=gaucho-country`). Focusing Gaúcho Country renders the empty-state card — "Nothing matches these filters. / Clear filters" — and no region description at all, even though the region has one. **Diagnosed:** `nothingMatches = inFocus.length === 0` in `pages/CountryDetail.tsx:202` short-circuits the whole list before `shownGroups` renders, and `shownGroups` is already written to keep an empty focused region (`:157`). So the fix is to make the empty state region-aware rather than page-wide: when a region is focused, still render its `DishSection` header, description, derived flavor chips and key ingredients, and put a smaller "No dishes recorded here yet" note *inside* it. **Why it matters:** the region description is the cultural payload of the region lens, and a region having no dishes in our data is exactly when the description is the only thing we have to offer. It also reads as broken — the copy blames filters when no filter is set. Related but separate: several regions have zero dishes because of missing `regionalOrigin` (#2 leftover, rides #9); this item is the code half and shouldn't wait for the content half. | S |
-| 10 | **Remove all em dashes from text** | Small UI copy fix (added 2026-08-05): sweep UI strings and the generated country/dish content for "—", replace with commas/periods/colons as reads best. Add to the content-generation prompt guidelines so future batches don't reintroduce them. **Split into two halves, 2026-08-23 (counted).** UI copy: **20 component/page files** — a quick sweep, do any time. Generated content: **453 occurrences across `data/countries/*.ts`** — this half should **ride the #9 batch**, because regenerating that prose reintroduces them unless the prompt forbids it, so hand-fixing 453 now is work we'd throw away. Do the UI half standalone; leave the data half to #9. | S (UI) / free with #9 (data) |
-
-## Tier 3 — Later (bigger or lower-leverage)
-
-### G1 🍽 Order & learn at the table
-
-| # | Feature | Notes |
-|---|---------|-------|
-| 11 | **Personalized dish recommendations** | "6–8 dishes per country for you" + "what should I try next?" — both icebox recommendation ideas, one engine; the delivery surface — the at-the-restaurant view — is shipped (see Built). Survey + profile may already cover 80% of the input side. The conversational **Food Preference Discovery** (Claude interview about textures, ingredients, aversions) is the deluxe input path — evaluate after familiarity weighting (#5) ships. |
-
-### G2 🗺 Track & explore world cuisines
-
-| # | Feature | Notes |
-|---|---------|-------|
-| 12 | **Cuisine passport / badges / streaks** | Confirmed Tier 3 (2026-08-05): gamification isn't relevant right now — progress plates (shipped, see Built) cover the satisfying part. Revisit after plates ship, and skeptically (streaks punish normal eating habits in a personal diary). |
-| 13 | **City-level data** | Restaurants by city, not just country. De-prioritized further since the standalone Restaurants section was cut. |
-| 14 | **Log-from-map flow** | Demoted from Tier 2 (2026-08-05): the Eat & Drink "+ I tried this" flow is already fast, so the saved friction is ~2 clicks — possibly icebox material. Cheap alternative worth doing instead someday: deep-link the map hover card straight to the Eat & Drink tab. |
-
-### G3 ✦ Know my own palate
-
-| # | Feature | Notes |
-|---|---------|-------|
-| 15 | **Stats dashboard / annual recap** | Fun once there's more logged data. Folds in icebox items: rating distribution ("tough critic or generous rater?"), exploration trends graph, food-journey heat map. Natural trigger: build the recap in **December** with a year of data. |
-| 16 | **Ingredient discovery** | Track new-to-you ingredients encountered as you log. Needs an ingredient⇄dish mapping to be meaningful — the #4 `keySpices` data is a head start. |
-| 17 | **Shareable taste-profile cards** | Added 2026-08-05. Quick shareable link (or image) rendering a pretty visual card: "my favorite dishes in this cuisine," "my taste profile + favorite countries," etc. One-way share-out of data the app already has (favorites, verdict ratings, flavor radar) — no accounts, feeds, or two-way anything, which is how it stays on the right side of the social/sharing non-goal in the thesis. Link form needs somewhere for data to live (#22 Supabase) or state encoded in the URL; a rendered-image export could ship without either. |
-
-### G4 📖 Cultural depth
-
-| # | Feature | Notes |
-|---|---------|-------|
-| 18 | **Regional flavor profiles + cross-region similarity** | Group each region's key spices into a categorized flavor profile, and "this region tastes like {other country}'s {region}". Deepens Culture & Regions; content-heavy (5 regions × 30 countries). The *personal* spice-preference half moved up to #4; what remains here is the static regional content. |
-| 19 | **"Why this dish exists"** | Moved from Tier 2 (2026-08-05). Historical/cultural context snippet per dish — same pre-generated-content pipeline as dish twins (#1) and the spice data for #4; rides the #9 batch nearly free. |
-
-### Foundation
-
-| # | Feature | Notes |
-|---|---------|-------|
-| 20 | **Custom collections & tags** | Organization power tools; wait for logging volume. |
-| 21 | **Seasonal highlights, meal companions** | Nice-to-haves. (Pronunciation lives in the shipped at-the-restaurant view, where it actually matters.) |
-| 22 | **Normalized sync tables / mobile app** | Scope reduced 2026-08-20: magic-link auth and whole-profile sync **shipped** (see Built), so multi-device already works. What remains is (a) per-entity Postgres tables replacing the single JSON blob, which buys real conflict resolution instead of last-write-wins and is the hard prereq for #23's cross-user aggregation, and (b) the React Native app. Neither is worth doing until the blob's last-write-wins actually bites or a second user exists. |
-| 23 | **Revenue model: menu-insight data for restaurants** | Added 2026-08-05. The long-term business case: aggregate flavor fingerprints + dish ratings across cuisines into recommendation data ("diners with X palate love Y dishes"), sellable to restaurants deciding what to put on their menus. Hard prereqs: multi-user product with real scale (depends on #22 Supabase + public launch), and a privacy/consent model since it monetizes user data — aggregate/anonymized only. Nothing to build now; it's a lens for keeping the rating + fingerprint data structured and aggregatable as those systems evolve. |
-
----
-
-## Inbox (unranked)
-
-Quick captures land here; ranked into tiers during roadmap reviews.
-
-- **Wishlist map layer** — third layer for the home map toggle (Explored / Flavor Match / **Wishlist**): countries shaded by how many want-to-try dishes you've bookmarked there. The layer plumbing already exists from flavor match. (G2)
-- **Trip mode** — "I'm going to Tokyo" → must-try list + Google Maps export. Iceboxed 2026-08-05: Nikita isn't sold on the idea. Revisit only if a real trip makes it feel worth it. (G1)
-- **Explored map depth gradient** — replace the flat purple "Dishes Logged" fill with a single-hue ramp (pale lavender → deep violet) by dish count; sage stays categorical for available-but-untouched. Reuses the Flavor Match ramp infra (`lerpHex`, domain stretching, gradient legend bar) and `dishCount` from `useCountryActivity`. Raw count first; coverage-based depth (logged ÷ available dishes) as a later refinement. (G2)
-- **Per-dish/drink flavor match** — map the personal flavor profile down to individual foods and drinks: a taste-match indicator on each dish/drink card ("87% you"). Needs per-dish flavor data richer than spiceLevel — the `keySpices` generation in the #9 batch is the likely input; also the scoring ingredient for the shipped at-the-restaurant view and personalized recs (#11), so it may get built as part of those. (G1/G3)
-
----
-
-## Suggested next session
-
-Tier 1 fully shipped (see Built). **#2 dish↔region cross-linking** is the live
-thread: the design pass is planned and approved (variants A/B/C plus a CN
-name-matching report) but the prototype isn't built yet — that's where to pick
-up. Note #3 AI enrichment moved to post-MVP on 2026-08-20 as an input-side
-nicety while #2 is core-loop.
-
-Mexico, China, and Ireland remain the sandbox for all data changes until the #9
-batch at the MVP gate. Natural calendar trigger elsewhere: build the annual
-recap half of #15 in **December**, when a year of data makes it fun.
-
-Open loop from the sync round: cloud sync is code-complete but inert until a
-Supabase project exists and its two env vars are set locally and on Vercel
-(`docs/supabase-setup.md`). Backup/restore works today without it.
