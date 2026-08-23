@@ -176,6 +176,16 @@ at Tier 2.
   leads to a section by that name, and tapping a region on a phone map doesn't
   land somewhere organised by a different idea. `CULINARY_REGIONS` is now the
   single source for how countries are grouped anywhere on the home page.
+  Also that day, from testing on a real phone: the map was cropped to drop
+  Antarctica (Mercator stretches the poles, so fitting it spent roughly a third
+  of the screen on ice — the frame now runs 63°S to 75°N and fills its
+  container), and **four "coming soon" regions were added** for the parts of the
+  world we hold no cuisines for: Canada & the North, Northern Europe, Russia &
+  Central Asia, Oceania. They're drawn and labelled but dimmed and not tappable,
+  and never appear as grid sections or jump chips. A map that silently omits
+  Canada and Russia reads as broken; one that labels them as gaps reads as
+  incomplete, which is the truth. `STOCKED_REGIONS` is the filtered list the
+  grid and chips use.
 - **Find a country on the home page** (2026-08-23, G2) — a search field and a
   rail of continent chips above the country grid. Search matches name, capital,
   continent and sub-region, so "west africa", "Dublin" and "Peru" all work, and

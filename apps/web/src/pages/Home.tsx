@@ -10,7 +10,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { RegionMap } from '../components/map/RegionMap';
-import { CULINARY_REGIONS } from '../data/culinaryRegions';
+import { STOCKED_REGIONS } from '../data/culinaryRegions';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TasteProfileButton } from '../components/TasteProfileButton';
 import { SignInButton } from '../components/SignInButton';
@@ -25,7 +25,7 @@ import { CountryFinder } from '../components/CountryFinder';
  * should lead to a section with that name, and tapping Asia on a phone map
  * shouldn't land somewhere organized by a different idea.
  */
-const regionGroups = CULINARY_REGIONS.map(region => [
+const regionGroups = STOCKED_REGIONS.map(region => [
   region.name,
   region.countryIds
     .map(id => countries.find(c => c.id === id))

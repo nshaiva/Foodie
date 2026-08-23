@@ -29,7 +29,14 @@ export interface CulinaryRegion {
   /** Projection when this region is focused. */
   zoom: { center: [number, number]; scale: number };
   /** Mean pairwise flavor distance among members; baseline for a random pair is 5.84. */
-  spread: number;
+  spread?: number;
+  /**
+   * A part of the world we hold no cuisines for yet. Drawn and labelled on the
+   * map so the gaps are visible rather than silently absent — a map that omits
+   * Canada and Russia reads as broken, not as incomplete. Never offered as a
+   * grid section or a jump chip, since there'd be nothing to jump to.
+   */
+  comingSoon?: true;
 }
 
 export const CULINARY_REGIONS: CulinaryRegion[] = [
@@ -97,7 +104,44 @@ export const CULINARY_REGIONS: CulinaryRegion[] = [
     zoom: { center: [111, 7], scale: 620 },
     spread: 5.27,
   },
+
+  // --- Not yet written. Present so the map tells the truth about its gaps. ---
+  {
+    id: 'north',
+    name: 'Canada & the North',
+    countryIds: [],
+    labelAt: [-100, 58],
+    zoom: { center: [-100, 58], scale: 320 },
+    comingSoon: true,
+  },
+  {
+    id: 'russia-central-asia',
+    name: 'Russia & Central Asia',
+    countryIds: [],
+    labelAt: [78, 58],
+    zoom: { center: [80, 58], scale: 300 },
+    comingSoon: true,
+  },
+  {
+    id: 'northern-europe',
+    name: 'Northern Europe',
+    countryIds: [],
+    labelAt: [14, 60],
+    zoom: { center: [14, 60], scale: 600 },
+    comingSoon: true,
+  },
+  {
+    id: 'oceania',
+    name: 'Oceania',
+    countryIds: [],
+    labelAt: [140, -25],
+    zoom: { center: [140, -25], scale: 420 },
+    comingSoon: true,
+  },
 ];
+
+/** The regions that actually hold cuisines — grid sections, jump chips. */
+export const STOCKED_REGIONS = CULINARY_REGIONS.filter(r => !r.comingSoon);
 
 /** Alpha-2 → region id. Countries outside the dataset simply aren't in here. */
 export const REGION_BY_COUNTRY: Record<string, string> = Object.fromEntries(

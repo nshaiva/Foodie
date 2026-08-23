@@ -3,7 +3,7 @@ import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps
 import { useNavigate } from 'react-router-dom';
 import { getAlpha2FromNumeric } from '../../data/countryGeoMapping';
 import { getCountryById } from '../../data/countries';
-import { CULINARY_REGIONS, REGION_BY_COUNTRY, getRegion } from '../../data/culinaryRegions';
+import { CULINARY_REGIONS, REGION_BY_COUNTRY, STOCKED_REGIONS, getRegion } from '../../data/culinaryRegions';
 import { useDishes } from '../../hooks/useDishes';
 import { useCountryActivity } from '../../hooks/useCountryActivity';
 import { countryDishProgress } from '../../utils/dishProgress';
@@ -12,7 +12,15 @@ import { countryMapConfig } from '../../data/regionMapConfig';
 import { systemColors } from '../../data/systemColors';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
-const WORLD = { center: [10, 18] as [number, number], scale: 105 };
+/**
+ * World framing. Mercator stretches the poles, so a projection that fits
+ * Antarctica wastes roughly a third of a phone screen on ice nobody is going
+ * to eat in. Centering at 18°N with this scale crops below about 55°S and
+ * above 78°N — everything inhabited stays, the ice goes.
+ */
+const WORLD = { center: [10, 18] as [number, number], scale: 135 };
+/** Viewport the projection is measured against; roughly the phone frame's shape. */
+const VB = { width: 800, height: 470 };
 
 /** Countries we hold no profile for: present, but clearly not the subject. */
 const OUTSIDE = '#EFEAE0';
@@ -42,7 +50,7 @@ export const RegionMap = memo(function RegionMap() {
 
   const depth = useMemo(() => {
     const out: Record<string, number> = {};
-    CULINARY_REGIONS.flatMap(r => r.countryIds).forEach(id => {
+    STOCKED_REGIONS.flatMap(r => r.countryIds).forEach(id => {
       const c = getCountryById(id);
       if (c) out[id] = countryDishProgress(c, dishes.filter(d => d.countryId === id)).percent;
     });
@@ -78,13 +86,15 @@ export const RegionMap = memo(function RegionMap() {
           {region ? region.name : 'Explore by region'}
         </span>
         <span className="ml-auto text-xs" style={{ color: systemColors.navyMuted }}>
-          {region ? `${region.countryIds.length} cuisines` : '8 regions'}
+          {region ? `${region.countryIds.length} cuisines` : `${STOCKED_REGIONS.length} regions`}
         </span>
       </div>
 
-      <div className="h-[22rem]" style={{ backgroundColor: systemColors.seaSalt }}>
+      <div className="h-[26rem] sm:h-[30rem]" style={{ backgroundColor: systemColors.seaSalt }}>
         <ComposableMap
           projection="geoMercator"
+          width={VB.width}
+          height={VB.height}
           projectionConfig={{ center: view.center, scale: view.scale }}
           style={{ width: '100%', height: '100%' }}
         >
@@ -128,7 +138,10 @@ export const RegionMap = memo(function RegionMap() {
           {!region &&
             CULINARY_REGIONS.map(r => (
               <Marker key={r.id} coordinates={r.labelAt}>
-                <g onClick={() => select(r.id)} style={{ cursor: 'pointer' }}>
+                <g
+                  onClick={() => !r.comingSoon && select(r.id)}
+                  style={{ cursor: r.comingSoon ? 'default' : 'pointer', opacity: r.comingSoon ? 0.5 : 1 }}
+                >
                   <text
                     textAnchor="middle"
                     y={-2}
@@ -145,7 +158,7 @@ export const RegionMap = memo(function RegionMap() {
                     stroke={systemColors.seaSalt}
                     strokeWidth={3}
                   >
-                    {r.countryIds.length} cuisines
+                    {r.comingSoon ? 'coming soon' : `${r.countryIds.length} cuisines`}
                   </text>
                 </g>
               </Marker>
