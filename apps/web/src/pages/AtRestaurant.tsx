@@ -12,6 +12,7 @@ import { shapeOrderList, matchesMenuSearch, DEFAULT_SHAPE } from '../utils/order
 import { Wordmark, PlateDot } from '../components/Wordmark';
 import { SignInButton } from '../components/SignInButton';
 import { UnifiedDishCard } from '../components/country-detail/UnifiedDishCard';
+import { ExpandableText } from '../components/ExpandableText';
 import { FavoriteButton } from '../components/FavoriteButton';
 import { WantToTryButton } from '../components/WantToTryButton';
 import { spiceChip, popularityChip, dietaryChips, dessertChip } from '../components/dishChips';
@@ -192,7 +193,9 @@ function OrderList({ countryId }: { countryId: string }) {
           </span>
         </div>
 
-        <p className="text-sm text-gray-600 mt-1.5 line-clamp-2">{dish.description}</p>
+        <div className="mt-1.5">
+          <ExpandableText text={dish.description} />
+        </div>
 
         <div className="flex flex-wrap gap-1.5 mt-2">
           {popularityChip(dish.popularity)}
@@ -288,7 +291,9 @@ function OrderList({ countryId }: { countryId: string }) {
                     <p className="text-xs" style={{ color: systemColors.navyMuted }}>{drink.englishName}</p>
                   )}
                 </div>
-                <p className="text-sm text-gray-600 mt-1 line-clamp-2">{drink.description}</p>
+                <div className="mt-1">
+                  <ExpandableText text={drink.description} />
+                </div>
               </UnifiedDishCard>
             ))}
           </div>
