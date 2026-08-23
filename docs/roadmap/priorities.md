@@ -146,6 +146,30 @@ Unverified on a real phone: whether the filter rail's edge fade reads as
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Region map on mobile** (2026-08-23, G2) — the phone has a map again. It
+  opens on **eight culinary regions**, not countries: 31 countries at 390px are
+  a few pixels each, so the top level is something a thumb can hit. Tap a region
+  and the projection zooms to it, its countries color by how much you've
+  explored them, and the rest of the world stays visible but recedes.
+  **The regions are grouped by flavor, not by landmass.** Measured across the
+  six flavor axes, a random pair of the 31 countries sits 5.84 apart; continents
+  score badly against that (Africa as one group is 6.48 — worse than random)
+  while all eight regions here beat it, the tightest being Morocco through the
+  Caucasus at 3.66. The Americas are discontiguous on purpose: USA + Brazil +
+  Argentina is the tightest cluster in the data at 2.31, but Mexico and the
+  Caribbean sit between them and are chile-forward, so they're their own region.
+  Working: `designs/flavor-geography.md`.
+  **Touch replaces hover.** The world map's preview card fires on
+  `onMouseEnter`, which is the real reason it was desktop-only — a phone tap
+  navigated away before you could read the dish counts. Here a tap *previews*
+  (name, how much explored) and only the Open button commits, so the first tap
+  tells you what's there and the second one takes you.
+  Desktop keeps the world map: its job is comparison, and the flavor-match
+  layer coloring all 31 at once only works when everything is visible together.
+  New `data/culinaryRegions.ts` (with a dev-time check that every country lands
+  in exactly one region) and `components/map/RegionMap.tsx`, reusing
+  `countryMapConfig` centers rather than a second coordinate table.
+  Prototype: `continent-region-map.html`.
 - **Find a country on the home page** (2026-08-23, G2) — a search field and a
   rail of continent chips above the country grid. Search matches name, capital,
   continent and sub-region, so "west africa", "Dublin" and "Peru" all work, and
