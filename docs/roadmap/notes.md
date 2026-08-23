@@ -13,3 +13,5 @@ grid and taste profile need hand icons — SHIPPED 2026-08-23 (one CSS rule in i
 
 
 what is vercel vite and supabase simply what is the tech stack here and explain simply 
+
+familiarity levels per cuisine: beginner sees fewer/basic dishes, advanced sees the nuanced ones — triaged 2026-08-23 as #29 (spec in docs/roadmap/designs/cuisine-familiarity-levels.md)
