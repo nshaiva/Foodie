@@ -3,10 +3,10 @@ import { systemColors } from '../data/systemColors';
 interface CountryFinderProps {
   query: string;
   onQueryChange: (value: string) => void;
-  /** Continent name → how many countries it holds, in display order. */
-  continents: readonly (readonly [string, number])[];
-  /** Scroll to a continent's section (or, from the map, go to the list first). */
-  onJumpTo: (continent: string) => void;
+  /** Region name → how many countries it holds, in display order. */
+  regions: readonly (readonly [string, number])[];
+  /** Scroll to a region's section (or, from the map, go to the list first). */
+  onJumpTo: (region: string) => void;
   /** How many countries the current query matches, for the result count. */
   matchCount: number;
   total: number;
@@ -15,22 +15,20 @@ interface CountryFinderProps {
 /**
  * Find a country: a search field and a rail of continent chips.
  *
- * The chips are a jump, not a filter. Filtering to one continent would hide the
+ * The chips are a jump, not a filter. Filtering to one region would hide the
  * rest of the world, which is the opposite of what a page about exploring
- * cuisines should do — so tapping a continent scrolls its section into view and
+ * cuisines should do — so tapping a region scrolls its section into view and
  * leaves everything else below it.
  *
- * This is also the phone's answer to having no world map. The map is desktop
- * only (its preview card is hover-driven, which a phone can't do, and 31
- * countries at 390px are a few pixels each), which cost the "where are these
- * cuisines in relation to each other" idea entirely on mobile. Continent chips
- * put that back in a form a thumb can use.
+ * The regions are the same eight the mobile map uses (`data/culinaryRegions.ts`)
+ * — grouped by flavor rather than by landmass — so the app names places one way
+ * everywhere.
  *
  * Uses the same `.chip-rail` treatment as the country page's filters: scrolls
  * sideways below `md`, wraps above it.
  */
 export function CountryFinder({
-  query, onQueryChange, continents, onJumpTo, matchCount, total,
+  query, onQueryChange, regions, onJumpTo, matchCount, total,
 }: CountryFinderProps) {
   const searching = query.trim() !== '';
 
@@ -57,11 +55,11 @@ export function CountryFinder({
       </div>
 
       {!searching && (
-        <div className="chip-rail flex gap-1.5 md:flex-wrap" role="group" aria-label="Jump to a continent">
-          {continents.map(([continent, count]) => (
+        <div className="chip-rail flex gap-1.5 md:flex-wrap" role="group" aria-label="Jump to a region">
+          {regions.map(([region, count]) => (
             <button
-              key={continent}
-              onClick={() => onJumpTo(continent)}
+              key={region}
+              onClick={() => onJumpTo(region)}
               className="flex-none text-xs font-semibold px-2.5 py-1 rounded-full border whitespace-nowrap transition-colors"
               style={{
                 backgroundColor: systemColors.surface,
@@ -69,7 +67,7 @@ export function CountryFinder({
                 color: systemColors.navyMuted,
               }}
             >
-              {continent}
+              {region}
               <span className="ml-1.5 tabular-nums" style={{ color: systemColors.navy }}>{count}</span>
             </button>
           ))}

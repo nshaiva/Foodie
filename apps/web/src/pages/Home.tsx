@@ -10,6 +10,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { WorldMap } from '../components/map/WorldMap';
 import { RegionMap } from '../components/map/RegionMap';
+import { CULINARY_REGIONS } from '../data/culinaryRegions';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TasteProfileButton } from '../components/TasteProfileButton';
 import { SignInButton } from '../components/SignInButton';
@@ -17,21 +18,23 @@ import { NextCountrySuggestions } from '../components/NextCountrySuggestions';
 import { WordmarkDot } from '../components/Wordmark';
 import { CountryFinder } from '../components/CountryFinder';
 
-// Static data: group once at module level, continents and countries both alphabetized
-const continentGroups = Object.entries(
-  countries.reduce<Record<string, typeof countries>>((acc, country) => {
-    (acc[country.continent] ??= []).push(country);
-    return acc;
-  }, {})
-)
-  .sort(([a], [b]) => a.localeCompare(b))
-  .map(([continent, group]) => [
-    continent,
-    [...group].sort((a, b) => a.name.localeCompare(b.name)),
-  ] as const);
+/**
+ * The grid is grouped by the same eight culinary regions the mobile map uses,
+ * in the order they're declared (west to east), not alphabetically by
+ * continent. One vocabulary across the app: a chip that says "Southeast Asia"
+ * should lead to a section with that name, and tapping Asia on a phone map
+ * shouldn't land somewhere organized by a different idea.
+ */
+const regionGroups = CULINARY_REGIONS.map(region => [
+  region.name,
+  region.countryIds
+    .map(id => countries.find(c => c.id === id))
+    .filter((c): c is (typeof countries)[number] => !!c)
+    .sort((a, b) => a.name.localeCompare(b.name)),
+] as const);
 
-const CONTINENT_COUNTS = continentGroups.map(
-  ([continent, group]) => [continent, group.length] as const
+const REGION_COUNTS = regionGroups.map(
+  ([name, group]) => [name, group.length] as const
 );
 
 /** Name, capital, continent and sub-region — the things people actually type. */
@@ -56,10 +59,10 @@ export function Home() {
   const effectiveView = searching ? 'grid' : viewMode;
 
   const visibleGroups = useMemo(() => {
-    if (!searching) return continentGroups;
+    if (!searching) return regionGroups;
     const q = query.trim().toLowerCase();
-    return continentGroups
-      .map(([continent, group]) => [continent, group.filter(c => matchesCountry(c, q))] as const)
+    return regionGroups
+      .map(([name, group]) => [name, group.filter(c => matchesCountry(c, q))] as const)
       .filter(([, group]) => group.length > 0);
   }, [query, searching]);
 
@@ -67,10 +70,10 @@ export function Home() {
 
   // Jumping from the map means leaving it first, otherwise there is no section
   // to scroll to. The ref is populated by the time the layout paints.
-  const jumpTo = (continent: string) => {
+  const jumpTo = (region: string) => {
     if (effectiveView === 'map') setViewMode('grid');
     requestAnimationFrame(() =>
-      sectionRefs.current[continent]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      sectionRefs.current[region]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     );
   };
 
@@ -127,7 +130,7 @@ export function Home() {
           <CountryFinder
             query={query}
             onQueryChange={setQuery}
-            continents={CONTINENT_COUNTS}
+            regions={REGION_COUNTS}
             onJumpTo={jumpTo}
             matchCount={matchCount}
             total={countries.length}
@@ -162,17 +165,17 @@ export function Home() {
             </div>
           ) : (
           <div className="space-y-8">
-            {visibleGroups.map(([continent, group]) => (
+            {visibleGroups.map(([regionName, group]) => (
               <section
-                key={continent}
-                ref={el => { sectionRefs.current[continent] = el; }}
+                key={regionName}
+                ref={el => { sectionRefs.current[regionName] = el; }}
                 className="scroll-mt-4"
               >
                 <h3
                   className="mb-3 text-sm font-semibold uppercase tracking-wide"
                   style={{ color: systemColors.navyMuted }}
                 >
-                  {continent}
+                  {regionName}
                   <span className="ml-2 font-normal normal-case tracking-normal">
                     {group.length}
                   </span>
