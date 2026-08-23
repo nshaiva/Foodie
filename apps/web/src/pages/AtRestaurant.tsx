@@ -8,7 +8,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useDietPrefs } from '../hooks/useDietPrefs';
 import { rankDishesForOrdering, type RankedDish } from '../utils/orderRanking';
-import { groupForOrdering, DEFAULT_SHAPE } from '../utils/orderGrouping';
+import { shapeOrderList, matchesMenuSearch, DEFAULT_SHAPE } from '../utils/orderGrouping';
 import { Wordmark, PlateDot } from '../components/Wordmark';
 import { SignInButton } from '../components/SignInButton';
 import { UnifiedDishCard } from '../components/country-detail/UnifiedDishCard';
@@ -127,10 +127,17 @@ function OrderList({ countryId }: { countryId: string }) {
     [country, countryDishes, isOnWishlist, personalFlavor, prefs]
   );
 
-  // Rank answers "what do I get"; course answers "what else goes on the table".
-  // The shape is a constant for now — #29 (familiarity levels) will choose it
-  // from how well you know this cuisine, which is why it's a value, not literals.
-  const { startHere, courses } = useMemo(() => groupForOrdering(ranked, DEFAULT_SHAPE), [ranked]);
+  // One ranked sequence, not courses: at a table the question is "the menu has
+  // things on it, which should I get", and rank is the only ordering that
+  // answers it. The shape is a constant for now — #29 (familiarity levels) will
+  // choose it from how well you know this cuisine, which is why it's a value.
+  const { shown, hidden } = useMemo(() => shapeOrderList(ranked, DEFAULT_SHAPE), [ranked]);
+  const [menuQuery, setMenuQuery] = useState('');
+  const visible = useMemo(
+    () => shown.filter(entry => matchesMenuSearch(entry, menuQuery)),
+    [shown, menuQuery]
+  );
+  const searching = menuQuery.trim() !== '';
   const drinks = country.popularBeverages ?? [];
 
   const dishCrudProps = {
@@ -158,7 +165,7 @@ function OrderList({ countryId }: { countryId: string }) {
     </>
   );
 
-  const renderDish = (entry: RankedDish, rank?: number) => {
+  const renderDish = (entry: RankedDish, rank: number) => {
     const { dish, reasons, tried } = entry;
     return (
       <UnifiedDishCard
@@ -169,14 +176,12 @@ function OrderList({ countryId }: { countryId: string }) {
         {...dishCrudProps}
       >
         <div className="flex items-baseline gap-2 pr-12">
-          {rank !== undefined && (
-            <span
-              className="flex-none text-xs font-bold w-6 h-6 rounded-full inline-flex items-center justify-center"
-              style={{ backgroundColor: `${country.colorPalette.primary}18`, color: country.colorPalette.primary }}
-            >
-              {rank}
-            </span>
-          )}
+          <span
+            className="flex-none text-xs font-bold w-6 h-6 rounded-full inline-flex items-center justify-center"
+            style={{ backgroundColor: `${country.colorPalette.primary}18`, color: country.colorPalette.primary }}
+          >
+            {rank}
+          </span>
           <span className="min-w-0">
             <h4 className="font-bold text-gray-900 leading-tight">{dish.name}</h4>
             {dish.pronunciation && (
@@ -187,11 +192,7 @@ function OrderList({ countryId }: { countryId: string }) {
           </span>
         </div>
 
-        {/* The top picks earn a description. Below them it becomes a wall of
-            prose you scroll past, so the courses keep the chips and drop it. */}
-        {rank !== undefined && (
-          <p className="text-sm text-gray-600 mt-1.5 line-clamp-2">{dish.description}</p>
-        )}
+        <p className="text-sm text-gray-600 mt-1.5 line-clamp-2">{dish.description}</p>
 
         <div className="flex flex-wrap gap-1.5 mt-2">
           {popularityChip(dish.popularity)}
@@ -202,7 +203,7 @@ function OrderList({ countryId }: { countryId: string }) {
 
         {reasons.length > 0 && (
           <p className="text-xs mt-2 font-medium" style={{ color: systemColors.herb }}>
-            {reasons.slice(0, rank !== undefined ? 2 : 1).join(' · ')}
+            {reasons.slice(0, 2).join(' · ')}
           </p>
         )}
       </UnifiedDishCard>
@@ -217,23 +218,59 @@ function OrderList({ countryId }: { countryId: string }) {
           What to order · {country.name}
         </h1>
       </div>
-      <p className="text-sm mb-5" style={{ color: systemColors.navyMuted }}>
+      <p className="text-sm mb-3" style={{ color: systemColors.navyMuted }}>
         Ranked for you: your ratings, what locals order, your list, your spice comfort.
       </p>
 
-      <SectionHeading>Start here</SectionHeading>
+      {/* Menus abbreviate and translate, so this matches traits and categories
+          as well as names — you're usually typing something half-recognised. */}
+      <input
+        type="search"
+        value={menuQuery}
+        onChange={e => setMenuQuery(e.target.value)}
+        placeholder="Find something on the menu…"
+        aria-label="Search this cuisine"
+        className="w-full text-sm px-3 py-2 rounded-lg border mb-4"
+        style={{ borderColor: systemColors.border, color: systemColors.navy }}
+      />
+
       <div className="space-y-3">
-        {startHere.map((entry, i) => renderDish(entry, i + 1))}
+        {visible.map(entry => renderDish(entry, ranked.indexOf(entry) + 1))}
       </div>
 
-      {courses.map(section => (
-        <div key={section.id}>
-          <SectionHeading count={section.items.length}>{section.label}</SectionHeading>
-          <div className="space-y-2.5">{section.items.map(entry => renderDish(entry))}</div>
-        </div>
-      ))}
+      {visible.length === 0 && (
+        <p className="text-sm py-2" style={{ color: systemColors.navyMuted }}>
+          Nothing here matches “{menuQuery.trim()}”. It may still be on the menu —
+          we only know {ranked.length} {country.name} dishes so far.
+        </p>
+      )}
 
-      {drinks.length > 0 && (
+      {hidden > 0 && (
+        <p className="text-xs mt-3" style={{ color: systemColors.navyMuted }}>
+          {hidden} more not shown.
+        </p>
+      )}
+
+      {/* The escape hatch, and the honest one: our list is about nine dishes and
+          a real menu has sixty, so this must never look like the whole cuisine.
+          Kept visible when the search finds nothing, which is when it's needed. */}
+      <Link
+        to={`/country/${countryId}`}
+        className="flex items-center justify-between gap-3 mt-5 px-4 py-3 rounded-xl border btn-press"
+        style={{ borderColor: systemColors.border, backgroundColor: systemColors.surface }}
+      >
+        <span>
+          <span className="block text-sm font-bold" style={{ color: systemColors.navy }}>
+            Not on the menu?
+          </span>
+          <span className="block text-xs" style={{ color: systemColors.navyMuted }}>
+            See everything we know about {country.name} — regions, flavors, drinks
+          </span>
+        </span>
+        <span className="flex-none text-sm font-bold" style={{ color: systemColors.tomato }}>→</span>
+      </Link>
+
+      {!searching && drinks.length > 0 && (
         <div>
           <SectionHeading count={drinks.length}>Drinks</SectionHeading>
           <div className="space-y-2.5">
@@ -261,7 +298,7 @@ function OrderList({ countryId }: { countryId: string }) {
   );
 }
 
-/** Quiet divider between courses: a label, and a count when there's more than one. */
+/** Quiet divider above the drinks list. */
 function SectionHeading({ children, count }: { children: React.ReactNode; count?: number }) {
   return (
     <div className="flex items-baseline gap-2 mt-6 mb-2">

@@ -121,3 +121,5 @@ you move across a map**, which is a question the app currently can't answer.
 - 31 countries is small, and lopsided: 15 in Asia, 4 in Africa. Conclusions
   about Africa rest on four data points and should be revisited after the #9
   batch.
+- Corpus size, for reference and corrected 2026-08-23: **294 dishes and 155
+  drinks**, 449 items in total. Earlier notes described all 449 as dishes.

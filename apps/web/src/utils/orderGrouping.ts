@@ -1,101 +1,65 @@
-import type { Beverage } from '../data/types';
 import type { RankedDish } from './orderRanking';
 
 /**
- * How the what-to-order list is arranged at a table.
+ * How much of the what-to-order list to show.
  *
- * Two different questions get two different treatments. **"Just tell me what to
- * get"** is answered by rank, so the top few sit alone at the top. **"What else
- * goes on the table"** is answered by course, because once the first decision is
- * made you're assembling an order, not picking a single dish — and rank is a
- * poor guide to whether something is a starter or a dessert.
+ * The arrangement itself isn't configurable: the list is one ranked sequence,
+ * because at a table the question is "the menu has things on it, which should I
+ * get", and rank is the only ordering that answers it. An earlier version
+ * grouped by course, which fought that question and fragmented badly — there
+ * are about nine dishes per country and only nine `side` dishes in the entire
+ * dataset, so most countries got a section of one.
  *
- * Courses are coarser than the raw `category` field: fifteen dishes split eight
- * ways gives sections of one, which is worse than no sections at all.
+ * What *is* configurable is length, which is the seam #29 (First plate ·
+ * Second helping · Off-menu) plugs into: familiarity changes how much you're
+ * offered, not how it's arranged.
  */
-export interface OrderSection {
-  id: string;
-  label: string;
-  items: RankedDish[];
-}
-
-/** Presentation levels for #29 (First plate · Second helping · Off-menu). */
 export type CuisineLevel = 'first-plate' | 'second-helping' | 'off-menu';
 
 export interface OrderShape {
-  /** How many dishes lead the list. */
-  startHere: number;
-  /** Cap on everything below, or null for no cap. */
-  restLimit: number | null;
+  /** How many dishes to show, or null for all of them. */
+  limit: number | null;
 }
 
-/**
- * The seam #29 plugs into.
- *
- * Familiarity levels change *how much* you're offered, not how it's arranged,
- * so they resolve to a shape here rather than touching the grouping below or
- * the ranking in `orderRanking.ts`. Until #29 ships, every caller gets the
- * `off-menu` shape — the full list — which is what the screen does today.
- */
 export const ORDER_SHAPES: Record<CuisineLevel, OrderShape> = {
-  'first-plate': { startHere: 3, restLimit: 2 },
-  'second-helping': { startHere: 3, restLimit: 7 },
-  'off-menu': { startHere: 3, restLimit: null },
+  'first-plate': { limit: 5 },
+  'second-helping': { limit: 10 },
+  'off-menu': { limit: null },
 };
 
+/** Until #29 ships, everyone sees the whole list. */
 export const DEFAULT_SHAPE = ORDER_SHAPES['off-menu'];
 
-/** category → course. Anything unlisted falls into Mains. */
-const COURSE_OF: Record<string, string> = {
-  appetizer: 'start',
-  'street-food': 'start',
-  salad: 'start',
-  soup: 'start',
-  side: 'side',
-  dessert: 'sweet',
-};
-
-const COURSE_ORDER = ['start', 'main', 'side', 'sweet'] as const;
-const COURSE_LABELS: Record<string, string> = {
-  start: 'To start',
-  main: 'Mains',
-  side: 'Sides',
-  sweet: 'Sweet',
-};
-
-export interface GroupedOrder {
-  startHere: RankedDish[];
-  courses: OrderSection[];
-  /** Dishes held back by the level cap, so the UI can offer to show them. */
+export interface ShapedOrder {
+  shown: RankedDish[];
+  /** Held back by the level cap, so the page can offer to show them. */
   hidden: number;
 }
 
-export function groupForOrdering(
+export function shapeOrderList(
   ranked: RankedDish[],
   shape: OrderShape = DEFAULT_SHAPE
-): GroupedOrder {
-  const startHere = ranked.slice(0, shape.startHere);
-  let rest = ranked.slice(shape.startHere);
-  const hidden = shape.restLimit === null ? 0 : Math.max(0, rest.length - shape.restLimit);
-  if (shape.restLimit !== null) rest = rest.slice(0, shape.restLimit);
-
-  const byCourse = new Map<string, RankedDish[]>();
-  rest.forEach(entry => {
-    const course = COURSE_OF[entry.dish.category] ?? 'main';
-    if (!byCourse.has(course)) byCourse.set(course, []);
-    byCourse.get(course)!.push(entry);
-  });
-
-  const courses = COURSE_ORDER.filter(c => byCourse.has(c)).map(c => ({
-    id: c,
-    label: COURSE_LABELS[c],
-    items: byCourse.get(c)!,
-  }));
-
-  return { startHere, courses, hidden };
+): ShapedOrder {
+  if (shape.limit === null || ranked.length <= shape.limit) {
+    return { shown: ranked, hidden: 0 };
+  }
+  return { shown: ranked.slice(0, shape.limit), hidden: ranked.length - shape.limit };
 }
 
-/** Drinks aren't ranked — there are about five per country, so all of them show. */
-export function drinksFor(beverages: Beverage[] | undefined): Beverage[] {
-  return beverages ?? [];
+/**
+ * Does this dish match what someone typed off a menu?
+ *
+ * Deliberately loose: menus abbreviate, translate and misspell, so name,
+ * English name and the dish's traits all count as a hit.
+ */
+export function matchesMenuSearch(entry: RankedDish, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const { dish } = entry;
+  return (
+    dish.name.toLowerCase().includes(q) ||
+    !!dish.englishName?.toLowerCase().includes(q) ||
+    !!dish.keyTraits?.some(t => t.toLowerCase().includes(q)) ||
+    dish.category.toLowerCase().includes(q)
+  );
 }
