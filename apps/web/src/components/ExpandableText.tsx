@@ -12,11 +12,17 @@ import { systemColors } from '../data/systemColors';
  * measuring the rendered element. Measuring means writing layout state from an
  * effect: it runs a frame late (the control flickers in) and reruns on every
  * resize. A threshold is deterministic and costs nothing.
+ *
+ * Three lines rather than two, at ~150 characters: measured over the 294 dish
+ * descriptions, a two-line clamp left all but one of them truncated, while
+ * three shows 57 of them (19%) complete with no toggle at all and cuts the
+ * rest at a more useful point. The cards in the country grid already stretch
+ * to the tallest in their row, so the extra line mostly reclaims whitespace.
  */
 export function ExpandableText({
   text,
-  clamp = 'line-clamp-2',
-  threshold = 110,
+  clamp = 'line-clamp-3',
+  threshold = 150,
   className = 'text-sm text-gray-600',
 }: {
   text: string;
