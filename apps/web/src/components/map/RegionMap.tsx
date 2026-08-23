@@ -38,12 +38,18 @@ const OUTSIDE = '#EFEAE0';
  * Regions come from `data/culinaryRegions.ts`, grouped by flavor rather than
  * by landmass; the reasoning is in `docs/roadmap/designs/flavor-geography.md`.
  */
-export const RegionMap = memo(function RegionMap() {
+export const RegionMap = memo(function RegionMap({
+  focusId = null, onFocusChange,
+}: {
+  /** Controlled by the page, so the region chips drive this map too. */
+  focusId?: string | null;
+  onFocusChange?: (id: string | null) => void;
+}) {
   const navigate = useNavigate();
   const { dishes } = useDishes();
   const { getActivityState } = useCountryActivity(dishes);
-  const [regionId, setRegionId] = useState<string | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const regionId = focusId;
 
   const region = regionId ? getRegion(regionId) : null;
   const view = region ? region.zoom : WORLD;
@@ -60,7 +66,7 @@ export const RegionMap = memo(function RegionMap() {
   const preview = previewId ? getCountryById(previewId) : null;
 
   const select = (id: string | null) => {
-    setRegionId(id);
+    onFocusChange?.(id);
     setPreviewId(null);
   };
 
