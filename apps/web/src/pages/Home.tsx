@@ -1,3 +1,4 @@
+import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { countries } from '../data/countries';
 import { systemColors } from '../data/systemColors';
@@ -13,6 +14,7 @@ import { TasteProfileButton } from '../components/TasteProfileButton';
 import { SignInButton } from '../components/SignInButton';
 import { NextCountrySuggestions } from '../components/NextCountrySuggestions';
 import { WordmarkDot } from '../components/Wordmark';
+import { CountryFinder } from '../components/CountryFinder';
 
 // Static data: group once at module level, continents and countries both alphabetized
 const continentGroups = Object.entries(
@@ -27,14 +29,48 @@ const continentGroups = Object.entries(
     [...group].sort((a, b) => a.name.localeCompare(b.name)),
   ] as const);
 
+const CONTINENT_COUNTS = continentGroups.map(
+  ([continent, group]) => [continent, group.length] as const
+);
+
+/** Name, capital, continent and sub-region — the things people actually type. */
+function matchesCountry(country: (typeof countries)[number], q: string): boolean {
+  return [country.name, country.capital, country.continent, country.region]
+    .some(field => field.toLowerCase().includes(q));
+}
+
 export function Home() {
   const { wishlist } = useWishlist();
   const { getDishesByCountry } = useDishes();
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('foodie-view-mode', 'map');
   const isMobile = useMediaQuery('(max-width: 767px)');
+  const [query, setQuery] = useState('');
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  // Force grid view on mobile
-  const effectiveView = isMobile ? 'grid' : viewMode;
+  const searching = query.trim() !== '';
+
+  // Grid on mobile (the map is hover-driven and unusable at 390px), and grid
+  // while searching, since results are a list no matter which view you were in.
+  const effectiveView = isMobile || searching ? 'grid' : viewMode;
+
+  const visibleGroups = useMemo(() => {
+    if (!searching) return continentGroups;
+    const q = query.trim().toLowerCase();
+    return continentGroups
+      .map(([continent, group]) => [continent, group.filter(c => matchesCountry(c, q))] as const)
+      .filter(([, group]) => group.length > 0);
+  }, [query, searching]);
+
+  const matchCount = visibleGroups.reduce((n, [, group]) => n + group.length, 0);
+
+  // Jumping from the map means leaving it first, otherwise there is no section
+  // to scroll to. The ref is populated by the time the layout paints.
+  const jumpTo = (continent: string) => {
+    if (effectiveView === 'map') setViewMode('grid');
+    requestAnimationFrame(() =>
+      sectionRefs.current[continent]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    );
+  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
@@ -78,7 +114,7 @@ export function Home() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-lg font-medium" style={{ color: systemColors.navy }}>
             {countries.length} Countries
           </h2>
@@ -87,14 +123,47 @@ export function Home() {
           )}
         </div>
 
+        <div className="mb-6">
+          <CountryFinder
+            query={query}
+            onQueryChange={setQuery}
+            continents={CONTINENT_COUNTS}
+            onJumpTo={jumpTo}
+            matchCount={matchCount}
+            total={countries.length}
+          />
+        </div>
+
         {effectiveView === 'map' ? (
           <WorldMap />
         ) : (
           <>
-          <NextCountrySuggestions />
+          {/* A suggestion module is noise when you're looking for something specific */}
+          {!searching && <NextCountrySuggestions />}
+          {matchCount === 0 ? (
+            <div
+              className="rounded-xl border border-dashed p-8 text-center"
+              style={{ borderColor: systemColors.border }}
+            >
+              <p className="font-semibold" style={{ color: systemColors.navy }}>
+                No country matches “{query.trim()}”.
+              </p>
+              <button
+                onClick={() => setQuery('')}
+                className="text-sm font-semibold mt-2"
+                style={{ color: systemColors.tomato }}
+              >
+                Clear search
+              </button>
+            </div>
+          ) : (
           <div className="space-y-8">
-            {continentGroups.map(([continent, group]) => (
-              <section key={continent}>
+            {visibleGroups.map(([continent, group]) => (
+              <section
+                key={continent}
+                ref={el => { sectionRefs.current[continent] = el; }}
+                className="scroll-mt-4"
+              >
                 <h3
                   className="mb-3 text-sm font-semibold uppercase tracking-wide"
                   style={{ color: systemColors.navyMuted }}
@@ -116,6 +185,7 @@ export function Home() {
               </section>
             ))}
           </div>
+          )}
           </>
         )}
       </main>

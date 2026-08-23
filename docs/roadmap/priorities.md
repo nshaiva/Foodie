@@ -35,7 +35,6 @@ Items within each tier are grouped by the goal they serve:
 
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
-| 28 | **Search and filter countries on the home page, with scroll-to** | Added 2026-08-23 from notes: "filter and search countries in map or grid view and it scrolls to that region of the page // or filter by region". A search box over the home grid *and* the map, plus picking a continent scrolling to that section. The scroll target already exists — `Home.tsx` builds `continentGroups` and renders one `<section>` per continent, so this is a ref per section plus `scrollIntoView`, the same pattern the `CuisineTeaser` already uses to reach the flavor disclosure. Serves G2 exploration (where cuisines sit in the world, what I haven't tried), which is why it ranks behind #27: it helps browsing, not ordering. Note the home map is desktop-only today, so the search box has to work in grid view on a phone. | M |
 | 1 | **Dish twins** | "Khachapuri is Georgia's answer to pizza" — pre-generatable content (rides the #9 batch), great for discovery; pairs with similar-cuisines section. | M (mostly content) |
 | 2 | ~~**Dish ↔ region cross-linking**~~ — **shipped 2026-08-21** as the unified country page (see Built). What remains is content, not code: **9 of Mexico's 13 items carry no `regionalOrigin` at all**, so three MX regions render empty and 9 dishes land in "Across Mexico". Ireland has one unmatched origin ("Rural west and north"). Both ride the #9 batch — add `regionalOrigin` to every dish and prefer names that match a region's own vocabulary. | Content |
 
@@ -146,6 +145,24 @@ Unverified on a real phone: whether the filter rail's edge fade reads as
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Find a country on the home page** (2026-08-23, G2) — a search field and a
+  rail of continent chips above the country grid. Search matches name, capital,
+  continent and sub-region, so "west africa", "Dublin" and "Peru" all work, and
+  shows an *n of 31* count while active. The chips are a **jump, not a filter**:
+  tapping one scrolls that continent's section into view and leaves the rest of
+  the world below it, since filtering to one continent is the opposite of what
+  a page about exploring cuisines should do. Typing switches to grid from the
+  map view (results are a list either way) without touching the stored view
+  preference, and the "what to try next" module hides while searching, being
+  noise when you're looking for something specific.
+  **Also the phone's answer to having no world map.** The map stays desktop-only
+  on purpose: its preview card is driven by `onMouseEnter`, which a phone has no
+  equivalent for, so a tap navigates away and the dish counts and flavor-match
+  percentage are unreachable — and 31 countries at 390px are a few pixels each.
+  But hiding it cost the thesis idea of *where cuisines sit in relation to each
+  other* entirely on mobile, and continent chips put that back in a form a thumb
+  can use. New `components/CountryFinder.tsx`, reusing the `.chip-rail`
+  treatment from #26.
 - **Filters as one chip rail** (2026-08-23, Foundation) — the country page's
   gear-and-drawer is gone. Every filter is now a chip in a single row and
   **active chips sort to the front**, so what's narrowing the list is the first
