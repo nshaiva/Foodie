@@ -28,16 +28,27 @@ export function ExpandableText({
 
   if (text.length <= threshold) return <p className={className}>{text}</p>;
 
+  const toggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpen(!open);
+  };
+
+  // The text itself is the tap target as well as the button: at a table you
+  // reach for the sentence you're trying to finish, not for a small link
+  // underneath it.
   return (
     <div>
-      <p className={`${className} ${open ? '' : clamp}`}>{text}</p>
+      <p onClick={toggle} className={`${className} ${open ? '' : clamp}`} style={{ cursor: 'pointer' }}>
+        {text}
+      </p>
       <button
-        onClick={e => { e.stopPropagation(); setOpen(!open); }}
+        onClick={toggle}
         aria-expanded={open}
-        className="text-xs font-bold mt-0.5"
+        className="text-xs font-bold mt-1 inline-flex items-center gap-1"
         style={{ color: systemColors.tomato }}
       >
-        {open ? 'Less' : 'More'}
+        {open ? 'Show less' : 'Show more'}
+        <span aria-hidden>{open ? '▴' : '▾'}</span>
       </button>
     </div>
   );
