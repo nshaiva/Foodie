@@ -10,5 +10,6 @@
       "Bash(ls:*)",
       "Bash(git push:*)"
     ]
-  }
+  },
+  "outputStyle": "Proactive"
 }
