@@ -14,9 +14,11 @@ import { LensControls } from '../components/country-detail/LensControls';
 import { DishSection } from '../components/country-detail/DishSection';
 import { EntryGrid, type EntryGridActions } from '../components/country-detail/EntryGrid';
 import { RegionalMap } from '../components/map/RegionalMap';
+import { RegionRail } from '../components/country-detail/RegionRail';
 import { ProfileSlide } from '../components/country-detail/slides';
-import { SimilarCuisinesSection } from '../components/country-detail/slides/SimilarCuisinesSection';
-import { CuisineTeaser } from '../components/country-detail/CuisineTeaser';
+import { FoodCultureSection } from '../components/country-detail/FoodCultureSection';
+import { Tray } from '../components/Tray';
+import { axesByIntensity, FLAVOR_AXIS_META } from '../data/flavorAxisMeta';
 import { DishForm } from '../components/DishForm';
 import type { RestaurantTry } from '../data/types';
 
@@ -50,6 +52,10 @@ export function CountryDetail() {
   const [showForm, setShowForm] = useState(false);
   const [showFlavor, setShowFlavor] = useState(false);
   const [showCulture, setShowCulture] = useState(false);
+  // The map is a toggle, closed by default: the region rail is the picker and
+  // the map is its larger, optional form. Once opened it stays open for the
+  // visit until it has done its job (a region focused, or a filter applied).
+  const [mapPref, setMapPref] = useState<'auto' | 'open' | 'closed'>('closed');
 
   const countryDishes = useMemo(
     () => (country ? getDishesByCountry(country.id) : []),
@@ -206,6 +212,7 @@ export function CountryDetail() {
   // would show literally nothing and the page-wide empty state is still right.
   const nothingMatches = inFocus.length === 0 && !(focusedRegion && effectiveLens === 'region');
   const narrowedByFilters = filters.activeFilterCount > 0 || filters.query.trim() !== '' || filters.view !== 'all';
+  const mapOpen = mapPref === 'auto' ? !(focusedRegion || narrowedByFilters) : mapPref === 'open';
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
@@ -215,25 +222,30 @@ export function CountryDetail() {
         region={country.region}
         colors={colors}
         progress={countryDishProgress(country, countryDishes)}
+        summary={country.cuisineProfile.summary}
+        tools={
+          <>
+            {/* The three loudest axes, as a teaser for the fingerprint beside them */}
+            {country.cuisineProfile.flavorIntensity && (
+              <span className="flex gap-1 mr-1">
+                {axesByIntensity(country.cuisineProfile.flavorIntensity).slice(0, 3).map(({ axis }) => (
+                  <span
+                    key={axis}
+                    className="text-[0.62rem] font-bold px-1.5 py-0.5 rounded"
+                    style={{ backgroundColor: FLAVOR_AXIS_META[axis].color, color: '#fff' }}
+                  >
+                    {FLAVOR_AXIS_META[axis].label}
+                  </span>
+                ))}
+              </span>
+            )}
+            <TrayButton onClick={() => setShowFlavor(true)} icon="✦" label="Flavor fingerprint" color={colors.primary} />
+            <TrayButton onClick={() => setShowCulture(true)} icon="📖" label="Food culture" color={colors.primary} />
+          </>
+        }
       />
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-5">
-        <div className="space-y-2.5">
-          <p className="text-lg leading-relaxed" style={{ color: systemColors.navy }}>
-            {country.cuisineProfile.summary}
-          </p>
-          <CuisineTeaser
-            profile={country.cuisineProfile}
-            countryName={country.name}
-            onOpen={() => {
-              setShowFlavor(true);
-              requestAnimationFrame(() =>
-                document.getElementById('flavor-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-              );
-            }}
-          />
-        </div>
-
+      <main className="max-w-6xl mx-auto px-4 py-6 space-y-5">
         <LensControls
           filters={filters}
           lens={effectiveLens}
@@ -241,20 +253,32 @@ export function CountryDetail() {
           availableLenses={availableLenses}
           triedCount={triedCount}
           hasBeverages={hasBeverages}
-          focusedRegionName={focusedRegion?.name}
           onClearRegion={() => setFocus(null)}
         />
 
         {effectiveLens === 'region' && hasRegions && (
-          <div className="h-80 sm:h-[26rem] max-w-2xl mx-auto w-full">
-            <RegionalMap
-              countryId={country.id}
+          <div className="space-y-3">
+            <RegionRail
               regions={regions}
-              colors={colors}
               counts={counts}
+              colors={colors}
               selectedRegion={focusedRegion?.name ?? null}
               onSelectRegion={setFocus}
+              mapOpen={mapOpen}
+              onToggleMap={() => setMapPref(mapOpen ? 'closed' : (focusedRegion || narrowedByFilters) ? 'open' : 'auto')}
             />
+            {mapOpen && (
+              <div className="h-72 sm:h-[22rem] max-w-2xl w-full mx-auto">
+                <RegionalMap
+                  countryId={country.id}
+                  regions={regions}
+                  colors={colors}
+                  counts={counts}
+                  selectedRegion={focusedRegion?.name ?? null}
+                  onSelectRegion={setFocus}
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -328,62 +352,41 @@ export function CountryDetail() {
           </button>
         )}
 
-        {/* Flavor and culture keep a home below the list */}
-        <Disclosure id="flavor-section" open={showFlavor} onToggle={() => setShowFlavor(!showFlavor)} label={`${country.name}\u2019s flavor fingerprint`}>
-          <>
-            {focusedRegion && (
-              <p className="text-xs mb-3" style={{ color: systemColors.navyMuted }}>
-                This covers all of {country.name}, not just {focusedRegion.name}.
-              </p>
-            )}
-            <ProfileSlide country={country} colors={colors} />
-          </>
-        </Disclosure>
-
-        <Disclosure open={showCulture} onToggle={() => setShowCulture(!showCulture)} label={`Food culture in ${country.name}`}>
-          <div className="space-y-4 text-sm" style={{ color: systemColors.navyMuted }}>
-            {focusedRegion && (
-              <p className="text-xs">
-                This covers all of {country.name}. For {focusedRegion.name} specifically, see its
-                description above the dishes.
-              </p>
-            )}
-            {country.foodCulture.mealStructure && (
-              <p><span className="font-bold" style={{ color: systemColors.navy }}>Meal structure. </span>{country.foodCulture.mealStructure}</p>
-            )}
-            {country.foodCulture.diningCustoms && (
-              <p><span className="font-bold" style={{ color: systemColors.navy }}>Dining customs. </span>{country.foodCulture.diningCustoms}</p>
-            )}
-            {country.foodCulture.historicalInfluences && (
-              <p><span className="font-bold" style={{ color: systemColors.navy }}>Historical influences. </span>{country.foodCulture.historicalInfluences}</p>
-            )}
-            <SimilarCuisinesSection country={country} colors={colors} />
-          </div>
-        </Disclosure>
       </main>
+
+      {/* Pull-out trays: the fingerprint and the culture writing are reference
+          material beside the list, not a destination below it */}
+      <Tray
+        open={showFlavor}
+        onClose={() => setShowFlavor(false)}
+        title={`${country.name}\u2019s flavor fingerprint`}
+        subtitle={focusedRegion ? `All of ${country.name}, not just ${focusedRegion.name}` : undefined}
+      >
+        <ProfileSlide country={country} colors={colors} stacked />
+      </Tray>
+      <Tray
+        open={showCulture}
+        onClose={() => setShowCulture(false)}
+        title={`Food culture in ${country.name}`}
+        subtitle={focusedRegion ? `All of ${country.name}. For ${focusedRegion.name}, see its description above the dishes.` : undefined}
+      >
+        <FoodCultureSection country={country} colors={colors} />
+      </Tray>
     </div>
   );
 }
 
-function Disclosure({
-  open, onToggle, label, children, id,
-}: { open: boolean; onToggle: () => void; label: string; children: React.ReactNode; id?: string }) {
+function TrayButton({
+  onClick, icon, label, color,
+}: { onClick: () => void; icon: string; label: string; color: string }) {
   return (
-    <section id={id} className="rounded-xl border overflow-hidden scroll-mt-4" style={{ borderColor: systemColors.border }}>
-      <button
-        onClick={onToggle}
-        aria-expanded={open}
-        className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold"
-        style={{ backgroundColor: systemColors.surface, color: systemColors.navy }}
-      >
-        {label}
-        <span style={{ color: systemColors.navyMuted }}>{open ? '−' : '+'}</span>
-      </button>
-      {open && (
-        <div className="px-4 py-4 border-t" style={{ borderColor: systemColors.border, backgroundColor: systemColors.surface }}>
-          {children}
-        </div>
-      )}
-    </section>
+    <button
+      onClick={onClick}
+      className="btn-press inline-flex items-center gap-1.5 text-xs font-semibold rounded-full border px-3 py-1.5 transition-colors"
+      style={{ borderColor: `${color}40`, color, backgroundColor: systemColors.surface }}
+    >
+      <span aria-hidden>{icon}</span>
+      {label}
+    </button>
   );
 }

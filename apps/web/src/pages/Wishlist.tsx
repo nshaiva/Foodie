@@ -1,129 +1,163 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useWishlist } from '../hooks/useWishlist';
-import { useCountryListFilter } from '../hooks/useCountryListFilter';
-import { getCountryName } from '../data/countryHelpers';
+import { useDishes } from '../hooks/useDishes';
+import { useFavorites } from '../hooks/useFavorites';
+import { getCountryById } from '../data/countries';
 import { systemColors } from '../data/systemColors';
-import { WishlistCard } from '../components/WishlistCard';
-import { Wordmark } from '../components/Wordmark';
+import { AppBar } from '../components/AppBar';
 import { ProfileButton } from '../components/ProfileButton';
-import { ListControls, FilterSelect } from '../components/ListControls';
-import type { WishlistItem } from '../data/types';
+import { EntryGrid, type EntryGridActions } from '../components/country-detail/EntryGrid';
+import { PlateDot } from '../components/Wordmark';
+import type { Entry } from '../utils/groupDishes';
+import type { Country, WishlistItem } from '../data/types';
 
-type SortOption = 'date-desc' | 'date-asc' | 'country' | 'name';
-
-function compareWishlist(a: WishlistItem, b: WishlistItem, sortBy: SortOption): number {
-  switch (sortBy) {
-    case 'date-desc':
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    case 'date-asc':
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    case 'country':
-      return getCountryName(a.countryId).localeCompare(getCountryName(b.countryId));
-    case 'name':
-      return a.dishName.localeCompare(b.dishName);
-    default:
-      return 0;
-  }
+interface CountryGroup {
+  country: Country;
+  entries: Entry[];
+  /** Saved dishes we no longer hold data for (renamed or removed from the country) */
+  unresolved: WishlistItem[];
+  newest: number;
 }
 
+/**
+ * Want to Try: the same cards and section style as a country's Eat & Drink
+ * list, grouped by country. A saved dish is looked up in its country's data so
+ * the card shows the full description, chips, heart/bookmark, and "+ I tried
+ * this" — logging it here works exactly as it does on the country page.
+ * Tried dishes stay listed (the rating prompt opens inside the card); the
+ * bookmark is how you take one off the list.
+ */
 export function Wishlist() {
-  const { wishlist, removeFromWishlist } = useWishlist();
-
+  const { wishlist, addToWishlist, removeFromWishlist, isOnWishlist, findWishlistItem } = useWishlist();
+  const { addToFavorites, removeFromFavorites, isFavorite, findFavoriteItem } = useFavorites();
   const {
-    filterCountry,
-    setFilterCountry,
-    filterContinent,
-    setFilterContinent,
-    sortBy,
-    setSortBy,
-    filteredItems: filteredWishlist,
-    availableCountryIds,
-    availableContinents,
-  } = useCountryListFilter<WishlistItem, SortOption>(wishlist, 'date-desc', compareWishlist);
+    addDish, updateDish, deleteDish, getDishesByCountry,
+    addRestaurantTry, updateRestaurantTry, deleteRestaurantTry,
+  } = useDishes();
+
+  const groups = useMemo<CountryGroup[]>(() => {
+    const byCountry = new Map<string, CountryGroup>();
+    for (const item of wishlist) {
+      const country = getCountryById(item.countryId);
+      if (!country) continue;
+      let group = byCountry.get(country.id);
+      if (!group) {
+        group = { country, entries: [], unresolved: [], newest: 0 };
+        byCountry.set(country.id, group);
+      }
+      group.newest = Math.max(group.newest, new Date(item.createdAt).getTime());
+
+      const logged = getDishesByCountry(country.id);
+      const tried = logged.find(d =>
+        d.name.toLowerCase() === item.dishName.toLowerCase() ||
+        (item.englishName && d.name.toLowerCase() === item.englishName.toLowerCase())
+      );
+      const wanted = item.dishName.toLowerCase();
+      const dish = country.popularDishes.find(d =>
+        d.name.toLowerCase() === wanted || d.englishName?.toLowerCase() === wanted
+      );
+      if (dish) { group.entries.push({ kind: 'dish', key: item.id, dish, tried }); continue; }
+      const drink = country.popularBeverages?.find(b =>
+        b.name.toLowerCase() === wanted || b.englishName?.toLowerCase() === wanted
+      );
+      if (drink) { group.entries.push({ kind: 'drink', key: item.id, drink, tried }); continue; }
+      group.unresolved.push(item);
+    }
+    // Most recently saved country first, like a list you keep adding to
+    return [...byCountry.values()].sort((a, b) => b.newest - a.newest);
+  }, [wishlist, getDishesByCountry]);
+
+  const actionsFor = (countryId: string): EntryGridActions => ({
+    countryId,
+    onAddDish: ({ name, kind }) => addDish({ countryId, name, kind, restaurantTries: [] }),
+    onUpdateDish: updateDish,
+    onDeleteDish: deleteDish,
+    onAddRestaurantTry: addRestaurantTry,
+    onUpdateRestaurantTry: updateRestaurantTry,
+    onDeleteRestaurantTry: deleteRestaurantTry,
+    isOnWishlist, isFavorite,
+    addToWishlist, removeFromWishlist, findWishlistItem,
+    addToFavorites, removeFromFavorites, findFavoriteItem,
+  });
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
-      <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="mb-2 flex items-start justify-between gap-3">
-            <Wordmark className="text-2xl" />
-            <ProfileButton />
+      <AppBar actions={<ProfileButton />}>
+        <h1 className="text-3xl font-bold flex items-center gap-2.5" style={{ color: systemColors.navy }}>
+          <PlateDot color={systemColors.saffron} size={14} />
+          Want to try
+        </h1>
+        <p className="mt-1" style={{ color: systemColors.navyMuted }}>
+          {wishlist.length} dish{wishlist.length !== 1 ? 'es' : ''} saved
+          {groups.length > 1 && ` across ${groups.length} cuisines`}
+        </p>
+      </AppBar>
+
+      <main className="max-w-5xl mx-auto px-4 py-6">
+        {groups.length > 0 ? (
+          <div className="space-y-6">
+            {groups.map(({ country, entries, unresolved }) => (
+              <section key={country.id} className="space-y-2">
+                {/* Same quiet header as a country page section: name, count, a way in */}
+                <Link
+                  to={`/country/${country.id}`}
+                  className="w-full flex items-baseline gap-2 text-left pt-1"
+                >
+                  <PlateDot color={country.colorPalette.primary} size={10} className="self-center" />
+                  <h2 className="text-sm font-bold" style={{ color: systemColors.navy }}>
+                    {country.name}
+                  </h2>
+                  <span className="text-xs" style={{ color: systemColors.navyMuted }}>
+                    {entries.length + unresolved.length}
+                  </span>
+                  <span className="ml-auto text-[0.65rem] font-bold" style={{ color: systemColors.tomato }}>
+                    open →
+                  </span>
+                </Link>
+
+                {entries.length > 0 && (
+                  <EntryGrid
+                    entries={entries}
+                    actions={actionsFor(country.id)}
+                    regionLabelFor={() => undefined}
+                  />
+                )}
+
+                {unresolved.map(item => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm"
+                    style={{ borderColor: systemColors.border, backgroundColor: systemColors.surface }}
+                  >
+                    <span style={{ color: systemColors.navy }}>{item.dishName}</span>
+                    <button
+                      onClick={() => removeFromWishlist(item.id)}
+                      className="tap text-xs font-semibold"
+                      style={{ color: systemColors.navyMuted }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </section>
+            ))}
           </div>
-          <div className="flex items-center gap-3">
-            <svg className="w-8 h-8" fill={systemColors.tomato} viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
-            <div>
-              <h1 className="text-3xl font-bold" style={{ color: systemColors.navy }}>
-                Want to Try
-              </h1>
-              <p className="mt-1" style={{ color: systemColors.navyMuted }}>
-                {wishlist.length} dish{wishlist.length !== 1 ? 'es' : ''} saved
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        {wishlist.length > 0 ? (
-          <>
-            <ListControls
-              continents={availableContinents}
-              countryIds={availableCountryIds}
-              filterContinent={filterContinent}
-              onContinentChange={setFilterContinent}
-              filterCountry={filterCountry}
-              onCountryChange={setFilterCountry}
-              ringClass="focus:ring-rose-500"
-            >
-              <FilterSelect
-                id="sortBy"
-                label="Sort By"
-                value={sortBy}
-                onChange={(v) => setSortBy(v as SortOption)}
-                ringClass="focus:ring-rose-500"
-              >
-                <option value="date-desc">Newest First</option>
-                <option value="date-asc">Oldest First</option>
-                <option value="country">Country A-Z</option>
-                <option value="name">Name A-Z</option>
-              </FilterSelect>
-            </ListControls>
-
-            {/* Results */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              {filteredWishlist.map((item) => (
-                <WishlistCard
-                  key={item.id}
-                  item={item}
-                  countryName={getCountryName(item.countryId)}
-                  onRemove={removeFromWishlist}
-                />
-              ))}
-            </div>
-
-            {filteredWishlist.length === 0 && (
-              <p className="text-gray-500 text-center py-8">
-                No dishes match your filters.
-              </p>
-            )}
-          </>
         ) : (
           <div className="text-center py-16">
-            <svg className="w-16 h-16 mx-auto mb-4" style={{ color: `${systemColors.tomato}40` }} fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
-            <p style={{ color: systemColors.navy }} className="mb-4">Your wishlist is empty.</p>
+            <div className="mx-auto mb-4 flex justify-center">
+              <PlateDot color={systemColors.saffron} size={40} />
+            </div>
+            <p className="font-semibold mb-1" style={{ color: systemColors.navy }}>Nothing saved yet.</p>
             <p className="text-sm mb-6" style={{ color: systemColors.navyMuted }}>
-              Browse countries and save dishes you want to try!
+              Tap the bookmark on any dish to keep it here for later.
             </p>
             <Link
               to="/"
-              className="inline-block px-4 py-2 rounded-md transition-colors"
+              className="btn-press inline-block px-4 py-2 rounded-md text-sm font-semibold"
               style={{ backgroundColor: systemColors.tomato, color: systemColors.seaSalt }}
             >
-              Browse Countries
+              Browse cuisines
             </Link>
           </div>
         )}

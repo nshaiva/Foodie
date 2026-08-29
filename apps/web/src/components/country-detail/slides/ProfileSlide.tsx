@@ -6,6 +6,8 @@ import type { Country, ColorPalette } from '../../../data/types';
 interface ProfileSlideProps {
   country: Country;
   colors: ColorPalette;
+  /** Single column, no heading — for the tray, where the bento grid is too tight. */
+  stacked?: boolean;
 }
 
 function TileLabel({ children }: { children: React.ReactNode }) {
@@ -16,20 +18,22 @@ function TileLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ProfileSlide({ country, colors }: ProfileSlideProps) {
+export function ProfileSlide({ country, colors, stacked = false }: ProfileSlideProps) {
   const cuisineProfile = country.cuisineProfile;
   const tile = 'bg-white rounded-2xl border border-gray-200 p-4';
 
   return (
-    <div className="p-4 h-full overflow-y-auto">
-      <h2 className="text-xl font-semibold mb-4" style={{ color: systemColors.navy }}>
-        Flavor
-      </h2>
+    <div className={stacked ? '' : 'p-4 h-full overflow-y-auto'}>
+      {!stacked && (
+        <h2 className="text-xl font-semibold mb-4" style={{ color: systemColors.navy }}>
+          Flavor
+        </h2>
+      )}
 
-      {/* Bento grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* Bento grid on the page; one column in the tray */}
+      <div className={`grid grid-cols-1 gap-4 ${stacked ? '' : 'lg:grid-cols-3'}`}>
         {/* Radar — tall feature tile */}
-        <div className={`${tile} lg:row-span-2`}>
+        <div className={`${tile} ${stacked ? '' : 'lg:row-span-2'}`}>
           <TileLabel>Flavor Fingerprint</TileLabel>
           <FlavorRadarChart
             flavorIntensity={cuisineProfile.flavorIntensity}
@@ -40,7 +44,7 @@ export function ProfileSlide({ country, colors }: ProfileSlideProps) {
 
         {/* Ingredients + cooking sequence — wide tile */}
         {cuisineProfile.ingredientTiers && (
-          <div className={`${tile} lg:col-span-2 lg:row-span-2`}>
+          <div className={`${tile} ${stacked ? '' : 'lg:col-span-2 lg:row-span-2'}`}>
             <TileLabel>How it comes together</TileLabel>
             <IngredientPyramid
               tiers={cuisineProfile.ingredientTiers}

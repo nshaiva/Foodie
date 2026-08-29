@@ -41,20 +41,20 @@ export interface CulinaryRegion {
 
 export const CULINARY_REGIONS: CulinaryRegion[] = [
   {
-    id: 'mesoamerica',
-    name: 'Mexico & the Caribbean',
-    countryIds: ['MX', 'JM'],
-    labelAt: [-88, 21],
-    zoom: { center: [-88, 20], scale: 700 },
-    spread: 4.0,
-  },
-  {
     id: 'americas',
     name: 'The Americas',
     countryIds: ['US', 'BR', 'AR', 'PE'],
     labelAt: [-64, -12],
     zoom: { center: [-70, 0], scale: 190 },
     spread: 5.2,
+  },
+  {
+    id: 'mesoamerica',
+    name: 'Mexico & the Caribbean',
+    countryIds: ['MX', 'JM'],
+    labelAt: [-88, 21],
+    zoom: { center: [-88, 20], scale: 700 },
+    spread: 4.0,
   },
   {
     id: 'europe',

@@ -14,12 +14,13 @@ import { STOCKED_REGIONS, getRegion } from '../data/culinaryRegions';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { ProfileButton } from '../components/ProfileButton';
 import { NextCountrySuggestions } from '../components/NextCountrySuggestions';
-import { WordmarkDot } from '../components/Wordmark';
+import { AppBar } from '../components/AppBar';
 import { CountryFinder } from '../components/CountryFinder';
 
 /**
  * The grid is grouped by the same eight culinary regions the mobile map uses,
- * in the order they're declared (west to east), not alphabetically by
+ * in the order they're declared (roughly west to east, umbrella region before
+ * its sub-region), not alphabetically by
  * continent. One vocabulary across the app: a chip that says "Southeast Asia"
  * should lead to a section with that name, and tapping Asia on a phone map
  * shouldn't land somewhere organized by a different idea.
@@ -87,43 +88,43 @@ export function Home() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
-      <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
-        <div className="max-w-6xl mx-auto px-4 py-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="wordmark text-3xl font-bold lowercase leading-none" style={{ color: systemColors.navy }}>
-                foodie<WordmarkDot />
-              </h1>
-              <p className="mt-1.5 text-sm" style={{ color: systemColors.navyMuted }}>
-                Explore cuisines from around the world
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
-              <Link
-                to="/restaurant"
-                className="btn-press text-sm font-semibold text-white px-3.5 py-2 rounded-lg"
-                style={{ backgroundColor: systemColors.tomato }}
+      <AppBar
+        actions={
+          <>
+            <Link
+              to="/restaurant"
+              className="btn-press text-sm font-semibold text-white px-3.5 py-2 rounded-lg"
+              style={{ backgroundColor: systemColors.tomato }}
+            >
+              🍽 At a restaurant?
+            </Link>
+            {/* The same bookmark you tap on a card, with a count — quiet, and it
+                explains itself by resemblance rather than by a word */}
+            <Link
+              to="/wishlist"
+              aria-label={`Want to try (${wishlist.length})`}
+              title="Want to try"
+              className="flex items-center gap-1.5 text-sm font-medium transition-colors hover:opacity-80"
+              style={{ color: systemColors.navy }}
+            >
+              <span
+                className="p-2 rounded-full inline-flex"
+                style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}
               >
-                🍽 At a restaurant?
-              </Link>
-              <Link
-                to="/wishlist"
-                className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
-                style={{ color: systemColors.navy }}
-              >
-                <span
-                  className="px-2 py-0.5 rounded-full font-medium"
-                  style={{ backgroundColor: `${systemColors.tomato}30`, color: systemColors.tomato }}
-                >
-                  {wishlist.length}
-                </span>
-                Wishlist
-              </Link>
-              <ProfileButton />
-            </div>
-          </div>
-        </div>
-      </header>
+                <svg className="w-4 h-4" fill={wishlist.length > 0 ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+              </span>
+              {wishlist.length > 0 && <span>{wishlist.length}</span>}
+            </Link>
+            <ProfileButton />
+          </>
+        }
+      >
+        <p className="text-sm" style={{ color: systemColors.navyMuted }}>
+          Explore cuisines from around the world
+        </p>
+      </AppBar>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-4 flex items-center justify-between gap-3">

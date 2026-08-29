@@ -1,11 +1,6 @@
 import { Link } from 'react-router-dom';
 import { systemColors } from '../data/systemColors';
 
-interface WordmarkProps {
-  /** Tailwind size class for the wordmark text. */
-  className?: string;
-}
-
 /** The brand plate dot — solid center, mid ring, pale rim — in any color/size. */
 export function PlateDot({ color, size = '0.34em', className = '', style }: {
   color: string;
@@ -32,12 +27,16 @@ export function WordmarkDot() {
   return <PlateDot color={systemColors.tomato} style={{ marginLeft: '0.08em' }} />;
 }
 
-/** The "foodie." brand wordmark, linking back to the home page. */
-export function Wordmark({ className = 'text-2xl' }: WordmarkProps) {
+/**
+ * The "foodie." brand wordmark, linking back to the home page. One fixed size
+ * on purpose: it's app chrome, and a logo that changes size page to page reads
+ * as a different app each time.
+ */
+export function Wordmark() {
   return (
     <Link
       to="/"
-      className={`wordmark font-bold lowercase leading-none inline-block ${className}`}
+      className="wordmark text-2xl font-bold lowercase leading-none inline-block flex-none whitespace-nowrap"
       style={{ color: systemColors.navy }}
     >
       foodie<WordmarkDot />
