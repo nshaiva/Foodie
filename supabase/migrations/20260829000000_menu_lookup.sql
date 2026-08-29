@@ -13,13 +13,13 @@ create table if not exists public.dish_lookups (
 create table if not exists public.lookup_usage (
   caller text not null,              -- 'user:<uuid>' or 'ip:<addr>'
   day    date not null,
-  count  int  not null default 0,
+  n      int  not null default 0,   -- not `count`: PostgREST reads that as an aggregate
   primary key (caller, day)
 );
 
 create table if not exists public.lookup_budget (
   month text primary key,            -- 'YYYY-MM'
-  count int  not null default 0
+  n     int  not null default 0
 );
 
 -- One call bumps both counters atomically.
@@ -30,10 +30,10 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.lookup_usage (caller, day, count) values (p_caller, p_day, 1)
-    on conflict (caller, day) do update set count = public.lookup_usage.count + 1;
-  insert into public.lookup_budget (month, count) values (p_month, 1)
-    on conflict (month) do update set count = public.lookup_budget.count + 1;
+  insert into public.lookup_usage (caller, day, n) values (p_caller, p_day, 1)
+    on conflict (caller, day) do update set n = public.lookup_usage.n + 1;
+  insert into public.lookup_budget (month, n) values (p_month, 1)
+    on conflict (month) do update set n = public.lookup_budget.n + 1;
 end;
 $$;
 
@@ -45,3 +45,9 @@ revoke all on public.dish_lookups  from anon, authenticated;
 revoke all on public.lookup_usage  from anon, authenticated;
 revoke all on public.lookup_budget from anon, authenticated;
 revoke all on function public.bump_lookup_counters(text, date, text) from anon, authenticated;
+
+-- With "Automatically expose new tables" off, even service_role gets no
+-- grants by default, so the Edge Function needs these explicitly.
+grant all on public.dish_lookups, public.lookup_usage, public.lookup_budget to service_role;
+grant execute on function public.bump_lookup_counters(text, date, text) to service_role;
+notify pgrst, 'reload schema';
