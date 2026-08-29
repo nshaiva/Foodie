@@ -148,3 +148,57 @@ One case is handled specially: signing in for the first time on a device that
 already has local data merges *upward*. If the cloud row is empty, local data
 is pushed to it rather than being wiped by it, so signing in never costs you
 dishes you already logged.
+
+## 4. Menu-item lookup (Edge Function)
+
+"Ask about 'X' →" on the at-the-restaurant search calls Claude through a
+Supabase Edge Function, so the Anthropic key never ships to the browser. Cost
+is ~$0.0015 per lookup (Haiku 4.5, ~500 tokens in / ~200 out). Four guards,
+from cheapest to last resort:
+
+| Guard | Where | Value |
+|---|---|---|
+| Cache by (country, dish name) | `dish_lookups` table | repeat asks are free and instant |
+| Per-caller daily cap | `lookup_usage` table | **3/day anonymous (by IP), 20/day signed in** |
+| Global monthly kill-switch | `lookup_budget` table | **2,000/month** (~$3), then the function refuses |
+| Anthropic monthly spend limit | Anthropic Console | **set this yourself, see step 4c** |
+
+### 4a. Tables
+
+Run `supabase/migrations/20260829000000_menu_lookup.sql` in the SQL Editor.
+It creates the three tables plus one counter function, with RLS on and every
+grant revoked from `anon` / `authenticated` — only the Edge Function (service
+role) can touch them.
+
+### 4b. Deploy the function
+
+```bash
+npm i -g supabase            # once
+supabase login               # once
+supabase link --project-ref <your-project-ref>
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+supabase functions deploy menu-lookup
+```
+
+The function reads `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
+`SUPABASE_SERVICE_ROLE_KEY` from the environment Supabase injects; only the
+Anthropic key is yours to set. Caps live as constants at the top of
+`supabase/functions/menu-lookup/index.ts`.
+
+### 4c. Anthropic Console spend limit (the backstop)
+
+1. [console.anthropic.com](https://console.anthropic.com) → **Settings → Limits**.
+2. Set **Monthly spend limit** to something you'd shrug at — **$10** is more
+   than six times the global cap above.
+3. Optionally set a lower **email alert** threshold ($5) so you hear about it
+   before the hard stop.
+
+If everything above fails at once, this is what stops the bill. The API returns
+an error past the limit, which the app shows as "the lookup service is busy".
+
+### 4d. Verify
+
+With the app deployed, open a cuisine at `/restaurant/<ID>`, search for a dish
+we don't have (e.g. "khao soi" on a country that lacks it), tap **Ask about**.
+A card labelled **AI-generated** should appear with the count of lookups left
+today; ask again and it should say "From a previous lookup" (cache hit).
