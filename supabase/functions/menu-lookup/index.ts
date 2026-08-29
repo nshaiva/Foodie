@@ -78,6 +78,8 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
 
+  const t0 = Date.now();
+  const lap = (label: string) => console.log(`menu-lookup ${label} +${Date.now() - t0}ms`);
   const { query, countryId, countryName } = await req.json().catch(() => ({}));
   if (typeof query !== 'string' || query.trim().length < 2 || query.length > 80) {
     return json({ error: 'bad_query' }, 400);
@@ -95,6 +97,7 @@ Deno.serve(async (req) => {
   const authHeader = req.headers.get('Authorization') ?? '';
   const asCaller = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
   const { data: { user } } = await asCaller.auth.getUser();
+  lap('auth');
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
   const callerKey = user ? `user:${user.id}` : `ip:${ip}`;
   const dailyCap = user ? DAILY_CAP_USER : DAILY_CAP_ANON;
@@ -120,6 +123,7 @@ Deno.serve(async (req) => {
     .eq('day', today)
     .maybeSingle();
   const used = usage?.n ?? 0;
+  lap('cache+usage reads');
 
   if (cached) {
     return json({ result: cached.result, cached: true, remaining: Math.max(0, dailyCap - used), signedIn: !!user });
@@ -143,6 +147,7 @@ Deno.serve(async (req) => {
   // Count before calling, so a crash mid-request still burns the attempt
   const { error: bumpErr } = await db.rpc('bump_lookup_counters', { p_caller: callerKey, p_day: today, p_month: month });
   if (bumpErr) console.error('bump_lookup_counters failed', bumpErr.message);
+  lap('budget+bump');
 
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
   if (!apiKey) return json({ error: 'not_configured' }, 503);
@@ -155,12 +160,13 @@ Deno.serve(async (req) => {
       system:
         `You identify dishes and drinks a diner might see on a ${countryName} menu, so they can decide whether to order. ` +
         'Be concrete about what it is and how it tastes; keep the description under 150 characters. ' +
-        'If the name is a category or style rather than one dish (casserole, curry, dumplings, barbecue), set scope to "generic", describe the category, and list the two to five specific dishes it most likely means on a menu in this country, most common first. ' +
+        'If the name is a category or style rather than one dish (casserole, curry, dumplings, barbecue), set scope to "generic", list the two to five specific dishes it most likely means on a menu in this country, most common first, and write the description, ingredients, spice and dietary fields for the FIRST of those, since that is what gets saved. ' +
         'Set confidence to "low" only if the name may not be a real dish at all. Never invent a dish to please the request.',
       messages: [{ role: 'user', content: `Menu item: "${query.trim()}"` }],
       output_config: { format: { type: 'json_schema', schema: DISH_SCHEMA } },
     });
 
+    lap('anthropic');
     const text = response.content.find(b => b.type === 'text')?.text;
     if (!text) return json({ error: 'no_result' }, 502);
     const result = JSON.parse(text) as DishLookupResult;
@@ -172,6 +178,7 @@ Deno.serve(async (req) => {
       result,
     });
     if (cacheErr) console.error('dish_lookups upsert failed', cacheErr.message);
+    lap('cache write');
 
     return json({ result, cached: false, remaining: Math.max(0, dailyCap - used - 1), signedIn: !!user });
   } catch (err) {

@@ -168,7 +168,7 @@ export function CountryDetail() {
 
   const handleAddDish = (data: {
     countryId: string; region?: string; name: string; notes?: string;
-    tasteRating?: number; kind?: 'food' | 'drink';
+    tasteRating?: number; kind?: 'food' | 'drink'; source?: 'lookup';
     initialRestaurantTry?: Omit<RestaurantTry, 'id'>;
   }) => {
     addDish({
@@ -176,6 +176,7 @@ export function CountryDetail() {
       region: data.region,
       name: data.name,
       kind: data.kind,
+      source: data.source,
       notes: data.notes,
       tasteRating: data.tasteRating,
       restaurantTries: data.initialRestaurantTry
