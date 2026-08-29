@@ -10,7 +10,7 @@ import { useDietPrefs } from '../hooks/useDietPrefs';
 import { rankDishesForOrdering, type RankedDish } from '../utils/orderRanking';
 import { shapeOrderList, matchesMenuSearch, DEFAULT_SHAPE } from '../utils/orderGrouping';
 import { Wordmark, PlateDot } from '../components/Wordmark';
-import { SignInButton } from '../components/SignInButton';
+import { ProfileButton } from '../components/ProfileButton';
 import { UnifiedDishCard } from '../components/country-detail/UnifiedDishCard';
 import { ExpandableText } from '../components/ExpandableText';
 import { FavoriteButton } from '../components/FavoriteButton';
@@ -31,14 +31,7 @@ export function AtRestaurant() {
       <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
         <div className="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
           <Wordmark className="text-xl" />
-          <div className="flex items-center gap-3">
-            {country && (
-              <Link to="/restaurant" className="text-sm font-medium btn-press" style={{ color: systemColors.navyMuted }}>
-                ↩ Change cuisine
-              </Link>
-            )}
-            <SignInButton />
-          </div>
+          <ProfileButton />
         </div>
       </header>
 
@@ -215,6 +208,13 @@ function OrderList({ countryId }: { countryId: string }) {
 
   return (
     <div>
+      <Link
+        to="/restaurant"
+        className="tap inline-block text-sm font-medium mb-2 btn-press"
+        style={{ color: systemColors.navyMuted }}
+      >
+        ← All cuisines
+      </Link>
       <div className="flex items-center gap-2.5 mb-1">
         <PlateDot color={country.colorPalette.primary} size={16} />
         <h1 className="text-2xl font-bold" style={{ color: systemColors.navy }}>
@@ -233,7 +233,7 @@ function OrderList({ countryId }: { countryId: string }) {
         onChange={e => setMenuQuery(e.target.value)}
         placeholder="Find something on the menu…"
         aria-label="Search this cuisine"
-        className="w-full text-sm px-3 py-2 rounded-lg border mb-4"
+        className="w-full text-sm px-3 py-2.5 md:py-2 rounded-lg border mb-4"
         style={{ borderColor: systemColors.border, color: systemColors.navy }}
       />
 

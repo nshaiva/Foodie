@@ -28,7 +28,6 @@ Items within each tier are grouped by the goal they serve:
 
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
-| 27 | **At-the-restaurant: mobile-first grouping + UI quick wins** | Added 2026-08-23 from notes. This is the **primary thesis surface** — the "I'm at a table and don't know what to order" moment, which by definition happens on a phone — and it's the only item on the current list that serves the primary goal rather than a secondary one. Nikita's note: "should group some things w the mobile first view". **Tension to decide before building:** the mobile audit (#8) is deliberately held to the MVP gate so surfaces aren't polished twice. Recommendation is a **scoped exception for this one view** and nothing else, because this is the single screen where being bad on a phone means the app fails at its main job. Needs a look together at what "group some things" should mean — likely the order list, since that's what you scan under table pressure. Possibly absorbs #26. | S–M |
 | 29 | **Cuisine familiarity levels (First plate · Second helping · Off-menu)** | Added 2026-08-23 from Nikita. What you're offered depends on how well you already know a cuisine: new to it means **fewer**, more fundamental options (an unfamiliar menu is too much choice, not too little); familiar means a wider spread across regions; deep in it means the nuanced dishes first. Level is **per country, never global**. Earned from behaviour (`countryDishProgress()` plus spread across regions/categories) and cold-started by **#5**'s declared familiarity, which also overrides it permanently — build the two together. Nothing is hidden: the list gets shorter and reorders, with a one-tap "show everything". **Decided 2026-08-23:** (a) names are food-native rather than beginner/advanced, which would rank the eater; (b) **#9 expands to ~30 dishes per country** (from ~9.5, so closer to tripling than doubling its dish content) so the deep tier has something deep in it. **Blocked on content, not code** — there are only **294 dishes** total, ~9.5 per country (plus 155 drinks; the "449" figure quoted earlier counted both), and that *is* the whole dataset, so shipping the mechanism today would reorder the same nine dishes. **Food only (2026-08-23):** drinks never truncate — there are exactly 5 per country (155 total), already fewer than a First plate food list, and drink familiarity doesn't track food familiarity. **Setting the level:** logged dishes are the truth; the seed is **already collected** — the survey deck offers 2 dishes per country and "🤔 Haven't tried it" is a distinct answer, so `foodie-taste-survey` records per-country familiarity today with no new question; and a per-country manual override (`foodie-cuisine-level`, add to `syncKeys.ts`) always wins and is never recalculated away. Onboarding questions and favorites-derived levels were considered and rejected — see the spec. Full spec: [`designs/cuisine-familiarity-levels.md`](designs/cuisine-familiarity-levels.md). | M (mechanism) + gated on #9 (content) |
 
 ### G2 🗺 Track & explore world cuisines
@@ -121,10 +120,10 @@ Quick captures land here; ranked into tiers during roadmap reviews.
 Updated 2026-08-23, replacing a stale entry that still described #2 as unbuilt
 and cloud sync as inert. Both shipped.
 
-**#27, the at-the-restaurant mobile pass**, is the live thread — the only open
-item serving the primary thesis. One decision is owed before it starts: whether
-to make it a scoped exception to #8, which deliberately holds the mobile audit
-to the MVP gate. It can now reuse the chip rail from #26.
+**#27, the at-the-restaurant mobile pass, shipped 2026-08-05** (see Built) as a
+scoped exception to #8. With it gone, nothing open serves the primary thesis
+directly; the next G1 candidates are **#3** (menu-item lookup, un-defer
+recommended) and **#29** (familiarity levels, gated on #9's content).
 
 **#9 is quietly the largest item on the board** and should be costed before it
 runs. It now owes: regions for Ethiopia, Japan and Peru; `regionalOrigin` fixes
@@ -145,6 +144,31 @@ Unverified on a real phone: whether the filter rail's edge fade reads as
 
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
+
+- **At-the-restaurant phone pass** (2026-08-05, G1, was #27) — the primary
+  thesis screen made genuinely usable at 390px. **Decided: a scoped exception
+  to the mobile audit (#8)** for this one view, because it's the single screen
+  where being bad on a phone means the app fails at its main job; the audit
+  still waits for the MVP gate for everything else. Measured before touching
+  code: no horizontal overflow, no errors, but 50 controls under a 40px hit
+  area. Fixes, all as `md:` breakpoints on shared markup rather than a mobile
+  branch: a `.tap` utility (`index.css`) gives text-style controls a 40px-tall
+  hit area below `md` via padding cancelled by negative margin, so layout
+  doesn't move; favorite/want-to-try corner buttons are 40px below `md`, 32px
+  above; the pencil/trash icons get real 40px size on phone (a delete must not
+  share its hit area with the edit beside it); the menu search box is taller.
+  The grouping half of the note had already shipped as #28. **Chips grew
+  labels on phone**: the one-tint chip system relies on tooltips for meaning,
+  and touch has no tooltips, so 📍/📷 read "Local favorite" / "Tourist classic"
+  below `md` and stay icon-only above. Because the fixes live in
+  `UnifiedDishCard`, `FavoriteButton`, `WantToTryButton`, `ExpandableText` and
+  `dishChips`, the country page cards got the same treatment for free.
+  **"Change cuisine" left the header**: it crowded the wordmark on a phone, and
+  the header is app chrome, not this screen's. A tappable country name was tried
+  and rejected as unintuitive; it's now an explicit "← All cuisines" link
+  above the title, inside the section.
+  Still unverified on a real device: the chip rail's edge fade and map bubble
+  taps while zoomed (carried in the #8 audit).
 
 - **Region map on mobile** (2026-08-23, G2) — the phone has a map again. It
   opens on **eight culinary regions**, not countries: 31 countries at 390px are

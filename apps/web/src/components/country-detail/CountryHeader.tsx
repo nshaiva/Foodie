@@ -1,7 +1,7 @@
 import type { ColorPalette } from '../../data/types';
 import { systemColors } from '../../data/systemColors';
 import { Wordmark } from '../Wordmark';
-import { SignInButton } from '../SignInButton';
+import { ProfileButton } from '../ProfileButton';
 import { ProgressPlate } from '../ProgressPlate';
 import type { DishProgress } from '../../utils/dishProgress';
 
@@ -19,7 +19,7 @@ export function CountryHeader({ name, capital, region, colors, progress }: Count
       <div className="max-w-5xl mx-auto px-4 py-4">
         <div className="mb-2 flex items-start justify-between gap-3">
           <Wordmark className="text-2xl" />
-          <SignInButton />
+          <ProfileButton />
         </div>
         <h1 className="text-3xl font-bold flex items-center gap-2.5" style={{ color: systemColors.navy }}>
           {progress && progress.percent > 0 ? (

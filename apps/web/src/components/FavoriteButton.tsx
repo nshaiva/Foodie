@@ -13,7 +13,7 @@ export function FavoriteButton({ isFavorite, onAdd, onRemove, compact = false }:
     return (
       <button
         onClick={isFavorite ? onRemove : onAdd}
-        className="p-2 rounded-full transition-colors"
+        className="p-3 md:p-2 rounded-full transition-colors"
         style={{
           backgroundColor: isFavorite ? systemColors.tomato : systemColors.tomatoLight,
           color: isFavorite ? 'white' : systemColors.tomato

@@ -20,8 +20,9 @@ export function spiceChip(level: Dish['spiceLevel']) {
 
 // Ordering advice from `popularity`; "both" gets no tag
 export function popularityChip(popularity: Dish['popularity']) {
-  if (popularity === 'local-favorite') return chip('📍', 'Local favorite');
-  if (popularity === 'tourist-classic') return chip('📷', 'Tourist classic');
+  // Touch has no tooltips, so the label shows below md and the icon stands alone above.
+  if (popularity === 'local-favorite') return chip(<>📍<span className="md:hidden ml-1">Local favorite</span></>, 'Local favorite');
+  if (popularity === 'tourist-classic') return chip(<>📷<span className="md:hidden ml-1">Tourist classic</span></>, 'Tourist classic');
   return null;
 }
 

@@ -12,8 +12,7 @@ import { WorldMap } from '../components/map/WorldMap';
 import { RegionMap } from '../components/map/RegionMap';
 import { STOCKED_REGIONS, getRegion } from '../data/culinaryRegions';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { TasteProfileButton } from '../components/TasteProfileButton';
-import { SignInButton } from '../components/SignInButton';
+import { ProfileButton } from '../components/ProfileButton';
 import { NextCountrySuggestions } from '../components/NextCountrySuggestions';
 import { WordmarkDot } from '../components/Wordmark';
 import { CountryFinder } from '../components/CountryFinder';
@@ -107,7 +106,6 @@ export function Home() {
               >
                 🍽 At a restaurant?
               </Link>
-              <TasteProfileButton />
               <Link
                 to="/wishlist"
                 className="flex items-center gap-2 text-sm transition-colors hover:opacity-80"
@@ -121,7 +119,7 @@ export function Home() {
                 </span>
                 Wishlist
               </Link>
-              <SignInButton />
+              <ProfileButton />
             </div>
           </div>
         </div>

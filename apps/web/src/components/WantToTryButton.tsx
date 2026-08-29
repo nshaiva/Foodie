@@ -13,7 +13,7 @@ export function WantToTryButton({ isOnWishlist, onAdd, onRemove, compact = false
     return (
       <button
         onClick={isOnWishlist ? onRemove : onAdd}
-        className="p-2 rounded-full transition-colors"
+        className="p-3 md:p-2 rounded-full transition-colors"
         style={{
           backgroundColor: isOnWishlist ? systemColors.saffron : systemColors.saffronLight,
           color: isOnWishlist ? 'white' : systemColors.navy
