@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import type { RestaurantTry, RegionalCuisine, Dish } from '../data/types';
 import { systemColors } from '../data/systemColors';
 import { regionNameFor } from '../utils/dishRegion';
+import { isCloudConfigured } from '../lib/supabase';
+import { lookupMenuItem, type LookupOutcome } from '../lib/menuLookup';
 
 type TryType = 'none' | 'restaurant';
 
@@ -17,6 +19,9 @@ interface DishFormProps {
     name: string;
     notes?: string;
     tasteRating?: number;
+    kind?: 'food' | 'drink';
+    /** Set when the details came from an AI menu lookup */
+    source?: 'lookup';
     initialRestaurantTry?: Omit<RestaurantTry, 'id'>;
   }) => void;
   onCancel: () => void;
@@ -78,6 +83,33 @@ export function DishForm({
 
   const [tryType, setTryType] = useState<TryType>('none');
 
+  // "Fill in with AI": the same menu lookup as the at-the-restaurant search,
+  // used to draft this form. What it fills stays editable; the entry is
+  // marked source: 'lookup' so its guessed traits never feed the profile.
+  const [fill, setFill] = useState<{ kind: 'idle' } | { kind: 'loading' } | { kind: 'done'; outcome: LookupOutcome; for: string }>({ kind: 'idle' });
+  const [kind, setKind] = useState<'food' | 'drink' | undefined>(undefined);
+  const [fromLookup, setFromLookup] = useState(false);
+  const knownDish = !!popularDishes?.some(
+    d => d.name.toLowerCase() === name.trim().toLowerCase() || d.englishName?.toLowerCase() === name.trim().toLowerCase()
+  );
+  const canFill = isCloudConfigured && name.trim().length >= 2 && !knownDish && fill.kind !== 'loading';
+
+  const fillWithAI = async () => {
+    const q = name.trim();
+    setFill({ kind: 'loading' });
+    const outcome = await lookupMenuItem(q, countryId, countryName);
+    setFill({ kind: 'done', outcome, for: q });
+    if (!outcome.ok) return;
+    const r = outcome.result;
+    // A category ("casserole") becomes its most likely specific dish; still editable
+    if (r.scope === 'generic' && r.likelyDishes?.[0]) setName(r.likelyDishes[0]);
+    else if (r.name && r.confidence !== 'low') setName(r.name);
+    const draft = `${r.description}${r.keyIngredients.length ? ` Likely ingredients: ${r.keyIngredients.join(', ')}.` : ''}`;
+    setNotes(prev => (prev.trim() ? prev : draft));
+    setKind(r.category === 'beverage' ? 'drink' : 'food');
+    setFromLookup(true);
+  };
+
   // "Where I ate it" fields
   const [restaurantName, setRestaurantName] = useState('');
   const [restaurantDate, setRestaurantDate] = useState(new Date().toISOString().split('T')[0]);
@@ -114,6 +146,8 @@ export function DishForm({
       notes: notes.trim() || undefined,
       // Only save tasteRating on the dish when "just logging" — tries store their own rating
       tasteRating: tryType === 'none' && tasteRating ? parseInt(tasteRating, 10) : undefined,
+      kind,
+      source: fromLookup ? 'lookup' : undefined,
       initialRestaurantTry,
     });
   };
@@ -137,6 +171,28 @@ export function DishForm({
             placeholder="e.g., Pad Thai"
             required
           />
+          {isCloudConfigured && !knownDish && name.trim().length >= 2 && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <button
+                type="button"
+                onClick={fillWithAI}
+                disabled={!canFill}
+                className="tap btn-press text-xs font-semibold disabled:opacity-60"
+                style={{ color: systemColors.tomato }}
+              >
+                {fill.kind === 'loading' ? 'Asking…' : '✦ Fill in with AI'}
+              </button>
+              {fill.kind === 'done' && fill.for && (
+                <span className="text-xs" style={{ color: fill.outcome.ok ? systemColors.navyMuted : systemColors.tomato }}>
+                  {fill.outcome.ok
+                    ? `Drafted from a lookup — edit anything. ${fill.outcome.cached ? 'From a previous lookup.' : `${fill.outcome.remaining} left today.`}${fill.outcome.result.scope === 'generic' && fill.outcome.result.likelyDishes?.length > 1 ? ` Could also be: ${fill.outcome.result.likelyDishes.slice(1).join(', ')}.` : ''}`
+                    : fill.outcome.error === 'daily_limit'
+                      ? (fill.outcome.signedIn ? `Today's ${fill.outcome.cap} lookups are used.` : `Guests get ${fill.outcome.cap} lookups a day; sign in for more.`)
+                      : 'Lookup unavailable right now.'}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Taste Rating */}

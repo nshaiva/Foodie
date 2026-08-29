@@ -181,7 +181,14 @@ at Tier 2.
   "N lookups left today / sign in for more"; global monthly cap of 2,000; and
   the Console spend limit as backstop. Unrated lookup dishes are excluded from
   the flavor profile until the diner rates them. Hidden entirely when cloud
-  sync isn't configured.
+  sync isn't configured. **Deployed and verified live 2026-08-29** (cache
+  hit, decrementing count, 3/day cap). **Follow-ups the same day:** a category
+  ("casserole") is told apart from a dish, with the specific dishes it usually
+  means in that country listed as plain text and the most likely one saved;
+  and the country page's **Add a dish form has "✦ Fill in with AI"**, which
+  drafts name, notes (description + likely ingredients) and food/drink kind
+  from the same lookup, all editable, marked `source: 'lookup'`. Warm calls
+  ~4s; cold starts after a deploy can take a minute.
 - **Focused region with no dishes (was #24)** (2026-08-29, Foundation) —
   verified on Brazil's Gaúcho Country: the focused region card (description,
   key ingredients, "0 dishes") renders with a quiet "No dishes recorded from

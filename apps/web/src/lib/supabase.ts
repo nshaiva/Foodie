@@ -19,6 +19,10 @@ export const supabase: SupabaseClient | null =
 
 export const isCloudConfigured = supabase !== null;
 
+/** For direct calls to Edge Functions (see lib/menuLookup.ts). */
+export const supabaseUrl: string | undefined = url;
+export const supabaseAnonKey: string | undefined = anonKey;
+
 /** The single row each user owns in the `profiles` table. */
 export interface ProfileRow {
   user_id: string;
