@@ -11,6 +11,10 @@ export interface DishLookupResult {
   category: Dish['category'];
   dietary: { isVegetarian: boolean; isVegan: boolean; isGlutenFree: boolean };
   confidence: 'high' | 'medium' | 'low';
+  /** 'generic' when the name is a category (casserole, curry) rather than one dish */
+  scope: 'specific' | 'generic';
+  /** For a generic name: the specific dishes it most likely means here, most common first */
+  likelyDishes: string[];
 }
 
 export type LookupOutcome =

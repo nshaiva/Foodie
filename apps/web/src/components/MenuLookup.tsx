@@ -68,6 +68,8 @@ export function MenuLookup({ query, countryId, countryName, onSave }: MenuLookup
   }
 
   const r = outcome.result;
+  // For a generic term, save the most likely specific dish, not the category
+  const saveName = r.scope === 'generic' && r.likelyDishes?.[0] ? r.likelyDishes[0] : r.name;
   return (
     <div
       className="mt-3 rounded-xl border p-4"
@@ -100,9 +102,19 @@ export function MenuLookup({ query, countryId, countryName, onSave }: MenuLookup
         {dietaryChips(r.dietary)}
       </div>
 
-      {r.confidence === 'low' && (
+      {/* A category, not a dish: name the likely specifics as plain text (no
+          extra lookups, no extra tokens) and save the most likely one; the
+          diner can rename it on the card if it was another. */}
+      {r.scope === 'generic' && (r.likelyDishes?.length ?? 0) > 0 && (
+        <p className="text-xs mt-2.5" style={{ color: systemColors.navyMuted }}>
+          <span className="font-semibold">A general term. In {countryName} it usually means: </span>
+          {r.likelyDishes.join(', ')}.
+        </p>
+      )}
+
+      {r.confidence === 'low' && r.scope !== 'generic' && (
         <p className="text-xs mt-2 italic" style={{ color: systemColors.tomato }}>
-          Not confident this is a real dish — worth asking your server.
+          Not sure this is a real dish — worth asking your server.
         </p>
       )}
 
@@ -111,11 +123,11 @@ export function MenuLookup({ query, countryId, countryName, onSave }: MenuLookup
           <span className="text-sm font-semibold" style={{ color: systemColors.herb }}>✓ Saved to your dishes</span>
         ) : (
           <button
-            onClick={() => { onSave(r); setSaved(true); }}
+            onClick={() => { onSave({ ...r, name: saveName }); setSaved(true); }}
             className="tap btn-press text-sm font-semibold"
             style={{ color: systemColors.herb }}
           >
-            + Save to my dishes
+            + Save {saveName !== r.name ? `as “${saveName}”` : 'to my dishes'}
           </button>
         )}
         <span className="text-xs ml-auto" style={{ color: systemColors.navyMuted }}>

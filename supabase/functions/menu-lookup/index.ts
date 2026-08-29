@@ -30,7 +30,7 @@ const CATEGORY = ['appetizer', 'soup', 'salad', 'main', 'side', 'street-food', '
 const DISH_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['name', 'englishName', 'description', 'keyIngredients', 'spiceLevel', 'category', 'dietary', 'confidence'],
+  required: ['name', 'englishName', 'description', 'keyIngredients', 'spiceLevel', 'category', 'dietary', 'confidence', 'scope', 'likelyDishes'],
   properties: {
     name: { type: 'string', description: 'The dish name as a diner would say it, corrected for spelling' },
     englishName: { type: ['string', 'null'], description: 'Plain-English name if the name is not English' },
@@ -44,7 +44,9 @@ const DISH_SCHEMA = {
       required: ['isVegetarian', 'isVegan', 'isGlutenFree'],
       properties: { isVegetarian: { type: 'boolean' }, isVegan: { type: 'boolean' }, isGlutenFree: { type: 'boolean' } },
     },
-    confidence: { type: 'string', enum: ['high', 'medium', 'low'], description: 'low if this may not be a real dish or is ambiguous' },
+    confidence: { type: 'string', enum: ['high', 'medium', 'low'], description: 'low only if this may not be a real dish at all' },
+    scope: { type: 'string', enum: ['specific', 'generic'], description: 'generic when the name is a category or style (casserole, curry, dumplings) rather than one dish' },
+    likelyDishes: { type: 'array', items: { type: 'string' }, description: 'When generic: two to five specific dishes this most likely means on a menu in this country, most common first. Empty when specific.' },
   },
 } as const;
 
@@ -57,6 +59,8 @@ export interface DishLookupResult {
   category: (typeof CATEGORY)[number];
   dietary: { isVegetarian: boolean; isVegan: boolean; isGlutenFree: boolean };
   confidence: 'high' | 'medium' | 'low';
+  scope: 'specific' | 'generic';
+  likelyDishes: string[];
 }
 
 function json(body: unknown, status = 200) {
@@ -151,8 +155,8 @@ Deno.serve(async (req) => {
       system:
         `You identify dishes and drinks a diner might see on a ${countryName} menu, so they can decide whether to order. ` +
         'Be concrete about what it is and how it tastes; keep the description under 150 characters. ' +
-        'If the name is not a real dish, or is too ambiguous to identify with reasonable confidence, set confidence to "low" and describe the most likely reading. ' +
-        'Never invent a dish to please the request.',
+        'If the name is a category or style rather than one dish (casserole, curry, dumplings, barbecue), set scope to "generic", describe the category, and list the two to five specific dishes it most likely means on a menu in this country, most common first. ' +
+        'Set confidence to "low" only if the name may not be a real dish at all. Never invent a dish to please the request.',
       messages: [{ role: 'user', content: `Menu item: "${query.trim()}"` }],
       output_config: { format: { type: 'json_schema', schema: DISH_SCHEMA } },
     });
