@@ -1,6 +1,6 @@
 import type { ColorPalette } from '../../data/types';
 import { systemColors } from '../../data/systemColors';
-import { Wordmark } from '../Wordmark';
+import { AppBar } from '../AppBar';
 import { ProfileButton } from '../ProfileButton';
 import { ProgressPlate } from '../ProgressPlate';
 import type { DishProgress } from '../../utils/dishProgress';
@@ -11,16 +11,15 @@ interface CountryHeaderProps {
   region: string;
   colors: ColorPalette;
   progress?: DishProgress;
+  /** Pull-out controls (fingerprint, food culture) that belong with the title. */
+  tools?: React.ReactNode;
+  /** The cuisine in a sentence or two — the header is the intro. */
+  summary?: string;
 }
 
-export function CountryHeader({ name, capital, region, colors, progress }: CountryHeaderProps) {
+export function CountryHeader({ name, capital, region, colors, progress, tools, summary }: CountryHeaderProps) {
   return (
-    <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
-      <div className="max-w-5xl mx-auto px-4 py-4">
-        <div className="mb-2 flex items-start justify-between gap-3">
-          <Wordmark className="text-2xl" />
-          <ProfileButton />
-        </div>
+    <AppBar actions={<ProfileButton />}>
         <h1 className="text-3xl font-bold flex items-center gap-2.5" style={{ color: systemColors.navy }}>
           {progress && progress.percent > 0 ? (
             /* Progress plate: % of popular dishes tried, in the flag tone */
@@ -39,10 +38,17 @@ export function CountryHeader({ name, capital, region, colors, progress }: Count
           )}
           {name}
         </h1>
-        <p className="mt-1" style={{ color: systemColors.navyMuted }}>
-          {capital} · {region}
-        </p>
-      </div>
-    </header>
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p style={{ color: systemColors.navyMuted }}>
+            {capital} · {region}
+          </p>
+          {tools && <div className="flex flex-wrap items-center gap-2">{tools}</div>}
+        </div>
+        {summary && (
+          <p className="mt-4 text-[0.95rem] leading-relaxed" style={{ color: systemColors.navy }}>
+            {summary}
+          </p>
+        )}
+    </AppBar>
   );
 }

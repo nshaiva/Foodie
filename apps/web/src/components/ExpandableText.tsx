@@ -20,14 +20,16 @@ import { systemColors } from '../data/systemColors';
  * `ResizeObserver` re-checks when the column changes width, so the control
  * appears and disappears correctly as the grid reflows.
  *
- * Clamped at three lines rather than two: measured over the 294 dish
- * descriptions, two lines left all but one truncated, while three renders 57
- * of them (19%) complete. The country grid's cards already stretch to the
- * tallest in their row, so the extra line mostly reclaims whitespace.
+ * Clamped at five lines (#33, 2026-08-29). Measured on a 324px phone card:
+ * descriptions run 173-238 characters and need 4-5 lines at 14px, and the
+ * same 4-5 lines at 13px, so shrinking the type saved nothing. Three lines
+ * clipped every card; five lets every current description read in full, at
+ * the cost of ~2 lines of card height. The control still appears for any
+ * future description that overruns.
  */
 export function ExpandableText({
   text,
-  clamp = 'line-clamp-3',
+  clamp = 'line-clamp-5',
   className = 'text-sm text-gray-600',
 }: {
   text: string;

@@ -9,7 +9,8 @@ import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useDietPrefs } from '../hooks/useDietPrefs';
 import { rankDishesForOrdering, type RankedDish } from '../utils/orderRanking';
 import { shapeOrderList, matchesMenuSearch, DEFAULT_SHAPE } from '../utils/orderGrouping';
-import { Wordmark, PlateDot } from '../components/Wordmark';
+import { PlateDot } from '../components/Wordmark';
+import { AppBar } from '../components/AppBar';
 import { ProfileButton } from '../components/ProfileButton';
 import { UnifiedDishCard } from '../components/country-detail/UnifiedDishCard';
 import { ExpandableText } from '../components/ExpandableText';
@@ -28,12 +29,7 @@ export function AtRestaurant() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
-      <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
-        <div className="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Wordmark className="text-xl" />
-          <ProfileButton />
-        </div>
-      </header>
+      <AppBar actions={<ProfileButton />} />
 
       <main className="max-w-xl mx-auto px-4 py-5">
         {country ? <OrderList countryId={country.id} /> : <CuisinePicker />}

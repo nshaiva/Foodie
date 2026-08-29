@@ -6,7 +6,7 @@ interface ProgressPlateProps {
   /** Pixel size of the plate */
   size?: number;
   color?: string;
-  /** Tooltip, e.g. "3 of 8 dishes tried" */
+  /** Tooltip, e.g. "3 of 8 dishes tried" — shown on hover/focus as a styled label */
   title?: string;
   className?: string;
 }
@@ -25,8 +25,8 @@ export function ProgressPlate({ percent, size = 28, color = systemColors.tomato,
       aria-hidden={title ? undefined : true}
       role={title ? 'img' : undefined}
       aria-label={title}
-      title={title}
-      className={`relative inline-block rounded-full flex-none ${className ?? ''}`}
+      tabIndex={title ? 0 : undefined}
+      className={`group relative inline-block rounded-full flex-none ${className ?? ''}`}
       style={{
         width: size,
         height: size,
@@ -42,6 +42,15 @@ export function ProgressPlate({ percent, size = 28, color = systemColors.tomato,
           mask: 'radial-gradient(circle, transparent 0 42%, #000 42% 100%)',
         }}
       />
+      {title && (
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute left-1/2 top-full z-20 mt-1.5 -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium normal-case tracking-normal opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+          style={{ backgroundColor: systemColors.navy, color: systemColors.seaSalt }}
+        >
+          {title}
+        </span>
+      )}
     </span>
   );
 }
