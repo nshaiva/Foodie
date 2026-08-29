@@ -158,7 +158,13 @@ export function regionFromSlug(
   slug: string,
   regions: RegionalCuisine[] | undefined
 ): RegionalCuisine | undefined {
-  return regions?.find(r => regionSlug(r.name) === slug);
+  // A region's parenthetical is a name people use too: "The South (Gaúcho
+  // Country)" answers to ?region=gaucho-country as well as ?region=the-south.
+  return regions?.find(r => {
+    if (regionSlug(r.name) === slug) return true;
+    const alias = r.name.match(/\(([^)]+)\)/)?.[1];
+    return !!alias && regionSlug(alias) === slug;
+  });
 }
 
 /* ------------------------------------------------------------------ */

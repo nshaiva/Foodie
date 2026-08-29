@@ -243,18 +243,6 @@ export const RegionalMap = memo(function RegionalMap({
         </ZoomableGroup>
       </ComposableMap>
 
-      {/* Label showing current selection */}
-      <div
-        className="absolute top-3 left-3 px-3 py-1.5 rounded-full text-sm font-medium"
-        style={{
-          backgroundColor: selectedRegion ? colors.primary : 'white',
-          color: selectedRegion ? 'white' : colors.text,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        }}
-      >
-        {selectedRegion ? getShortRegionName(selectedRegion) : 'Overview'}
-      </div>
-
       {/* Hint text when no region selected */}
       {!selectedRegion && (
         <p className="absolute bottom-3 left-0 right-0 text-center text-xs text-gray-500">

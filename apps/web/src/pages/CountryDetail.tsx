@@ -239,8 +239,11 @@ export function CountryDetail() {
                 ))}
               </span>
             )}
-            <TrayButton onClick={() => setShowFlavor(true)} icon="✦" label="Flavor fingerprint" color={colors.primary} />
-            <TrayButton onClick={() => setShowCulture(true)} icon="📖" label="Food culture" color={colors.primary} />
+            {/* The two pills wrap as a pair, so on a phone they share a line */}
+            <span className="flex gap-2 flex-none">
+              <TrayButton onClick={() => setShowFlavor(true)} icon="✦" label="Flavor fingerprint" color={colors.primary} />
+              <TrayButton onClick={() => setShowCulture(true)} icon="📖" label="Food culture" color={colors.primary} />
+            </span>
           </>
         }
       />
@@ -267,18 +270,26 @@ export function CountryDetail() {
               mapOpen={mapOpen}
               onToggleMap={() => setMapPref(mapOpen ? 'closed' : (focusedRegion || narrowedByFilters) ? 'open' : 'auto')}
             />
-            {mapOpen && (
-              <div className="h-72 sm:h-[22rem] max-w-2xl w-full mx-auto">
-                <RegionalMap
-                  countryId={country.id}
-                  regions={regions}
-                  colors={colors}
-                  counts={counts}
-                  selectedRegion={focusedRegion?.name ?? null}
-                  onSelectRegion={setFocus}
-                />
+            {/* Stays mounted and animates closed, so focusing a region doesn't
+                snap the page up by a map's height in a single frame */}
+            <div
+              className="grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none"
+              style={{ gridTemplateRows: mapOpen ? '1fr' : '0fr' }}
+              aria-hidden={!mapOpen}
+            >
+              <div className={`min-h-0 overflow-hidden transition-opacity duration-300 ${mapOpen ? 'opacity-100' : 'opacity-0'}`}>
+                <div className="h-72 sm:h-[22rem] max-w-2xl w-full mx-auto">
+                  <RegionalMap
+                    countryId={country.id}
+                    regions={regions}
+                    colors={colors}
+                    counts={counts}
+                    selectedRegion={focusedRegion?.name ?? null}
+                    onSelectRegion={setFocus}
+                  />
+                </div>
               </div>
-            )}
+            </div>
           </div>
         )}
 

@@ -199,6 +199,9 @@ export interface UserDish {
   region?: string;
   name: string;
   kind?: 'food' | 'drink';  // defaults to food; set for entries logged from the Drinks tab
+  /** How the entry came to exist. 'lookup' = saved from an AI menu lookup (#3);
+   *  its guessed traits never feed the flavor profile unless the diner rates it. */
+  source?: 'lookup' | 'survey';
   notes?: string;
   tasteRating?: number;  // 1-5: How much you enjoyed eating this dish
   restaurantTries?: RestaurantTry[];

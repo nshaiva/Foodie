@@ -243,3 +243,16 @@ label[for],
     margin-block: -12px;
   }
 }
+
+/* Keyboard focus, app-wide. `:focus-visible` means a mouse click leaves no
+   ring behind on the chip you just tapped (the browser's blue default did,
+   and read as a glitch); tabbing to a control still shows one, in the
+   brand terracotta. */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #C2654A;
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+:where(button, a, input, select, textarea):focus:not(:focus-visible) {
+  outline: none;
+}

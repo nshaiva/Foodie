@@ -281,10 +281,14 @@ function calculateRichnessAffinity(cuisineWeights: Map<string, number>): Affinit
 }
 
 export function usePersonalFlavorProfile(): PersonalFlavorProfile {
-  const { dishes } = useDishes();
+  const { dishes: allDishes } = useDishes();
   const { ratedAnswers } = useTasteSurvey();
 
   return useMemo(() => {
+    // A dish saved from an AI menu lookup is a guess until the diner rates it:
+    // its traits must not shape the profile (#3), so unrated lookups sit out.
+    const dishes = allDishes.filter(d => !(d.source === 'lookup' && dishVerdictRating(d) === undefined));
+
     // A survey answer for a dish you've also logged is redundant — the log wins
     const loggedKeys = new Set(dishes.map(d => `${d.countryId}:${d.name.toLowerCase()}`));
     const survey = ratedAnswers.filter(
@@ -430,5 +434,5 @@ export function usePersonalFlavorProfile(): PersonalFlavorProfile {
       hasEnoughForSpectrums,
       hasEnoughForTimeline,
     };
-  }, [dishes, ratedAnswers]);
+  }, [allDishes, ratedAnswers]);
 }

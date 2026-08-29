@@ -11,6 +11,7 @@ import { rankDishesForOrdering, type RankedDish } from '../utils/orderRanking';
 import { shapeOrderList, matchesMenuSearch, DEFAULT_SHAPE } from '../utils/orderGrouping';
 import { PlateDot } from '../components/Wordmark';
 import { AppBar } from '../components/AppBar';
+import { MenuLookup } from '../components/MenuLookup';
 import { ProfileButton } from '../components/ProfileButton';
 import { UnifiedDishCard } from '../components/country-detail/UnifiedDishCard';
 import { ExpandableText } from '../components/ExpandableText';
@@ -238,10 +239,26 @@ function OrderList({ countryId }: { countryId: string }) {
       </div>
 
       {visible.length === 0 && (
-        <p className="text-sm py-2" style={{ color: systemColors.navyMuted }}>
-          Nothing here matches “{menuQuery.trim()}”. It may still be on the menu —
-          we only know {ranked.length} {country.name} dishes so far.
-        </p>
+        <div className="py-2">
+          <p className="text-sm" style={{ color: systemColors.navyMuted }}>
+            Nothing here matches “{menuQuery.trim()}”. It may still be on the menu —
+            we only know {ranked.length} {country.name} dishes so far.
+          </p>
+          {/* The gap #3 closes: a real menu has sixty things and we know nine */}
+          <MenuLookup
+            query={menuQuery}
+            countryId={countryId}
+            countryName={country.name}
+            onSave={r => addDish({
+              countryId,
+              name: r.name,
+              kind: r.category === 'beverage' ? 'drink' : 'food',
+              source: 'lookup',
+              notes: `${r.description}${r.keyIngredients.length ? ` Likely ingredients: ${r.keyIngredients.join(', ')}.` : ''} (AI-generated)`,
+              restaurantTries: [],
+            })}
+          />
+        </div>
       )}
 
       {hidden > 0 && (
