@@ -76,7 +76,7 @@ export function ExpandableText({
         <button
           onClick={toggle}
           aria-expanded={open}
-          className="text-xs font-bold mt-1 inline-flex items-center gap-1"
+          className="tap text-xs font-bold mt-1 inline-flex items-center gap-1"
           style={{ color: systemColors.tomato }}
         >
           {open ? 'Show less' : 'Show more'}

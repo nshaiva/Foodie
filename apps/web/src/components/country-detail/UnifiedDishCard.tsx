@@ -185,7 +185,7 @@ export function UnifiedDishCard({
                 {rating ? <RatingStars rating={rating} /> : (
                   <button
                     onClick={startEdit}
-                    className="btn-press text-xs font-medium"
+                    className="tap btn-press text-xs font-medium"
                     style={{ color: systemColors.saffron }}
                   >
                     ☆ Rate it
@@ -193,14 +193,14 @@ export function UnifiedDishCard({
                 )}
                 <button
                   onClick={() => setShowTries(!showTries)}
-                  className="card-cta text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                  className="tap card-cta text-xs text-gray-400 hover:text-gray-700 transition-colors"
                 >
                   {showTries ? '▾' : '▸'} {tries.length} {tries.length === 1 ? 'try' : 'tries'}
                 </button>
                 <span className="ml-auto flex gap-1">
                   <button
                     onClick={startEdit}
-                    className="text-gray-400 p-0.5 transition-colors"
+                    className="text-gray-400 p-3 md:p-0.5 transition-colors"
                     onMouseEnter={(e) => (e.currentTarget.style.color = systemColors.herb)}
                     onMouseLeave={(e) => (e.currentTarget.style.color = '')}
                     title="Edit"
@@ -211,7 +211,7 @@ export function UnifiedDishCard({
                   </button>
                   <button
                     onClick={() => onDeleteDish(tried.id)}
-                    className="text-gray-400 hover:text-red-500 p-0.5 transition-colors"
+                    className="text-gray-400 hover:text-red-500 p-3 md:p-0.5 transition-colors"
                     title="Remove from tried"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +245,7 @@ export function UnifiedDishCard({
                             <div className="flex gap-1">
                               <button
                                 onClick={() => setEditingTryId(tryItem.id)}
-                                className="text-gray-400 p-0.5 transition-colors"
+                                className="text-gray-400 p-3 md:p-0.5 transition-colors"
                                 onMouseEnter={(e) => (e.currentTarget.style.color = systemColors.saffron)}
                                 onMouseLeave={(e) => (e.currentTarget.style.color = '')}
                                 title="Edit"
@@ -256,7 +256,7 @@ export function UnifiedDishCard({
                               </button>
                               <button
                                 onClick={() => onDeleteRestaurantTry(tried.id, tryItem.id)}
-                                className="text-gray-400 hover:text-red-500 p-0.5 transition-colors"
+                                className="text-gray-400 hover:text-red-500 p-3 md:p-0.5 transition-colors"
                                 title="Delete"
                               >
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -282,7 +282,7 @@ export function UnifiedDishCard({
                   ) : (
                     <button
                       onClick={() => setShowAddTry(true)}
-                      className="text-xs font-medium transition-colors hover:opacity-80"
+                      className="tap text-xs font-medium transition-colors hover:opacity-80"
                       style={{ color: systemColors.saffron }}
                     >
                       + Add try
@@ -297,7 +297,7 @@ export function UnifiedDishCard({
         onTryThis && (
           <button
             onClick={() => { setJustTried(true); onTryThis(); }}
-            className="card-cta mt-3 text-sm font-medium transition-colors hover:opacity-80"
+            className="tap card-cta mt-3 text-sm font-medium transition-colors hover:opacity-80"
             style={{ color: systemColors.herb }}
           >
             + I tried this

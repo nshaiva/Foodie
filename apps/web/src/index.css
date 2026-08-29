@@ -232,3 +232,14 @@ label[for],
 @media (min-width: 768px) {
   .chip-rail { overflow: visible; mask-image: none; }
 }
+
+/* Phone tap targets (#27). Below md, text-style controls get a 40px-tall hit
+   area via vertical padding cancelled by negative margin, so nothing moves.
+   Icon buttons get real size instead (see UnifiedDishCard) — a destructive
+   trash icon must not share its hit area with the pencil beside it. */
+@media (max-width: 767px) {
+  .tap {
+    padding-block: 12px;
+    margin-block: -12px;
+  }
+}

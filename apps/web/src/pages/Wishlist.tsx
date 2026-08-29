@@ -5,7 +5,7 @@ import { getCountryName } from '../data/countryHelpers';
 import { systemColors } from '../data/systemColors';
 import { WishlistCard } from '../components/WishlistCard';
 import { Wordmark } from '../components/Wordmark';
-import { SignInButton } from '../components/SignInButton';
+import { ProfileButton } from '../components/ProfileButton';
 import { ListControls, FilterSelect } from '../components/ListControls';
 import type { WishlistItem } from '../data/types';
 
@@ -47,7 +47,7 @@ export function Wishlist() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="mb-2 flex items-start justify-between gap-3">
             <Wordmark className="text-2xl" />
-            <SignInButton />
+            <ProfileButton />
           </div>
           <div className="flex items-center gap-3">
             <svg className="w-8 h-8" fill={systemColors.tomato} viewBox="0 0 24 24">
