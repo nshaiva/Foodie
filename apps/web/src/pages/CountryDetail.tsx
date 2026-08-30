@@ -52,10 +52,10 @@ export function CountryDetail() {
   const [showForm, setShowForm] = useState(false);
   const [showFlavor, setShowFlavor] = useState(false);
   const [showCulture, setShowCulture] = useState(false);
-  // The map is a toggle, closed by default: the region rail is the picker and
-  // the map is its larger, optional form. Once opened it stays open for the
-  // visit until it has done its job (a region focused, or a filter applied).
-  const [mapPref, setMapPref] = useState<'auto' | 'open' | 'closed'>('closed');
+  // The map shows by default (2026-08-30: it is the region picker people
+  // reach for first) and folds to the rail once it has done its job — a region
+  // focused, or a filter applied. Map / Hide map overrides that for the visit.
+  const [mapPref, setMapPref] = useState<'auto' | 'open' | 'closed'>('auto');
 
   const countryDishes = useMemo(
     () => (country ? getDishesByCountry(country.id) : []),
