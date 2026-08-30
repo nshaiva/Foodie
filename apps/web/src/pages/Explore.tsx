@@ -49,7 +49,9 @@ import type { Country, RegionalCuisine } from '../data/types';
  * refresh or a shared link lands where you were.
  */
 
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
+// 50m rather than 110m: at the zooms small countries need, 110m draws Jamaica
+// as eight points. ~5x the download (about 800 KB gzipped to ~250), once.
+const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json';
 const VIEW_W = 800;
 const VIEW_H = 500;
 const BASE_SCALE = 130;
@@ -102,18 +104,26 @@ function useCountryFeatures(): Map<string, Feature<Geometry>> {
  */
 function frameCountry(country: Country, feat: Feature<Geometry>): Camera {
   const pts = Object.values(regionCoordinates[country.id] ?? {});
-  let x0: number, y0: number, x1: number, y1: number;
+  const [[bx0, by0], [bx1, by1]] = geoBounds(feat);
+  let x0: number, y0: number, x1: number, y1: number, fill: number;
   if (pts.length >= 2) {
+    // The bubbles' spread should take about 55% of the view: room for the
+    // bubbles themselves (they're a fixed screen size) plus the coast around them
     x0 = Math.min(...pts.map(p => p[0])); x1 = Math.max(...pts.map(p => p[0]));
     y0 = Math.min(...pts.map(p => p[1])); y1 = Math.max(...pts.map(p => p[1]));
-    const padX = Math.max(3, (x1 - x0) * 0.45), padY = Math.max(2, (y1 - y0) * 0.45);
-    x0 -= padX; x1 += padX; y0 -= padY; y1 += padY;
+    fill = 0.55;
   } else {
-    [[x0, y0], [x1, y1]] = geoBounds(feat);
+    [x0, y0, x1, y1] = [bx0, by0, bx1, by1]; fill = 0.75;
   }
-  const p0 = baseProjection([x0, y1])!, p1 = baseProjection([x1, y0])!;
-  const w = Math.abs(p1[0] - p0[0]), h = Math.abs(p1[1] - p0[1]);
-  const zoom = Math.max(COUNTRY_IN + 0.3, Math.min(MAX_ZOOM, 0.8 * Math.min(VIEW_W / w, VIEW_H / h)));
+  // Never zoom past the point where the outline itself would overflow the view
+  const proj = (a: number, b: number, c: number, d: number) => { const p0 = baseProjection([a, d])!, p1 = baseProjection([c, b])!; return [Math.abs(p1[0] - p0[0]), Math.abs(p1[1] - p0[1])]; };
+  const [w, h] = proj(x0, y0, x1, y1);
+  const [ow, oh] = proj(bx0, by0, bx1, by1);
+  const byBubbles = fill * Math.min(VIEW_W / Math.max(w, 1), VIEW_H / Math.max(h, 1));
+  const byOutline = 0.92 * Math.min(VIEW_W / Math.max(ow, 1), VIEW_H / Math.max(oh, 1));
+  // Outlines with far-flung islands (US: Alaska, Hawaii) shouldn't cap the mainland view
+  const cap = pts.length >= 2 && ow > 1.6 * w ? Infinity : byOutline;
+  const zoom = Math.max(COUNTRY_IN + 0.3, Math.min(MAX_ZOOM, byBubbles, cap));
   const center = pts.length >= 2 ? ([(x0 + x1) / 2, (y0 + y1) / 2] as [number, number]) : (geoCentroid(feat) as [number, number]);
   return { coordinates: center, zoom };
 }
@@ -372,6 +382,8 @@ export function Explore() {
         <div
           ref={mapBox}
           className="relative min-h-0 select-none"
+          data-zoom={liveZoom.toFixed(2)}
+          data-scope={scope.level}
           style={{ backgroundColor: systemColors.seaSalt }}
           onMouseMove={e => { const r = e.currentTarget.getBoundingClientRect(); cursor.current = [e.clientX - r.left, e.clientY - r.top]; if (tooltip) setTooltip(t => t && { ...t, x: e.clientX - r.left, y: e.clientY - r.top - 10 }); }}
           onMouseLeave={() => { cursor.current = null; setHovered(null); setTooltip(null); }}
