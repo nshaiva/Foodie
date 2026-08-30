@@ -4,6 +4,7 @@ import { CountryDetail } from './pages/CountryDetail';
 import { Wishlist } from './pages/Wishlist';
 import { Profile } from './pages/Profile';
 import { AtRestaurant } from './pages/AtRestaurant';
+import { Explore } from './pages/Explore';
 import { CloudSyncProvider } from './hooks/CloudSyncProvider';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/restaurant" element={<AtRestaurant />} />
           <Route path="/restaurant/:id" element={<AtRestaurant />} />
+          <Route path="/explore" element={<Explore />} />
         </Routes>
       </CloudSyncProvider>
     </BrowserRouter>
