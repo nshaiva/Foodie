@@ -256,3 +256,9 @@ label[for],
 :where(button, a, input, select, textarea):focus:not(:focus-visible) {
   outline: none;
 }
+
+/* Content that replaces other content in place (the explore panel) eases in
+   instead of snapping, so a scope change reads as the same view updating. */
+@keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fade-in 220ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .fade-in { animation: none; } }
