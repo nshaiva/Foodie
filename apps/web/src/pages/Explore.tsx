@@ -35,8 +35,7 @@ import type { Country, RegionalCuisine, RestaurantTry } from '../data/types';
  * the camera is looking at. Zooming is the primary control: past a threshold
  * the country under the viewport center becomes the scope, past a second
  * threshold the nearest region does. Clicks only fly the camera to the same
- * places. Trial scope: every country zooms and gets a panel; **only China has
- * regions wired**, so the region level can be judged on one country first.
+ * places. Every country with region coordinates shows its regions.
  */
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
@@ -47,7 +46,9 @@ const WORLD_CENTER: [number, number] = [10, 25];
 const COUNTRY_ZOOM = 2.2;   // past this, the country under the center is the scope
 const REGION_ZOOM = 4.6;    // past this, the nearest region is the scope
 const MAX_ZOOM = 14;
-const REGION_TRIAL = new Set(['CN']);
+// Every country with region coordinates shows its regions (2026-08-30: the
+// China-only trial felt static, since zooming any other country showed nothing)
+const hasRegionMap = (c: Country) => !!regionCoordinates[c.id] && !!c.regionalVariations?.length;
 
 type Scope =
   | { level: 'world' }
@@ -105,6 +106,23 @@ export function Explore() {
   const [tray, setTray] = useState<null | 'flavor' | 'culture'>(null);
   const [query, setQuery] = useState('');
   const settle = useRef<number | null>(null);
+  const mapBox = useRef<HTMLDivElement>(null);
+  const cursor = useRef<[number, number] | null>(null); // last pointer position over the map, in px
+
+  /** Where the user is pointing, in lon/lat, given the camera; falls back to the center. */
+  const probePoint = (center: [number, number], zoom: number): [number, number] => {
+    const box = mapBox.current?.getBoundingClientRect();
+    if (!cursor.current || !box) return center;
+    // Container px → SVG viewBox units (the SVG is letterboxed with "meet")
+    const k = Math.min(box.width / VIEW_W, box.height / VIEW_H);
+    const offX = (box.width - VIEW_W * k) / 2, offY = (box.height - VIEW_H * k) / 2;
+    const sx = (cursor.current[0] - offX) / k, sy = (cursor.current[1] - offY) / k;
+    // Undo the zoom group's transform: translate = viewport center − projected(center)·zoom
+    const pc = baseProjection(center)!;
+    const tx = VIEW_W / 2 - pc[0] * zoom, ty = VIEW_H / 2 - pc[1] * zoom;
+    const wx = (sx - tx) / zoom, wy = (sy - ty) / zoom;
+    return (baseProjection.invert?.([wx, wy]) as [number, number]) ?? center;
+  };
 
   /** What the camera is looking at, from its center and zoom. */
   const resolveScope = (coords: [number, number], zoom: number): Scope => {
@@ -117,10 +135,10 @@ export function Explore() {
     // still zoomed in, so the panel doesn't flicker while panning across a coast
     const country = hit ?? (scope.level !== 'world' ? scope.country : undefined);
     if (!country) return { level: 'world' };
-    if (zoom >= REGION_ZOOM && REGION_TRIAL.has(country.id) && country.regionalVariations?.length) {
+    if (zoom >= REGION_ZOOM && hasRegionMap(country)) {
       const coordsFor = regionCoordinates[country.id] ?? {};
       let best: RegionalCuisine | undefined; let bestD = Infinity;
-      for (const r of country.regionalVariations) {
+      for (const r of country.regionalVariations ?? []) {
         const c = coordsFor[r.name]; if (!c) continue;
         const d = Math.hypot(c[0] - coords[0], (c[1] - coords[1]) * 1.3);
         if (d < bestD) { bestD = d; best = r; }
@@ -138,11 +156,12 @@ export function Explore() {
     setPosition({ coordinates, zoom });
     setLiveZoom(zoom);
     if (settle.current) window.clearTimeout(settle.current);
-    settle.current = window.setTimeout(() => setScope(resolveScope(coordinates, zoom)), 60);
+    settle.current = window.setTimeout(() => setScope(resolveScope(probePoint(coordinates, zoom), zoom)), 60);
   };
   const applyCamera = (coordinates: [number, number], zoom: number) => onMoveEnd({ coordinates, zoom });
 
   const flyToCountry = (id: string) => {
+    cursor.current = null;
     const feat = features.get(id); const country = getCountryById(id);
     if (!feat || !country) return;
     const zoom = fitZoom(feat);
@@ -194,7 +213,7 @@ export function Explore() {
   };
 
   const colors = country?.colorPalette;
-  const showRegionBubbles = country && REGION_TRIAL.has(country.id) && liveZoom >= COUNTRY_ZOOM;
+  const showRegionBubbles = country && hasRegionMap(country) && liveZoom >= COUNTRY_ZOOM;
 
   return (
     <div className="h-screen flex flex-col" style={{ backgroundColor: systemColors.seaSalt }}>
@@ -210,7 +229,13 @@ export function Explore() {
 
       <div className="flex-1 min-h-0 grid" style={{ gridTemplateColumns: '62% 38%' }}>
         {/* ---------------- map ---------------- */}
-        <div className="relative min-h-0" style={{ backgroundColor: systemColors.seaSalt }}>
+        <div
+          ref={mapBox}
+          className="relative min-h-0"
+          style={{ backgroundColor: systemColors.seaSalt }}
+          onMouseMove={e => { const r = e.currentTarget.getBoundingClientRect(); cursor.current = [e.clientX - r.left, e.clientY - r.top]; }}
+          onMouseLeave={() => { cursor.current = null; }}
+        >
           <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm" style={{ backgroundColor: `${systemColors.surface}E6`, borderColor: systemColors.border }}>
             <button onClick={flyToWorld} className="font-semibold" style={{ color: scope.level === 'world' ? systemColors.navy : systemColors.navyMuted }}>World</button>
             {scope.level !== 'world' && <>
@@ -223,7 +248,7 @@ export function Explore() {
             </>}
           </div>
           <div className="absolute bottom-3 left-3 z-10 rounded-lg border px-2.5 py-1.5 text-xs" style={{ backgroundColor: `${systemColors.surface}E6`, borderColor: systemColors.border, color: systemColors.navyMuted }}>
-            {scope.level === 'world' ? 'Pinch or scroll to zoom into a cuisine · click to fly there' : scope.level === 'country' ? (REGION_TRIAL.has(scope.country.id) ? 'Keep zooming toward a region' : 'Regions on this country come in the full build') : 'Zoom out for all of ' + scope.country.name}
+            {scope.level === 'world' ? 'Pinch or scroll to zoom into a cuisine · click to fly there' : scope.level === 'country' ? (hasRegionMap(scope.country) ? 'Keep zooming toward a region, or click one' : 'No regional map for this cuisine yet') : 'Zoom out for all of ' + scope.country.name}
           </div>
           <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-1">
             <button onClick={() => applyCamera(position.coordinates, Math.min(MAX_ZOOM, position.zoom * 1.6))} className="w-8 h-8 rounded-md border font-bold" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }}>+</button>
@@ -264,22 +289,7 @@ export function Explore() {
                 })}
               </Geographies>
 
-              {/* Country plates at world level */}
-              {liveZoom < COUNTRY_ZOOM && countries.map(c => {
-                const feat = features.get(c.id); if (!feat) return null;
-                const progress = countryDishProgress(c, dishes.filter(d => d.countryId === c.id));
-                if (progress.percent <= 0) return null;
-                return (
-                  <Marker key={c.id} coordinates={geoCentroid(feat) as [number, number]}>
-                    <g transform={`scale(${1 / liveZoom})`} style={{ pointerEvents: 'none' }}>
-                      <circle r={7} fill={c.colorPalette.primary} stroke="#fff" strokeWidth={1.5} />
-                      <circle r={3} fill="#fff" opacity={0.9} />
-                    </g>
-                  </Marker>
-                );
-              })}
-
-              {/* Region bubbles (trial: China only) */}
+              {/* Region bubbles, once a country is the scope */}
               {showRegionBubbles && country!.regionalVariations!.map(r => {
                 const c = regionCoordinates[country!.id]?.[r.name]; if (!c) return null;
                 const sel = scope.level === 'region' && scope.region.name === r.name;
@@ -312,7 +322,7 @@ export function Explore() {
                     <button key={c.id} onClick={() => flyToCountry(c.id)} className="w-full flex items-center gap-3 rounded-xl border px-3 py-2 text-left btn-press" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border }}>
                       {progress.percent > 0 ? <ProgressPlate percent={progress.percent} size={18} color={c.colorPalette.primary} title={`${progress.tried} of ${progress.total} dishes tried`} /> : <PlateDot color={c.colorPalette.primary} size={14} />}
                       <span className="text-sm font-semibold" style={{ color: systemColors.navy }}>{c.name}</span>
-                      <span className="text-xs ml-auto" style={{ color: systemColors.navyMuted }}>{c.region}{REGION_TRIAL.has(c.id) ? ' · regions ✓' : ''}</span>
+                      <span className="text-xs ml-auto" style={{ color: systemColors.navyMuted }}>{c.region}</span>
                     </button>
                   );
                 })}
