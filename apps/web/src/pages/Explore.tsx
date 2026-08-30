@@ -209,9 +209,15 @@ export function Explore() {
           const d = Math.hypot(c[0] - probe[0], (c[1] - probe[1]) * 1.3);
           if (d < bestD) { bestD = d; best = r; }
         }
-        // Stay on the current region unless another is clearly nearer
+        // Switching regions needs the new one well inside the old one's
+        // distance, so a pointer resting between two bubbles never flip-flops
+        if (current.level === 'region' && current.country.id === country.id) {
+          const cc = coordsFor[current.region.name];
+          const curD = cc ? Math.hypot(cc[0] - probe[0], (cc[1] - probe[1]) * 1.3) : Infinity;
+          if (best && best.name !== current.region.name && bestD < curD * 0.6) return { level: 'region', country, region: best };
+          return current;
+        }
         if (best && bestD < (70 / zoom) * Math.max(1, fit / REGION_IN)) return { level: 'region', country, region: best };
-        if (current.level === 'region' && current.country.id === country.id) return current;
       }
     }
     return { level: 'country', country };
@@ -232,45 +238,78 @@ export function Explore() {
     panelRef.current?.scrollTo({ top: 0 });
   };
 
+  // A fly-to that just landed leaves the pointer over whatever happens to be
+  // under it; the trailing move events must not re-resolve the scope from that.
+  const landedAt = useRef(0);
+  const liveTick = useRef<number | null>(null);
+  /** Viewport center in lon/lat from the zoom group's transform. */
+  const centerFromTransform = (x: number, y: number, k: number): [number, number] =>
+    (baseProjection.invert?.([(VIEW_W / 2 - x) / k, (VIEW_H / 2 - y) / k]) as [number, number]) ?? WORLD_CENTER;
+
+  /** During a gesture: scope follows the zoom continuously, so the panel and
+   *  bubbles change while you zoom, not after. Lightly throttled. */
+  const onMove = ({ x, y, zoom, dragging }: { x: number; y: number; zoom: number; dragging: unknown }) => {
+    if (flight.current && dragging) { cancelAnimationFrame(flight.current); flight.current = null; }
+    if (flight.current) return;
+    setLiveZoom(zoom);
+    if (performance.now() - landedAt.current < 300) return;
+    if (liveTick.current) return;
+    liveTick.current = window.setTimeout(() => {
+      liveTick.current = null;
+      const center = centerFromTransform(x, y, zoom);
+      commitScope(resolveScope(probePoint(center, zoom), zoom));
+    }, 80);
+  };
+
   const onMoveEnd = ({ coordinates, zoom }: { coordinates: [number, number]; zoom: number }) => {
     if (flight.current) return; // the fly-to sets scope itself
     setCamera({ coordinates, zoom });
     setLiveZoom(zoom);
+    if (performance.now() - landedAt.current < 300) return;
     if (settle.current) window.clearTimeout(settle.current);
     settle.current = window.setTimeout(() => {
       const before = scopeRef.current;
       const next = resolveScope(probePoint(coordinates, zoom), zoom);
       commitScope(next);
-      // Zooming *into* a new country or region: once the gesture settles,
-      // ease the camera so the thing you zoomed toward is framed, not half
-      // off the edge where the pointer happened to be.
-      const newCountry = next.level !== 'world' && (before.level === 'world' || before.country.id !== next.country.id);
-      const newRegion = next.level === 'region' && !(before.level === 'region' && before.region.name === next.region.name);
-      if (newRegion) {
-        const c = regionCoordinates[next.country.id]?.[next.region.name];
-        if (c) flyTo({ coordinates: c, zoom });
-      } else if (newCountry) {
-        const feat = features.get(next.country.id);
-        if (feat) { const f = frameCountry(next.country, feat); flyTo({ coordinates: f.coordinates, zoom: Math.max(zoom, f.zoom) }); }
+      // Once the gesture settles, drift so what you zoomed toward is centred.
+      // Pan only, at your zoom: re-zooming here is what made it feel like a
+      // different view. (Zoom is nudged only if you stopped well short of the
+      // country fitting the frame.)
+      const c = next.level === 'region' ? regionCoordinates[next.country.id]?.[next.region.name]
+        : next.level === 'country' ? (() => { const f = features.get(next.country.id); return f ? frameCountry(next.country, f).coordinates : undefined; })()
+        : undefined;
+      if (!c) return;
+      let z = zoom;
+      if (next.level === 'country') {
+        const f = features.get(next.country.id);
+        const fit = f ? frameCountry(next.country, f).zoom : zoom;
+        const entered = before.level === 'world' || before.country.id !== next.country.id;
+        if (entered && zoom < fit * 0.65) z = fit * 0.8;
       }
-    }, 220);
+      const dLon = Math.abs(c[0] - coordinates[0]), dLat = Math.abs(c[1] - coordinates[1]);
+      // Already roughly centred: leave the camera alone
+      if (z === zoom && dLon < 40 / zoom && dLat < 25 / zoom) return;
+      flyTo({ coordinates: c, zoom: z }, undefined, 900);
+    }, 260);
   };
 
   /** Animate the camera; zoom eases in log space so it feels even. */
-  const flyTo = (target: Camera, then?: Scope) => {
+  const flyTo = (target: Camera, then?: Scope, ms = FLY_MS) => {
     if (flight.current) cancelAnimationFrame(flight.current);
+    if (settle.current) window.clearTimeout(settle.current);
+    if (liveTick.current) { window.clearTimeout(liveTick.current); liveTick.current = null; }
     cursor.current = null;
     const from = camera, t0 = performance.now();
     const lz0 = Math.log(from.zoom), lz1 = Math.log(target.zoom);
     const step = (now: number) => {
-      const t = Math.min(1, (now - t0) / FLY_MS), e = easeInOut(t);
+      const t = Math.min(1, (now - t0) / ms), e = easeInOut(t);
       const next: Camera = {
         coordinates: [from.coordinates[0] + (target.coordinates[0] - from.coordinates[0]) * e, from.coordinates[1] + (target.coordinates[1] - from.coordinates[1]) * e],
         zoom: Math.exp(lz0 + (lz1 - lz0) * e),
       };
       setCamera(next); setLiveZoom(next.zoom);
       if (t < 1) flight.current = requestAnimationFrame(step);
-      else flight.current = null;
+      else { flight.current = null; landedAt.current = performance.now(); }
     };
     if (then) commitScope(then);
     flight.current = requestAnimationFrame(step);
@@ -365,7 +404,9 @@ export function Explore() {
   }, [dishes, flavorMatches]);
 
   const showBubbles = !!country && hasRegionMap(country) && liveZoom >= COUNTRY_OUT;
-  const bubbleOpacity = !country ? 0 : Math.max(0, Math.min(1, (liveZoom - COUNTRY_OUT) / (COUNTRY_IN - COUNTRY_OUT)));
+  // Bubbles fade in across the country threshold rather than appearing at it
+  const bubbleOpacity = !country ? 0 : Math.max(0, Math.min(1, (liveZoom - COUNTRY_OUT) / (COUNTRY_IN + 0.6 - COUNTRY_OUT)));
+  const scopeKey = scope.level === 'world' ? 'world' : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
   const pill = (label: string, onClick: () => void) => (
     <button onClick={onClick} className="btn-press inline-flex items-center gap-1.5 text-xs font-semibold rounded-full border px-3 py-1.5" style={{ borderColor: `${colors!.primary}40`, color: colors!.primary, backgroundColor: systemColors.surface }}>{label}</button>
   );
@@ -417,10 +458,7 @@ export function Explore() {
               zoom={camera.zoom}
               minZoom={1}
               maxZoom={MAX_ZOOM}
-              onMove={({ zoom, dragging }) => {
-                if (flight.current && dragging) { cancelAnimationFrame(flight.current); flight.current = null; }
-                if (!flight.current) setLiveZoom(zoom);
-              }}
+              onMove={onMove}
               onMoveEnd={onMoveEnd}
               filterZoomEvent={((e: { button?: number }) => !e.button) as unknown as (el: SVGElement) => boolean}
             >
@@ -489,7 +527,7 @@ export function Explore() {
         </div>
 
         {/* ============ panel ============ */}
-        <div ref={panelRef} className="min-h-0 overflow-y-auto border-l px-5 py-4" style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}>
+        <div ref={panelRef} key={scopeKey} className="min-h-0 overflow-y-auto border-l px-5 py-4 fade-in" style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}>
           {scope.level === 'world' && (
             <>
               <h2 className="text-lg font-bold" style={{ color: systemColors.navy }}>{flavorMatches ? 'Where next' : '31 cuisines'}</h2>
