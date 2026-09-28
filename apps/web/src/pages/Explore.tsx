@@ -296,7 +296,18 @@ export function Explore() {
     setSheetPos('half'); // a region tap shows its dishes while the map stays in view
     const feat = features.get(country.id);
     const fit = feat ? frameCountry(country, feat, viewDims()).zoom : COUNTRY_IN;
-    flyTo({ coordinates: c, zoom: Math.max(camera.zoom, Math.max(REGION_IN + 1.2, fit * 1.8)) }, { level: 'region', country, region });
+    const zoom = Math.max(camera.zoom, Math.max(REGION_IN + 1.2, fit * 1.8));
+    // With the sheet at half, "screen centre" is behind the sheet. Aim the
+    // region at the middle of the map that stays visible: put the camera's
+    // centre below it, a quarter of the view. (A behaviour branch, like
+    // Home's map: the sheet only exists below md.)
+    let coordinates = c;
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      const [, effH] = viewDims();
+      const p = baseProjection(c)!;
+      coordinates = (baseProjection.invert?.([p[0], p[1] + (0.24 * effH) / zoom]) as [number, number]) ?? c;
+    }
+    flyTo({ coordinates, zoom }, { level: 'region', country, region });
   };
   const zoomOutOneLevel = () => {
     if (scope.level === 'region') flyToCountry(scope.country.id);
