@@ -81,6 +81,14 @@ const loadTopology = () => (topologyPromise ??= fetch(GEO_URL).then(r => r.json(
 const baseProjection = geoMercator().scale(BASE_SCALE).center(WORLD_CENTER).translate([VIEW_W / 2, VIEW_H / 2]);
 
 const hasRegionMap = (c: Country) => !!regionCoordinates[c.id] && !!c.regionalVariations?.length;
+
+// Touch screens replay a tap as hover-then-click: a synthetic mouseenter fires
+// first, and if its handler changes the page (tooltip, hover tint), WebKit
+// spends the whole tap on "hover" and never delivers the click — a country
+// then takes two or three taps to open. On a device that can't hover, skip
+// the hover work entirely so a tap is a clean click. Checked per event, not
+// once, so plugging a mouse into a tablet switches modes.
+const canHover = () => window.matchMedia('(hover: hover)').matches;
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
 function useCountryFeatures(): Map<string, Feature<Geometry>> {
@@ -304,7 +312,7 @@ export function Explore() {
       let z = cam.zoom;
       // Land where names at the readable floor fit; full-size names are
       // rendered wherever the country has room for them
-      while (!labelsFitAt(areas, z, counts, labelScaleAt(z) * Math.max(1, 0.6 * labelBoost)) && z < Math.min(MAX_ZOOM, cam.zoom * 3)) z *= 1.1;
+      while (!labelsFitAt(areas, z, counts, labelScaleAt(z) * Math.max(1, 0.75 * labelBoost)) && z < Math.min(MAX_ZOOM, cam.zoom * 3)) z *= 1.1;
       cam.zoom = Math.min(MAX_ZOOM, z);
     }
     flyTo(cam, { level: 'country', country });
@@ -422,7 +430,7 @@ export function Explore() {
   // has room, stepping down to a readable floor on tight ones (a wide country
   // on a tall phone can't zoom further without cropping). Below the floor
   // they hide all together, as before.
-  const labelFloor = Math.max(1, 0.6 * labelBoost);
+  const labelFloor = Math.max(1, 0.75 * labelBoost);
   const [labelScale, labelsFit] = useMemo(() => {
     const base = labelScaleAt(liveZoom);
     if (!areas) return [base * labelBoost, false] as const;
@@ -513,6 +521,7 @@ export function Explore() {
                       strokeWidth={(isScoped ? 1.4 : isHovered || isLogged ? 1 : 0.5) / liveZoom}
                       style={{ default: { outline: 'none', transition: 'fill 200ms' }, hover: { outline: 'none', cursor: profiled ? 'pointer' : 'inherit' }, pressed: { outline: 'none' } }}
                       onMouseEnter={e => {
+                        if (!canHover()) return; // a tap must stay a click
                         setHovered(alpha2 ?? null);
                         cancelPeek();
                         if (alpha2 && profiled && scope.level === 'world') peekTimer.current = window.setTimeout(() => setPeekId(alpha2), 220);
@@ -540,7 +549,7 @@ export function Explore() {
                             fill={sel ? REGION_TINT : 'transparent'} fillOpacity={sel ? 0.12 : 1}
                             stroke={sel || hoveredRegion === region.name ? REGION_INK : 'none'} strokeWidth={(sel ? 1.8 : 1.3) * sw}
                             style={{ cursor: 'pointer', transition: 'fill-opacity 200ms' }}
-                            onMouseEnter={() => setHoveredRegion(region.name)} onMouseLeave={() => setHoveredRegion(null)}
+                            onMouseEnter={() => { if (canHover()) setHoveredRegion(region.name); }} onMouseLeave={() => setHoveredRegion(null)}
                             onClick={e => { e.stopPropagation(); if (!sel) flyToRegion(bubbleCountry!, region); }} />
                         );
                       })}
@@ -641,7 +650,7 @@ export function Explore() {
               <p className="max-md:hidden text-sm mb-4" style={{ color: systemColors.navyMuted }}>{flavorMatches ? 'Closest to your taste first. Tap one on the map, or pick from the list.' : 'Tap one on the map, or pick from the list.'}</p>
               <div className="space-y-1.5">
                 {worldList.map(({ c, progress, match }) => (
-                  <button key={c.id} onClick={() => flyToCountry(c.id)} onMouseEnter={() => setHovered(c.id)} onMouseLeave={() => setHovered(null)} className="w-full flex items-center gap-3 rounded-xl border px-3 py-2 text-left btn-press" style={{ backgroundColor: systemColors.surface, borderColor: hovered === c.id ? c.colorPalette.primary : systemColors.border }}>
+                  <button key={c.id} onClick={() => flyToCountry(c.id)} onMouseEnter={() => { if (canHover()) setHovered(c.id); }} onMouseLeave={() => setHovered(null)} className="w-full flex items-center gap-3 rounded-xl border px-3 py-2 text-left btn-press" style={{ backgroundColor: systemColors.surface, borderColor: hovered === c.id ? c.colorPalette.primary : systemColors.border }}>
                     {progress.percent > 0 ? <ProgressPlate percent={progress.percent} size={18} color={c.colorPalette.primary} title={`${progress.tried} of ${progress.total} dishes tried`} /> : <PlateDot color={c.colorPalette.primary} size={14} />}
                     <span className="text-sm font-semibold" style={{ color: systemColors.navy }}>{c.name}</span>
                     <span className="text-xs ml-auto" style={{ color: systemColors.navyMuted }}>{match !== undefined ? `${match}% match` : progress.percent > 0 ? `${progress.tried} of ${progress.total} tried` : c.region}</span>
