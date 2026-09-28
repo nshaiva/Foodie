@@ -59,6 +59,13 @@ const COUNTRY_IN = 2.2;  // a framed country is always at least this close
 const REGION_IN = 4.6;   // and a framed region at least this
 const MAX_ZOOM = 220;  // Jamaica needs ~140× to fill the frame
 const FLY_MS = 700;
+// The phone sheet's three resting heights; the drag handler builds on the
+// same expressions, so classes and finger math can never disagree.
+const SHEET_Y = {
+  strip: 'calc(100% - 54px - env(safe-area-inset-bottom,0px))',
+  half: '48%',
+  full: '0px',
+} as const;
 
 type Scope =
   | { level: 'world' }
@@ -99,10 +106,10 @@ function useCountryFeatures(): Map<string, Feature<Geometry>> {
  * Camera that frames a country: the land its regions are on fills most of
  * the map, so borders have room and names fit on arrival.
  */
-function frameCountry(country: Country, feat: Feature<Geometry>): Camera {
+function frameCountry(country: Country, feat: Feature<Geometry>, view: readonly [number, number] = [VIEW_W, VIEW_H]): Camera {
   const main = homeLand(country.id, feat, baseProjection);
   const [[x0, y0], [x1, y1]] = geoPath(baseProjection).bounds(main);
-  const zoom = 0.82 * Math.min(VIEW_W / Math.max(x1 - x0, 1), VIEW_H / Math.max(y1 - y0, 1));
+  const zoom = 0.82 * Math.min(view[0] / Math.max(x1 - x0, 1), view[1] / Math.max(y1 - y0, 1));
   const center = baseProjection.invert!([(x0 + x1) / 2, (y0 + y1) / 2]) as [number, number];
   return { coordinates: center, zoom: Math.max(COUNTRY_IN + 0.3, Math.min(MAX_ZOOM, zoom)) };
 }
@@ -175,12 +182,26 @@ export function Explore() {
   // the app), 'half' shows map + list, 'full' is all list. Desktop ignores it:
   // every class it drives is max-md scoped.
   const [sheetPos, setSheetPos] = useState<'strip' | 'half' | 'full'>('strip');
-  const sheetTouchY = useRef<number | null>(null);
+  const sheetDrag = useRef<{ y: number; moved: boolean } | null>(null);
   const sheetSwiped = useRef(false);
+  const panelPull = useRef<{ y: number; atTop: boolean } | null>(null);
   const sheetStep = (dir: 1 | -1) => setSheetPos(p => {
     const order = ['strip', 'half', 'full'] as const;
     return order[Math.min(2, Math.max(0, order.indexOf(p) + dir))];
   });
+  /**
+   * The window the viewer actually sees, in viewBox units. A phone shows far
+   * more map vertically than the 800×500 viewBox (the SVG is width-fit and
+   * paints to the box's edges), so framing against the viewBox alone lands a
+   * tall country like Peru far too small on a phone.
+   */
+  const viewDims = (): readonly [number, number] => {
+    const box = mapBox.current?.getBoundingClientRect();
+    if (!box?.width || !box?.height) return [VIEW_W, VIEW_H];
+    const k = Math.min(box.width / VIEW_W, box.height / VIEW_H);
+    return [box.width / k, box.height / k];
+  };
+
   /** The breadcrumb's current crumb and the strip both raise the sheet. */
   const openSheet = () => setSheetPos(p => (p === 'strip' ? 'half' : 'full'));
   const [lens, setLens] = useState<Lens>('region');
@@ -260,7 +281,7 @@ export function Explore() {
     setSheetPos('strip'); // land on the map; the strip is the handle into the list
     // Land where every region's name fits: nudge in from the mainland framing
     // until they do (tall, thin countries need it)
-    const cam = frameCountry(country, feat);
+    const cam = frameCountry(country, feat, viewDims());
     const areas = hasRegionMap(country) ? getAreas(country, feat) : null;
     if (areas) {
       const counts = staticRegionCounts(country);
@@ -274,7 +295,7 @@ export function Explore() {
     const c = regionCoordinates[country.id]?.[region.name]; if (!c) return;
     setSheetPos('half'); // a region tap shows its dishes while the map stays in view
     const feat = features.get(country.id);
-    const fit = feat ? frameCountry(country, feat).zoom : COUNTRY_IN;
+    const fit = feat ? frameCountry(country, feat, viewDims()).zoom : COUNTRY_IN;
     flyTo({ coordinates: c, zoom: Math.max(camera.zoom, Math.max(REGION_IN + 1.2, fit * 1.8)) }, { level: 'region', country, region });
   };
   const zoomOutOneLevel = () => {
@@ -522,26 +543,44 @@ export function Explore() {
           ref={panelRef}
           key={scopeKey}
           className={`z-10 min-h-0 px-5 pb-6 fade-in md:overflow-y-auto md:border-l md:py-4 max-md:absolute max-md:inset-0 max-md:rounded-t-2xl max-md:shadow-[0_-8px_20px_rgba(51,48,42,0.14)] max-md:transition-transform max-md:duration-300 max-md:ease-out ${
-            sheetPos === 'full' ? 'max-md:overflow-y-auto' : 'max-md:overflow-hidden'
+            sheetPos === 'strip' ? 'max-md:overflow-hidden' : 'max-md:overflow-y-auto'
           } ${
             sheetPos === 'strip' ? 'max-md:translate-y-[calc(100%-54px-env(safe-area-inset-bottom,0px))]' : sheetPos === 'half' ? 'max-md:translate-y-[48%]' : 'max-md:translate-y-0'
           }`}
           style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}
+          onTouchStart={e => { panelPull.current = { y: e.touches[0].clientY, atTop: (panelRef.current?.scrollTop ?? 0) <= 0 }; }}
+          onTouchEnd={e => {
+            const pull = panelPull.current; panelPull.current = null;
+            if (!pull || !pull.atTop || sheetPos === 'strip') return;
+            // The list is at its top and the finger pulled down: hand the
+            // gesture to the sheet, so collapsing never fights the scroll
+            if (e.changedTouches[0].clientY - pull.y > 70 && (panelRef.current?.scrollTop ?? 0) <= 0) sheetStep(-1);
+          }}
         >
-          {/* The strip: grab handle + scope title. Swipe or tap to move the sheet. */}
+          {/* The strip: grab handle + scope title. Drag, swipe or tap to move the sheet. */}
           <div
             className="md:hidden sticky top-0 z-10 -mx-5 px-5 pt-2 pb-2 select-none"
             style={{ backgroundColor: systemColors.seaSalt, touchAction: 'none' }}
-            onTouchStart={e => { sheetTouchY.current = e.touches[0].clientY; }}
+            onTouchStart={e => { e.stopPropagation(); sheetDrag.current = { y: e.touches[0].clientY, moved: false }; }}
+            onTouchMove={e => {
+              const d = sheetDrag.current, el = panelRef.current;
+              if (!d || !el) return;
+              let dy = e.touches[0].clientY - d.y;
+              if (Math.abs(dy) > 4) d.moved = true;
+              // Rubber-band past the ends instead of leaving the screen
+              if (sheetPos === 'full') dy = Math.max(dy, -24);
+              if (sheetPos === 'strip') dy = Math.min(dy, 24);
+              el.style.transition = 'none';
+              el.style.transform = `translateY(calc(${SHEET_Y[sheetPos]} + ${dy}px))`;
+            }}
             onTouchEnd={e => {
-              const y0 = sheetTouchY.current; sheetTouchY.current = null;
-              if (y0 == null) return;
-              const dy = e.changedTouches[0].clientY - y0;
-              if (Math.abs(dy) > 24) {
-                sheetSwiped.current = true;
-                window.setTimeout(() => { sheetSwiped.current = false; }, 400);
-                sheetStep(dy < 0 ? 1 : -1);
-              }
+              const d = sheetDrag.current, el = panelRef.current;
+              sheetDrag.current = null;
+              if (!d || !el) return;
+              el.style.transition = ''; el.style.transform = '';
+              const dy = e.changedTouches[0].clientY - d.y;
+              if (d.moved) { sheetSwiped.current = true; window.setTimeout(() => { sheetSwiped.current = false; }, 400); }
+              if (dy < -50) sheetStep(1); else if (dy > 50) sheetStep(-1);
             }}
             onClick={() => { if (!sheetSwiped.current) setSheetPos(p => (p === 'full' ? 'half' : p === 'half' ? 'full' : 'half')); }}
           >
@@ -557,8 +596,8 @@ export function Explore() {
           </div>
           {panelLevel === 'world' && (
             <>
-              <h2 className="text-lg font-bold" style={{ color: systemColors.navy }}>{flavorMatches ? 'Where next' : '31 cuisines'}</h2>
-              <p className="text-sm mb-4" style={{ color: systemColors.navyMuted }}>{flavorMatches ? 'Closest to your taste first. Tap one on the map, or pick from the list.' : 'Tap one on the map, or pick from the list.'}</p>
+              <h2 className="max-md:hidden text-lg font-bold" style={{ color: systemColors.navy }}>{flavorMatches ? 'Where next' : '31 cuisines'}</h2>
+              <p className="max-md:hidden text-sm mb-4" style={{ color: systemColors.navyMuted }}>{flavorMatches ? 'Closest to your taste first. Tap one on the map, or pick from the list.' : 'Tap one on the map, or pick from the list.'}</p>
               <div className="space-y-1.5">
                 {worldList.map(({ c, progress, match }) => (
                   <button key={c.id} onClick={() => flyToCountry(c.id)} onMouseEnter={() => setHovered(c.id)} onMouseLeave={() => setHovered(null)} className="w-full flex items-center gap-3 rounded-xl border px-3 py-2 text-left btn-press" style={{ backgroundColor: systemColors.surface, borderColor: hovered === c.id ? c.colorPalette.primary : systemColors.border }}>
@@ -579,7 +618,8 @@ export function Explore() {
                   <span className="ml-auto">Previewing · click it on the map to open its regions</span>
                 </div>
               )}
-              <div className="flex items-center gap-2.5">
+              {/* On the phone the strip already names the country */}
+              <div className="max-md:hidden flex items-center gap-2.5">
                 <PlateDot color={colors.primary} size={14} />
                 <h2 className="text-xl font-bold" style={{ color: systemColors.navy }}>{country.name}</h2>
                 <span className="text-xs ml-auto" style={{ color: systemColors.navyMuted }}>{country.capital} · {country.region}</span>
