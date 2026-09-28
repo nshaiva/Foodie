@@ -46,6 +46,9 @@ export type RegionAreas = {
   areas: RegionArea[];
   /** Extent of the land the regions are on, in projected px. */
   bounds: [[number, number], [number, number]];
+  /** The home landmasses' outer rings in projected px — the "is this water?"
+   *  test that sea-set labels are placed against. */
+  rings: [number, number][][];
 };
 
 /**
@@ -146,6 +149,7 @@ export function regionAreas(countryId: string, allRegions: RegionalCuisine[] | u
     // make the US look wide enough for bigger names)
     bounds: (() => { const xs = coast.map(p => p[0]), ys = coast.map(p => p[1]); return [[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]] as [[number, number], [number, number]]; })(),
     borders: regions.length > 1 ? voronoi.render() : '',
+    rings,
     areas: regions.map((region, i) => {
       const poly = voronoi.cellPolygon(i) as [number, number][];
       const anchorPx = labelAnchor(poly, rings, coast, pts[i] as [number, number]);
@@ -177,6 +181,59 @@ export function labelsFitAt(areas: RegionAreas, zoom: number, counts: Record<str
   const boxes = labelBoxes(areas, zoom, counts, scale, compact);
   if (Math.max(...boxes.map(b => b[4])) > span * 0.5) return false;
   return !boxes.some((a, i) => boxes.some((b, j) => j > i && a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]));
+}
+
+export type SeaPlacement = {
+  region: RegionalCuisine;
+  /** Where the label sits, in base projected px. */
+  at: [number, number];
+  /** Inline names stay on the land; the rest sit in open water with a leader. */
+  inline: boolean;
+};
+
+/**
+ * The atlas treatment for countries whose names can't fit on the land at the
+ * whole-country view (Malaysia's peninsula, Java's cluster): names that fit
+ * where they are stay inline, and the rest are set at full size in the open
+ * water nearest their region, to be drawn with a hairline leader. Returns
+ * null when everything fits inline (use the normal path) or when no clean
+ * water can be found for some name (hide them all, as before).
+ */
+export function seaLabelLayout(areas: RegionAreas, zoom: number, counts: Record<string, number>, scale: number, centrePx: [number, number], view: readonly [number, number]): SeaPlacement[] | null {
+  const boxes = labelBoxes(areas, zoom, counts, scale);
+  type Box = readonly [number, number, number, number];
+  const PAD = 5; // breathing room between labels, in screen px
+  const overlaps = (a: Box, b: Box) => a[0] - PAD < b[2] && a[2] + PAD > b[0] && a[1] - PAD < b[3] && a[3] + PAD > b[1];
+  const inline = boxes.map((a, i) => !boxes.some((b, j) => j !== i && overlaps(a, b)));
+  if (inline.every(Boolean)) return null;
+  const onLand = (x: number, y: number) => areas.rings.some(r => polygonContains(r, [x / zoom, y / zoom]));
+  const placed: Box[] = boxes.filter((_, i) => inline[i]).map(b => [b[0], b[1], b[2], b[3]] as const);
+  const out: SeaPlacement[] = areas.areas.map(({ region, anchorPx }, i) => ({ region, at: anchorPx, inline: inline[i] }));
+  const cx = centrePx[0] * zoom, cy = centrePx[1] * zoom;
+  // The window names may sit in: the landing view, inset so nothing hides
+  // under the breadcrumb or the phone strip
+  const x0 = cx - view[0] / 2 + 10, x1 = cx + view[0] / 2 - 10;
+  const y0 = cy - view[1] * 0.42, y1 = cy + view[1] * 0.42;
+  const step = Math.min(view[0], view[1]) / 40;
+  for (let i = 0; i < boxes.length; i++) {
+    if (inline[i]) continue;
+    const w = boxes[i][2] - boxes[i][0], h = boxes[i][3] - boxes[i][1];
+    const ax = areas.areas[i].anchorPx[0] * zoom, ay = areas.areas[i].anchorPx[1] * zoom;
+    let best: [number, number] | null = null, bestD = Infinity;
+    for (let y = y0 + h / 2; y <= y1 - h / 2; y += step) for (let x = x0 + w / 2; x <= x1 - w / 2; x += step) {
+      const d = (x - ax) ** 2 + (y - ay) ** 2;
+      if (d >= bestD) continue;
+      const box: Box = [x - w / 2, y - h / 2, x + w / 2, y + h / 2];
+      if (placed.some(p => overlaps(box, p))) continue;
+      // every corner and the centre in open water, off the country itself
+      if (onLand(x, y) || onLand(box[0], box[1]) || onLand(box[2], box[1]) || onLand(box[0], box[3]) || onLand(box[2], box[3])) continue;
+      bestD = d; best = [x, y];
+    }
+    if (!best) return null;
+    placed.push([best[0] - w / 2, best[1] - h / 2, best[0] + w / 2, best[1] + h / 2] as const);
+    out[i] = { region: areas.areas[i].region, at: [best[0] / zoom, best[1] / zoom], inline: false };
+  }
+  return out;
 }
 
 /**

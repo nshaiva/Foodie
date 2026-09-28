@@ -19,7 +19,7 @@ import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { countryDishProgress } from '../utils/dishProgress';
 import { groupEntries, regionCounts, type Entry, type Lens } from '../utils/groupDishes';
-import { homeLand, labelsFitAt, labelsInView, regionAreas, regionLabelName, REGION_BORDER, REGION_INK, REGION_TINT, type RegionAreas } from '../utils/regionAreas';
+import { homeLand, labelsFitAt, labelsInView, regionAreas, regionLabelName, seaLabelLayout, REGION_BORDER, REGION_INK, REGION_TINT, type RegionAreas, type SeaPlacement } from '../utils/regionAreas';
 import { regionFromSlug, regionNameFor, regionSlug } from '../utils/dishRegion';
 import { getCountryFillColor, getFlavorMatchFillColor, FLAVOR_MATCH_LOGGED_STROKE, MAP_STROKE, type MapLayer } from '../components/map/mapUtils';
 import { computeAllFlavorMatches } from '../components/map/flavorMatch';
@@ -212,11 +212,11 @@ export function Explore() {
     return () => window.removeEventListener('resize', measure);
   }, []);
   const labelBoost = 1 / Math.min(1, renderK);
-  // A landing whose frame can't fit names at the readable floor (Malaysia,
-  // Indonesia, Turkey) relaxes the floor for that country instead of hiding
-  // the names — `compact` additionally letters the name without its dish
-  // count. null means the normal floor applies.
-  const [floorRelax, setFloorRelax] = useState<{ scale: number; compact: boolean } | null>(null);
+  // The atlas treatment: a landing whose frame can't fit names on the land
+  // (Malaysia, Indonesia, Turkey) sets them at full size in the open water
+  // nearest their region, drawn with a hairline leader. Computed once per
+  // landing; null means the names fit inline as usual.
+  const [seaLayout, setSeaLayout] = useState<{ placements: SeaPlacement[]; zoom: number } | null>(null);
 
   /**
    * The window the viewer actually sees, in viewBox units. A phone shows far
@@ -316,29 +316,16 @@ export function Explore() {
       while (!fits(z) && z < Math.min(MAX_ZOOM, cam.zoom * 3) && inView(z * 1.1)) z *= 1.1;
       if (fits(z)) {
         cam.zoom = Math.min(MAX_ZOOM, z);
-        setFloorRelax(null);
+        setSeaLayout(null);
       } else {
-        // Names some countries can never fit on landing at the readable
-        // floor (Malaysia, Indonesia, Turkey: wide frames with clustered
-        // names). The camera keeps the clean whole-country frame, and the
-        // floor relaxes to the largest smaller size that fits there — the
-        // names arrive with the country, small, and grow on pinch-in. Zoom
-        // out past the landing and even the relaxed size stops fitting, so
-        // they all disappear together. If plain sizes still collide, the
-        // dish-count line is dropped (compact) before giving up — a count
-        // that small was noise anyway. Below 0.5× nothing sane can show.
-        let relax: { scale: number; compact: boolean } | null = null;
-        for (const compact of [false, true]) {
-          for (const f of [0.7, 0.6, 0.5]) {
-            const s = f * labelBoost;
-            if (labelsFitAt(areas, cam.zoom, counts, labelScaleAt(cam.zoom) * s, compact)
-              && labelsInView(areas, cam.zoom, counts, labelScaleAt(cam.zoom) * s, centrePx, view, compact)) { relax = { scale: s, compact }; break; }
-          }
-          if (relax) break;
-        }
-        setFloorRelax(relax);
+        // Names some countries can never fit on the land at their landing
+        // view (Malaysia's peninsula, Java's cluster). The camera keeps the
+        // clean whole-country frame, and those names go to sea at full
+        // size — the atlas way with archipelagos.
+        const placements = seaLabelLayout(areas, cam.zoom, counts, labelScaleAt(cam.zoom) * floor, centrePx, view);
+        setSeaLayout(placements && { placements, zoom: cam.zoom });
       }
-    } else setFloorRelax(null);
+    } else setSeaLayout(null);
     flyTo(cam, { level: 'country', country });
   };
   const flyToRegion = (country: Country, region: RegionalCuisine) => {
@@ -511,20 +498,21 @@ export function Explore() {
   // Names render as large as still fit cleanly: full size where the country
   // has room, stepping down to a readable floor on tight ones (a wide country
   // on a tall phone can't zoom further without cropping). Below the floor
-  // they hide all together, as before. `floorRelax` (set by a landing whose
-  // frame can't fit the floor) lowers the floor for that country so the
-  // names still arrive with it, smaller.
-  const labelFloor = floorRelax?.scale ?? Math.max(1, 0.75 * labelBoost);
-  const [labelScale, labelsFit, hideCounts] = useMemo(() => {
+  // they hide all together, as before — unless the landing set them at sea.
+  const labelFloor = Math.max(1, 0.75 * labelBoost);
+  const [labelScale, labelsFit] = useMemo(() => {
     const base = labelScaleAt(liveZoom);
-    if (!areas) return [base * labelBoost, false, false] as const;
-    for (const b of [1, 0.9, 0.8, 0.7, 0.6, 0.5].map(f => f * labelBoost)) {
-      if (b >= labelFloor && labelsFitAt(areas, liveZoom, counts, base * b)) return [base * b, true, false] as const;
+    if (!areas) return [base * labelBoost, false] as const;
+    if (!labelsFitAt(areas, liveZoom, counts, base * labelFloor)) return [base * labelFloor, false] as const;
+    for (const b of [labelBoost, labelBoost * 0.9, labelBoost * 0.8, labelBoost * 0.7]) {
+      if (b >= labelFloor && labelsFitAt(areas, liveZoom, counts, base * b)) return [base * b, true] as const;
     }
-    const compact = floorRelax?.compact ?? false;
-    if (labelsFitAt(areas, liveZoom, counts, base * labelFloor, compact)) return [base * labelFloor, true, compact] as const;
-    return [base * labelFloor, false, false] as const;
-  }, [areas, counts, liveZoom, labelBoost, labelFloor, floorRelax]);
+    return [base * labelFloor, true] as const;
+  }, [areas, counts, liveZoom, labelBoost, labelFloor]);
+  // Sea-set names show while the inline ones can't fit and the camera is
+  // still near the landing that placed them; zoom out further and they all
+  // go together, zoom in and the inline names take over.
+  const showSea = !!seaLayout && !labelsFit && liveZoom >= seaLayout.zoom * 0.85;
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
   const pill = (label: string, onClick: () => void) => (
     <button onClick={onClick} className="btn-press inline-flex items-center gap-1.5 text-xs font-semibold rounded-full border px-3 py-1.5" style={{ borderColor: `${colors!.primary}40`, color: colors!.primary, backgroundColor: systemColors.surface }}>{label}</button>
@@ -649,11 +637,11 @@ export function Explore() {
                       return (
                         <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
                           <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
-                            <text textAnchor="middle" dominantBaseline="central" y={n && !hideCounts ? -5 : 0} fill={dim ? REGION_BORDER : REGION_INK} fontSize={sel ? 17 : 15} fontStyle="italic" fontWeight={500}
+                            <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={dim ? REGION_BORDER : REGION_INK} fontSize={sel ? 17 : 15} fontStyle="italic" fontWeight={500}
                               stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)' }}>
                               {regionLabelName(region.name)}
                             </text>
-                            {n > 0 && !hideCounts && (
+                            {n > 0 && (
                               <text textAnchor="middle" dominantBaseline="central" y={11} fill={systemColors.navyMuted} fontSize={9.5} letterSpacing="0.12em"
                                 stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke">
                                 {n} {n === 1 ? 'DISH' : 'DISHES'}
@@ -663,6 +651,45 @@ export function Explore() {
                         </Marker>
                       );
                     })}
+                    {/* Names at sea: what can't fit on the land sits at full
+                        size in the nearest open water, a hairline leading
+                        home. Inline keepers (Borneo) render here too, since
+                        the normal layer is hidden while inline doesn't fit. */}
+                    {showSea && seaLayout && (
+                      <g opacity={1} style={{ transition: 'opacity 180ms' }}>
+                        {seaLayout.placements.filter(p => !p.inline).map(p => {
+                          const a = areas.areas.find(x => x.region.name === p.region.name)!;
+                          return (
+                            <g key={`l:${p.region.name}`} style={{ pointerEvents: 'none' }}>
+                              <line x1={p.at[0]} y1={p.at[1]} x2={a.anchorPx[0]} y2={a.anchorPx[1]} stroke={REGION_BORDER} strokeWidth={labelBoost / liveZoom} opacity={0.85} />
+                              <circle cx={a.anchorPx[0]} cy={a.anchorPx[1]} r={(2.2 * labelBoost) / liveZoom} fill={REGION_BORDER} />
+                            </g>
+                          );
+                        })}
+                        {seaLayout.placements.map(p => {
+                          const n = counts[p.region.name] ?? 0;
+                          const name = regionLabelName(p.region.name);
+                          return (
+                            <Marker key={`s:${p.region.name}`} coordinates={baseProjection.invert!(p.at) as [number, number]}>
+                              <g transform={`scale(${labelScale / liveZoom})`} style={{ cursor: 'pointer' }} data-r={p.region.name}
+                                onClick={e => { e.stopPropagation(); flyToRegion(bubbleCountry!, p.region); }}>
+                                <rect x={-(name.length * 4.5)} y={-12} width={name.length * 9} height={n ? 32 : 24} fill="transparent" />
+                                <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={REGION_INK} fontSize={15} fontStyle="italic" fontWeight={500}
+                                  stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)' }}>
+                                  {name}
+                                </text>
+                                {n > 0 && (
+                                  <text textAnchor="middle" dominantBaseline="central" y={11} fill={systemColors.navyMuted} fontSize={9.5} letterSpacing="0.12em"
+                                    stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke">
+                                    {n} {n === 1 ? 'DISH' : 'DISHES'}
+                                  </text>
+                                )}
+                              </g>
+                            </Marker>
+                          );
+                        })}
+                      </g>
+                    )}
                   </g>
                 );
               })()}
