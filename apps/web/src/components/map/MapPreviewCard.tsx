@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect, useState } from 'react';
+import { memo, useRef, useLayoutEffect, useState } from 'react';
 import type { Country } from '../../data/types';
 import type { CountryActivity } from '../../hooks/useCountryActivity';
 import type { FlavorMatch } from './flavorMatch';
@@ -28,23 +28,23 @@ export const MapPreviewCard = memo(function MapPreviewCard({
   y,
 }: MapPreviewCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x, y, flipX: false, flipY: false });
+  // Unknown until measured; the first paint is hidden so it never flashes
+  // somewhere wrong
+  const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
 
-  useEffect(() => {
-    if (!cardRef.current) return;
-
+  useLayoutEffect(() => {
     const card = cardRef.current;
-    const container = card.closest('.map-container');
-    if (!container) return;
-
-    const containerRect = container.getBoundingClientRect();
-    const cardWidth = card.offsetWidth;
-    const cardHeight = card.offsetHeight;
-
-    const flipX = x + cardWidth / 2 > containerRect.width - 20;
-    const flipY = y - cardHeight - 10 < 0;
-
-    setPosition({ x, y, flipX, flipY });
+    const container = card?.closest('.map-container') ?? (card?.offsetParent as HTMLElement | null);
+    if (!card || !container) return;
+    const { width: cw, height: ch } = container.getBoundingClientRect();
+    const w = card.offsetWidth, h = card.offsetHeight, pad = 8;
+    // Above the pointer, centred; below it when there's no room above. Then
+    // clamp so the card always stays inside the map.
+    let top = y - h - 10;
+    if (top < pad) top = y + 20;
+    top = Math.max(pad, Math.min(top, ch - h - pad));
+    const left = Math.max(pad, Math.min(x - w / 2, cw - w - pad));
+    setPosition({ left, top });
   }, [x, y]);
 
   const hasProfile = !!country;
@@ -52,11 +52,9 @@ export const MapPreviewCard = memo(function MapPreviewCard({
 
   const tooltipStyle: React.CSSProperties = {
     position: 'absolute',
-    left: position.flipX ? 'auto' : position.x,
-    right: position.flipX ? `calc(100% - ${position.x}px)` : 'auto',
-    top: position.flipY ? position.y + 20 : 'auto',
-    bottom: position.flipY ? 'auto' : `calc(100% - ${position.y}px + 10px)`,
-    transform: `translateX(${position.flipX ? '50%' : '-50%'})`,
+    left: position?.left ?? x,
+    top: position?.top ?? y,
+    visibility: position ? 'visible' : 'hidden',
     zIndex: 50,
   };
 

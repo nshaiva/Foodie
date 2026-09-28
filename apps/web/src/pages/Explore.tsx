@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
-import { geoBounds, geoCentroid, geoContains, geoMercator } from 'd3-geo';
+import { geoMercator, geoPath } from 'd3-geo';
 import { feature } from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import type { Feature, Geometry } from 'geojson';
@@ -19,6 +19,7 @@ import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { countryDishProgress } from '../utils/dishProgress';
 import { groupEntries, regionCounts, type Entry, type Lens } from '../utils/groupDishes';
+import { homeLand, labelsFitAt, regionAreas, regionLabelName, REGION_BORDER, REGION_INK, REGION_TINT, type RegionAreas } from '../utils/regionAreas';
 import { regionFromSlug, regionNameFor, regionSlug } from '../utils/dishRegion';
 import { getCountryFillColor, getFlavorMatchFillColor, FLAVOR_MATCH_LOGGED_STROKE, MAP_STROKE, type MapLayer } from '../components/map/mapUtils';
 import { computeAllFlavorMatches } from '../components/map/flavorMatch';
@@ -40,13 +41,11 @@ import type { Country, RegionalCuisine } from '../data/types';
  * /explore — the one-map app.
  *
  * The map is the surface; the panel on the right describes whatever the
- * camera is looking at. **Zoom is the control.** Past COUNTRY_IN the country
- * under the pointer (or the viewport center, when flying) becomes the scope
- * and its regions rise out of the map; past REGION_IN the nearest region
- * takes over. Zooming out unwinds it with a little hysteresis so the panel
- * never flickers at a threshold. Clicks, the breadcrumb, Esc and the +/−
- * buttons all just fly the same camera. The URL carries the scope so a
- * refresh or a shared link lands where you were.
+ * camera has been sent to. Zooming and panning only move the camera; the
+ * scope changes when you click a country or a region (or use the breadcrumb
+ * or Esc), and that click flies the camera there. Hovering a country
+ * previews its region pins. The URL carries the scope so a refresh or a
+ * shared link lands where you were.
  */
 
 // 50m rather than 110m: at the zooms small countries need, 110m draws Jamaica
@@ -56,8 +55,8 @@ const VIEW_W = 800;
 const VIEW_H = 500;
 const BASE_SCALE = 130;
 const WORLD_CENTER: [number, number] = [10, 25];
-const COUNTRY_IN = 2.2, COUNTRY_OUT = 1.8;   // enter / leave the country level
-const REGION_IN = 4.6, REGION_OUT = 3.8;     // enter / leave the region level
+const COUNTRY_IN = 2.2;  // a framed country is always at least this close
+const REGION_IN = 4.6;   // and a framed region at least this
 const MAX_ZOOM = 220;  // Jamaica needs ~140× to fill the frame
 const FLY_MS = 700;
 
@@ -97,35 +96,33 @@ function useCountryFeatures(): Map<string, Feature<Geometry>> {
 }
 
 /**
- * Camera that frames a country. When the country has region bubbles, frame
- * those (with air) rather than the raw outline: the outline of the United
- * States includes Alaska and Hawaii, which would push the mainland, where all
- * the food is, into a corner.
+ * Camera that frames a country: the land its regions are on fills most of
+ * the map, so borders have room and names fit on arrival.
  */
 function frameCountry(country: Country, feat: Feature<Geometry>): Camera {
-  const pts = Object.values(regionCoordinates[country.id] ?? {});
-  const [[bx0, by0], [bx1, by1]] = geoBounds(feat);
-  let x0: number, y0: number, x1: number, y1: number, fill: number;
-  if (pts.length >= 2) {
-    // The bubbles' spread should take about 55% of the view: room for the
-    // bubbles themselves (they're a fixed screen size) plus the coast around them
-    x0 = Math.min(...pts.map(p => p[0])); x1 = Math.max(...pts.map(p => p[0]));
-    y0 = Math.min(...pts.map(p => p[1])); y1 = Math.max(...pts.map(p => p[1]));
-    fill = 0.55;
-  } else {
-    [x0, y0, x1, y1] = [bx0, by0, bx1, by1]; fill = 0.75;
-  }
-  // Never zoom past the point where the outline itself would overflow the view
-  const proj = (a: number, b: number, c: number, d: number) => { const p0 = baseProjection([a, d])!, p1 = baseProjection([c, b])!; return [Math.abs(p1[0] - p0[0]), Math.abs(p1[1] - p0[1])]; };
-  const [w, h] = proj(x0, y0, x1, y1);
-  const [ow, oh] = proj(bx0, by0, bx1, by1);
-  const byBubbles = fill * Math.min(VIEW_W / Math.max(w, 1), VIEW_H / Math.max(h, 1));
-  const byOutline = 0.92 * Math.min(VIEW_W / Math.max(ow, 1), VIEW_H / Math.max(oh, 1));
-  // Outlines with far-flung islands (US: Alaska, Hawaii) shouldn't cap the mainland view
-  const cap = pts.length >= 2 && ow > 1.6 * w ? Infinity : byOutline;
-  const zoom = Math.max(COUNTRY_IN + 0.3, Math.min(MAX_ZOOM, byBubbles, cap));
-  const center = pts.length >= 2 ? ([(x0 + x1) / 2, (y0 + y1) / 2] as [number, number]) : (geoCentroid(feat) as [number, number]);
-  return { coordinates: center, zoom };
+  const main = homeLand(country.id, feat, baseProjection);
+  const [[x0, y0], [x1, y1]] = geoPath(baseProjection).bounds(main);
+  const zoom = 0.82 * Math.min(VIEW_W / Math.max(x1 - x0, 1), VIEW_H / Math.max(y1 - y0, 1));
+  const center = baseProjection.invert!([(x0 + x1) / 2, (y0 + y1) / 2]) as [number, number];
+  return { coordinates: center, zoom: Math.max(COUNTRY_IN + 0.3, Math.min(MAX_ZOOM, zoom)) };
+}
+
+const areasCache = new Map<string, RegionAreas | null>();
+/** Region areas are costly to place (label anchors), so each country is split once. */
+function getAreas(country: Country, feat: Feature<Geometry>): RegionAreas | null {
+  if (!areasCache.has(country.id)) areasCache.set(country.id, regionAreas(country.id, country.regionalVariations, feat, baseProjection));
+  return areasCache.get(country.id)!;
+}
+
+const labelScaleAt = (zoom: number) => Math.min(1.25, 0.9 + 0.05 * zoom);
+
+/** Dish counts per region from the country's own list (what the labels show). */
+function staticRegionCounts(country: Country): Record<string, number> {
+  const entries: Entry[] = [
+    ...country.popularDishes.map<Entry>(dish => ({ kind: 'dish', key: `d:${dish.name}`, dish })),
+    ...(country.popularBeverages ?? []).map<Entry>(drink => ({ kind: 'drink', key: `b:${drink.name}`, drink })),
+  ];
+  return regionCounts(entries, country.regionalVariations, country.id);
 }
 
 export function Explore() {
@@ -159,69 +156,26 @@ export function Explore() {
 
   // ---- camera ----
   const [camera, setCamera] = useState<Camera>({ coordinates: WORLD_CENTER, zoom: 1 });
+  // Timers and animation frames outlive the render that scheduled them, so
+  // anything they read about the camera must come from here, not `camera`
+  const cameraRef = useRef<Camera>(camera);
   const [liveZoom, setLiveZoom] = useState(1);
   const [scope, setScope] = useState<Scope>({ level: 'world' });
-  const scopeRef = useRef<Scope>(scope); scopeRef.current = scope;
+  const scopeRef = useRef<Scope>(scope);
   const [hovered, setHovered] = useState<string | null>(null);
+  // At world level, resting on a country for a moment shows it in the panel.
+  // It sticks after the pointer leaves, so you can move over to read it; the
+  // delay stops countries you merely cross on the way from taking over.
+  const [peekId, setPeekId] = useState<string | null>(null);
+  const peekTimer = useRef<number | null>(null);
+  const cancelPeek = () => { if (peekTimer.current) { window.clearTimeout(peekTimer.current); peekTimer.current = null; } };
   const [tooltip, setTooltip] = useState<{ id: string; name: string; x: number; y: number } | null>(null);
   const [tray, setTray] = useState<null | 'flavor' | 'culture'>(null);
   const [lens, setLens] = useState<Lens>('region');
   const filters = useDishFilters();
-  const settle = useRef<number | null>(null);
   const flight = useRef<number | null>(null);
   const mapBox = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const cursor = useRef<[number, number] | null>(null);
-
-  /** The pointer's lon/lat given the camera; the center when there is no pointer. */
-  const probePoint = (center: [number, number], zoom: number): [number, number] => {
-    const box = mapBox.current?.getBoundingClientRect();
-    if (!cursor.current || !box) return center;
-    const k = Math.min(box.width / VIEW_W, box.height / VIEW_H);
-    const offX = (box.width - VIEW_W * k) / 2, offY = (box.height - VIEW_H * k) / 2;
-    const sx = (cursor.current[0] - offX) / k, sy = (cursor.current[1] - offY) / k;
-    const pc = baseProjection(center)!;
-    const tx = VIEW_W / 2 - pc[0] * zoom, ty = VIEW_H / 2 - pc[1] * zoom;
-    return (baseProjection.invert?.([(sx - tx) / zoom, (sy - ty) / zoom]) as [number, number]) ?? center;
-  };
-
-  /** What the camera is looking at, with hysteresis against the current scope. */
-  const resolveScope = useCallback((probe: [number, number], zoom: number): Scope => {
-    const current = scopeRef.current;
-    const countryEnter = current.level === 'world' ? COUNTRY_IN : COUNTRY_OUT;
-    if (zoom < countryEnter) return { level: 'world' };
-    let hit: Country | undefined;
-    for (const [id, feat] of features) if (geoContains(feat, probe)) { hit = getCountryById(id); break; }
-    const country = hit ?? (current.level !== 'world' ? current.country : undefined);
-    if (!country) return { level: 'world' };
-    if (hasRegionMap(country)) {
-      // Small countries frame at a high zoom already, so "zoom in further for a
-      // region" is measured from the framing zoom, not from the world.
-      const feat = features.get(country.id);
-      const fit = feat ? frameCountry(country, feat).zoom : COUNTRY_IN;
-      const regionIn = Math.max(REGION_IN, fit * 1.6), regionOut = Math.max(REGION_OUT, fit * 1.3);
-      const regionEnter = current.level === 'region' && current.country.id === country.id ? regionOut : regionIn;
-      if (zoom >= regionEnter) {
-        const coordsFor = regionCoordinates[country.id];
-        let best: RegionalCuisine | undefined, bestD = Infinity;
-        for (const r of country.regionalVariations ?? []) {
-          const c = coordsFor[r.name]; if (!c) continue;
-          const d = Math.hypot(c[0] - probe[0], (c[1] - probe[1]) * 1.3);
-          if (d < bestD) { bestD = d; best = r; }
-        }
-        // Switching regions needs the new one well inside the old one's
-        // distance, so a pointer resting between two bubbles never flip-flops
-        if (current.level === 'region' && current.country.id === country.id) {
-          const cc = coordsFor[current.region.name];
-          const curD = cc ? Math.hypot(cc[0] - probe[0], (cc[1] - probe[1]) * 1.3) : Infinity;
-          if (best && best.name !== current.region.name && bestD < curD * 0.6) return { level: 'region', country, region: best };
-          return current;
-        }
-        if (best && bestD < (70 / zoom) * Math.max(1, fit / REGION_IN)) return { level: 'region', country, region: best };
-      }
-    }
-    return { level: 'country', country };
-  }, [features]);
 
   const commitScope = (next: Scope) => {
     const cur = scopeRef.current;
@@ -238,68 +192,37 @@ export function Explore() {
     panelRef.current?.scrollTo({ top: 0 });
   };
 
-  // A fly-to that just landed leaves the pointer over whatever happens to be
-  // under it; the trailing move events must not re-resolve the scope from that.
-  const landedAt = useRef(0);
-  const liveTick = useRef<number | null>(null);
-  /** Viewport center in lon/lat from the zoom group's transform. */
-  const centerFromTransform = (x: number, y: number, k: number): [number, number] =>
-    (baseProjection.invert?.([(VIEW_W / 2 - x) / k, (VIEW_H / 2 - y) / k]) as [number, number]) ?? WORLD_CENTER;
-
-  /** During a gesture: scope follows the zoom continuously, so the panel and
-   *  bubbles change while you zoom, not after. Lightly throttled. */
-  const onMove = ({ x, y, zoom, dragging }: { x: number; y: number; zoom: number; dragging: unknown }) => {
+  /** Zooming and panning only move the camera. What the panel describes
+   *  changes when you click a country or a region (or the breadcrumb / Esc). */
+  const onMove = ({ zoom, dragging }: { x: number; y: number; zoom: number; dragging: unknown }) => {
     if (flight.current && dragging) { cancelAnimationFrame(flight.current); flight.current = null; }
     if (flight.current) return;
     setLiveZoom(zoom);
-    if (performance.now() - landedAt.current < 300) return;
-    if (liveTick.current) return;
-    liveTick.current = window.setTimeout(() => {
-      liveTick.current = null;
-      const center = centerFromTransform(x, y, zoom);
-      commitScope(resolveScope(probePoint(center, zoom), zoom));
-    }, 80);
   };
 
   const onMoveEnd = ({ coordinates, zoom }: { coordinates: [number, number]; zoom: number }) => {
-    if (flight.current) return; // the fly-to sets scope itself
+    if (flight.current) return;
+    cameraRef.current = { coordinates, zoom };
     setCamera({ coordinates, zoom });
     setLiveZoom(zoom);
-    if (performance.now() - landedAt.current < 300) return;
-    if (settle.current) window.clearTimeout(settle.current);
-    settle.current = window.setTimeout(() => {
-      const before = scopeRef.current;
-      const next = resolveScope(probePoint(coordinates, zoom), zoom);
-      commitScope(next);
-      // Once the gesture settles, drift so what you zoomed toward is centred.
-      // Pan only, at your zoom: re-zooming here is what made it feel like a
-      // different view. (Zoom is nudged only if you stopped well short of the
-      // country fitting the frame.)
-      const c = next.level === 'region' ? regionCoordinates[next.country.id]?.[next.region.name]
-        : next.level === 'country' ? (() => { const f = features.get(next.country.id); return f ? frameCountry(next.country, f).coordinates : undefined; })()
-        : undefined;
-      if (!c) return;
-      let z = zoom;
-      if (next.level === 'country') {
-        const f = features.get(next.country.id);
-        const fit = f ? frameCountry(next.country, f).zoom : zoom;
-        const entered = before.level === 'world' || before.country.id !== next.country.id;
-        if (entered && zoom < fit * 0.65) z = fit * 0.8;
-      }
-      const dLon = Math.abs(c[0] - coordinates[0]), dLat = Math.abs(c[1] - coordinates[1]);
-      // Already roughly centred: leave the camera alone
-      if (z === zoom && dLon < 40 / zoom && dLat < 25 / zoom) return;
-      flyTo({ coordinates: c, zoom: z }, undefined, 900);
-    }, 260);
   };
+
+  // react-simple-maps re-attaches d3-zoom whenever these handlers change
+  // identity, which (with a fresh closure every render) was every frame of a
+  // pinch. Hand it stable wrappers that call the latest version.
+  const handlers = useRef({ onMove, onMoveEnd });
+  useLayoutEffect(() => {
+    cameraRef.current = camera; scopeRef.current = scope;
+    handlers.current = { onMove, onMoveEnd };
+  });
+  const stableOnMove = useCallback((p: Parameters<typeof onMove>[0]) => handlers.current.onMove(p), []);
+  const stableOnMoveEnd = useCallback((p: Parameters<typeof onMoveEnd>[0]) => handlers.current.onMoveEnd(p), []);
+  const filterZoomEvent = useCallback((e: { button?: number }) => !e.button, []) as unknown as (el: SVGElement) => boolean;
 
   /** Animate the camera; zoom eases in log space so it feels even. */
   const flyTo = (target: Camera, then?: Scope, ms = FLY_MS) => {
     if (flight.current) cancelAnimationFrame(flight.current);
-    if (settle.current) window.clearTimeout(settle.current);
-    if (liveTick.current) { window.clearTimeout(liveTick.current); liveTick.current = null; }
-    cursor.current = null;
-    const from = camera, t0 = performance.now();
+    const from = cameraRef.current, t0 = performance.now();
     const lz0 = Math.log(from.zoom), lz1 = Math.log(target.zoom);
     const step = (now: number) => {
       const t = Math.min(1, (now - t0) / ms), e = easeInOut(t);
@@ -307,18 +230,28 @@ export function Explore() {
         coordinates: [from.coordinates[0] + (target.coordinates[0] - from.coordinates[0]) * e, from.coordinates[1] + (target.coordinates[1] - from.coordinates[1]) * e],
         zoom: Math.exp(lz0 + (lz1 - lz0) * e),
       };
-      setCamera(next); setLiveZoom(next.zoom);
+      cameraRef.current = next; setCamera(next); setLiveZoom(next.zoom);
       if (t < 1) flight.current = requestAnimationFrame(step);
-      else { flight.current = null; landedAt.current = performance.now(); }
+      else flight.current = null;
     };
     if (then) commitScope(then);
     flight.current = requestAnimationFrame(step);
   };
-  const flyToWorld = () => flyTo({ coordinates: WORLD_CENTER, zoom: 1 }, { level: 'world' });
+  const flyToWorld = () => { cancelPeek(); setPeekId(null); flyTo({ coordinates: WORLD_CENTER, zoom: 1 }, { level: 'world' }); };
   const flyToCountry = (id: string) => {
     const feat = features.get(id), country = getCountryById(id);
     if (!feat || !country) return;
-    flyTo(frameCountry(country, feat), { level: 'country', country });
+    // Land where every region's name fits: nudge in from the mainland framing
+    // until they do (tall, thin countries need it)
+    const cam = frameCountry(country, feat);
+    const areas = hasRegionMap(country) ? getAreas(country, feat) : null;
+    if (areas) {
+      const counts = staticRegionCounts(country);
+      let z = cam.zoom;
+      while (!labelsFitAt(areas, z, counts, labelScaleAt(z)) && z < Math.min(MAX_ZOOM, cam.zoom * 3)) z *= 1.1;
+      cam.zoom = Math.min(MAX_ZOOM, z);
+    }
+    flyTo(cam, { level: 'country', country });
   };
   const flyToRegion = (country: Country, region: RegionalCuisine) => {
     const c = regionCoordinates[country.id]?.[region.name]; if (!c) return;
@@ -329,6 +262,7 @@ export function Explore() {
   const zoomOutOneLevel = () => {
     if (scope.level === 'region') flyToCountry(scope.country.id);
     else if (scope.level === 'country') flyToWorld();
+    else if (peekId) setPeekId(null);
   };
 
   // Deep link: land where the URL says, once the outlines are in
@@ -340,6 +274,8 @@ export function Explore() {
     const country = c ? getCountryById(c) : undefined;
     if (!country) return;
     const region = r ? regionFromSlug(r, country.regionalVariations) : undefined;
+    // A one-time landing once the outlines arrive, not a state sync
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (region) flyToRegion(country, region); else flyToCountry(country.id);
   }, [features]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -350,7 +286,10 @@ export function Explore() {
   });
 
   // ---- panel data ----
-  const country = scope.level === 'world' ? undefined : scope.country;
+  const peekCountry = scope.level === 'world' && peekId ? getCountryById(peekId) : undefined;
+  const country = scope.level === 'world' ? peekCountry : scope.country;
+  // A peeked country fills the panel exactly as an opened one does
+  const panelLevel: Scope['level'] = scope.level === 'world' ? (peekCountry ? 'country' : 'world') : scope.level;
   const colors = country?.colorPalette;
   const regions = country?.regionalVariations;
   const countryDishes = useMemo(() => (country ? getDishesByCountry(country.id) : []), [country, getDishesByCountry]);
@@ -403,10 +342,17 @@ export function Explore() {
     return rows.sort((a, b) => (b.match ?? -1) - (a.match ?? -1) || b.progress.percent - a.progress.percent || a.c.name.localeCompare(b.c.name));
   }, [dishes, flavorMatches]);
 
-  const showBubbles = !!country && hasRegionMap(country) && liveZoom >= COUNTRY_OUT;
-  // Bubbles fade in across the country threshold rather than appearing at it
-  const bubbleOpacity = !country ? 0 : Math.max(0, Math.min(1, (liveZoom - COUNTRY_OUT) / (COUNTRY_IN + 0.6 - COUNTRY_OUT)));
-  const scopeKey = scope.level === 'world' ? 'world' : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
+  // Region pins appear only for a country you've opened (clicked), never on hover
+  const bubbleCountry = scope.level === 'world' ? undefined : scope.country;
+  const showBubbles = !!bubbleCountry && hasRegionMap(bubbleCountry);
+  const areas = useMemo(() => {
+    const feat = bubbleCountry && features.get(bubbleCountry.id);
+    return bubbleCountry && feat ? getAreas(bubbleCountry, feat) : null;
+  }, [bubbleCountry, features]);
+  const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
+  const labelScale = labelScaleAt(liveZoom);
+  const labelsFit = useMemo(() => !!areas && labelsFitAt(areas, liveZoom, counts, labelScale), [areas, counts, labelScale, liveZoom]);
+  const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
   const pill = (label: string, onClick: () => void) => (
     <button onClick={onClick} className="btn-press inline-flex items-center gap-1.5 text-xs font-semibold rounded-full border px-3 py-1.5" style={{ borderColor: `${colors!.primary}40`, color: colors!.primary, backgroundColor: systemColors.surface }}>{label}</button>
   );
@@ -422,12 +368,14 @@ export function Explore() {
         {/* ============ map ============ */}
         <div
           ref={mapBox}
-          className="relative min-h-0 select-none"
+          className="map-container explore-map relative min-h-0 select-none"
           data-zoom={liveZoom.toFixed(2)}
           data-scope={scope.level}
           style={{ backgroundColor: systemColors.seaSalt }}
-          onMouseMove={e => { const r = e.currentTarget.getBoundingClientRect(); cursor.current = [e.clientX - r.left, e.clientY - r.top]; if (tooltip) setTooltip(t => t && { ...t, x: e.clientX - r.left, y: e.clientY - r.top - 10 }); }}
-          onMouseLeave={() => { cursor.current = null; setHovered(null); setTooltip(null); }}
+          onMouseMove={e => { const r = e.currentTarget.getBoundingClientRect(); if (tooltip) setTooltip(t => t && { ...t, x: e.clientX - r.left, y: e.clientY - r.top - 10 }); }}
+          onPointerDown={e => { if (e.button === 0) e.currentTarget.classList.add('is-dragging'); }}
+          onPointerUp={e => e.currentTarget.classList.remove('is-dragging')}
+          onMouseLeave={e => { e.currentTarget.classList.remove('is-dragging'); setHovered(null); setTooltip(null); }}
         >
           {/* breadcrumb */}
           <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm shadow-sm" style={{ backgroundColor: `${systemColors.surface}F0`, borderColor: systemColors.border }}>
@@ -443,13 +391,13 @@ export function Explore() {
             </div>
           )}
           <div className="absolute bottom-3 left-3 z-10 rounded-lg border px-2.5 py-1.5 text-xs shadow-sm" style={{ backgroundColor: `${systemColors.surface}F0`, borderColor: systemColors.border, color: systemColors.navyMuted }}>
-            {scope.level === 'world' ? 'Pinch or scroll to zoom into a cuisine · click to fly there'
-              : scope.level === 'country' ? (hasRegionMap(scope.country) ? 'Keep zooming toward a region, or click one' : 'No regional map for this cuisine yet')
-              : `Zoom out for all of ${scope.country.name} · Esc`}
+            {scope.level === 'world' ? 'Hover a country to preview it · click to open its regions'
+              : scope.level === 'country' ? (hasRegionMap(scope.country) ? 'Click a region to open it' : 'No regional map for this cuisine yet')
+              : `Esc for all of ${scope.country.name}`}
           </div>
           <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-1">
             <button onClick={() => flyTo({ coordinates: camera.coordinates, zoom: Math.min(MAX_ZOOM, camera.zoom * 1.7) })} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom in">+</button>
-            <button onClick={() => { const z = Math.max(1, camera.zoom / 1.7); flyTo({ coordinates: camera.coordinates, zoom: z }, resolveScope(camera.coordinates, z)); }} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom out">−</button>
+            <button onClick={() => { const z = Math.max(1, camera.zoom / 1.7); flyTo({ coordinates: camera.coordinates, zoom: z }); }} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom out">−</button>
           </div>
 
           <ComposableMap projection="geoMercator" projectionConfig={{ scale: BASE_SCALE, center: WORLD_CENTER }} width={VIEW_W} height={VIEW_H} style={{ width: '100%', height: '100%' }}>
@@ -458,15 +406,15 @@ export function Explore() {
               zoom={camera.zoom}
               minZoom={1}
               maxZoom={MAX_ZOOM}
-              onMove={onMove}
-              onMoveEnd={onMoveEnd}
-              filterZoomEvent={((e: { button?: number }) => !e.button) as unknown as (el: SVGElement) => boolean}
+              onMove={stableOnMove}
+              onMoveEnd={stableOnMoveEnd}
+              filterZoomEvent={filterZoomEvent}
             >
               <Geographies geography={GEO_URL}>
                 {({ geographies }) => geographies.map(geo => {
                   const alpha2 = getAlpha2FromNumeric(geo.id as string);
                   const profiled = alpha2 ? profiledCountryIds.has(alpha2) : false;
-                  const isHovered = hovered === alpha2 && scope.level === 'world';
+                  const isHovered = hovered === alpha2 && !(scope.level !== 'world' && scope.country.id === alpha2);
                   const isScoped = !!alpha2 && scope.level !== 'world' && scope.country.id === alpha2;
                   const state = alpha2 ? getActivityState(alpha2) : 'noProfile';
                   const match = alpha2 ? flavorMatches?.get(alpha2) : undefined;
@@ -481,12 +429,14 @@ export function Explore() {
                       fill={fill}
                       stroke={stroke}
                       strokeWidth={(isScoped ? 1.4 : isHovered || isLogged ? 1 : 0.5) / liveZoom}
-                      style={{ default: { outline: 'none', transition: 'fill 200ms' }, hover: { outline: 'none', cursor: profiled ? 'pointer' : 'grab' }, pressed: { outline: 'none' } }}
+                      style={{ default: { outline: 'none', transition: 'fill 200ms' }, hover: { outline: 'none', cursor: profiled ? 'pointer' : 'inherit' }, pressed: { outline: 'none' } }}
                       onMouseEnter={e => {
                         setHovered(alpha2 ?? null);
-                        if (alpha2 && profiled && scope.level === 'world') { const r = mapBox.current!.getBoundingClientRect(); setTooltip({ id: alpha2, name: geo.properties.name, x: e.clientX - r.left, y: e.clientY - r.top - 10 }); }
+                        cancelPeek();
+                        if (alpha2 && profiled && scope.level === 'world') peekTimer.current = window.setTimeout(() => setPeekId(alpha2), 220);
+                        if (alpha2 && profiled && !(scope.level !== 'world' && scope.country.id === alpha2)) { const r = mapBox.current!.getBoundingClientRect(); setTooltip({ id: alpha2, name: geo.properties.name, x: e.clientX - r.left, y: e.clientY - r.top - 10 }); }
                       }}
-                      onMouseLeave={() => { setHovered(null); setTooltip(null); }}
+                      onMouseLeave={() => { setHovered(null); setTooltip(null); cancelPeek(); }}
                       onClick={() => { if (alpha2 && profiled && !(scope.level !== 'world' && scope.country.id === alpha2)) flyToCountry(alpha2); }}
                     />
                   );
@@ -494,33 +444,54 @@ export function Explore() {
               </Geographies>
 
               {/* Region bubbles rise out of the map as a country becomes the scope */}
-              {showBubbles && country!.regionalVariations!.map(r => {
-                const c = regionCoordinates[country!.id]?.[r.name]; if (!c) return null;
-                const sel = scope.level === 'region' && scope.region.name === r.name;
-                const dim = scope.level === 'region' && !sel;
-                const n = counts[r.name] ?? 0;
-                // Screen radius grows with zoom: compact while the whole country is
-                // in view (so neighbours don't pile up), full size at region level
-                const R = Math.min(40, 18 + 4.5 * liveZoom);
-                const f = R / 40;
+              {showBubbles && areas && (() => {
+                const sw = 1 / liveZoom;
                 return (
-                  <Marker key={r.name} coordinates={c}>
-                    <g
-                      transform={`scale(${f / liveZoom})`}
-                      onClick={e => { e.stopPropagation(); flyToRegion(country!, r); }}
-                      style={{ cursor: 'pointer', opacity: bubbleOpacity * (dim ? 0.4 : 1), transition: 'opacity 250ms' }}
-                    >
-                      <circle r={sel ? 44 : 40} fill={sel ? colors!.primary : `${colors!.primary}D0`} stroke={sel ? systemColors.saffron : '#fff'} strokeWidth={sel ? 3 : 2} style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.22))' }} />
-                      <text textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize={16} fontWeight={700} dy={-7} style={{ pointerEvents: 'none', textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>{getShortRegionName(r.name)}</text>
-                      <text textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize={12} dy={13} style={{ pointerEvents: 'none', opacity: 0.85 }}>{n} {n === 1 ? 'dish' : 'dishes'}</text>
+                  <g>
+                    <defs><clipPath id="region-clip"><path d={areas.outline} /></clipPath></defs>
+                    <g clipPath="url(#region-clip)">
+                      {/* Each area is its own click target; hover outlines it */}
+                      {areas.areas.map(({ region, cell }) => {
+                        const sel = scope.level === 'region' && scope.region.name === region.name;
+                        return (
+                          <path key={region.name} d={cell}
+                            fill={sel ? REGION_TINT : 'transparent'} fillOpacity={sel ? 0.12 : 1}
+                            stroke={sel || hoveredRegion === region.name ? REGION_INK : 'none'} strokeWidth={(sel ? 1.8 : 1.3) * sw}
+                            style={{ cursor: 'pointer', transition: 'fill-opacity 200ms' }}
+                            onMouseEnter={() => setHoveredRegion(region.name)} onMouseLeave={() => setHoveredRegion(null)}
+                            onClick={e => { e.stopPropagation(); if (!sel) flyToRegion(bubbleCountry!, region); }} />
+                        );
+                      })}
+                      <path d={areas.borders} fill="none" stroke={REGION_BORDER} strokeWidth={sw} strokeDasharray={`${3 * sw} ${3 * sw}`} style={{ pointerEvents: 'none' }} />
                     </g>
-                  </Marker>
+                    {areas.areas.map(({ region, anchor }) => {
+                      const sel = scope.level === 'region' && scope.region.name === region.name;
+                      const dim = scope.level === 'region' && !sel;
+                      const n = counts[region.name] ?? 0;
+                      return (
+                        <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
+                          <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
+                            <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={dim ? REGION_BORDER : REGION_INK} fontSize={sel ? 17 : 15} fontStyle="italic" fontWeight={500}
+                              stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)' }}>
+                              {regionLabelName(region.name)}
+                            </text>
+                            {n > 0 && (
+                              <text textAnchor="middle" dominantBaseline="central" y={11} fill={systemColors.navyMuted} fontSize={9.5} letterSpacing="0.12em"
+                                stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke">
+                                {n} {n === 1 ? 'DISH' : 'DISHES'}
+                              </text>
+                            )}
+                          </g>
+                        </Marker>
+                      );
+                    })}
+                  </g>
                 );
-              })}
+              })()}
             </ZoomableGroup>
           </ComposableMap>
 
-          {tooltip && scope.level === 'world' && (() => {
+          {tooltip && (() => {
             const c = getCountryById(tooltip.id);
             return <MapPreviewCard countryId={tooltip.id} countryName={tooltip.name} country={c} activity={getCountryActivity(tooltip.id)} match={flavorMatches?.get(tooltip.id)} progress={c ? countryDishProgress(c, dishes.filter(d => d.countryId === c.id)) : undefined} x={tooltip.x} y={tooltip.y} />;
           })()}
@@ -528,10 +499,10 @@ export function Explore() {
 
         {/* ============ panel ============ */}
         <div ref={panelRef} key={scopeKey} className="min-h-0 overflow-y-auto border-l px-5 py-4 fade-in" style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}>
-          {scope.level === 'world' && (
+          {panelLevel === 'world' && (
             <>
               <h2 className="text-lg font-bold" style={{ color: systemColors.navy }}>{flavorMatches ? 'Where next' : '31 cuisines'}</h2>
-              <p className="text-sm mb-4" style={{ color: systemColors.navyMuted }}>{flavorMatches ? 'Closest to your taste first. Zoom into one, or pick from the list.' : 'Zoom into one, or pick from the list.'}</p>
+              <p className="text-sm mb-4" style={{ color: systemColors.navyMuted }}>{flavorMatches ? 'Closest to your taste first. Hover the map to preview, or pick from the list.' : 'Hover the map to preview, or pick from the list.'}</p>
               <div className="space-y-1.5">
                 {worldList.map(({ c, progress, match }) => (
                   <button key={c.id} onClick={() => flyToCountry(c.id)} onMouseEnter={() => setHovered(c.id)} onMouseLeave={() => setHovered(null)} className="w-full flex items-center gap-3 rounded-xl border px-3 py-2 text-left btn-press" style={{ backgroundColor: systemColors.surface, borderColor: hovered === c.id ? c.colorPalette.primary : systemColors.border }}>
@@ -546,12 +517,18 @@ export function Explore() {
 
           {country && colors && actions && (
             <>
+              {peekCountry && (
+                <div className="flex items-center gap-2 mb-3 text-xs" style={{ color: systemColors.navyMuted }}>
+                  <button onClick={() => setPeekId(null)} className="font-semibold" style={{ color: systemColors.tomato }}>‹ All cuisines</button>
+                  <span className="ml-auto">Previewing · click it on the map to open its regions</span>
+                </div>
+              )}
               <div className="flex items-center gap-2.5">
                 <PlateDot color={colors.primary} size={14} />
                 <h2 className="text-xl font-bold" style={{ color: systemColors.navy }}>{country.name}</h2>
                 <span className="text-xs ml-auto" style={{ color: systemColors.navyMuted }}>{country.capital} · {country.region}</span>
               </div>
-              {scope.level === 'country' && (
+              {panelLevel === 'country' && (
                 <div className="mt-2">
                   <ExpandableText text={country.cuisineProfile.summary} clamp="line-clamp-2" className="text-sm text-gray-700" />
                   {country.cuisineProfile.flavorIntensity && (
@@ -567,7 +544,7 @@ export function Explore() {
                 <LensControls filters={filters} lens={effectiveLens} onLensChange={setLens} availableLenses={availableLenses} triedCount={triedCount} hasBeverages={!!country.popularBeverages?.length} />
               </div>
 
-              {scope.level === 'country' && (
+              {panelLevel === 'country' && (
                 groups.length === 0 || visible.length === 0 ? (
                   <div className="rounded-xl border border-dashed p-6 text-center text-sm" style={{ borderColor: systemColors.border, color: systemColors.navyMuted }}>
                     Nothing matches these filters. <button onClick={filters.reset} className="font-semibold" style={{ color: systemColors.tomato }}>Clear filters</button>

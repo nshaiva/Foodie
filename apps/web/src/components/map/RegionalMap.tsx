@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useState } from 'react';
+import { homeLand, labelsFitAt, regionAreas, regionLabelName, REGION_BORDER, REGION_INK, REGION_TINT } from '../../utils/regionAreas';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup, type ProjectionFunction } from 'react-simple-maps';
 import { geoCentroid, geoMercator } from 'd3-geo';
 import { feature } from 'topojson-client';
@@ -7,7 +8,10 @@ import type { Feature, Geometry } from 'geojson';
 import type { ColorPalette, RegionalCuisine } from '../../data/types';
 import { alpha2ToNumeric, getShortRegionName, regionCoordinates } from '../../data/regionMapConfig';
 
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json';
+// 50m rather than 110m: region cells are clipped to the coastline, and the
+// coarse outline turns small countries into a handful of straight lines.
+// Same file /explore loads, so the browser fetches it once.
+const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json';
 
 // ComposableMap's default viewBox; the projection is fitted to it and the SVG
 // then scales to whatever box the page gives it.
@@ -40,15 +44,18 @@ function useCountryFeature(numericId: string | undefined): Feature<Geometry> | n
 }
 
 /**
- * The per-country region map: bubbles you tap to focus a region.
+ * The per-country region map, drawn like a wine map: dashed borders split
+ * the country into regions (`utils/regionAreas.ts`), each name lettered
+ * inside its area, and the whole area is the tap target.
  *
- * Controlled — selection lives in the parent. The outline is fitted to the frame
- * automatically; countries missing from `regionCoordinates` (no bubble
- * positions) get a button grid instead of a map, so this renders for every
+ * Controlled — selection lives in the parent. The outline is fitted to the
+ * frame automatically; countries missing from `regionCoordinates` (no region
+ * centres) get a button grid instead of a map, so this renders for every
  * country either way.
  *
- * `counts` is optional; when supplied, a region with no dishes is muted and
- * labelled, so an empty bubble reads as a content gap rather than a bug.
+ * `counts` is optional; when supplied, a region's dish count is lettered
+ * under its name and an empty region's name is muted, so a content gap
+ * reads as a gap rather than a bug.
  */
 export const RegionalMap = memo(function RegionalMap({
   countryId,
@@ -69,18 +76,28 @@ export const RegionalMap = memo(function RegionalMap({
   const coordinates = regionCoordinates[countryId];
   const countryFeature = useCountryFeature(numericId);
   const [zoom, setZoom] = useState(1);
+  const [hovered, setHovered] = useState<string | null>(null);
 
   // Fit the outline to the frame, whatever the country's size or shape: Jamaica
   // and Russia both fill it. This replaces hand-tuned per-country center/scale
   // numbers, which were tuned for one box height and drifted when it changed.
+  // Frame the land the regions are on (the lower 48, not Alaska); the far
+  // territories still draw, just outside the opening frame.
   const projection = useMemo(() => {
     if (!countryFeature) return null;
-    // react-simple-maps uses a function prop as the projection itself
-    return geoMercator().fitExtent([[PAD, PAD], [VIEW_W - PAD, VIEW_H - PAD]], countryFeature) as unknown as ProjectionFunction;
-  }, [countryFeature]);
+    return geoMercator().fitExtent([[PAD, PAD], [VIEW_W - PAD, VIEW_H - PAD]], homeLand(countryId, countryFeature, geoMercator()));
+  }, [countryFeature, countryId]);
   const center = useMemo<[number, number]>(
-    () => (countryFeature ? (geoCentroid(countryFeature) as [number, number]) : [0, 0]),
-    [countryFeature]
+    () => (countryFeature && projection ? (geoCentroid(homeLand(countryId, countryFeature, projection)) as [number, number]) : [0, 0]),
+    [countryFeature, projection, countryId]
+  );
+  const areas = useMemo(
+    () => (countryFeature && projection ? regionAreas(countryId, regions, countryFeature, projection) : null),
+    [countryFeature, projection, countryId, regions]
+  );
+  const labelsVisible = useMemo(
+    () => !!areas && labelsFitAt(areas, zoom, counts ?? {}, 1.5),
+    [areas, zoom, counts]
   );
 
   // If we can't place this country's regions, fall back to simple grid
@@ -137,7 +154,7 @@ export const RegionalMap = memo(function RegionalMap({
       onClick={() => onSelectRegion(null)}
     >
       <ComposableMap
-        projection={projection}
+        projection={projection as unknown as ProjectionFunction}
         width={VIEW_W}
         height={VIEW_H}
         style={{
@@ -178,75 +195,73 @@ export const RegionalMap = memo(function RegionalMap({
           }
         </Geographies>
 
-        {/* Region markers */}
-        {regions.map((region) => {
-          const coords = coordinates[region.name];
-          if (!coords) return null;
-
-          const isSelected = selectedRegion === region.name;
-          const shortName = getShortRegionName(region.name);
-          const count = counts?.[region.name];
-          const isEmpty = counts !== undefined && !count;
-
-          return (
-            <Marker key={region.name} coordinates={coords}>
-              {/* Counter-scale so a bubble stays bubble-sized however far you zoom */}
-              <g
-                transform={`scale(${1 / zoom})`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectRegion(isSelected ? null : region.name);
-                }}
-                style={{ cursor: 'pointer' }}
-              >
-                <circle
-                  r={isSelected ? 44 : 40}
-                  fill={isSelected ? colors.primary : isEmpty ? `${colors.primary}45` : `${colors.primary}95`}
-                  stroke={isSelected ? colors.secondary : 'white'}
-                  strokeWidth={isSelected ? 3 : 2}
-                  style={{
-                    transition: 'all 150ms ease-out',
-                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
-                  }}
-                />
-                <text
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fill="white"
-                  fontSize={16}
-                  fontWeight={700}
-                  letterSpacing={0.3}
-                  style={{
-                    pointerEvents: 'none',
-                    textShadow: '0 1px 3px rgba(0,0,0,0.4)',
-                  }}
-                  dy={counts ? -7 : 0}
-                >
-                  {shortName}
-                </text>
-                {counts ? (
-                  <text
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill="white"
-                    fontSize={12}
-                    dy={13}
-                    style={{ pointerEvents: 'none', opacity: 0.85 }}
-                  >
-                    {count ?? 0} {(count ?? 0) === 1 ? 'dish' : 'dishes'}
-                  </text>
-                ) : null}
-              </g>
-            </Marker>
-          );
-        })}
+        {/* The wine map: region cells, dashed borders, lettered names */}
+        {areas && (
+          <g>
+            <defs><clipPath id={`region-clip-${countryId}`}><path d={areas.outline} /></clipPath></defs>
+            <g clipPath={`url(#region-clip-${countryId})`}>
+              {areas.areas.map(({ region, cell }) => {
+                const isSelected = selectedRegion === region.name;
+                return (
+                  <path
+                    key={region.name}
+                    d={cell}
+                    fill={isSelected ? REGION_TINT : 'transparent'}
+                    fillOpacity={isSelected ? 0.12 : 1}
+                    stroke={isSelected || hovered === region.name ? REGION_INK : 'none'}
+                    strokeWidth={(isSelected ? 1.8 : 1.3) / zoom}
+                    style={{ cursor: 'pointer', transition: 'fill-opacity 200ms' }}
+                    onMouseEnter={() => setHovered(region.name)}
+                    onMouseLeave={() => setHovered(null)}
+                    onClick={(e) => { e.stopPropagation(); onSelectRegion(isSelected ? null : region.name); }}
+                  />
+                );
+              })}
+              <path d={areas.borders} fill="none" stroke={REGION_BORDER} strokeWidth={1 / zoom} strokeDasharray={`${3 / zoom} ${3 / zoom}`} style={{ pointerEvents: 'none' }} />
+            </g>
+            {areas.areas.map(({ region, anchor }) => {
+              const isSelected = selectedRegion === region.name;
+              const dim = !!selectedRegion && !isSelected;
+              const count = counts?.[region.name] ?? 0;
+              const isEmpty = counts !== undefined && count === 0;
+              return (
+                <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
+                  {/* Counter-scale so the lettering stays the same size however far you zoom */}
+                  <g transform={`scale(${1 / zoom})`} opacity={labelsVisible ? (dim ? 0.5 : 1) : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
+                    <text
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      y={count > 0 ? -9 : 0}
+                      fill={isEmpty ? REGION_BORDER : REGION_INK}
+                      fontSize={isSelected ? 25 : 22}
+                      fontStyle="italic"
+                      fontWeight={500}
+                      stroke={colors.background}
+                      strokeWidth={3}
+                      strokeLinejoin="round"
+                      paintOrder="stroke"
+                      style={{ fontFamily: 'var(--font-brand)' }}
+                    >
+                      {regionLabelName(region.name)}
+                    </text>
+                    {count > 0 && (
+                      <text textAnchor="middle" dominantBaseline="central" y={16} fill="#6F6A60" fontSize={12.5} letterSpacing="0.12em" stroke={colors.background} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke">
+                        {count} {count === 1 ? 'DISH' : 'DISHES'}
+                      </text>
+                    )}
+                  </g>
+                </Marker>
+              );
+            })}
+          </g>
+        )}
         </ZoomableGroup>
       </ComposableMap>
 
       {/* Hint text when no region selected */}
       {!selectedRegion && (
         <p className="absolute bottom-3 left-0 right-0 text-center text-xs text-gray-500">
-          Tap a region · pinch or scroll to zoom
+          Tap a region to open it · pinch or scroll to zoom
         </p>
       )}
     </div>
