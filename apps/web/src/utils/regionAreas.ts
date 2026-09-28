@@ -201,7 +201,7 @@ export type SeaPlacement = {
  */
 export function seaLabelLayout(areas: RegionAreas, zoom: number, counts: Record<string, number>, scale: number, centrePx: [number, number], view: readonly [number, number]): SeaPlacement[] | null {
   const boxes = labelBoxes(areas, zoom, counts, scale);
-  type Box = readonly [number, number, number, number];
+  type Box = readonly number[]; // [x0, y0, x1, y1, ...]
   const PAD = 5; // breathing room between labels, in screen px
   const overlaps = (a: Box, b: Box) => a[0] - PAD < b[2] && a[2] + PAD > b[0] && a[1] - PAD < b[3] && a[3] + PAD > b[1];
   const inline = boxes.map((a, i) => !boxes.some((b, j) => j !== i && overlaps(a, b)));
