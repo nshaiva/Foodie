@@ -185,6 +185,9 @@ export function Explore() {
     if (same) return;
     setScope(next);
     scopeRef.current = next;
+    // Peek is a world-level idea; entering a country or region retires it, so
+    // zooming back out later lands on the world list, not a stale preview
+    if (next.level !== 'world') { cancelPeek(); setPeekId(null); }
     const params = new URLSearchParams();
     if (next.level !== 'world') params.set('c', next.country.id);
     if (next.level === 'region') params.set('r', regionSlug(next.region.name));
@@ -241,6 +244,7 @@ export function Explore() {
   const flyToCountry = (id: string) => {
     const feat = features.get(id), country = getCountryById(id);
     if (!feat || !country) return;
+    cancelPeek(); setPeekId(null); setTooltip(null);
     // Land where every region's name fits: nudge in from the mainland framing
     // until they do (tall, thin countries need it)
     const cam = frameCountry(country, feat);
@@ -358,20 +362,22 @@ export function Explore() {
   );
 
   return (
-    <div className="h-screen flex flex-col" style={{ backgroundColor: systemColors.seaSalt }}>
+    <div className="h-dvh flex flex-col" style={{ backgroundColor: systemColors.seaSalt }}>
       <AppBar actions={<>
-        {country && <span className="flex gap-2">{pill('✦ Flavor fingerprint', () => setTray('flavor'))}{pill('📖 Food culture', () => setTray('culture'))}</span>}
+        {country && <span className="max-md:hidden flex gap-2">{pill('✦ Flavor fingerprint', () => setTray('flavor'))}{pill('📖 Food culture', () => setTray('culture'))}</span>}
         <ProfileButton />
       </>} />
 
-      <div className="flex-1 min-h-0 grid" style={{ gridTemplateColumns: '62% 38%' }}>
+      {/* Phone: map on top, panel as a sheet below. Desktop: side by side. */}
+      <div className="flex-1 min-h-0 flex flex-col md:grid" style={{ gridTemplateColumns: '62% 38%' }}>
         {/* ============ map ============ */}
         <div
           ref={mapBox}
-          className="map-container explore-map relative min-h-0 select-none"
+          className="map-container explore-map relative min-h-0 select-none max-md:h-[42dvh] max-md:shrink-0"
           data-zoom={liveZoom.toFixed(2)}
           data-scope={scope.level}
-          style={{ backgroundColor: systemColors.seaSalt }}
+          // touch-action none: a pinch or drag on the map is for the map, not the page
+          style={{ backgroundColor: systemColors.seaSalt, touchAction: 'none' }}
           onMouseMove={e => { const r = e.currentTarget.getBoundingClientRect(); if (tooltip) setTooltip(t => t && { ...t, x: e.clientX - r.left, y: e.clientY - r.top - 10 }); }}
           onPointerDown={e => { if (e.button === 0) e.currentTarget.classList.add('is-dragging'); }}
           onPointerUp={e => e.currentTarget.classList.remove('is-dragging')}
@@ -390,12 +396,12 @@ export function Explore() {
               <button onClick={() => hasEnoughData && setStoredLayer('flavorMatch')} disabled={!hasEnoughData} title={hasEnoughData ? undefined : 'Log 3 dishes to unlock'} className="px-2.5 py-1 text-xs font-medium rounded-md disabled:opacity-40" style={layer === 'flavorMatch' ? { backgroundColor: '#3E5260', color: '#fff' } : { color: systemColors.navyMuted }}>Flavor Match</button>
             </div>
           )}
-          <div className="absolute bottom-3 left-3 z-10 rounded-lg border px-2.5 py-1.5 text-xs shadow-sm" style={{ backgroundColor: `${systemColors.surface}F0`, borderColor: systemColors.border, color: systemColors.navyMuted }}>
+          <div className="max-md:hidden absolute bottom-3 left-3 z-10 rounded-lg border px-2.5 py-1.5 text-xs shadow-sm" style={{ backgroundColor: `${systemColors.surface}F0`, borderColor: systemColors.border, color: systemColors.navyMuted }}>
             {scope.level === 'world' ? 'Hover a country to preview it · click to open its regions'
               : scope.level === 'country' ? (hasRegionMap(scope.country) ? 'Click a region to open it' : 'No regional map for this cuisine yet')
               : `Esc for all of ${scope.country.name}`}
           </div>
-          <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-1">
+          <div className="absolute bottom-3 max-md:bottom-8 right-3 z-10 flex flex-col gap-1">
             <button onClick={() => flyTo({ coordinates: camera.coordinates, zoom: Math.min(MAX_ZOOM, camera.zoom * 1.7) })} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom in">+</button>
             <button onClick={() => { const z = Math.max(1, camera.zoom / 1.7); flyTo({ coordinates: camera.coordinates, zoom: z }); }} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom out">−</button>
           </div>
@@ -493,16 +499,17 @@ export function Explore() {
 
           {tooltip && (() => {
             const c = getCountryById(tooltip.id);
-            return <MapPreviewCard countryId={tooltip.id} countryName={tooltip.name} country={c} activity={getCountryActivity(tooltip.id)} match={flavorMatches?.get(tooltip.id)} progress={c ? countryDishProgress(c, dishes.filter(d => d.countryId === c.id)) : undefined} x={tooltip.x} y={tooltip.y} />;
+            return <div className="max-md:hidden"><MapPreviewCard countryId={tooltip.id} countryName={tooltip.name} country={c} activity={getCountryActivity(tooltip.id)} match={flavorMatches?.get(tooltip.id)} progress={c ? countryDishProgress(c, dishes.filter(d => d.countryId === c.id)) : undefined} x={tooltip.x} y={tooltip.y} /></div>;
           })()}
         </div>
 
         {/* ============ panel ============ */}
-        <div ref={panelRef} key={scopeKey} className="min-h-0 overflow-y-auto border-l px-5 py-4 fade-in" style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}>
+        <div ref={panelRef} key={scopeKey} className="relative z-10 min-h-0 flex-1 overflow-y-auto md:border-l max-md:rounded-t-2xl max-md:-mt-4 max-md:shadow-[0_-6px_16px_rgba(51,48,42,0.10)] px-5 py-4 fade-in" style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}>
+          <div className="md:hidden mx-auto mb-2.5 h-1 w-10 rounded-full" style={{ backgroundColor: systemColors.border }} />
           {panelLevel === 'world' && (
             <>
               <h2 className="text-lg font-bold" style={{ color: systemColors.navy }}>{flavorMatches ? 'Where next' : '31 cuisines'}</h2>
-              <p className="text-sm mb-4" style={{ color: systemColors.navyMuted }}>{flavorMatches ? 'Closest to your taste first. Hover the map to preview, or pick from the list.' : 'Hover the map to preview, or pick from the list.'}</p>
+              <p className="text-sm mb-4" style={{ color: systemColors.navyMuted }}>{flavorMatches ? 'Closest to your taste first. Tap one on the map, or pick from the list.' : 'Tap one on the map, or pick from the list.'}</p>
               <div className="space-y-1.5">
                 {worldList.map(({ c, progress, match }) => (
                   <button key={c.id} onClick={() => flyToCountry(c.id)} onMouseEnter={() => setHovered(c.id)} onMouseLeave={() => setHovered(null)} className="w-full flex items-center gap-3 rounded-xl border px-3 py-2 text-left btn-press" style={{ backgroundColor: systemColors.surface, borderColor: hovered === c.id ? c.colorPalette.primary : systemColors.border }}>
@@ -528,6 +535,7 @@ export function Explore() {
                 <h2 className="text-xl font-bold" style={{ color: systemColors.navy }}>{country.name}</h2>
                 <span className="text-xs ml-auto" style={{ color: systemColors.navyMuted }}>{country.capital} · {country.region}</span>
               </div>
+              <div className="md:hidden flex gap-2 mt-2.5">{pill('✦ Flavor fingerprint', () => setTray('flavor'))}{pill('📖 Food culture', () => setTray('culture'))}</div>
               {panelLevel === 'country' && (
                 <div className="mt-2">
                   <ExpandableText text={country.cuisineProfile.summary} clamp="line-clamp-2" className="text-sm text-gray-700" />
