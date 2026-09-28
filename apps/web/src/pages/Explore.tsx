@@ -189,6 +189,22 @@ export function Explore() {
     const order = ['strip', 'half', 'full'] as const;
     return order[Math.min(2, Math.max(0, order.indexOf(p) + dir))];
   });
+  // How many CSS px one viewBox unit paints at (the SVG is width-fit, so a
+  // 390px phone renders the 800-unit viewBox at ~0.49). Lettering sized in
+  // viewBox units alone halves on a phone; the boost cancels that, so region
+  // names are the same visual size on every device. Desktop's k is ≥1: no-op.
+  const [renderK, setRenderK] = useState(1);
+  useEffect(() => {
+    const measure = () => {
+      const b = mapBox.current?.getBoundingClientRect();
+      if (b?.width && b?.height) setRenderK(Math.min(b.width / VIEW_W, b.height / VIEW_H));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+  const labelBoost = 1 / Math.min(1, renderK);
+
   /**
    * The window the viewer actually sees, in viewBox units. A phone shows far
    * more map vertically than the 800×500 viewBox (the SVG is width-fit and
@@ -286,7 +302,9 @@ export function Explore() {
     if (areas) {
       const counts = staticRegionCounts(country);
       let z = cam.zoom;
-      while (!labelsFitAt(areas, z, counts, labelScaleAt(z)) && z < Math.min(MAX_ZOOM, cam.zoom * 3)) z *= 1.1;
+      // Land where names at the readable floor fit; full-size names are
+      // rendered wherever the country has room for them
+      while (!labelsFitAt(areas, z, counts, labelScaleAt(z) * Math.max(1, 0.6 * labelBoost)) && z < Math.min(MAX_ZOOM, cam.zoom * 3)) z *= 1.1;
       cam.zoom = Math.min(MAX_ZOOM, z);
     }
     flyTo(cam, { level: 'country', country });
@@ -400,8 +418,20 @@ export function Explore() {
     return bubbleCountry && feat ? getAreas(bubbleCountry, feat) : null;
   }, [bubbleCountry, features]);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
-  const labelScale = labelScaleAt(liveZoom);
-  const labelsFit = useMemo(() => !!areas && labelsFitAt(areas, liveZoom, counts, labelScale), [areas, counts, labelScale, liveZoom]);
+  // Names render as large as still fit cleanly: full size where the country
+  // has room, stepping down to a readable floor on tight ones (a wide country
+  // on a tall phone can't zoom further without cropping). Below the floor
+  // they hide all together, as before.
+  const labelFloor = Math.max(1, 0.6 * labelBoost);
+  const [labelScale, labelsFit] = useMemo(() => {
+    const base = labelScaleAt(liveZoom);
+    if (!areas) return [base * labelBoost, false] as const;
+    if (!labelsFitAt(areas, liveZoom, counts, base * labelFloor)) return [base * labelFloor, false] as const;
+    for (const b of [labelBoost, labelBoost * 0.9, labelBoost * 0.8, labelBoost * 0.7]) {
+      if (b >= labelFloor && labelsFitAt(areas, liveZoom, counts, base * b)) return [base * b, true] as const;
+    }
+    return [base * labelFloor, true] as const;
+  }, [areas, counts, liveZoom, labelBoost, labelFloor]);
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
   const pill = (label: string, onClick: () => void) => (
     <button onClick={onClick} className="btn-press inline-flex items-center gap-1.5 text-xs font-semibold rounded-full border px-3 py-1.5" style={{ borderColor: `${colors!.primary}40`, color: colors!.primary, backgroundColor: systemColors.surface }}>{label}</button>
