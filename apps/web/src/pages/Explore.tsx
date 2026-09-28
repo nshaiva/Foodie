@@ -171,6 +171,18 @@ export function Explore() {
   const cancelPeek = () => { if (peekTimer.current) { window.clearTimeout(peekTimer.current); peekTimer.current = null; } };
   const [tooltip, setTooltip] = useState<{ id: string; name: string; x: number; y: number } | null>(null);
   const [tray, setTray] = useState<null | 'flavor' | 'culture'>(null);
+  // Phone bottom sheet: 'strip' docks a slim header at the bottom (the map is
+  // the app), 'half' shows map + list, 'full' is all list. Desktop ignores it:
+  // every class it drives is max-md scoped.
+  const [sheetPos, setSheetPos] = useState<'strip' | 'half' | 'full'>('strip');
+  const sheetTouchY = useRef<number | null>(null);
+  const sheetSwiped = useRef(false);
+  const sheetStep = (dir: 1 | -1) => setSheetPos(p => {
+    const order = ['strip', 'half', 'full'] as const;
+    return order[Math.min(2, Math.max(0, order.indexOf(p) + dir))];
+  });
+  /** The breadcrumb's current crumb and the strip both raise the sheet. */
+  const openSheet = () => setSheetPos(p => (p === 'strip' ? 'half' : 'full'));
   const [lens, setLens] = useState<Lens>('region');
   const filters = useDishFilters();
   const flight = useRef<number | null>(null);
@@ -240,11 +252,12 @@ export function Explore() {
     if (then) commitScope(then);
     flight.current = requestAnimationFrame(step);
   };
-  const flyToWorld = () => { cancelPeek(); setPeekId(null); flyTo({ coordinates: WORLD_CENTER, zoom: 1 }, { level: 'world' }); };
+  const flyToWorld = () => { cancelPeek(); setPeekId(null); setSheetPos('strip'); flyTo({ coordinates: WORLD_CENTER, zoom: 1 }, { level: 'world' }); };
   const flyToCountry = (id: string) => {
     const feat = features.get(id), country = getCountryById(id);
     if (!feat || !country) return;
     cancelPeek(); setPeekId(null); setTooltip(null);
+    setSheetPos('strip'); // land on the map; the strip is the handle into the list
     // Land where every region's name fits: nudge in from the mainland framing
     // until they do (tall, thin countries need it)
     const cam = frameCountry(country, feat);
@@ -259,6 +272,7 @@ export function Explore() {
   };
   const flyToRegion = (country: Country, region: RegionalCuisine) => {
     const c = regionCoordinates[country.id]?.[region.name]; if (!c) return;
+    setSheetPos('half'); // a region tap shows its dishes while the map stays in view
     const feat = features.get(country.id);
     const fit = feat ? frameCountry(country, feat).zoom : COUNTRY_IN;
     flyTo({ coordinates: c, zoom: Math.max(camera.zoom, Math.max(REGION_IN + 1.2, fit * 1.8)) }, { level: 'region', country, region });
@@ -369,11 +383,11 @@ export function Explore() {
       </>} />
 
       {/* Phone: map on top, panel as a sheet below. Desktop: side by side. */}
-      <div className="flex-1 min-h-0 flex flex-col md:grid" style={{ gridTemplateColumns: '62% 38%' }}>
+      <div className="flex-1 min-h-0 max-md:relative md:grid" style={{ gridTemplateColumns: '62% 38%' }}>
         {/* ============ map ============ */}
         <div
           ref={mapBox}
-          className="map-container explore-map relative min-h-0 select-none max-md:h-[42dvh] max-md:shrink-0"
+          className="map-container explore-map relative min-h-0 select-none max-md:absolute max-md:inset-0"
           data-zoom={liveZoom.toFixed(2)}
           data-scope={scope.level}
           // touch-action none: a pinch or drag on the map is for the map, not the page
@@ -385,9 +399,9 @@ export function Explore() {
         >
           {/* breadcrumb */}
           <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm shadow-sm" style={{ backgroundColor: `${systemColors.surface}F0`, borderColor: systemColors.border }}>
-            <button onClick={flyToWorld} className="font-semibold" style={{ color: scope.level === 'world' ? systemColors.navy : systemColors.navyMuted }}>World</button>
-            {scope.level !== 'world' && <><span style={{ color: systemColors.navyMuted }}>›</span><button onClick={() => flyToCountry(scope.country.id)} className="font-semibold" style={{ color: scope.level === 'country' ? systemColors.navy : systemColors.navyMuted }}>{scope.country.name}</button></>}
-            {scope.level === 'region' && <><span style={{ color: systemColors.navyMuted }}>›</span><span className="font-semibold" style={{ color: systemColors.navy }}>{getShortRegionName(scope.region.name)}</span></>}
+            <button onClick={() => (scope.level === 'world' ? openSheet() : flyToWorld())} className="font-semibold" style={{ color: scope.level === 'world' ? systemColors.navy : systemColors.navyMuted }}>World</button>
+            {scope.level !== 'world' && <><span style={{ color: systemColors.navyMuted }}>›</span><button onClick={() => (scope.level === 'country' ? openSheet() : flyToCountry(scope.country.id))} className="font-semibold" style={{ color: scope.level === 'country' ? systemColors.navy : systemColors.navyMuted }}>{scope.country.name}</button></>}
+            {scope.level === 'region' && <><span style={{ color: systemColors.navyMuted }}>›</span><button onClick={openSheet} className="font-semibold" style={{ color: systemColors.navy }}>{getShortRegionName(scope.region.name)}</button></>}
           </div>
           {/* layer toggle, world level only */}
           {scope.level === 'world' && (
@@ -401,7 +415,7 @@ export function Explore() {
               : scope.level === 'country' ? (hasRegionMap(scope.country) ? 'Click a region to open it' : 'No regional map for this cuisine yet')
               : `Esc for all of ${scope.country.name}`}
           </div>
-          <div className="absolute bottom-3 max-md:bottom-8 right-3 z-10 flex flex-col gap-1">
+          <div className="absolute bottom-3 max-md:bottom-24 right-3 z-10 flex flex-col gap-1">
             <button onClick={() => flyTo({ coordinates: camera.coordinates, zoom: Math.min(MAX_ZOOM, camera.zoom * 1.7) })} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom in">+</button>
             <button onClick={() => { const z = Math.max(1, camera.zoom / 1.7); flyTo({ coordinates: camera.coordinates, zoom: z }); }} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom out">−</button>
           </div>
@@ -504,8 +518,43 @@ export function Explore() {
         </div>
 
         {/* ============ panel ============ */}
-        <div ref={panelRef} key={scopeKey} className="relative z-10 min-h-0 flex-1 overflow-y-auto md:border-l max-md:rounded-t-2xl max-md:-mt-4 max-md:shadow-[0_-6px_16px_rgba(51,48,42,0.10)] px-5 py-4 fade-in" style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}>
-          <div className="md:hidden mx-auto mb-2.5 h-1 w-10 rounded-full" style={{ backgroundColor: systemColors.border }} />
+        <div
+          ref={panelRef}
+          key={scopeKey}
+          className={`z-10 min-h-0 px-5 pb-6 fade-in md:overflow-y-auto md:border-l md:py-4 max-md:absolute max-md:inset-0 max-md:rounded-t-2xl max-md:shadow-[0_-8px_20px_rgba(51,48,42,0.14)] max-md:transition-transform max-md:duration-300 max-md:ease-out ${
+            sheetPos === 'full' ? 'max-md:overflow-y-auto' : 'max-md:overflow-hidden'
+          } ${
+            sheetPos === 'strip' ? 'max-md:translate-y-[calc(100%-54px-env(safe-area-inset-bottom,0px))]' : sheetPos === 'half' ? 'max-md:translate-y-[48%]' : 'max-md:translate-y-0'
+          }`}
+          style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}
+        >
+          {/* The strip: grab handle + scope title. Swipe or tap to move the sheet. */}
+          <div
+            className="md:hidden sticky top-0 z-10 -mx-5 px-5 pt-2 pb-2 select-none"
+            style={{ backgroundColor: systemColors.seaSalt, touchAction: 'none' }}
+            onTouchStart={e => { sheetTouchY.current = e.touches[0].clientY; }}
+            onTouchEnd={e => {
+              const y0 = sheetTouchY.current; sheetTouchY.current = null;
+              if (y0 == null) return;
+              const dy = e.changedTouches[0].clientY - y0;
+              if (Math.abs(dy) > 24) {
+                sheetSwiped.current = true;
+                window.setTimeout(() => { sheetSwiped.current = false; }, 400);
+                sheetStep(dy < 0 ? 1 : -1);
+              }
+            }}
+            onClick={() => { if (!sheetSwiped.current) setSheetPos(p => (p === 'full' ? 'half' : p === 'half' ? 'full' : 'half')); }}
+          >
+            <div className="mx-auto mb-2 h-1 w-10 rounded-full" style={{ backgroundColor: systemColors.border }} />
+            <div className="flex items-center gap-2 text-sm font-bold" style={{ color: systemColors.navy }}>
+              {scope.level !== 'world' && <PlateDot color={scope.country.colorPalette.primary} size={12} />}
+              <span>{scope.level === 'world' ? `${countries.length} cuisines` : scope.level === 'country' ? scope.country.name : getShortRegionName(scope.region.name)}</span>
+              <span className="font-normal text-xs" style={{ color: systemColors.navyMuted }}>
+                {scope.level === 'world' ? 'tap the map, or browse' : scope.level === 'country' ? `${allEntries.length} dishes & drinks` : `${counts[scope.region.name] ?? 0} ${(counts[scope.region.name] ?? 0) === 1 ? 'dish' : 'dishes'}`}
+              </span>
+              <span className="ml-auto text-base leading-none" style={{ color: systemColors.navyMuted }}>{sheetPos === 'full' ? '⌄' : '⌃'}</span>
+            </div>
+          </div>
           {panelLevel === 'world' && (
             <>
               <h2 className="text-lg font-bold" style={{ color: systemColors.navy }}>{flavorMatches ? 'Where next' : '31 cuisines'}</h2>

@@ -161,6 +161,13 @@ production country page (`RegionalMap`), so both maps read as one design.
 Decision taken with Nikita across three artifact rounds (pins → halos/plates
 → from-scratch), wine map chosen 2026-09-28.
 
+**Mobile (same day):** the map fills the phone screen and the panel is a
+three-snap bottom sheet — a slim strip docked at the bottom by default (the
+strip is the handle into the whole-country list), half height on a region
+tap so the map stays in view, full for reading. Swipe or tap the strip to
+move it; the breadcrumb's current crumb also raises it. Decided with Nikita
+2026-09-28 (peek-strip pattern chosen over floating button / second tap).
+
 ## Inbox (unranked)
 
 Quick captures land here; ranked into tiers during roadmap reviews.
