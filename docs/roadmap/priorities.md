@@ -146,6 +146,21 @@ region coordinates has regions. Mobile deferred (bottom sheet). Remaining
 before it can replace Home: link it from navigation, retire `/country/:id`
 with redirects, and the mobile pass.
 
+**2026-09-28 — the wine map.** The region bubbles are gone: an opened country
+is split by thin dashed borders (a Voronoi divide over the region centres,
+clipped to the coastline), each region's name lettered in italic inside its
+area, and the whole area is the click target. The geometry lives in
+`utils/regionAreas.ts`: home-landmass framing (the lower 48, not Alaska;
+the right islands for Indonesia), label anchors at each region's roomiest
+spot, and all-or-nothing name fitting (overlap hides every name, never a
+handful). Camera behaviour re-decided the same day: it moves **only** on a
+user gesture or an explicit click — no auto-drift after a zoom settles;
+hovering a country previews it in the side panel and shows the hover card
+(now clamped inside the map). The same divide replaced the bubbles on the
+production country page (`RegionalMap`), so both maps read as one design.
+Decision taken with Nikita across three artifact rounds (pins → halos/plates
+→ from-scratch), wine map chosen 2026-09-28.
+
 ## Inbox (unranked)
 
 Quick captures land here; ranked into tiers during roadmap reviews.

@@ -262,3 +262,7 @@ label[for],
 @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .fade-in { animation: fade-in 220ms ease-out; }
 @media (prefers-reduced-motion: reduce) { .fade-in { animation: none; } }
+
+/* Explore: an open hand over the map, a closed one while dragging it */
+.explore-map { cursor: grab; }
+.explore-map.is-dragging, .explore-map.is-dragging * { cursor: grabbing !important; }
