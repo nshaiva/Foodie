@@ -212,6 +212,11 @@ export function Explore() {
     return () => window.removeEventListener('resize', measure);
   }, []);
   const labelBoost = 1 / Math.min(1, renderK);
+  // A landing whose frame can't fit names at the readable floor (Malaysia,
+  // Indonesia, Turkey) relaxes the floor for that country instead of hiding
+  // the names — `compact` additionally letters the name without its dish
+  // count. null means the normal floor applies.
+  const [floorRelax, setFloorRelax] = useState<{ scale: number; compact: boolean } | null>(null);
 
   /**
    * The window the viewer actually sees, in viewBox units. A phone shows far
@@ -309,11 +314,31 @@ export function Explore() {
       // off the screen to get there: Malaysia's names stop colliding at 3×
       // exactly because half of them have left the view by then.
       while (!fits(z) && z < Math.min(MAX_ZOOM, cam.zoom * 3) && inView(z * 1.1)) z *= 1.1;
-      // Names some countries can never fit on landing (Malaysia: four on the
-      // narrow peninsula, one on Borneo) stay hidden until a pinch-in; the
-      // camera keeps the clean whole-country frame.
-      cam.zoom = fits(z) ? Math.min(MAX_ZOOM, z) : cam.zoom;
-    }
+      if (fits(z)) {
+        cam.zoom = Math.min(MAX_ZOOM, z);
+        setFloorRelax(null);
+      } else {
+        // Names some countries can never fit on landing at the readable
+        // floor (Malaysia, Indonesia, Turkey: wide frames with clustered
+        // names). The camera keeps the clean whole-country frame, and the
+        // floor relaxes to the largest smaller size that fits there — the
+        // names arrive with the country, small, and grow on pinch-in. Zoom
+        // out past the landing and even the relaxed size stops fitting, so
+        // they all disappear together. If plain sizes still collide, the
+        // dish-count line is dropped (compact) before giving up — a count
+        // that small was noise anyway. Below 0.5× nothing sane can show.
+        let relax: { scale: number; compact: boolean } | null = null;
+        for (const compact of [false, true]) {
+          for (const f of [0.7, 0.6, 0.5]) {
+            const s = f * labelBoost;
+            if (labelsFitAt(areas, cam.zoom, counts, labelScaleAt(cam.zoom) * s, compact)
+              && labelsInView(areas, cam.zoom, counts, labelScaleAt(cam.zoom) * s, centrePx, view, compact)) { relax = { scale: s, compact }; break; }
+          }
+          if (relax) break;
+        }
+        setFloorRelax(relax);
+      }
+    } else setFloorRelax(null);
     flyTo(cam, { level: 'country', country });
   };
   const flyToRegion = (country: Country, region: RegionalCuisine) => {
@@ -486,17 +511,20 @@ export function Explore() {
   // Names render as large as still fit cleanly: full size where the country
   // has room, stepping down to a readable floor on tight ones (a wide country
   // on a tall phone can't zoom further without cropping). Below the floor
-  // they hide all together, as before.
-  const labelFloor = Math.max(1, 0.75 * labelBoost);
-  const [labelScale, labelsFit] = useMemo(() => {
+  // they hide all together, as before. `floorRelax` (set by a landing whose
+  // frame can't fit the floor) lowers the floor for that country so the
+  // names still arrive with it, smaller.
+  const labelFloor = floorRelax?.scale ?? Math.max(1, 0.75 * labelBoost);
+  const [labelScale, labelsFit, hideCounts] = useMemo(() => {
     const base = labelScaleAt(liveZoom);
-    if (!areas) return [base * labelBoost, false] as const;
-    if (!labelsFitAt(areas, liveZoom, counts, base * labelFloor)) return [base * labelFloor, false] as const;
-    for (const b of [labelBoost, labelBoost * 0.9, labelBoost * 0.8, labelBoost * 0.7]) {
-      if (b >= labelFloor && labelsFitAt(areas, liveZoom, counts, base * b)) return [base * b, true] as const;
+    if (!areas) return [base * labelBoost, false, false] as const;
+    for (const b of [1, 0.9, 0.8, 0.7, 0.6, 0.5].map(f => f * labelBoost)) {
+      if (b >= labelFloor && labelsFitAt(areas, liveZoom, counts, base * b)) return [base * b, true, false] as const;
     }
-    return [base * labelFloor, true] as const;
-  }, [areas, counts, liveZoom, labelBoost, labelFloor]);
+    const compact = floorRelax?.compact ?? false;
+    if (labelsFitAt(areas, liveZoom, counts, base * labelFloor, compact)) return [base * labelFloor, true, compact] as const;
+    return [base * labelFloor, false, false] as const;
+  }, [areas, counts, liveZoom, labelBoost, labelFloor, floorRelax]);
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
   const pill = (label: string, onClick: () => void) => (
     <button onClick={onClick} className="btn-press inline-flex items-center gap-1.5 text-xs font-semibold rounded-full border px-3 py-1.5" style={{ borderColor: `${colors!.primary}40`, color: colors!.primary, backgroundColor: systemColors.surface }}>{label}</button>
@@ -621,11 +649,11 @@ export function Explore() {
                       return (
                         <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
                           <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
-                            <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={dim ? REGION_BORDER : REGION_INK} fontSize={sel ? 17 : 15} fontStyle="italic" fontWeight={500}
+                            <text textAnchor="middle" dominantBaseline="central" y={n && !hideCounts ? -5 : 0} fill={dim ? REGION_BORDER : REGION_INK} fontSize={sel ? 17 : 15} fontStyle="italic" fontWeight={500}
                               stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)' }}>
                               {regionLabelName(region.name)}
                             </text>
-                            {n > 0 && (
+                            {n > 0 && !hideCounts && (
                               <text textAnchor="middle" dominantBaseline="central" y={11} fill={systemColors.navyMuted} fontSize={9.5} letterSpacing="0.12em"
                                 stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke">
                                 {n} {n === 1 ? 'DISH' : 'DISHES'}

@@ -19,8 +19,17 @@ export const REGION_INK = '#33302A';
 export const REGION_BORDER = '#8A8478';
 export const REGION_TINT = '#3E5260';
 
-/** How a region is lettered on the map: short, and without a leading "The". */
-export const regionLabelName = (name: string) => getShortRegionName(name).replace(/^The /, '');
+/**
+ * How a region is lettered on the map: the shorter of the name's stem and
+ * its parenthetical, without a leading "The". "Upper Egypt (Sa'idi)" letters
+ * as Sa'idi, but "East Coast (Kelantan & Terengganu)" as East Coast — on the
+ * map, room matters more than which half is the local name.
+ */
+export const regionLabelName = (name: string) => {
+  const stem = name.split('(')[0].trim();
+  const short = getShortRegionName(name);
+  return (stem.length < short.length ? stem : short).replace(/^The /, '');
+};
 
 export type RegionArea = {
   region: RegionalCuisine;
@@ -145,12 +154,13 @@ export function regionAreas(countryId: string, allRegions: RegionalCuisine[] | u
   };
 }
 
-/** Each name's screen box at `zoom` and font `scale`: [x0, y0, x1, y1, w]. */
-function labelBoxes(areas: RegionAreas, zoom: number, counts: Record<string, number>, scale: number) {
+/** Each name's screen box at `zoom` and font `scale`: [x0, y0, x1, y1, w].
+ *  `compact` measures the name alone — the dish-count line left off. */
+function labelBoxes(areas: RegionAreas, zoom: number, counts: Record<string, number>, scale: number, compact = false) {
   return areas.areas.map(({ region, anchorPx }) => {
     const cx = anchorPx[0] * zoom, cy = anchorPx[1] * zoom;
     const name = regionLabelName(region.name);
-    const w = name.length * 15 * 0.52 * scale + 6, h = ((counts[region.name] ?? 0) > 0 ? 34 : 20) * scale;
+    const w = name.length * 15 * 0.52 * scale + 6, h = (!compact && (counts[region.name] ?? 0) > 0 ? 34 : 20) * scale;
     return [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2, w] as const;
   });
 }
@@ -161,10 +171,10 @@ function labelBoxes(areas: RegionAreas, zoom: number, counts: Record<string, num
  * longer side, so tall countries like Vietnam still get names). `zoom`
  * multiplies the projection's px; `scale` is the labels' own font scaling.
  */
-export function labelsFitAt(areas: RegionAreas, zoom: number, counts: Record<string, number>, scale = 1): boolean {
+export function labelsFitAt(areas: RegionAreas, zoom: number, counts: Record<string, number>, scale = 1, compact = false): boolean {
   const [[bx0, by0], [bx1, by1]] = areas.bounds;
   const span = Math.max(bx1 - bx0, by1 - by0) * zoom;
-  const boxes = labelBoxes(areas, zoom, counts, scale);
+  const boxes = labelBoxes(areas, zoom, counts, scale, compact);
   if (Math.max(...boxes.map(b => b[4])) > span * 0.5) return false;
   return !boxes.some((a, i) => boxes.some((b, j) => j > i && a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]));
 }
@@ -175,8 +185,8 @@ export function labelsFitAt(areas: RegionAreas, zoom: number, counts: Record<str
  * names stop colliding at 3× zoom precisely because half of them have left
  * the screen by then.
  */
-export function labelsInView(areas: RegionAreas, zoom: number, counts: Record<string, number>, scale: number, centrePx: [number, number], view: readonly [number, number]): boolean {
+export function labelsInView(areas: RegionAreas, zoom: number, counts: Record<string, number>, scale: number, centrePx: [number, number], view: readonly [number, number], compact = false): boolean {
   const cx = centrePx[0] * zoom, cy = centrePx[1] * zoom;
-  return labelBoxes(areas, zoom, counts, scale).every(b =>
+  return labelBoxes(areas, zoom, counts, scale, compact).every(b =>
     b[0] >= cx - view[0] / 2 && b[2] <= cx + view[0] / 2 && b[1] >= cy - view[1] / 2 && b[3] <= cy + view[1] / 2);
 }
