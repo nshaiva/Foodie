@@ -19,7 +19,7 @@ import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { countryDishProgress } from '../utils/dishProgress';
 import { groupEntries, regionCounts, type Entry, type Lens } from '../utils/groupDishes';
-import { homeLand, labelsFitAt, regionAreas, regionLabelName, REGION_BORDER, REGION_INK, REGION_TINT, type RegionAreas } from '../utils/regionAreas';
+import { homeLand, labelsFitAt, labelsInView, regionAreas, regionLabelName, REGION_BORDER, REGION_INK, REGION_TINT, type RegionAreas } from '../utils/regionAreas';
 import { regionFromSlug, regionNameFor, regionSlug } from '../utils/dishRegion';
 import { getCountryFillColor, getFlavorMatchFillColor, FLAVOR_MATCH_LOGGED_STROKE, MAP_STROKE, type MapLayer } from '../components/map/mapUtils';
 import { computeAllFlavorMatches } from '../components/map/flavorMatch';
@@ -267,17 +267,6 @@ export function Explore() {
     setLiveZoom(zoom);
   };
 
-  // react-simple-maps re-attaches d3-zoom whenever these handlers change
-  // identity, which (with a fresh closure every render) was every frame of a
-  // pinch. Hand it stable wrappers that call the latest version.
-  const handlers = useRef({ onMove, onMoveEnd });
-  useLayoutEffect(() => {
-    cameraRef.current = camera; scopeRef.current = scope;
-    handlers.current = { onMove, onMoveEnd };
-  });
-  const stableOnMove = useCallback((p: Parameters<typeof onMove>[0]) => handlers.current.onMove(p), []);
-  const stableOnMoveEnd = useCallback((p: Parameters<typeof onMoveEnd>[0]) => handlers.current.onMoveEnd(p), []);
-  const filterZoomEvent = useCallback((e: { button?: number }) => !e.button, []) as unknown as (el: SVGElement) => boolean;
 
   /** Animate the camera; zoom eases in log space so it feels even. */
   const flyTo = (target: Camera, then?: Scope, ms = FLY_MS) => {
@@ -309,11 +298,21 @@ export function Explore() {
     const areas = hasRegionMap(country) ? getAreas(country, feat) : null;
     if (areas) {
       const counts = staticRegionCounts(country);
+      const floor = Math.max(1, 0.75 * labelBoost);
+      const view = viewDims();
+      const centrePx = baseProjection(cam.coordinates)!;
+      const fits = (at: number) => labelsFitAt(areas, at, counts, labelScaleAt(at) * floor);
+      const inView = (at: number) => labelsInView(areas, at, counts, labelScaleAt(at) * floor, centrePx, view);
       let z = cam.zoom;
       // Land where names at the readable floor fit; full-size names are
-      // rendered wherever the country has room for them
-      while (!labelsFitAt(areas, z, counts, labelScaleAt(z) * Math.max(1, 0.75 * labelBoost)) && z < Math.min(MAX_ZOOM, cam.zoom * 3)) z *= 1.1;
-      cam.zoom = Math.min(MAX_ZOOM, z);
+      // rendered wherever the country has room for them. Never zoom a name
+      // off the screen to get there: Malaysia's names stop colliding at 3×
+      // exactly because half of them have left the view by then.
+      while (!fits(z) && z < Math.min(MAX_ZOOM, cam.zoom * 3) && inView(z * 1.1)) z *= 1.1;
+      // Names some countries can never fit on landing (Malaysia: four on the
+      // narrow peninsula, one on Borneo) stay hidden until a pinch-in; the
+      // camera keeps the clean whole-country frame.
+      cam.zoom = fits(z) ? Math.min(MAX_ZOOM, z) : cam.zoom;
     }
     flyTo(cam, { level: 'country', country });
   };
@@ -340,6 +339,64 @@ export function Explore() {
     else if (scope.level === 'country') flyToWorld();
     else if (peekId) setPeekId(null);
   };
+
+  /** A tap on the map, resolved from the touch events themselves. Touch
+   *  screens replay a tap as hover-then-click, and WebKit drops the click
+   *  whenever anything under the finger changed during the hover half — the
+   *  map library swaps its own internal hover style, beyond our gating, so
+   *  on a phone the click arrived only every second or third tap. The native
+   *  listener below recognises the tap and calls this directly instead. */
+  const onTap = (hit: Element) => {
+    const s = scopeRef.current;
+    const regionName = hit.getAttribute('data-r');
+    if (regionName) {
+      const c = s.level === 'world' ? undefined : s.country;
+      const region = c?.regionalVariations?.find(r => r.name === regionName);
+      if (c && region && !(s.level === 'region' && s.region.name === regionName)) flyToRegion(c, region);
+      return;
+    }
+    const id = hit.getAttribute('data-c');
+    if (id && !(s.level !== 'world' && s.country.id === id)) flyToCountry(id);
+  };
+
+  // react-simple-maps re-attaches d3-zoom whenever these handlers change
+  // identity, which (with a fresh closure every render) was every frame of a
+  // pinch. Hand it stable wrappers that call the latest version.
+  const handlers = useRef({ onMove, onMoveEnd, onTap });
+  useLayoutEffect(() => {
+    cameraRef.current = camera; scopeRef.current = scope;
+    handlers.current = { onMove, onMoveEnd, onTap };
+  });
+
+  // d3-zoom stops touch events at the svg (stopImmediatePropagation), so a
+  // React onTouchEnd inside the map never fires. Listen natively in the
+  // capture phase, which runs before d3 sees anything.
+  useEffect(() => {
+    const el = mapBox.current; if (!el) return;
+    let start: { x: number; y: number; t: number; target: EventTarget | null } | null = null;
+    const down = (e: TouchEvent) => {
+      start = e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now(), target: e.target } : null;
+    };
+    const up = (e: TouchEvent) => {
+      const s = start; start = null;
+      if (!s || e.touches.length > 0) return; // a second finger: a pinch, not a tap
+      const c = e.changedTouches[0];
+      if (Math.hypot(c.clientX - s.x, c.clientY - s.y) > 12 || Date.now() - s.t > 600) return; // a drag or a hold
+      const hit = (s.target as Element | null)?.closest?.('[data-r], [data-c]');
+      if (!hit) return;
+      e.preventDefault(); // handled here — no synthetic hover-then-click to lose
+      handlers.current.onTap(hit);
+    };
+    el.addEventListener('touchstart', down, { capture: true, passive: true });
+    el.addEventListener('touchend', up, { capture: true });
+    return () => {
+      el.removeEventListener('touchstart', down, { capture: true });
+      el.removeEventListener('touchend', up, { capture: true });
+    };
+  }, []);
+  const stableOnMove = useCallback((p: Parameters<typeof onMove>[0]) => handlers.current.onMove(p), []);
+  const stableOnMoveEnd = useCallback((p: Parameters<typeof onMoveEnd>[0]) => handlers.current.onMoveEnd(p), []);
+  const filterZoomEvent = useCallback((e: { button?: number }) => !e.button, []) as unknown as (el: SVGElement) => boolean;
 
   // Deep link: land where the URL says, once the outlines are in
   const landed = useRef(false);
@@ -529,6 +586,7 @@ export function Explore() {
                       }}
                       onMouseLeave={() => { setHovered(null); setTooltip(null); cancelPeek(); }}
                       onClick={() => { if (alpha2 && profiled && !(scope.level !== 'world' && scope.country.id === alpha2)) flyToCountry(alpha2); }}
+                      data-c={alpha2 && profiled ? alpha2 : undefined}
                     />
                   );
                 })}
@@ -550,7 +608,8 @@ export function Explore() {
                             stroke={sel || hoveredRegion === region.name ? REGION_INK : 'none'} strokeWidth={(sel ? 1.8 : 1.3) * sw}
                             style={{ cursor: 'pointer', transition: 'fill-opacity 200ms' }}
                             onMouseEnter={() => { if (canHover()) setHoveredRegion(region.name); }} onMouseLeave={() => setHoveredRegion(null)}
-                            onClick={e => { e.stopPropagation(); if (!sel) flyToRegion(bubbleCountry!, region); }} />
+                            onClick={e => { e.stopPropagation(); if (!sel) flyToRegion(bubbleCountry!, region); }}
+                            data-r={region.name} />
                         );
                       })}
                       <path d={areas.borders} fill="none" stroke={REGION_BORDER} strokeWidth={sw} strokeDasharray={`${3 * sw} ${3 * sw}`} style={{ pointerEvents: 'none' }} />
