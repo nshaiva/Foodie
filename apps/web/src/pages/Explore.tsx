@@ -392,8 +392,14 @@ export function Explore() {
       if (!s || e.touches.length > 0) return; // a second finger: a pinch, not a tap
       const c = e.changedTouches[0];
       if (Math.hypot(c.clientX - s.x, c.clientY - s.y) > 12 || Date.now() - s.t > 600) return; // a drag or a hold
-      const hit = (s.target as Element | null)?.closest?.('[data-r], [data-c]');
-      if (!hit) return;
+      const target = s.target as Element | null;
+      if (target?.closest?.('button, a')) return;
+      const hit = target?.closest?.('[data-r], [data-c]');
+      if (!hit) {
+        // A tap on open map means you're looking at the map: a half sheet steps aside
+        setSheetPos(p => (p === 'half' ? 'strip' : p));
+        return;
+      }
       e.preventDefault(); // handled here — no synthetic hover-then-click to lose
       handlers.current.onTap(hit);
     };
@@ -777,7 +783,20 @@ export function Explore() {
               <span className="font-normal text-xs" style={{ color: systemColors.navyMuted }}>
                 {scope.level === 'world' ? 'tap the map, or browse' : scope.level === 'country' ? `${allEntries.length} dishes & drinks` : `${counts[scope.region.name] ?? 0} ${(counts[scope.region.name] ?? 0) === 1 ? 'dish' : 'dishes'}`}
               </span>
-              <span className="ml-auto text-base leading-none" style={{ color: systemColors.navyMuted }}>{sheetPos === 'full' ? '⌄' : '⌃'}</span>
+              {sheetPos === 'strip' ? (
+                <span className="ml-auto text-base leading-none" style={{ color: systemColors.navyMuted }}>⌃</span>
+              ) : (
+                <button
+                  type="button"
+                  aria-label="Close panel"
+                  className="ml-auto -my-3 -mr-3 w-11 h-11 flex items-center justify-center rounded-full"
+                  style={{ color: systemColors.navyMuted }}
+                  onTouchStart={e => e.stopPropagation()}
+                  onClick={e => { e.stopPropagation(); setSheetPos('strip'); }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                </button>
+              )}
             </div>
           </div>
           {panelLevel === 'world' && (
