@@ -8,7 +8,6 @@
  */
 export const SYNCED_KEYS = [
   'foodie-dishes',
-  'foodie-favorites',
   'foodie-wishlist',
   'foodie-diet-prefs',
   'foodie-taste-survey',

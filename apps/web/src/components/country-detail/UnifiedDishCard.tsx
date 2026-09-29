@@ -11,7 +11,7 @@ interface UnifiedDishCardProps {
   isCustom?: boolean;
   /** Card body: emoji, name, description, chips — rendered by the parent */
   children: React.ReactNode;
-  /** Top-right action icons (favorite / want-to-try), popular dishes only */
+  /** Top-right action icons (want-to-try), popular dishes only */
   cornerActions?: React.ReactNode;
   onTryThis?: () => void;
   onUpdateDish: (id: string, data: Partial<UserDish>) => void;
@@ -143,6 +143,7 @@ export function UnifiedDishCard({
                     onClick={() => setEditRating(editRating === star ? 0 : star)}
                     className="text-xl transition-colors"
                     style={{ color: editRating >= star ? systemColors.saffron : '#d1d5db' }}
+                    title={star === 5 ? 'Love it' : undefined}
                   >
                     ★
                   </button>
@@ -220,6 +221,12 @@ export function UnifiedDishCard({
                   </button>
                 </span>
               </div>
+
+              {tried.source === 'survey' && !rating && (
+                <p className="text-xs mt-1" style={{ color: systemColors.navyMuted }}>
+                  From your taste survey
+                </p>
+              )}
 
               {tried.notes && <p className="text-sm text-gray-600 mt-1.5">{tried.notes}</p>}
 

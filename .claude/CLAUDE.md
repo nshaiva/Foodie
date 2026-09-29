@@ -72,10 +72,20 @@ foodie/
   visit and never auto-set the verdict. Shared helpers: `utils/ratings.ts`
   (`dishVerdictRating`, `isDerivedRating`, `ratingSignal`)
 
-### Favorites
-- Mark dishes as favorites with heart icon
-- Stored in localStorage (`foodie-favorites`)
-- Rose/tomato themed UI
+### Two dish states (no heart)
+- A dish is either **want to try** (bookmark) or **tried with a verdict**
+  (✓ + stars). The heart and `foodie-favorites` were removed 2026-09-29.
+- **Favorites are derived**: every dish with a 4–5★ verdict, shown as a
+  section on the Want to try page. Never store a separate favorite flag.
+- Old `foodie-favorites` data is migrated once on load and on backup import
+  (`utils/favoritesMigration.ts`).
+
+### Taste survey ↔ logged dishes
+- A Love / Like / Nope survey answer logs the dish as tried
+  (`source: 'survey'`, no stars); a star verdict wins in the profile, else the
+  survey answer counts. Rating a survey dish updates its answer.
+- Reconcile is idempotent and keyed on (country, dish or English name):
+  `utils/surveyDishes.ts`, `hooks/useSurveyDishSync.ts`.
 
 ### Wishlist (Want to Try)
 - Save dishes from Popular Dishes to "Want to Try" list
@@ -113,7 +123,6 @@ Analyzes user's logged dishes to generate a personalized taste profile:
 - `foodie-restaurants`: Restaurant entries with visits
 - `foodie-dishes`: Dishes with restaurant tries and cooking attempts
 - `foodie-wishlist`: Saved dishes to try (bookmark icon)
-- `foodie-favorites`: Favorite dishes (heart icon)
 - `foodie-diet-prefs`, `foodie-taste-survey`: food preferences and survey answers
 - `foodie-map-layer`, `foodie-view-mode`: per-device view prefs — **not synced**
 
@@ -122,7 +131,7 @@ rather than touching `window.localStorage` directly, so it participates in
 backup and sync automatically.
 
 **Sync & backup** (`data/syncKeys.ts`, `hooks/useCloudSync.ts`):
-- The five profile keys above sync; the two view-pref keys deliberately don't.
+- The profile keys above sync; the two view-pref keys deliberately don't.
 - localStorage stays the read path (fast, offline). Supabase holds one `jsonb`
   row per user, pushed ~1.5s after the last edit and pulled on sign-in/focus.
 - Whole-document **last-write-wins** — simultaneous edits on two devices lose
@@ -134,12 +143,14 @@ backup and sync automatically.
 ## Routing Structure
 
 ```
-/                     → Home (country grid + cuisine preferences)
-/country/:id          → Country detail (culture, dishes, user logs)
-/restaurants          → All restaurants list
-/dishes               → All dishes list
-/wishlist             → Want to Try list
+/                     → Explore (the map is the app; ?c=<id>&r=<region-slug>)
+/explore              → redirects to /
+/country/:id          → redirects to /?c=<id>&r=<region> (old links)
+/wishlist             → Want to try + derived Favorites (4–5★)
+/profile              → Taste profile
+/restaurant(/:id)     → At-the-restaurant view (frozen for MVP)
 ```
+Link to a country with `utils/countryPath.ts`, not a hand-built URL.
 
 ## Color Theme by Feature
 

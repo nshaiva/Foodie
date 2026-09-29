@@ -217,12 +217,3 @@ export interface WishlistItem {
   notes?: string;
   createdAt: string;
 }
-
-export interface FavoriteItem {
-  id: string;
-  countryId: string;
-  dishName: string;
-  englishName?: string;
-  notes?: string;
-  createdAt: string;
-}

@@ -1,0 +1,141 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-09-28T18:00:00Z"
+  },
+  "title": "Explore Declutter",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 540,
+      "h": 1180,
+      "title": "1A · Mexico overview, fingerprint first (not chosen)",
+      "is_interactive": true
+    },
+    "OverviewB.dc.html": {
+      "x": 620,
+      "y": 0,
+      "w": 540,
+      "h": 1180,
+      "title": "1B · Mexico overview, signature dishes first  ✓ CHOSEN",
+      "is_interactive": true
+    },
+    "AllDishes.dc.html": {
+      "x": 1240,
+      "y": 0,
+      "w": 540,
+      "h": 1600,
+      "title": "2A · Rows (not chosen for Explore; the pattern for the restaurant view and search)",
+      "is_interactive": true
+    },
+    "AllDishesTiles.dc.html": {
+      "x": 1860,
+      "y": 0,
+      "w": 540,
+      "h": 2160,
+      "title": "2B · All dishes, image tiles  ✓ CHOSEN",
+      "is_interactive": true
+    },
+    "Region.dc.html": {
+      "x": 2480,
+      "y": 0,
+      "w": 540,
+      "h": 1000,
+      "title": "3 · Region: Central Mexico",
+      "is_interactive": true
+    },
+    "DishDetail.dc.html": {
+      "x": 3100,
+      "y": 0,
+      "w": 540,
+      "h": 1000,
+      "title": "4 · Dish detail (not tried yet)",
+      "is_interactive": true
+    },
+    "PhoneStrip.dc.html": {
+      "x": 0,
+      "y": 2560,
+      "w": 390,
+      "h": 844,
+      "title": "Phone · strip (default)",
+      "is_interactive": true
+    },
+    "PhoneOverview.dc.html": {
+      "x": 470,
+      "y": 2560,
+      "w": 390,
+      "h": 844,
+      "title": "Phone · half, overview",
+      "is_interactive": true
+    },
+    "PhoneList.dc.html": {
+      "x": 940,
+      "y": 2560,
+      "w": 390,
+      "h": 844,
+      "title": "Phone · full, all dishes",
+      "is_interactive": true
+    },
+    "PhoneRegion.dc.html": {
+      "x": 1410,
+      "y": 2560,
+      "w": 390,
+      "h": 844,
+      "title": "Phone · half, region tapped",
+      "is_interactive": true
+    },
+    "PhoneDetail.dc.html": {
+      "x": 1880,
+      "y": 2560,
+      "w": 390,
+      "h": 844,
+      "title": "Phone · dish detail (tried)",
+      "is_interactive": true
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "OverviewB.dc.html",
+    "AllDishes.dc.html",
+    "AllDishesTiles.dc.html",
+    "Region.dc.html",
+    "DishDetail.dc.html",
+    "PhoneStrip.dc.html",
+    "PhoneOverview.dc.html",
+    "PhoneList.dc.html",
+    "PhoneRegion.dc.html",
+    "PhoneDetail.dc.html"
+  ],
+  "notes": {
+    "rowDesktop": {
+      "x": 0,
+      "y": -300,
+      "text": "Desktop side panel: country → all dishes → region → dish",
+      "kind": "title1",
+      "maxW": 3640
+    },
+    "rowPhone": {
+      "x": 0,
+      "y": 2260,
+      "text": "Phone: the same levels in the three-snap sheet",
+      "kind": "title1",
+      "maxW": 2270
+    },
+    "decisions": {
+      "x": 3720,
+      "y": 0,
+      "w": 560,
+      "maxH": 1400,
+      "size": "m",
+      "fill": "green",
+      "text": "DECISIONS · 2026-09-28 (Nikita)\n\n1B overview chosen: signature dishes first, then a compact flavor block, then a culture teaser. Images are easier to take in than a radar at first glance.\n\nAdded after review: a \"See all 13 ›\" link at the right of the \"Start with these\" header (chosen over a \"+9 more\" last tile, so all four tiles stay real dishes and it matches \"Open region ›\"). The fixed \"See all N dishes\" button stays too: an entry at the top and at the bottom.\n\n2B tiles chosen for Explore. Explore is browsing, and a 64px thumbnail is an icon, not a picture. 2A rows stay the pattern for the at-the-restaurant view and search results (dense, fast).\n\n2B conditions:\n• Clamp taglines to 2 lines and give the name a fixed height so tiles align\n• A one-dish region: accept the half row, or span the full width\n• Final call after #36 produces real Mexico illustrations; if they're muddy at tile size, fall back to 2A\n\nAlso agreed: two dish states (#40), no heart. Region heading is a title, not a card. Search and filters only on the All-dishes level. Grouped by removed from Explore.\n\nRoadmap: #39, #40 in docs/roadmap/priorities.md"
+    }
+  },
+  "designSystems": []
+}

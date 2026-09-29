@@ -4,18 +4,17 @@ import { countries, getCountryById } from '../data/countries';
 import { systemColors } from '../data/systemColors';
 import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
-import { useFavorites } from '../hooks/useFavorites';
 import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useDietPrefs } from '../hooks/useDietPrefs';
 import { rankDishesForOrdering, type RankedDish } from '../utils/orderRanking';
 import { shapeOrderList, matchesMenuSearch, DEFAULT_SHAPE } from '../utils/orderGrouping';
+import { countryPath } from '../utils/countryPath';
 import { PlateDot } from '../components/Wordmark';
 import { AppBar } from '../components/AppBar';
 import { MenuLookup } from '../components/MenuLookup';
 import { ProfileButton } from '../components/ProfileButton';
 import { UnifiedDishCard } from '../components/country-detail/UnifiedDishCard';
 import { ExpandableText } from '../components/ExpandableText';
-import { FavoriteButton } from '../components/FavoriteButton';
 import { WantToTryButton } from '../components/WantToTryButton';
 import { spiceChip, popularityChip, dietaryChips, dessertChip } from '../components/dishChips';
 
@@ -108,7 +107,6 @@ function OrderList({ countryId }: { countryId: string }) {
     addRestaurantTry, updateRestaurantTry, deleteRestaurantTry,
   } = useDishes();
   const { addToWishlist, removeFromWishlist, isOnWishlist, findWishlistItem } = useWishlist();
-  const { addToFavorites, removeFromFavorites, isFavorite, findFavoriteItem } = useFavorites();
   const { personalFlavor } = usePersonalFlavorProfile();
   const { prefs } = useDietPrefs();
 
@@ -140,20 +138,12 @@ function OrderList({ countryId }: { countryId: string }) {
   };
 
   const cornerActions = (dishName: string, englishName?: string) => (
-    <>
-      <FavoriteButton
-        isFavorite={isFavorite(countryId, dishName)}
-        onAdd={() => addToFavorites({ countryId, dishName, englishName })}
-        onRemove={() => { const i = findFavoriteItem(countryId, dishName); if (i) removeFromFavorites(i.id); }}
-        compact
-      />
-      <WantToTryButton
-        isOnWishlist={isOnWishlist(countryId, dishName)}
-        onAdd={() => addToWishlist({ countryId, dishName, englishName })}
-        onRemove={() => { const i = findWishlistItem(countryId, dishName); if (i) removeFromWishlist(i.id); }}
-        compact
-      />
-    </>
+    <WantToTryButton
+      isOnWishlist={isOnWishlist(countryId, dishName)}
+      onAdd={() => addToWishlist({ countryId, dishName, englishName })}
+      onRemove={() => { const i = findWishlistItem(countryId, dishName); if (i) removeFromWishlist(i.id); }}
+      compact
+    />
   );
 
   const renderDish = (entry: RankedDish, rank: number) => {
@@ -271,7 +261,7 @@ function OrderList({ countryId }: { countryId: string }) {
           a real menu has sixty, so this must never look like the whole cuisine.
           Kept visible when the search finds nothing, which is when it's needed. */}
       <Link
-        to={`/country/${countryId}`}
+        to={countryPath(countryId)}
         className="flex items-center justify-between gap-3 mt-5 px-4 py-3 rounded-xl border btn-press"
         style={{ borderColor: systemColors.border, backgroundColor: systemColors.surface }}
       >

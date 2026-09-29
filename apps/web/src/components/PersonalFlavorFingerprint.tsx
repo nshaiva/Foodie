@@ -4,7 +4,9 @@ import { FlavorRadarChart } from './FlavorRadarChart';
 import { AffinitySpectrum } from './AffinitySpectrum';
 import { TasteSurvey } from './TasteSurvey';
 import { DietPreferences } from './DietPreferences';
+import { SurveyAnswersEditor } from './SurveyAnswersEditor';
 import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
+import { countryPath } from '../utils/countryPath';
 import type { ColorPalette } from '../data/types';
 
 // Personal profile color palette (purple-themed for personal identity)
@@ -64,6 +66,9 @@ export function PersonalFlavorFingerprint({ embedded = false }: PersonalFlavorFi
             </Link>
           </div>
         </div>
+        {/* Keyed in both branches: an edit that crosses the 3-signal threshold
+            keeps the list open instead of remounting it. */}
+        <SurveyAnswersEditor key="survey-answers" />
         <DietPreferences />
         {surveyOverlay}
       </div>
@@ -166,7 +171,7 @@ export function PersonalFlavorFingerprint({ embedded = false }: PersonalFlavorFi
             {topCuisines.slice(0, 3).map((cuisine, index) => (
               <Link
                 key={cuisine.countryId}
-                to={`/country/${cuisine.countryId}`}
+                to={countryPath(cuisine.countryId)}
                 className="text-xs px-2 py-0.5 rounded-full transition-colors"
                 style={{
                   backgroundColor: index === 0 ? `${personalColors.primary}20` : '#f3f4f6',
@@ -183,6 +188,7 @@ export function PersonalFlavorFingerprint({ embedded = false }: PersonalFlavorFi
         </div>
       )}
 
+      <SurveyAnswersEditor key="survey-answers" />
       <DietPreferences />
       {surveyOverlay}
     </div>
