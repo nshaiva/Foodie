@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone, Mexico map with strip</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&amp;family=Inter:wght@400;500;600&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#2B2A26;background:#F6F2EA}
+a{color:#A8492F;text-decoration:none}a:hover{color:#8A3A24}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3EFE7; font-family: Inter, system-ui, sans-serif; color: #2B2A26">
+  <svg width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0" role="img" aria-label="Map of Mexico split into five regions">
+    <rect x="0" y="0" width="390" height="250" fill="#E4DCCD"/>
+    <g transform="translate(-10, 170) scale(1.05)">
+      <path d="M50,125 L62,122 L78,175 L100,225 L112,262 L102,266 L80,225 L60,180 Z" fill="#D6DCCF" stroke="#3E5A3B" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M60,120 L170,110 L200,130 L250,128 L285,170 L300,215 L318,250 L310,300 L318,345 L340,370 L360,360 L368,330 L385,322 L382,355 L360,395 L330,400 L312,425 L280,410 L245,395 L205,378 L170,350 L150,300 L130,255 L110,210 L85,160 Z" fill="#D6DCCF" stroke="#3E5A3B" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M95,215 L290,205 M195,212 L200,340 M200,340 L318,300 M240,390 L300,330 M335,395 L325,340" fill="none" stroke="#3E5A3B" stroke-width="1" stroke-dasharray="4 4" stroke-opacity="0.7"/>
+      <text x="175" y="170" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="17" fill="#2B2A26">Northern</text>
+      <text x="148" y="275" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="15" fill="#2B2A26">Coastal</text>
+      <text x="252" y="285" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="15" fill="#2B2A26">Central</text>
+      <text x="262" y="385" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="14" fill="#2B2A26">Oaxaca</text>
+      <text x="355" y="352" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="13" fill="#2B2A26">Yucatán</text>
+    </g>
+  </svg>
+
+  <div style="position: absolute; left: 16px; top: 56px; height: 40px; padding: 0 14px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 8px rgba(43,42,38,0.12); display: flex; align-items: center; gap: 6px; font-size: 15px">
+    <span style="color: #6B655B">World</span>
+    <span style="color: #6B655B">›</span>
+    <span style="font-weight: 700">Mexico</span>
+  </div>
+
+  <a href="PhoneOverview.dc.html" style="position: absolute; left: 0; right: 0; bottom: 0; height: 104px; box-sizing: border-box; padding: 10px 20px 28px; border-radius: 20px 20px 0 0; background: #FFFFFF; box-shadow: 0 -6px 20px rgba(43,42,38,0.12); color: #2B2A26; display: flex; flex-direction: column; align-items: center; gap: 12px">
+    <div style="width: 40px; height: 5px; border-radius: 3px; background: #D9D1C3"></div>
+    <div style="align-self: stretch; display: flex; align-items: center; gap: 10px">
+      <div style="width: 10px; height: 10px; border-radius: 50%; background: #355E3B"></div>
+      <div style="font-family: Nunito, sans-serif; font-weight: 800; font-size: 20px">Mexico</div>
+      <div style="font-size: 14px; color: #6B655B">13 dishes · 5 regions</div>
+      <div style="flex-grow: 1"></div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B655B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+    </div>
+  </a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

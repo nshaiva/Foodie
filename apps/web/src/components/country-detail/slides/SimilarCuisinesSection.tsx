@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Country, ColorPalette } from '../../../data/types';
 import { countries } from '../../../data/countries';
 import { getSimilarCuisines } from '../../../utils/cuisineSimilarity';
+import { countryPath } from '../../../utils/countryPath';
 import { systemColors } from '../../../data/systemColors';
 
 interface SimilarCuisinesSectionProps {
@@ -26,7 +27,7 @@ export function SimilarCuisinesSection({ country, colors }: SimilarCuisinesSecti
         {similarCuisines.map(({ country: similarCountry, score, reasons }) => (
           <button
             key={similarCountry.id}
-            onClick={() => navigate(`/country/${similarCountry.id}`)}
+            onClick={() => navigate(countryPath(similarCountry.id))}
             className="card-interactive-sm group text-left p-2 rounded-lg border border-gray-200 bg-white"
           >
             <div className="flex items-center gap-2 mb-1">

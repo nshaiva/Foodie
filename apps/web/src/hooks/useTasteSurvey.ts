@@ -77,11 +77,15 @@ export function useTasteSurvey() {
     ]);
   };
 
+  const clearAnswer = (countryId: string, dishName: string) => {
+    setAnswers(prev => prev.filter(a => !(a.countryId === countryId && a.dishName === dishName)));
+  };
+
   const getAnswer = (countryId: string, dishName: string): SurveyAnswer | undefined =>
     answers.find(a => a.countryId === countryId && a.dishName === dishName);
 
   // Answers that carry taste signal (everything except skips)
   const ratedAnswers = useMemo(() => answers.filter(a => a.sentiment !== 'skip'), [answers]);
 
-  return { answers, ratedAnswers, setAnswer, getAnswer };
+  return { answers, ratedAnswers, setAnswer, clearAnswer, getAnswer };
 }

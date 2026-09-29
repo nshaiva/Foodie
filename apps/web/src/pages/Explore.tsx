@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 import { geoMercator, geoPath } from 'd3-geo';
 import { feature } from 'topojson-client';
@@ -12,7 +12,6 @@ import { getShortRegionName, regionCoordinates } from '../data/regionMapConfig';
 import { axesByIntensity, FLAVOR_AXIS_META } from '../data/flavorAxisMeta';
 import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
-import { useFavorites } from '../hooks/useFavorites';
 import { useDishFilters } from '../hooks/useDishFilters';
 import { useCountryActivity } from '../hooks/useCountryActivity';
 import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
@@ -144,8 +143,7 @@ export function Explore() {
   const features = useCountryFeatures();
   const [searchParams, setSearchParams] = useSearchParams();
   const { dishes, addDish, updateDish, deleteDish, getDishesByCountry, addRestaurantTry, updateRestaurantTry, deleteRestaurantTry } = useDishes();
-  const { addToWishlist, removeFromWishlist, isOnWishlist, findWishlistItem } = useWishlist();
-  const { addToFavorites, removeFromFavorites, isFavorite, findFavoriteItem } = useFavorites();
+  const { wishlist, addToWishlist, removeFromWishlist, isOnWishlist, findWishlistItem } = useWishlist();
   const { getActivityState, getCountryActivity, profiledCountryIds } = useCountryActivity(dishes);
   const { personalFlavor, hasEnoughData } = usePersonalFlavorProfile();
   const [storedLayer, setStoredLayer] = useLocalStorage<MapLayer>('foodie-map-layer', 'explored');
@@ -473,7 +471,7 @@ export function Explore() {
     onAddDish: ({ name, kind }) => addDish({ countryId: country.id, name, kind, restaurantTries: [] }),
     onUpdateDish: updateDish, onDeleteDish: deleteDish,
     onAddRestaurantTry: addRestaurantTry, onUpdateRestaurantTry: updateRestaurantTry, onDeleteRestaurantTry: deleteRestaurantTry,
-    isOnWishlist, isFavorite, addToWishlist, removeFromWishlist, findWishlistItem, addToFavorites, removeFromFavorites, findFavoriteItem,
+    isOnWishlist, addToWishlist, removeFromWishlist, findWishlistItem,
   } : null;
   const regionLabelFor = (entry: Entry) => {
     if (!country || effectiveLens === 'region') return undefined;
@@ -522,6 +520,30 @@ export function Explore() {
     <div className="h-dvh flex flex-col" style={{ backgroundColor: systemColors.seaSalt }}>
       <AppBar actions={<>
         {country && <span className="max-md:hidden flex gap-2">{pill('✦ Flavor fingerprint', () => setTray('flavor'))}{pill('📖 Food culture', () => setTray('culture'))}</span>}
+        <Link
+          to="/restaurant"
+          className="btn-press text-sm font-semibold text-white px-3.5 py-2 rounded-lg"
+          style={{ backgroundColor: systemColors.tomato }}
+        >
+          🍽 At a restaurant?
+        </Link>
+        <Link
+          to="/wishlist"
+          aria-label={`Want to try (${wishlist.length})`}
+          title="Want to try"
+          className="flex items-center gap-1.5 text-sm font-medium transition-colors hover:opacity-80"
+          style={{ color: systemColors.navy }}
+        >
+          <span
+            className="p-2 rounded-full inline-flex"
+            style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}
+          >
+            <svg className="w-4 h-4" fill={wishlist.length > 0 ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </span>
+          {wishlist.length > 0 && <span>{wishlist.length}</span>}
+        </Link>
         <ProfileButton />
       </>} />
 

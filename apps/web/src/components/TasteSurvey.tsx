@@ -121,7 +121,8 @@ export function TasteSurvey({ onClose }: TasteSurveyProps) {
               That's the whole deck!
             </h3>
             <p className="text-sm mb-5" style={{ color: systemColors.navyMuted }}>
-              {answeredCount} answer{answeredCount !== 1 ? 's' : ''} are now shaping your Flavor Fingerprint.
+              {answeredCount} answer{answeredCount !== 1 ? 's' : ''} are now shaping your Flavor Fingerprint,
+              and the dishes you've eaten show as tried.
             </p>
             <button
               onClick={onClose}

@@ -2,15 +2,16 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useWishlist } from '../hooks/useWishlist';
 import { useDishes } from '../hooks/useDishes';
-import { useFavorites } from '../hooks/useFavorites';
 import { getCountryById } from '../data/countries';
 import { systemColors } from '../data/systemColors';
 import { AppBar } from '../components/AppBar';
 import { ProfileButton } from '../components/ProfileButton';
 import { EntryGrid, type EntryGridActions } from '../components/country-detail/EntryGrid';
 import { PlateDot } from '../components/Wordmark';
+import { countryPath } from '../utils/countryPath';
+import { dishVerdictRating } from '../utils/ratings';
 import type { Entry } from '../utils/groupDishes';
-import type { Country, WishlistItem } from '../data/types';
+import type { Country, UserDish, WishlistItem } from '../data/types';
 
 interface CountryGroup {
   country: Country;
@@ -20,19 +21,35 @@ interface CountryGroup {
   newest: number;
 }
 
+/** A logged dish as a card entry: its popular dish or drink if we know it, your own log otherwise. */
+function entryForUserDish(country: Country, userDish: UserDish): Entry {
+  const name = userDish.name.toLowerCase();
+  const dish = country.popularDishes.find(d =>
+    d.name.toLowerCase() === name || d.englishName?.toLowerCase() === name
+  );
+  if (dish) return { kind: 'dish', key: userDish.id, dish, tried: userDish };
+  const drink = country.popularBeverages?.find(b =>
+    b.name.toLowerCase() === name || b.englishName?.toLowerCase() === name
+  );
+  if (drink) return { kind: 'drink', key: userDish.id, drink, tried: userDish };
+  return { kind: 'custom', key: userDish.id, userDish };
+}
+
 /**
  * Want to Try: the same cards and section style as a country's Eat & Drink
  * list, grouped by country. A saved dish is looked up in its country's data so
- * the card shows the full description, chips, heart/bookmark, and "+ I tried
+ * the card shows the full description, chips, bookmark, and "+ I tried
  * this" — logging it here works exactly as it does on the country page.
  * Tried dishes stay listed (the rating prompt opens inside the card); the
  * bookmark is how you take one off the list.
+ *
+ * Below it, Favorites: not a stored list but a view of dishes whose verdict is
+ * 4 stars or more (#40).
  */
 export function Wishlist() {
   const { wishlist, addToWishlist, removeFromWishlist, isOnWishlist, findWishlistItem } = useWishlist();
-  const { addToFavorites, removeFromFavorites, isFavorite, findFavoriteItem } = useFavorites();
   const {
-    addDish, updateDish, deleteDish, getDishesByCountry,
+    dishes, addDish, updateDish, deleteDish, getDishesByCountry,
     addRestaurantTry, updateRestaurantTry, deleteRestaurantTry,
   } = useDishes();
 
@@ -68,6 +85,25 @@ export function Wishlist() {
     return [...byCountry.values()].sort((a, b) => b.newest - a.newest);
   }, [wishlist, getDishesByCountry]);
 
+  // Favorites are derived, not stored: any dish whose verdict is 4+ stars.
+  const favoriteGroups = useMemo(() => {
+    const byCountry = new Map<string, { country: Country; entries: Entry[]; newest: number }>();
+    for (const d of dishes) {
+      const verdict = dishVerdictRating(d);
+      if (verdict === undefined || Math.round(verdict) < 4) continue;
+      const country = getCountryById(d.countryId);
+      if (!country) continue;
+      let group = byCountry.get(country.id);
+      if (!group) {
+        group = { country, entries: [], newest: 0 };
+        byCountry.set(country.id, group);
+      }
+      group.newest = Math.max(group.newest, new Date(d.updatedAt).getTime());
+      group.entries.push(entryForUserDish(country, d));
+    }
+    return [...byCountry.values()].sort((a, b) => b.newest - a.newest);
+  }, [dishes]);
+
   const actionsFor = (countryId: string): EntryGridActions => ({
     countryId,
     onAddDish: ({ name, kind }) => addDish({ countryId, name, kind, restaurantTries: [] }),
@@ -76,9 +112,8 @@ export function Wishlist() {
     onAddRestaurantTry: addRestaurantTry,
     onUpdateRestaurantTry: updateRestaurantTry,
     onDeleteRestaurantTry: deleteRestaurantTry,
-    isOnWishlist, isFavorite,
+    isOnWishlist,
     addToWishlist, removeFromWishlist, findWishlistItem,
-    addToFavorites, removeFromFavorites, findFavoriteItem,
   });
 
   return (
@@ -95,13 +130,13 @@ export function Wishlist() {
       </AppBar>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {groups.length > 0 ? (
+        {groups.length > 0 && (
           <div className="space-y-6">
             {groups.map(({ country, entries, unresolved }) => (
               <section key={country.id} className="space-y-2">
                 {/* Same quiet header as a country page section: name, count, a way in */}
                 <Link
-                  to={`/country/${country.id}`}
+                  to={countryPath(country.id)}
                   className="w-full flex items-baseline gap-2 text-left pt-1"
                 >
                   <PlateDot color={country.colorPalette.primary} size={10} className="self-center" />
@@ -143,7 +178,49 @@ export function Wishlist() {
               </section>
             ))}
           </div>
-        ) : (
+        )}
+
+        {favoriteGroups.length > 0 && (
+          <section className={groups.length > 0 ? 'mt-10' : undefined}>
+            <div className="mb-3">
+              <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: systemColors.navy }}>
+                <PlateDot color={systemColors.tomato} size={12} />
+                Favorites
+              </h2>
+              <p className="text-sm" style={{ color: systemColors.navyMuted }}>
+                Dishes you rated 4 stars or more
+              </p>
+            </div>
+            <div className="space-y-6">
+              {favoriteGroups.map(({ country, entries }) => (
+                <section key={country.id} className="space-y-2">
+                  <Link
+                    to={countryPath(country.id)}
+                    className="w-full flex items-baseline gap-2 text-left pt-1"
+                  >
+                    <PlateDot color={country.colorPalette.primary} size={10} className="self-center" />
+                    <h3 className="text-sm font-bold" style={{ color: systemColors.navy }}>
+                      {country.name}
+                    </h3>
+                    <span className="text-xs" style={{ color: systemColors.navyMuted }}>
+                      {entries.length}
+                    </span>
+                    <span className="ml-auto text-[0.65rem] font-bold" style={{ color: systemColors.tomato }}>
+                      open →
+                    </span>
+                  </Link>
+                  <EntryGrid
+                    entries={entries}
+                    actions={actionsFor(country.id)}
+                    regionLabelFor={() => undefined}
+                  />
+                </section>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {groups.length === 0 && favoriteGroups.length === 0 && (
           <div className="text-center py-16">
             <div className="mx-auto mb-4 flex justify-center">
               <PlateDot color={systemColors.saffron} size={40} />

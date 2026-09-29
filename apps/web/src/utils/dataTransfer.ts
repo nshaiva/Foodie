@@ -1,4 +1,6 @@
 import { applySnapshot, readSnapshot, SYNCED_KEYS, type ProfileSnapshot } from '../data/syncKeys';
+import { migrateFavoritesToDishes, LEGACY_FAVORITES_KEY, type LegacyFavorite } from './favoritesMigration';
+import type { UserDish } from '../data/types';
 
 /** Bumped only if the payload shape changes in a way importers must handle. */
 const BACKUP_VERSION = 1;
@@ -66,6 +68,16 @@ export async function importProfile(file: File): Promise<void> {
     if (value !== undefined) clean[key] = value;
   }
 
+  // A backup from before #40 carries hearted favorites; fold them into the
+  // imported dishes rather than dropping them silently.
+  const legacy = (backup.data as Record<string, unknown>)[LEGACY_FAVORITES_KEY];
+  if (Array.isArray(legacy) && legacy.length > 0) {
+    const base = Array.isArray(clean['foodie-dishes'])
+      ? (clean['foodie-dishes'] as UserDish[])
+      : (readSnapshot()['foodie-dishes'] as UserDish[] | undefined) ?? [];
+    clean['foodie-dishes'] = migrateFavoritesToDishes(base, legacy as LegacyFavorite[]);
+  }
+
   applySnapshot(clean);
 }
 
@@ -77,7 +89,6 @@ export function describeSnapshot(snapshot: ProfileSnapshot): string {
   };
   return [
     `${count('foodie-dishes')} dishes`,
-    `${count('foodie-favorites')} favorites`,
     `${count('foodie-wishlist')} saved`,
   ].join(' · ');
 }

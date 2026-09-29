@@ -4,7 +4,6 @@ import { getCountryById } from '../data/countries';
 import { systemColors } from '../data/systemColors';
 import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
-import { useFavorites } from '../hooks/useFavorites';
 import { useDishFilters } from '../hooks/useDishFilters';
 import { countryDishProgress } from '../utils/dishProgress';
 import { regionFromSlug, regionNameFor, regionSlug, resolveRegion } from '../utils/dishRegion';
@@ -45,7 +44,6 @@ export function CountryDetail() {
     addRestaurantTry, updateRestaurantTry, deleteRestaurantTry,
   } = useDishes();
   const { addToWishlist, removeFromWishlist, isOnWishlist, findWishlistItem } = useWishlist();
-  const { addToFavorites, removeFromFavorites, isFavorite, findFavoriteItem } = useFavorites();
 
   const filters = useDishFilters();
   const [lens, setLens] = useState<Lens>('region');
@@ -193,9 +191,8 @@ export function CountryDetail() {
     onAddRestaurantTry: addRestaurantTry,
     onUpdateRestaurantTry: updateRestaurantTry,
     onDeleteRestaurantTry: deleteRestaurantTry,
-    isOnWishlist, isFavorite,
+    isOnWishlist,
     addToWishlist, removeFromWishlist, findWishlistItem,
-    addToFavorites, removeFromFavorites, findFavoriteItem,
   };
 
   /** Region shown in a card's meta line — omitted when it'd just repeat the header. */

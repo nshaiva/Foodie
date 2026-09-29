@@ -1,11 +1,36 @@
 import { useLocalStorage } from './useLocalStorage';
+import { findAnswerForDish, findDishForAnswer } from '../utils/surveyDishes';
 import type { UserDish, RestaurantTry } from '../data/types';
+import type { SurveyAnswer } from './useTasteSurvey';
 
 export function useDishes() {
   const [dishes, setDishes] = useLocalStorage<UserDish[]>('foodie-dishes', []);
+  const [, setSurveyAnswers] = useLocalStorage<SurveyAnswer[]>('foodie-taste-survey', []);
 
   const addDish = (dish: Omit<UserDish, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString();
+
+    // Logging a dish the survey already logged adds to that entry rather than
+    // creating a second one.
+    const fromSurvey = findDishForAnswer(
+      dishes.filter(d => d.source === 'survey'),
+      dish.countryId,
+      dish.name
+    );
+    if (fromSurvey) {
+      const merged: UserDish = {
+        ...fromSurvey,
+        region: fromSurvey.region ?? dish.region,
+        kind: fromSurvey.kind ?? dish.kind,
+        notes: dish.notes ?? fromSurvey.notes,
+        tasteRating: dish.tasteRating ?? fromSurvey.tasteRating,
+        restaurantTries: [...(fromSurvey.restaurantTries || []), ...(dish.restaurantTries || [])],
+        updatedAt: now,
+      };
+      setDishes(prev => prev.map(d => (d.id === fromSurvey.id ? merged : d)));
+      return merged;
+    }
+
     const newDish: UserDish = {
       ...dish,
       id: crypto.randomUUID(),
@@ -27,8 +52,16 @@ export function useDishes() {
     );
   };
 
+  // Removing a dish also clears its survey answer, which would otherwise log
+  // the dish again on the next reconcile.
   const deleteDish = (id: string) => {
+    const dish = dishes.find(d => d.id === id);
     setDishes(prev => prev.filter(d => d.id !== id));
+    if (!dish) return;
+    setSurveyAnswers(prev => {
+      const answer = findAnswerForDish(prev, dish);
+      return answer && answer.sentiment !== 'skip' ? prev.filter(a => a !== answer) : prev;
+    });
   };
 
   const getDishesByCountry = (countryId: string) => {

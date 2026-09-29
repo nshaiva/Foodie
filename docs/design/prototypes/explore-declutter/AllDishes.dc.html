@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>All dishes in Mexico, rows</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&amp;family=Inter:wght@400;500;600&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#2B2A26;background:#F6F2EA}
+a{color:#A8492F;text-decoration:none}a:hover{color:#8A3A24}
+</style>
+</helmet>
+<div style="width: 540px; height: 1600px; box-sizing: border-box; background: #F6F2EA; font-family: Inter, system-ui, sans-serif; color: #2B2A26; padding: 24px 32px 40px; display: flex; flex-direction: column; gap: 28px">
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; height: 32px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      Mexico
+    </a>
+    <div style="display: flex; align-items: center; gap: 10px">
+      <h1 style="margin: 0; font-family: Nunito, sans-serif; font-weight: 800; font-size: 26px">All dishes</h1>
+      <div style="font-size: 15px; color: #6B655B">13</div>
+      <div style="flex-grow: 1"></div>
+      <button type="button" aria-label="Search dishes" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid #E0D8CA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3A3832" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      </button>
+      <button type="button" aria-label="Filters" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid #E0D8CA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3A3832" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <sc-for list="{{sections}}" as="sec" hint-placeholder-count="3">
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <a href="{{sec.href}}" style="display: flex; align-items: baseline; gap: 10px; color: #2B2A26">
+        <h2 style="margin: 0; font-family: Fraunces, Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">{{sec.name}}</h2>
+        <div style="font-size: 14px; color: #6B655B">{{sec.count}}</div>
+        <div style="flex-grow: 1"></div>
+        <sc-if value="{{sec.isRegion}}" hint-placeholder-val="{{true}}">
+          <div style="font-size: 13px; font-weight: 600; color: #A8492F">Open region ›</div>
+        </sc-if>
+      </a>
+      <div style="background: #FFFFFF; border: 1px solid #E8E1D5; border-radius: 16px; overflow: hidden">
+        <sc-for list="{{sec.dishes}}" as="d" hint-placeholder-count="3">
+          <a href="DishDetail.dc.html" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; color: #2B2A26; border-top: {{d.sep}}">
+            <div style="width: 64px; height: 64px; flex-shrink: 0; border-radius: 12px; background: {{d.tint}}; display: flex; align-items: center; justify-content: center">
+              <svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="#8C7A66" stroke-opacity="0.5" stroke-width="1.5" aria-hidden="true"><circle cx="17" cy="17" r="15"/><circle cx="17" cy="17" r="9"/></svg>
+            </div>
+            <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+              <div style="font-family: Nunito, sans-serif; font-weight: 700; font-size: 16px">{{d.name}}</div>
+              <div style="font-size: 14px; line-height: 1.4; color: #6B655B">{{d.tag}}</div>
+            </div>
+            <sc-if value="{{d.tried}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: #3E6B45; flex-shrink: 0" aria-label="Tried, rated {{d.stars}} of 5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>
+                ★ {{d.stars}}
+              </div>
+            </sc-if>
+            <sc-if value="{{d.want}}" hint-placeholder-val="{{false}}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#B7832F" stroke="#B7832F" stroke-width="2" stroke-linejoin="round" role="img" aria-label="On your want-to-try list" style="flex-shrink: 0"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+            </sc-if>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":540,"height":1600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const D = {
+      mole: { name: 'Mole Poblano', tag: 'Dark chili and chocolate sauce over turkey, from Puebla', tint: '#E3CFC0', tried: true, stars: '4' },
+      nogada: { name: 'Chiles en Nogada', tag: 'Stuffed poblano in walnut cream with pomegranate', tint: '#E6DDC9', want: true },
+      tequila: { name: 'Tequila', tag: 'Blue agave spirit from Jalisco, blanco to añejo', tint: '#EDE4CF' },
+      mezcal: { name: 'Mezcal', tag: 'Smoky agave spirit from Oaxaca, sipped neat', tint: '#E2DDD2' },
+      tacos: { name: 'Tacos', tag: 'Corn tortillas with al pastor, carnitas or asada', tint: '#EFD9C2', tried: true, stars: '5' },
+      pozole: { name: 'Pozole', tag: 'Hominy and pork in a red or green chili broth', tint: '#EBD3C9', want: true },
+      tamales: { name: 'Tamales', tag: 'Steamed corn masa in husks, savory or sweet', tint: '#EFE3C8' },
+      guac: { name: 'Guacamole', tag: 'Mashed avocado with lime, cilantro and chili', tint: '#DCE3CD' },
+      elote: { name: 'Elote', tag: 'Grilled corn with mayo, cotija, chili and lime', tint: '#F1E2BF' },
+      churros: { name: 'Churros', tag: 'Fried dough in cinnamon sugar, dipped in chocolate', tint: '#EEDCC4' },
+      horchata: { name: 'Horchata', tag: 'Cold rice drink with cinnamon and vanilla', tint: '#F0EADF' },
+      jamaica: { name: 'Jamaica', tag: 'Tart iced hibiscus tea', tint: '#EACBCF' },
+      choc: { name: 'Mexican Hot Chocolate', tag: 'Cinnamon-spiced chocolate, frothed by hand', tint: '#E2D0C3' }
+    };
+    const sec = (name, keys, href, isRegion) => ({
+      name, href, isRegion, count: String(keys.length),
+      dishes: keys.map((k, i) => ({ tried: false, want: false, stars: '', ...D[k], sep: i === 0 ? 'none' : '1px solid #EFE9DE' }))
+    });
+    return {
+      sections: [
+        sec('Central', ['mole', 'nogada', 'tequila'], 'Region.dc.html', true),
+        sec('Oaxaca', ['mezcal'], '#', true),
+        sec('Across Mexico', ['tacos', 'pozole', 'tamales', 'guac', 'elote', 'churros', 'horchata', 'jamaica', 'choc'], '#', false)
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,7 +1,6 @@
 import { PlateDot } from '../Wordmark';
 import { UnifiedDishCard } from './UnifiedDishCard';
 import { ExpandableText } from '../ExpandableText';
-import { FavoriteButton } from '../FavoriteButton';
 import { WantToTryButton } from '../WantToTryButton';
 import { bevTypeChip, dessertChip, dietaryChips, popularityChip, servedChip, spiceChip } from '../dishChips';
 import { DISH_CATEGORY_COLORS } from '../../data/categoryMeta';
@@ -18,13 +17,9 @@ export interface EntryGridActions {
   onUpdateRestaurantTry: (dishId: string, tryId: string, updates: Partial<RestaurantTry>) => void;
   onDeleteRestaurantTry: (dishId: string, tryId: string) => void;
   isOnWishlist: (countryId: string, dishName: string) => boolean;
-  isFavorite: (countryId: string, dishName: string) => boolean;
   addToWishlist: (item: { countryId: string; dishName: string; englishName?: string }) => void;
   removeFromWishlist: (id: string) => void;
   findWishlistItem: (countryId: string, dishName: string) => { id: string } | undefined;
-  addToFavorites: (item: { countryId: string; dishName: string; englishName?: string }) => void;
-  removeFromFavorites: (id: string) => void;
-  findFavoriteItem: (countryId: string, dishName: string) => { id: string } | undefined;
 }
 
 function label(category?: string) {
@@ -58,20 +53,12 @@ export function EntryGrid({
   };
 
   const corner = (name: string, englishName?: string) => (
-    <>
-      <FavoriteButton
-        isFavorite={a.isFavorite(a.countryId, name)}
-        onAdd={() => a.addToFavorites({ countryId: a.countryId, dishName: name, englishName })}
-        onRemove={() => { const i = a.findFavoriteItem(a.countryId, name); if (i) a.removeFromFavorites(i.id); }}
-        compact
-      />
-      <WantToTryButton
-        isOnWishlist={a.isOnWishlist(a.countryId, name)}
-        onAdd={() => a.addToWishlist({ countryId: a.countryId, dishName: name, englishName })}
-        onRemove={() => { const i = a.findWishlistItem(a.countryId, name); if (i) a.removeFromWishlist(i.id); }}
-        compact
-      />
-    </>
+    <WantToTryButton
+      isOnWishlist={a.isOnWishlist(a.countryId, name)}
+      onAdd={() => a.addToWishlist({ countryId: a.countryId, dishName: name, englishName })}
+      onRemove={() => { const i = a.findWishlistItem(a.countryId, name); if (i) a.removeFromWishlist(i.id); }}
+      compact
+    />
   );
 
   return (

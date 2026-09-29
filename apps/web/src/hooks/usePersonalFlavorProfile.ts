@@ -3,6 +3,7 @@ import { useDishes } from './useDishes';
 import { useTasteSurvey, SENTIMENT_RATING, type SurveyAnswer } from './useTasteSurvey';
 import { countries } from '../data/countries';
 import { dishVerdictRating, ratingSignal } from '../utils/ratings';
+import { findAnswerForDish, findDishForAnswer } from '../utils/surveyDishes';
 import type { FlavorIntensity, UserDish, Dish, SpiceLevel, DishDifficulty } from '../data/types';
 
 // Survey answers count at half the strength of a logged dish
@@ -285,15 +286,17 @@ export function usePersonalFlavorProfile(): PersonalFlavorProfile {
   const { ratedAnswers } = useTasteSurvey();
 
   return useMemo(() => {
-    // A dish saved from an AI menu lookup is a guess until the diner rates it:
-    // its traits must not shape the profile (#3), so unrated lookups sit out.
-    const dishes = allDishes.filter(d => !(d.source === 'lookup' && dishVerdictRating(d) === undefined));
-
-    // A survey answer for a dish you've also logged is redundant — the log wins
-    const loggedKeys = new Set(dishes.map(d => `${d.countryId}:${d.name.toLowerCase()}`));
-    const survey = ratedAnswers.filter(
-      a => !loggedKeys.has(`${a.countryId}:${a.dishName.toLowerCase()}`)
-    );
+    // One signal per dish. A star verdict wins; an unrated dish with a survey
+    // answer (including the entries the survey itself logs) speaks through that
+    // answer. A dish saved from an AI menu lookup is a guess until the diner
+    // rates it: its traits must not shape the profile (#3), so unrated lookups
+    // sit out.
+    const dishes = allDishes.filter(d => {
+      if (dishVerdictRating(d) !== undefined) return true;
+      if (d.source === 'lookup') return false;
+      return !findAnswerForDish(ratedAnswers, d);
+    });
+    const survey = ratedAnswers.filter(a => !findDishForAnswer(dishes, a.countryId, a.dishName));
 
     const totalDishes = dishes.length;
     const surveyCount = survey.length;
