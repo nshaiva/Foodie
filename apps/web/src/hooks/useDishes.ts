@@ -2,6 +2,7 @@ import { useLocalStorage } from './useLocalStorage';
 import { findAnswerForDish, findDishForAnswer } from '../utils/surveyDishes';
 import type { UserDish, RestaurantTry } from '../data/types';
 import type { SurveyAnswer } from './useTasteSurvey';
+import { newId } from '../utils/newId';
 
 export function useDishes() {
   const [dishes, setDishes] = useLocalStorage<UserDish[]>('foodie-dishes', []);
@@ -33,7 +34,7 @@ export function useDishes() {
 
     const newDish: UserDish = {
       ...dish,
-      id: crypto.randomUUID(),
+      id: newId(),
       restaurantTries: dish.restaurantTries || [],
       createdAt: now,
       updatedAt: now,
@@ -72,7 +73,7 @@ export function useDishes() {
   const addRestaurantTry = (dishId: string, data: Omit<RestaurantTry, 'id'>) => {
     const newTry: RestaurantTry = {
       ...data,
-      id: crypto.randomUUID(),
+      id: newId(),
     };
     setDishes(prev =>
       prev.map(d =>

@@ -266,3 +266,16 @@ label[for],
 /* Explore: an open hand over the map, a closed one while dragging it */
 .explore-map { cursor: grab; }
 .explore-map.is-dragging, .explore-map.is-dragging * { cursor: grabbing !important; }
+
+/* Map plates (#36 preview): dish illustrations float over the map, lift on hover */
+.map-plate .map-plate-disc { transform-box: fill-box; transform-origin: center; transition: transform 250ms cubic-bezier(.3, 1.4, .5, 1); animation: plate-bob 4.5s ease-in-out infinite; }
+.map-plate .map-plate-shadow { transform-box: fill-box; transform-origin: center; animation: plate-shadow 4.5s ease-in-out infinite; }
+.map-plate .map-plate-name { opacity: 0; transition: opacity 150ms; pointer-events: none; }
+.map-plate:hover .map-plate-disc, .map-plate:focus-visible .map-plate-disc { transform: translateY(-4px) scale(1.18); animation-play-state: paused; }
+.map-plate:hover .map-plate-name, .map-plate:focus-visible .map-plate-name { opacity: 1; }
+.map-plate:focus { outline: none; }
+.map-plate:focus-visible circle:first-of-type { stroke: #C2654A; stroke-width: 2; }
+@keyframes plate-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2.5px; } }
+@keyframes plate-shadow { 0%, 100% { opacity: .2; scale: 1; } 50% { opacity: .13; scale: .85; } }
+@media (hover: none) { .map-plate .map-plate-name { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .map-plate .map-plate-disc, .map-plate .map-plate-shadow { animation: none; } }

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { systemColors } from '../data/systemColors';
 
 interface TrayProps {
@@ -20,12 +21,16 @@ interface TrayProps {
 export function Tray({ open, onClose, title, subtitle, children }: TrayProps) {
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    // Capture phase + preventDefault: the tray takes Esc before any page-level
+    // Esc handler (Explore's "step up a level") sees it
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); onClose(); } };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
   }, [open, onClose]);
 
-  return (
+  // Portalled to <body>: a tray opened from inside a transformed ancestor
+  // (Explore's phone sheet) would otherwise be positioned inside it
+  return createPortal(
     <>
       <div
         onClick={onClose}
@@ -39,10 +44,11 @@ export function Tray({ open, onClose, title, subtitle, children }: TrayProps) {
         aria-label={title}
         aria-hidden={!open}
         className={[
-          'fixed z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-out',
+          // The shadow only while open: parked off-screen, it bled back into view
+          'fixed z-50 flex flex-col transition-transform duration-300 ease-out',
           // phone: bottom sheet
           'inset-x-0 bottom-0 max-h-[88vh] rounded-t-2xl',
-          open ? 'translate-y-0' : 'translate-y-full',
+          open ? 'translate-y-0 shadow-2xl' : 'translate-y-full',
           // desktop: right slide-over
           'md:inset-x-auto md:top-0 md:right-0 md:bottom-0 md:h-full md:max-h-none md:w-[min(560px,94vw)] md:rounded-none',
           open ? 'md:translate-x-0' : 'md:translate-y-0 md:translate-x-full',
@@ -59,13 +65,13 @@ export function Tray({ open, onClose, title, subtitle, children }: TrayProps) {
           style={{ borderColor: systemColors.border }}
         >
           <div className="min-w-0">
-            <h2 className="text-lg font-bold leading-tight" style={{ color: systemColors.navy }}>{title}</h2>
+            <h2 className="text-lg font-extrabold leading-tight" style={{ color: systemColors.navy }}>{title}</h2>
             {subtitle && <p className="text-xs mt-0.5" style={{ color: systemColors.navyMuted }}>{subtitle}</p>}
           </div>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="text-2xl leading-none px-2 -mr-2 flex-none"
+            className="text-2xl leading-none w-11 h-11 -my-2 -mr-3 flex items-center justify-center flex-none"
             style={{ color: systemColors.navyMuted }}
           >
             ×
@@ -76,6 +82,7 @@ export function Tray({ open, onClose, title, subtitle, children }: TrayProps) {
           {children}
         </div>
       </aside>
-    </>
+    </>,
+    document.body,
   );
 }

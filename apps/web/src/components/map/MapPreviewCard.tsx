@@ -6,6 +6,7 @@ import { systemColors } from '../../data/systemColors';
 import { ProgressPlate } from '../ProgressPlate';
 import { PlateDot } from '../Wordmark';
 import type { DishProgress } from '../../utils/dishProgress';
+import { FLAVOR_AXIS_IDS, FLAVOR_AXIS_META } from '../../data/flavorAxisMeta';
 
 interface MapPreviewCardProps {
   countryId: string;
@@ -14,16 +15,28 @@ interface MapPreviewCardProps {
   activity: CountryActivity;
   match?: FlavorMatch;
   progress?: DishProgress;
+  /** How many of this country's dishes are on the want-to-try list */
+  wantCount?: number;
   x: number;
   y: number;
+}
+
+/** "olive oil · garlic · jamón ibérico": the first three, minus asides like "(pimentón)" */
+function ingredientLine(ingredients: string[]): string {
+  const line = ingredients
+    .slice(0, 3)
+    .map(i => i.replace(/\s*\([^)]*\)/g, '').trim())
+    .filter(Boolean)
+    .join(' · ');
+  return line.charAt(0).toUpperCase() + line.slice(1);
 }
 
 export const MapPreviewCard = memo(function MapPreviewCard({
   countryName,
   country,
-  activity,
   match,
   progress,
+  wantCount = 0,
   x,
   y,
 }: MapPreviewCardProps) {
@@ -48,7 +61,6 @@ export const MapPreviewCard = memo(function MapPreviewCard({
   }, [x, y]);
 
   const hasProfile = !!country;
-  const { dishCount } = activity;
 
   const tooltipStyle: React.CSSProperties = {
     position: 'absolute',
@@ -64,65 +76,54 @@ export const MapPreviewCard = memo(function MapPreviewCard({
       className="pointer-events-none"
       style={tooltipStyle}
     >
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[200px] max-w-[280px]">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2.5 max-w-[240px]">
         {hasProfile ? (
+          // Three lines, scannable in the second the card is up: who, what it
+          // tastes like, and what it's built on. Your own state joins as one
+          // extra line only when there is any.
           <>
-            <div className="flex items-center justify-between mb-1">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-1.5">
-                {progress && progress.percent > 0 ? (
-                  <ProgressPlate
-                    percent={progress.percent}
-                    size={22}
-                    color={country.colorPalette.primary}
-                    title={`${progress.tried} of ${progress.total} dishes tried`}
-                  />
-                ) : (
-                  <PlateDot color={country.colorPalette.primary} size={12} />
-                )}
-                {country.name}
-              </h3>
-              <span className="text-xs text-gray-500">{country.region}</span>
+            <h3 className="font-semibold text-gray-900 flex items-center gap-1.5">
+              {progress && progress.percent > 0 ? (
+                <ProgressPlate
+                  percent={progress.percent}
+                  size={20}
+                  color={country.colorPalette.primary}
+                  title={`${progress.tried} of ${progress.total} dishes tried`}
+                />
+              ) : (
+                <PlateDot color={country.colorPalette.primary} size={12} />
+              )}
+              {country.name}
+            </h3>
+            {/* Its two strongest fingerprint axes, in the same fixed axis
+                colours as the panel's flavor bars */}
+            <div className="flex gap-1.5 mt-1.5">
+              {[...FLAVOR_AXIS_IDS]
+                .sort((p, q) => country.cuisineProfile.flavorIntensity[q] - country.cuisineProfile.flavorIntensity[p])
+                .slice(0, 2)
+                .map(axis => {
+                  const m = FLAVOR_AXIS_META[axis];
+                  return (
+                    <span key={axis} className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: `${m.color}1F`, color: m.color }}>
+                      {m.label}
+                    </span>
+                  );
+                })}
             </div>
-
-            <div className="text-xs text-gray-500 mb-2">
-              Capital: {country.capital}
-            </div>
-
+            {country.cuisineProfile.keyIngredients.length > 0 && (
+              <p className="text-xs mt-1.5" style={{ color: systemColors.navy }}>{ingredientLine(country.cuisineProfile.keyIngredients)}</p>
+            )}
+            {((progress && progress.tried > 0) || wantCount > 0) && (
+              <p className="text-xs mt-1" style={{ color: systemColors.navyMuted }}>
+                {[
+                  progress && progress.tried > 0 ? `${progress.tried} of ${progress.total} tried` : null,
+                  wantCount > 0 ? `${wantCount} on your list` : null,
+                ].filter(Boolean).join(' · ')}
+              </p>
+            )}
             {match && (
-              <div
-                className="text-xs font-medium mb-2"
-                style={{ color: systemColors.tomato }}
-              >
-                {match.score}% match
-                {match.topAxes.length > 0 && (
-                  <span style={{ color: systemColors.navyMuted }}>
-                    {' '}— big on {match.topAxes.join(' and ')}, like you
-                  </span>
-                )}
-              </div>
+              <p className="text-xs font-medium mt-1" style={{ color: systemColors.tomato }}>{match.score}% match</p>
             )}
-
-            <div className="flex flex-wrap gap-1 mb-2">
-              {country.cuisineProfile.flavorProfile.slice(0, 4).map((flavor) => (
-                <span
-                  key={flavor}
-                  className="px-1.5 py-0.5 text-xs rounded"
-                  style={{ backgroundColor: systemColors.saffronLight, color: systemColors.navy }}
-                >
-                  {flavor}
-                </span>
-              ))}
-            </div>
-
-            {dishCount > 0 && (
-              <div className="flex gap-3 text-xs text-gray-500 mb-2">
-                <span>{dishCount} dish{dishCount !== 1 ? 'es' : ''} logged</span>
-              </div>
-            )}
-
-            <div className="text-xs font-medium" style={{ color: systemColors.navy }}>
-              Click to explore
-            </div>
           </>
         ) : (
           <>

@@ -1,0 +1,106 @@
+{
+  "version": "c2-v1",
+  "frozen": "2026-09-29",
+  "note": "Universal dish-image prompt. Final prompt = style + ' ' + subject + ' ' + framing. Never edit style or framing per dish; only the subject changes. See docs/design/image-style-pilot.md section 4e.",
+  "style": "Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon.",
+  "framing": "One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery.",
+  "countries": {
+    "MX": [
+      {
+        "slug": "mole-poblano",
+        "name": "Mole Poblano",
+        "pilot": true,
+        "subject": "A piece of turkey on a plate covered in thick, glossy, very dark brown-black mole sauce, sprinkled with toasted sesame seeds, a small mound of red Mexican rice beside it, two folded corn tortillas at the edge.",
+        "mustShow": "Near-black glossy sauce, sesame seeds, meat under the sauce",
+        "wrong": "Reddish chili con carne; brown gravy; beans"
+      },
+      {
+        "slug": "tacos",
+        "name": "Tacos",
+        "pilot": true,
+        "subject": "Three small street tacos on a plate, each on two stacked soft corn tortillas, filled with red-orange marinated pork al pastor, topped with diced white onion, chopped cilantro and a small piece of pineapple, a lime wedge and a little bowl of green salsa beside them.",
+        "mustShow": "Soft, small, doubled corn tortillas; red-orange pork; onion and cilantro",
+        "wrong": "Hard yellow U-shaped shells; lettuce, shredded yellow cheese, sour cream"
+      },
+      {
+        "slug": "pozole",
+        "name": "Pozole",
+        "pilot": true,
+        "subject": "A deep bowl of pozole rojo, a brick-red chili broth full of large puffed white hominy kernels, irregular and burst open at the top like popcorn, not round chickpeas, with pieces of pork, topped with shredded green cabbage, thin radish slices and a pinch of dried oregano, a lime wedge and a crisp tostada beside the bowl.",
+        "mustShow": "Big burst white hominy in red broth; cabbage and radish on top",
+        "wrong": "Beans or chickpeas instead of hominy; chili con carne; noodles"
+      },
+      {
+        "slug": "chiles-en-nogada",
+        "name": "Chiles en Nogada",
+        "pilot": true,
+        "subject": "One whole roasted green poblano pepper on a plate, stuffed and completely covered in a smooth, thick, ivory-white walnut cream sauce, scattered with bright red pomegranate seeds and a few flat green parsley leaves, so the plate shows green, white and red; served plain, not battered or fried.",
+        "mustShow": "Whole green poblano under white sauce; red pomegranate; green parsley",
+        "wrong": "Battered and fried chile relleno; red tomato sauce; melted yellow cheese"
+      },
+      {
+        "slug": "tamales",
+        "name": "Tamales",
+        "subject": "Two tamales on a plate, each lying in its opened pale tan dried corn husk, showing soft pale yellow steamed corn masa, one cut open to reveal a red chili pork filling, a small bowl of red salsa beside them; the husks are opened, not eaten.",
+        "mustShow": "Pale corn husks opened out; soft pale yellow masa; filling visible in one",
+        "wrong": "Flour tortilla burrito; enchiladas in sauce; foil wrapping; husk shown as edible"
+      },
+      {
+        "slug": "guacamole",
+        "name": "Guacamole",
+        "subject": "A rough grey-black volcanic stone molcajete bowl on three short legs, filled with chunky, coarsely mashed green avocado mixed with diced white onion, diced red tomato and chopped cilantro, a lime wedge and a small pile of triangular yellow corn tortilla chips beside it.",
+        "mustShow": "Chunky textured avocado with visible onion, tomato, cilantro; stone molcajete",
+        "wrong": "Smooth bright-green puree; sour cream swirl; guacamole on a burger or toast"
+      },
+      {
+        "slug": "elote",
+        "name": "Elote",
+        "subject": "One whole grilled corn cob on a wooden stick, the yellow kernels lightly charred, coated in a thin layer of white mayonnaise, crumbled white cotija cheese and a dusting of red chili powder, lying on a small plate with a lime wedge beside it.",
+        "mustShow": "Whole cob on a stick; white crumbled cheese and red chili dust over yellow kernels",
+        "wrong": "Melted yellow cheese; plain buttered corn; kernels off the cob in a cup (that is esquites)"
+      },
+      {
+        "slug": "churros",
+        "name": "Churros",
+        "subject": "Four long, straight golden fried churros with deep star-shaped ridges along their length, coated in cinnamon sugar, on a small plate beside a small cup of thick dark hot chocolate for dipping.",
+        "mustShow": "Long ridged sticks; sandy cinnamon-sugar coating; chocolate for dipping",
+        "wrong": "Round donuts or rings; smooth unridged sticks; icing glaze or powdered sugar only"
+      },
+      {
+        "slug": "horchata",
+        "name": "Horchata",
+        "subject": "A tall clear glass of opaque milky-white horchata over ice cubes, a light dusting of ground cinnamon on top and a cinnamon stick standing in the glass.",
+        "mustShow": "Opaque milky white drink over ice; cinnamon",
+        "wrong": "Brown chai or latte colour; hot mug; whipped cream topping"
+      },
+      {
+        "slug": "jamaica",
+        "name": "Jamaica",
+        "subject": "A tall clear glass of translucent deep ruby-red hibiscus agua fresca over ice cubes, a few dried dark-red hibiscus flowers lying beside the glass.",
+        "mustShow": "See-through deep ruby red over ice; dried hibiscus flowers",
+        "wrong": "Opaque pink smoothie; hot tea in a mug; fresh pink hibiscus blossoms"
+      },
+      {
+        "slug": "mexican-hot-chocolate",
+        "name": "Mexican Hot Chocolate",
+        "subject": "A glazed terracotta clay mug of hot chocolate topped with thick light-brown froth, a carved wooden molinillo whisk resting beside it, a broken wedge of a round Mexican chocolate tablet and a cinnamon stick beside the mug.",
+        "mustShow": "Clay mug with froth; carved wooden molinillo; chocolate tablet wedge",
+        "wrong": "Whipped cream or marshmallows; white ceramic coffee mug; metal whisk"
+      },
+      {
+        "slug": "mezcal",
+        "name": "Mezcal",
+        "subject": "A small, shallow round clay cup (copita) of clear mezcal, two orange slices dusted with red chili-worm salt (sal de gusano) and a small dish of that orange-red salt beside it.",
+        "mustShow": "Clear spirit in a shallow clay copita; orange slices with red salt",
+        "wrong": "Amber whisky colour; tall shot glass with lime and white salt (that reads as tequila); cocktail glass"
+      },
+      {
+        "slug": "tequila",
+        "name": "Tequila",
+        "subject": "A tall, narrow caballito shot glass of clear blanco tequila, a lime wedge and a small pile of coarse white salt beside it.",
+        "mustShow": "Tall narrow shot glass; clear spirit; lime and salt",
+        "wrong": "Margarita or cocktail glass; amber colour; bottle with a label"
+      }
+    ]
+  }
+}

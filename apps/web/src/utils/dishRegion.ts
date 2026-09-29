@@ -29,10 +29,16 @@ const NATIONWIDE = new Set(['nationwide', 'countrywide', 'throughout', 'all over
  * Origins that name a real place no region's tokens cover.
  * Keyed by country id, then by the lowercased origin fragment.
  *
- * This is the residue after token matching, not the primary mechanism. Per the
- * sandbox rule it covers MX/CN/IE only; elsewhere unmatched origins fall through
- * to `orphan`, which still renders.
+ * This is the residue after token matching, not the primary mechanism. It is
+ * code, not content, so it may cover any country; entries outside the sandbox
+ * trio (MX/CN/IE) were added 2026-09-29 only where the geography is
+ * unambiguous (a city or state inside exactly one region). Anything ambiguous
+ * stays an orphan, which Explore files under "Across {country}".
+ *
+ * `NATIONWIDE_ALIAS` resolves an origin to the whole country: for a real place
+ * that no region covers, where any region would be the wrong answer.
  */
+export const NATIONWIDE_ALIAS = '*';
 const REGION_ALIASES: Record<string, Record<string, string>> = {
   CN: {
     hangzhou: 'Jiangnan (Shanghai & Huaiyang)',   // Zhejiang, covered by Jiangnan
@@ -49,6 +55,35 @@ const REGION_ALIASES: Record<string, Record<string, string>> = {
     foynes: 'Munster (Cork & Kerry)',
     cavan: 'Ulster & the North',
   },
+  US: {
+    'central texas': 'The Southwest',
+    texas: 'The Southwest',
+    louisiana: 'The South',
+    kentucky: 'The South',
+    'buffalo, new york': NATIONWIDE_ALIAS,        // no Northeast/Mid-Atlantic region
+  },
+  IT: {
+    rome: 'Central Italy',
+    naples: 'Southern Italy & Sicily',
+    'amalfi coast': 'Southern Italy & Sicily',
+    milan: 'Northern Italy',
+    bologna: 'Northern Italy',
+    veneto: 'Northern Italy',
+  },
+  AZ: { sheki: 'Sheki-Zagatala' },
+  IN: { punjab: 'North India', kashmir: 'North India' },
+  PK: { peshawar: 'Khyber Pakhtunkhwa (Pashtun)', lahore: 'Punjab' },
+  ID: { jakarta: 'Java', 'west java': 'Java', yogyakarta: 'Java', 'central java': 'Java' },
+  MY: { selangor: 'Kuala Lumpur & Central' },
+  FR: { bordeaux: 'Southwest (Gascony & Périgord)' },
+  GR: { thessaloniki: 'Macedonia & Thrace' },
+  NG: {
+    'northern nigeria': 'North (Hausa-Fulani)',
+    'northern nigeria (fulani)': 'North (Hausa-Fulani)',
+    lagos: 'Southwest (Yoruba)',
+  },
+  BR: { 'rio grande do sul': 'The South (Gaúcho Country)' },
+  PT: { porto: 'Minho & Douro', 'douro valley': 'Minho & Douro' },
 };
 
 /** Drop a trailing parenthetical: "Sichuan (Chengdu)" -> "Sichuan". */
@@ -69,8 +104,11 @@ export function regionAliases(region: RegionalCuisine): string[] {
   out.add(main.toLowerCase());
   main.split(SEPARATORS).forEach(part => {
     const p = part.trim().toLowerCase();
-    // "the East" on its own is too generic to match anything usefully.
+    // "the East" on its own is too generic to match anything usefully, but a
+    // longer name keeps its meaning without the article: "the Nile Delta"
+    // also answers to "nile delta", "The West Coast" to "west coast"
     if (p && p.length > 3 && !p.startsWith('the ')) out.add(p);
+    else if (p.startsWith('the ') && p.slice(4).includes(' ')) out.add(p.slice(4));
   });
 
   const inner = region.name.match(/\(([^)]+)\)/);
@@ -122,6 +160,7 @@ export function resolveRegion(
     if (byToken) return { kind: 'region', region: byToken };
 
     const aliased = aliasTable?.[fragment];
+    if (aliased === NATIONWIDE_ALIAS) return { kind: 'nationwide' };
     if (aliased) {
       const target = regions.find(r => r.name === aliased);
       if (target) return { kind: 'region', region: target };

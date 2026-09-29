@@ -17,7 +17,8 @@ import { PersonalFlavorFingerprint } from './PersonalFlavorFingerprint';
  * "My profile" whether or not you're signed in; signing in is one section
  * inside it.
  */
-export function ProfileButton() {
+/** `compact`: icon-only below md (a 44px circle), so a busy header stays one row. */
+export function ProfileButton({ compact = false }: { compact?: boolean } = {}) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -32,11 +33,12 @@ export function ProfileButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 text-sm rounded-full border px-3 py-1.5 transition-colors hover:opacity-80"
+        aria-label={compact ? 'My profile' : undefined}
+        className={`flex items-center gap-2 text-sm rounded-full border px-3 py-1.5 transition-colors hover:opacity-80 ${compact ? 'max-md:w-11 max-md:h-11 max-md:px-0 max-md:justify-center' : ''}`}
         style={{ borderColor: systemColors.border, color: systemColors.navy, backgroundColor: systemColors.surface }}
       >
-        <span style={{ color: systemColors.tomato }}>✦</span>
-        My profile
+        <span style={{ color: systemColors.tomato }} aria-hidden={compact || undefined}>✦</span>
+        {compact ? <span className="max-md:hidden">My profile</span> : 'My profile'}
       </button>
 
       {/* Backdrop */}

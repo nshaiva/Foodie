@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Beverage, DietaryInfo, Dish } from '../data/types';
+import { dishCourse, type Course } from '../utils/course';
 
 export type ViewFilter = 'all' | 'tried' | 'want';
 /**
@@ -33,6 +34,16 @@ export function useDishFilters() {
   const [dessertOnly, setDessertOnly] = useState(false);
   const [bevType, setBevType] = useState<BevFilter>('any');
   const [served, setServed] = useState<ServedFilter>('any');
+  // Explore's Course group (#39). Any number may be on; empty means all.
+  // The country page never sets it, so its behaviour is unchanged.
+  const [course, setCourse] = useState<Course[]>([]);
+  const courseActive = course.length > 0;
+  const toggleCourse = (c: Course) => {
+    const on = course.includes(c);
+    setCourse(on ? course.filter(x => x !== c) : [...course, c]);
+    // The drink sub-filters live under Drinks; they go when it does
+    if (c === 'drinks' && on) { setBevType('any'); setServed('any'); }
+  };
 
   const dietMatch = (d?: DietaryInfo) =>
     (!diet.veg || !!(d?.isVegetarian || d?.isVegan)) &&
@@ -53,7 +64,9 @@ export function useDishFilters() {
   };
 
   const matchesDish = (dish: Dish) => {
-    if (drinkOnlyActive) return false;
+    // Under a course choice the drink sub-filters narrow drinks only
+    if (drinkOnlyActive && !courseActive) return false;
+    if (courseActive && !course.includes(dishCourse(dish))) return false;
     if (spice !== 'any') {
       const level = dish.spiceLevel;
       if (!level) return false;
@@ -71,6 +84,7 @@ export function useDishFilters() {
   };
 
   const matchesBeverage = (bev: Beverage) => {
+    if (courseActive && !course.includes('drinks')) return false;
     if (foodOnlyActive) return false;
     if (bevType !== 'any' && bev.type !== 'both' && bev.type !== bevType) return false;
     if (served !== 'any') {
@@ -85,7 +99,7 @@ export function useDishFilters() {
 
   /** Custom user entries carry no metadata, so any refinement hides them. */
   const refinementActive =
-    foodOnlyActive || drinkOnlyActive || diet.veg || diet.vegan || diet.gf;
+    foodOnlyActive || drinkOnlyActive || diet.veg || diet.vegan || diet.gf || courseActive;
 
   const activeFilterCount = useMemo(
     () =>
@@ -98,8 +112,8 @@ export function useDishFilters() {
         dessertOnly,
         bevType !== 'any',
         served !== 'any',
-      ].filter(Boolean).length,
-    [diet, spice, popularity, dessertOnly, bevType, served]
+      ].filter(Boolean).length + course.length,
+    [diet, spice, popularity, dessertOnly, bevType, served, course]
   );
 
   const reset = () => {
@@ -111,6 +125,7 @@ export function useDishFilters() {
     setDessertOnly(false);
     setBevType('any');
     setServed('any');
+    setCourse([]);
   };
 
   return {
@@ -122,6 +137,7 @@ export function useDishFilters() {
     dessertOnly, setDessertOnly,
     bevType, setBevType,
     served, setServed,
+    course, toggleCourse,
     matchesDish, matchesBeverage, matchesText,
     refinementActive, activeFilterCount, reset,
   };

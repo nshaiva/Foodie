@@ -137,3 +137,30 @@ export const FLAVOR_MATCH_GRADIENT = `linear-gradient(to right, ${FLAVOR_MATCH_S
 // Outline for already-logged countries on the flavor-match layer —
 // mid-slate, softer than ink against the pale end of the ramp
 export const FLAVOR_MATCH_LOGGED_STROKE = '#647E8E';
+
+// ---- Cuisine map (world view, 2026-09-29 preview): quiet sand by default,
+// and a cuisine takes on its own colour as you eat from it — a soft tint
+// that deepens with progress, full strength on hover.
+const CUISINE_SAND = '#E4D9C5';
+const CUISINE_GREY = '#E7E6E2';
+const CUISINE_GREY_HOVER = '#E0DFDB';
+const MAP_PAPER = '#F7F3EC';
+// A few palette primaries are too loud (or pure black) to sit on the map;
+// the map uses these muted stand-ins. The rest of the app keeps the originals.
+const MAP_TONE_OVERRIDES: Record<string, string> = { AF: '#7A3B2E', IN: '#B5712F', AZ: '#2E6E84', PK: '#2F5B3C' };
+
+export const cuisineMapTone = (id: string, primary: string) => MAP_TONE_OVERRIDES[id] ?? primary;
+
+export function getCuisineFillColor(
+  state: ActivityState,
+  isHovered: boolean,
+  /** The cuisine's own colour, from `cuisineMapTone` */
+  tone?: string,
+  /** 0-100, % of popular dishes tried */
+  depth?: number,
+): string {
+  if (state === 'noProfile' || !tone) return isHovered ? CUISINE_GREY_HOVER : CUISINE_GREY;
+  if (isHovered) return lerpHex(tone, MAP_PAPER, 0.28);
+  if (state === 'hasDishes') return lerpHex(CUISINE_SAND, tone, 0.22 + 0.5 * Math.max(0, Math.min(100, depth ?? 0)) / 100);
+  return CUISINE_SAND;
+}
