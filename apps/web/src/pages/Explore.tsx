@@ -68,11 +68,6 @@ const PANEL_GAP = 12;
 // same expressions, so classes and finger math can never disagree.
 /** Fraction of the map left visible above the sheet at half (the sheet's top sits at 48%). */
 const SHEET_HALF = 0.48;
-const SHEET_Y = {
-  strip: 'calc(100% - 54px - env(safe-area-inset-bottom,0px))',
-  half: '48%',
-  full: '0px',
-} as const;
 
 type Scope =
   | { level: 'world' }
@@ -219,13 +214,6 @@ export function Explore() {
   // dish plate, or the tab itself brings it back.
   const [panelOpen, setPanelOpen] = useState(false);
   const panelOpenRef = useRef(panelOpen);
-  const sheetDrag = useRef<{ y: number; moved: boolean } | null>(null);
-  const sheetSwiped = useRef(false);
-  const panelPull = useRef<{ y: number; atTop: boolean } | null>(null);
-  const sheetStep = (dir: 1 | -1) => setSheetPos(p => {
-    const order = ['strip', 'half', 'full'] as const;
-    return order[Math.min(2, Math.max(0, order.indexOf(p) + dir))];
-  });
   // How many CSS px one viewBox unit paints at (the SVG is width-fit, so a
   // 390px phone renders the 800-unit viewBox at ~0.49). Lettering sized in
   // viewBox units alone halves on a phone; the boost cancels that, so region
@@ -997,47 +985,17 @@ export function Explore() {
             sheetPos === 'strip' ? 'max-md:translate-y-[calc(100%-54px-env(safe-area-inset-bottom,0px))]' : sheetPos === 'half' ? 'max-md:translate-y-[48%]' : 'max-md:translate-y-0'
           }`}
           style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}
-          onTouchStart={e => { panelPull.current = { y: e.touches[0].clientY, atTop: (panelRef.current?.scrollTop ?? 0) <= 0 }; }}
-          onTouchEnd={e => {
-            const pull = panelPull.current; panelPull.current = null;
-            if (!pull || !pull.atTop || sheetPos === 'strip') return;
-            // The list is at its top and the finger pulled down: hand the
-            // gesture to the sheet, so collapsing never fights the scroll
-            if (e.changedTouches[0].clientY - pull.y > 70 && (panelRef.current?.scrollTop ?? 0) <= 0) sheetStep(-1);
-          }}
         >
-          {/* The strip: grab handle + scope title. Drag, swipe or tap to move the sheet. */}
+          {/* The strip: the scope title. Taps only, no dragging: the strip opens
+              the sheet, the header's controls close it or expand it. */}
           <div
-            className="md:hidden sticky top-0 z-10 -mx-5 px-5 pt-2 pb-2 select-none"
-            style={{ backgroundColor: systemColors.seaSalt, touchAction: 'none' }}
-            onTouchStart={e => { e.stopPropagation(); sheetDrag.current = { y: e.touches[0].clientY, moved: false }; }}
-            onTouchMove={e => {
-              const d = sheetDrag.current, el = panelRef.current;
-              if (!d || !el) return;
-              let dy = e.touches[0].clientY - d.y;
-              if (Math.abs(dy) > 4) d.moved = true;
-              // Rubber-band past the ends instead of leaving the screen
-              if (sheetPos === 'full') dy = Math.max(dy, -24);
-              if (sheetPos === 'strip') dy = Math.min(dy, 24);
-              el.style.transition = 'none';
-              el.style.transform = `translateY(calc(${SHEET_Y[sheetPos]} + ${dy}px))`;
-            }}
-            onTouchEnd={e => {
-              const d = sheetDrag.current, el = panelRef.current;
-              sheetDrag.current = null;
-              if (!d || !el) return;
-              el.style.transition = ''; el.style.transform = '';
-              const dy = e.changedTouches[0].clientY - d.y;
-              if (d.moved) { sheetSwiped.current = true; window.setTimeout(() => { sheetSwiped.current = false; }, 400); }
-              if (dy < -50) { if (sheetPos === 'strip') raiseFromStrip(); else sheetStep(1); } else if (dy > 50) sheetStep(-1);
-            }}
-            onClick={() => {
-              if (sheetSwiped.current) return;
-              if (sheetPos === 'strip') raiseFromStrip();
-              else setSheetPos(p => (p === 'full' ? 'half' : 'full'));
-            }}
+            className="md:hidden sticky top-0 z-10 -mx-5 px-5 py-2 select-none"
+            style={{ backgroundColor: systemColors.seaSalt }}
+            onClick={() => { if (sheetPos === 'strip') raiseFromStrip(); }}
+            role={sheetPos === 'strip' ? 'button' : undefined}
+            tabIndex={sheetPos === 'strip' ? 0 : undefined}
+            onKeyDown={e => { if (sheetPos === 'strip' && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); raiseFromStrip(); } }}
           >
-            <div className="mx-auto mb-2 h-1 w-10 rounded-full" style={{ backgroundColor: systemColors.border }} />
             <div className="flex items-center gap-2 text-sm font-bold" style={{ color: systemColors.navy }}>
               {scope.level !== 'world' && <PlateDot color={scope.country.colorPalette.primary} size={12} />}
               <span>{scope.level === 'world' ? `${countries.length} cuisines` : scope.level === 'country' ? scope.country.name : regionLabelName(scope.region.name)}</span>
@@ -1047,16 +1005,28 @@ export function Explore() {
               {sheetPos === 'strip' ? (
                 <span className="ml-auto text-base leading-none" style={{ color: systemColors.navyMuted }}>⌃</span>
               ) : (
-                <button
-                  type="button"
-                  aria-label="Close panel"
-                  className="ml-auto -my-3 -mr-3 w-11 h-11 flex items-center justify-center rounded-full"
-                  style={{ color: systemColors.navyMuted }}
-                  onTouchStart={e => e.stopPropagation()}
-                  onClick={e => { e.stopPropagation(); setSheetPos('strip'); }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-                </button>
+                <span className="ml-auto -my-3 -mr-3 flex items-center">
+                  <button
+                    type="button"
+                    aria-label={sheetPos === 'full' ? 'Show more map' : 'Expand panel'}
+                    className="w-11 h-11 flex items-center justify-center rounded-full"
+                    style={{ color: systemColors.navyMuted }}
+                    onClick={e => { e.stopPropagation(); setSheetPos(p => (p === 'full' ? 'half' : 'full')); }}
+                  >
+                    {sheetPos === 'full'
+                      ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 14L4 20M4 20v-5M4 20h5M14 10l6-6M20 4v5M20 4h-5" /></svg>
+                      : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 10l6-6M20 4v5M20 4h-5M10 14l-6 6M4 20v-5M4 20h5" /></svg>}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Close panel"
+                    className="w-11 h-11 flex items-center justify-center rounded-full"
+                    style={{ color: systemColors.navyMuted }}
+                    onClick={e => { e.stopPropagation(); setSheetPos('strip'); }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  </button>
+                </span>
               )}
             </div>
           </div>
