@@ -29,7 +29,7 @@ country on the map, see what its food is like, browse its dishes by region,
 save what you want to try, log what you tried. Rows below carry a **🚩 MVP**
 tag.
 
-**The restaurant flow ships as-is, frozen.** The at-the-restaurant view and
+**The restaurant flow ships decluttered, otherwise frozen.** Its declutter was pulled into MVP 2026-09-30 and shipped as "Order well" (see Built). The at-the-restaurant view and
 menu lookup are already built and stay in the app for MVP, but get no
 redesign: their only MVP changes are #40's heart removal and a visible entry
 to them from the new Explore home (#41). Rethinking that whole flow is the
@@ -121,7 +121,7 @@ gate). Next tier starts below.
 
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
-| 42 | **Rethink the restaurant flow** (first after MVP) | Added 2026-09-28 from Nikita: the at-the-restaurant view needs its own end-to-end user-flow pass, separate from regional exploration. It ships in MVP as-is (only #40's heart removal touches it). Carry into that pass: it still has the full card clutter (every chip plus save buttons), and the proposal from the #39 review is **2A rows** (small image + name + tagline, dense and fast), two dish states, one-tap logging kept, text loading first with images lazy on weak cellular so the view never waits on an image. | Discuss first |
+| 42 | **Rethink the restaurant flow** (first after MVP) | Added 2026-09-28 from Nikita: the at-the-restaurant view needs its own end-to-end user-flow pass, separate from regional exploration. **The declutter half shipped 2026-09-30 as "Order well" (see Built)**, pulled into MVP by Nikita; the flow pass stays after MVP. Still to do in that pass: the end-to-end flow itself (entry, cuisine, menu search, log), whether the in-place expansion should become #39's shared dish detail, and text loading first with images lazy on weak cellular so the view never waits on an image. | Discuss first |
 
 ## Tier 3 — Later (bigger or lower-leverage)
 
@@ -272,6 +272,31 @@ Unverified on a real phone: whether the filter rail's edge fade reads as
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Order well: the restaurant view decluttered (part of #42, pulled into
+  MVP)** (2026-09-30, G1) — the primary-thesis screen, made scannable at a
+  table. One name in all three places (the Home/Explore button, the cuisine
+  picker, the list title): **"Order well"**, chosen by Nikita over "What to
+  order" and "At a restaurant?". **The list:** each dish is one row in a
+  single surface with hairlines: rank, name, pronunciation, and only your
+  status (nothing, a bookmark, or ✓ ★n in the same marker Explore's tiles
+  use). About 7 dishes per phone screen, up from 2. A tap opens the row in
+  place with the dish shown the way Explore's detail shows it: illustration
+  (or the tinted plate placeholder), "category · region", the tagline,
+  toned text chips (heat terracotta, diet sage, the rest neutral), the full
+  description, why it ranks here, then want to try / "+ I tried this" →
+  rating / edit / delete. **No one-tap log button on the row**: a bare ✓
+  read as a symbol without a sentence (Nikita), so every action lives in
+  the opened row, matching #39. Drinks use the same rows; "Not on the menu?"
+  moved to the bottom; menu search and the AI lookup are unchanged. **The
+  picker:** rows grouped by the same eight culinary regions as Home, no
+  per-card borders or arrows, "Your cuisines" (countries you've logged in,
+  most recent first) on top, a soft search focus ring. Search still returns
+  a flat list. **Also:** the screen scrolls to the top when the cuisine
+  changes (the router had been keeping the picker's scroll offset). New
+  `components/DishBlurb.tsx` (image + meta + tagline + chips + description,
+  reusing Explore's `DishImage`); `UnifiedDishCard` gained a `bare` prop so
+  the row can host its tried/rating machinery without card chrome.
+  Verified at 390px headless; on-device check by Nikita.
 - **Explore panel declutter (was #39)** (2026-09-29, G1/G2) — the Explore
   side panel (phone: bottom sheet) now follows the map's levels, built from
   the [Explore Declutter canvas](https://claude.ai/artifact/8ay856PGkaFfkxcwo8aRzm).

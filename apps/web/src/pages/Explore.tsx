@@ -693,15 +693,15 @@ export function Explore() {
 
   return (
     <div className="h-dvh flex flex-col" style={{ backgroundColor: systemColors.seaSalt }}>
-      {/* One row on a phone: a short restaurant label, icon-only profile, 44px targets */}
+      {/* One row on a phone: one short restaurant label, icon-only profile, 44px targets */}
       <AppBar actions={<span className="flex items-center gap-1.5 md:gap-4">
         <Link
           to="/restaurant"
-          aria-label="At a restaurant?"
+          aria-label="Order well"
           className="btn-press text-sm font-semibold text-white px-3 md:px-3.5 max-md:h-11 max-md:inline-flex max-md:items-center py-2 rounded-lg whitespace-nowrap"
           style={{ backgroundColor: systemColors.tomato }}
         >
-          🍽 <span className="md:hidden">Order help</span><span className="max-md:hidden">At a restaurant?</span>
+          🍽 Order well
         </Link>
         <Link
           to="/wishlist"
