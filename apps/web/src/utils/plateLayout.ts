@@ -11,7 +11,7 @@ import { entryView } from './entryView';
  */
 
 export const PLATE_R = 21; // plate radius in screen px
-export const WORLD_R = 17;
+export const WORLD_R = 10; // world zoom: a pin that marks the cuisine, not a picture of it
 export const COUNTRY_R = 15; // country-zoom plates, tucked under the region name
 const NEIGHBOUR_OPACITY = 0.7; // other regions' plates while one region is open
 

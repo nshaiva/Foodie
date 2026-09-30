@@ -27,7 +27,7 @@ import { plateLayout, signature, acrossAt, PLATE_R, WORLD_R, COUNTRY_R, type Pla
  * Only dishes and drinks with an `image` show; the list has the rest.
  */
 
-function Plate({ entry, at, lift, k, badge, label, onClick, id, stem = false, r: R = PLATE_R, opacity, compact = false, leaving = false }: {
+function Plate({ entry, at, lift, k, badge, label, onClick, id, stem = false, r: R = PLATE_R, opacity, compact = false, leaving = false, world = false }: {
   entry: Entry; at: [number, number]; lift: [number, number]; k: number;
   badge?: number; label: string; onClick: () => void; id: string;
   /** Draw a stem down to a dot on the exact point (region zoom only). */
@@ -39,6 +39,8 @@ function Plate({ entry, at, lift, k, badge, label, onClick, id, stem = false, r:
   compact?: boolean;
   /** Fading out: it lost its room or left the screen. */
   leaving?: boolean;
+  /** World-zoom pin: no shadow, a thinner rim. */
+  world?: boolean;
 }) {
   const v = entryView(entry);
   const [dx, dy] = lift;
@@ -50,14 +52,14 @@ function Plate({ entry, at, lift, k, badge, label, onClick, id, stem = false, r:
           <circle r={2.6} fill={systemColors.navy} />
         </>}
         <g transform={`translate(${dx} ${dy})`}>
-          <g className={['map-plate', compact && 'map-plate--compact', leaving && 'map-plate--out'].filter(Boolean).join(' ')} role="button" tabIndex={0} aria-label={label} data-plate={v.name}
+          <g className={['map-plate', compact && 'map-plate--compact', leaving && 'map-plate--out', world && 'map-plate--world'].filter(Boolean).join(' ')} role="button" tabIndex={0} aria-label={label} data-plate={v.name}
             onClick={e => { e.stopPropagation(); onClick(); }}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
             style={{ cursor: 'pointer' }}>
-            <ellipse className="map-plate-shadow" cx={0} cy={R + 9} rx={R * 0.7} ry={3.5} fill={systemColors.navy} opacity={0.2} />
+            {!world && <ellipse className="map-plate-shadow" cx={0} cy={R + 9} rx={R * 0.7} ry={3.5} fill={systemColors.navy} opacity={0.2} />}
             <g className="map-plate-disc">
               <defs><clipPath id={id}><circle r={R} /></clipPath></defs>
-              <circle r={R + 2.5} fill="#fff" />
+              <circle r={R + (world ? 1.5 : 2.5)} fill="#fff" />
               <image href={v.image} x={-R * 1.95} y={-R * 1.95 * (2 / 3)} width={R * 3.9} height={R * 3.9 * (2 / 3)} preserveAspectRatio="xMidYMid slice" clipPath={`url(#${id})`} />
               {badge ? <g transform={`translate(${R * 0.78} ${-R * 0.78})`}>
                 <circle r={9} fill={systemColors.tomato} stroke="#fff" strokeWidth={2} />
@@ -116,7 +118,7 @@ export function WorldPlates({ countries, features, projection, zoom, labelScale,
         // take over once the camera lands (see MapPlates)
         if (c.id === scopedId) return null;
         const opacity = 1;
-        return <Plate key={c.id} id={`plate-w-${c.id}`} entry={sig} at={at} lift={[0, 0]} k={k} r={WORLD_R} opacity={opacity} compact
+        return <Plate key={c.id} id={`plate-w-${c.id}`} entry={sig} at={at} lift={[0, 0]} k={k} r={WORLD_R} opacity={opacity} compact world
           label={`${c.name} · ${entryView(sig).name}`} onClick={() => onOpenCountry(c.id)} />;
       })}
     </g>
