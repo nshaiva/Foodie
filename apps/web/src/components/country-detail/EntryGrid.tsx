@@ -10,7 +10,8 @@ import type { Entry } from '../../utils/groupDishes';
 
 export interface EntryGridActions {
   countryId: string;
-  onAddDish: (input: { countryId: string; name: string; kind?: 'food' | 'drink' }) => void;
+  /** Returns the logged entry where the caller has it, so a rating prompt can target it. */
+  onAddDish: (input: { countryId: string; name: string; kind?: 'food' | 'drink' }) => UserDish | void;
   onUpdateDish: (id: string, updates: Partial<UserDish>) => void;
   onDeleteDish: (id: string) => void;
   onAddRestaurantTry: (dishId: string, entry: Omit<RestaurantTry, 'id'>) => void;

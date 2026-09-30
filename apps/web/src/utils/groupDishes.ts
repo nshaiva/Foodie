@@ -25,6 +25,12 @@ export interface Group {
   isBucket?: boolean;
 }
 
+/** Country names that read with "the" in a sentence ("Across the United States"). */
+const TAKES_THE = new Set(['United States', 'United Kingdom', 'Philippines', 'Netherlands', 'United Arab Emirates', 'Czech Republic', 'Dominican Republic']);
+export function countryInSentence(name: string): string {
+  return TAKES_THE.has(name) ? `the ${name}` : name;
+}
+
 export function entryName(entry: Entry): string {
   if (entry.kind === 'dish') return entry.dish.name;
   if (entry.kind === 'drink') return entry.drink.name;
@@ -67,7 +73,14 @@ function categoryOf(entry: Entry): { id: string; label: string } {
 export function groupEntries(
   entries: Entry[],
   lens: Lens,
-  ctx: { regions?: RegionalCuisine[]; countryId: string; countryName: string }
+  ctx: {
+    regions?: RegionalCuisine[];
+    countryId: string;
+    countryName: string;
+    /** File unmatched origins under "Across {country}" instead of an
+     *  "Elsewhere" header (Explore). The miss is still logged in dev. */
+    orphansAcross?: boolean;
+  }
 ): Group[] {
   if (lens === 'none') {
     return [{ id: 'all', label: '', entries }];
@@ -108,14 +121,18 @@ export function groupEntries(
     const source = entry.kind === 'dish' ? entry.dish : entry.drink;
     const match = resolveRegion(source, regions, ctx.countryId);
     if (match.kind === 'region') byName.get(match.region.name)?.entries.push(entry);
-    else if (match.kind === 'orphan') elsewhere.push(entry);
+    else if (match.kind === 'orphan' && !ctx.orphansAcross) elsewhere.push(entry);
+    else if (match.kind === 'orphan') {
+      if (import.meta.env.DEV) console.warn(`[groupEntries] ${ctx.countryId}: no region matches origin "${match.origin}" (${entryName(entry)}); filed under Across ${countryInSentence(ctx.countryName)}`);
+      everywhere.push(entry);
+    }
     else everywhere.push(entry);
   });
 
   if (everywhere.length) {
     groups.push({
       id: '__everywhere',
-      label: `Across ${ctx.countryName}`,
+      label: `Across ${countryInSentence(ctx.countryName)}`,
       entries: everywhere,
       isBucket: true,
     });

@@ -1,5 +1,6 @@
 import { useLocalStorage } from './useLocalStorage';
 import type { WishlistItem } from '../data/types';
+import { newId } from '../utils/newId';
 
 export function useWishlist() {
   const [wishlist, setWishlist] = useLocalStorage<WishlistItem[]>('foodie-wishlist', []);
@@ -12,7 +13,7 @@ export function useWishlist() {
 
     const newItem: WishlistItem = {
       ...item,
-      id: crypto.randomUUID(),
+      id: newId(),
       createdAt: new Date().toISOString(),
     };
     setWishlist(prev => [...prev, newItem]);

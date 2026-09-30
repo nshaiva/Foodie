@@ -43,8 +43,8 @@ Work top to bottom. A step starts once the steps it depends on are done.
 1. ✅ **#40 Two dish states**: shipped 2026-09-29 (see Built).
 2. **#36 Image style pilot**: alongside #40. Mexico only; mostly waiting on
    Nikita's style pick.
-3. **#39 Explore panel declutter**: needs #40's states and #36's Mexico images
-   and taglines.
+3. ✅ **#39 Explore panel declutter**: shipped 2026-09-29 (see Built); real
+   dish images drop in as #36/#37 produce them.
 4. **#38 Region image preview**: nearly free after #39 (the tile strip exists).
 5. ✅ **#41 Explore becomes the home page**: shipped 2026-09-29 (see Built);
    deleting the now-unrouted `Home.tsx` / `CountryDetail.tsx` is a follow-up.
@@ -71,7 +71,7 @@ Work top to bottom. A step starts once the steps it depends on are done.
   every country in one run, stop and ask instead.
 
 - **Shipped from the first cut:** #3 menu lookup, #24, #31, #32, #33.
-- **Shipped from this cut (2026-09-29):** #34 + #6, #40, #41.
+- **Shipped from this cut (2026-09-29):** #34 + #6, #40, #41, #39.
 - **Not MVP:** #42 restaurant flow redesign (first after MVP), #29, #1, #4
   (the feature; its `keySpices` data may optionally ride #9), #7, #19, #35,
   all of Tier 3, the inbox.
@@ -92,7 +92,6 @@ gate). Next tier starts below.
 | 36 | **Dish image style pilot** 🚩 MVP (do now) | Added 2026-09-28 from Nikita. At the table you're matching the menu, the plates going past and your mood; a picture answers "what is this?" faster than 200 characters of prose. **Risk:** photo-real AI images of real dishes can be confidently wrong (wrong garnish, colour, a generic "Asian noodle" look), and that misleads at exactly the moment the app must be trustworthy. Image models are known to flatten non-Western dishes. **Recommendation: an illustrated style** (watercolor or flat editorial) that reads as a depiction rather than evidence, forgives small inaccuracies, keeps every country consistent and fits the plate-dot brand. Alternative considered: real photos from Wikimedia Commons / Unsplash (accurate, but style varies and licensing is tracked per image). **Pilot scope:** Mexico (sandbox rule: MX/CN/IE only), ~13 dishes. Generate the same 3–4 dishes in 2–3 styles and pick one with Nikita before anything else. Build the card layout: image + a one-line **`tagline`** (~60–80 chars) on the card, with the existing longer description behind a tap. Keep the long text, since it is the "teach me what I'm eating" half of the thesis. Images lazy-load, use a fixed aspect ratio (no layout shift), fall back to the plate dot when missing, and carry a quiet "Illustration" label (menu lookup already labels AI output). Check on a real phone whether cards with images get too tall. **Card layout is now set by #39** (2B image tiles in Explore, rows in the restaurant view; see the [Explore Declutter canvas](https://claude.ai/artifact/8ay856PGkaFfkxcwo8aRzm)); judge the style candidates at tile size, since that is where they'll be seen largest. **Prep done 2026-09-28:** [`docs/design/image-style-pilot.md`](../design/image-style-pilot.md) has the 13 Mexico taglines and the rules for writing them, the style brief (constants, sizes, 3:2 master with a central-square safe area), three candidate styles (watercolor / flat editorial / ink and gouache), 12 ready-to-paste prompts (4 dishes × 3 styles), an accuracy checklist for each dish, and the scoring for choosing a style. Next: Nikita runs the 12 prompts (one image each), then we pick. | S–M (code + small content job) |
 | 37 | **Images + taglines for every dish** 🚩 MVP — rides #9 | Added 2026-09-28. **Only after #36's style is signed off.** **Re-scoped 2026-09-28: dishes only for MVP, ~20 per country × 31 ≈ 620 images**; drinks keep the placeholder tile until after MVP. Generated **in #9's waves, never all at once** (sandbox trio → ≈5 countries → the rest, with a cost estimate and Nikita's go before each wave; see the MVP cost guardrail). Money is not the real cost (a few cents per image). **Reviewing ~620 images for accuracy is**, which is why the style choice matters: illustrations need a lighter review than photo-real images. `tagline` is generated in the same #9 prompt, with the no-em-dash rule. Hosting: compressed images at ~40KB each come to ~40MB, which is fine as static assets on Vercel, or in Supabase Storage. | Content batch + review, inside #9 |
 | 38 | **Region image preview** 🚩 MVP | Added 2026-09-28 from Nikita. In the regional view, a strip of dish thumbnails under a region's name, so "this is where the stews are" reads at a glance and a region feels like a place instead of a list. Lands in both the production region focus (`RegionalMap` / region section header) and the `/explore` trial, where the phone's bottom-sheet strip is the natural home for thumbnails. The layout can be prototyped on #36's Mexico images; it only becomes useful everywhere once #37 runs. | S (after #36) |
-| 39 | **Explore panel declutter: the panel follows the map's levels** 🚩 MVP | Added 2026-09-28 from Nikita, looking at Mexico in `/explore`: the side panel is three screens at once (cuisine overview, dish browser, logging tools), with summary, flavor chips, search, Filters, Grouped by, region cards and dense dish cards all visible together. **Prototype:** [Explore Declutter canvas](https://claude.ai/artifact/8ay856PGkaFfkxcwo8aRzm) (11 clickable screens, desktop panel + phone sheet, Mexico content), with a copy in [`docs/design/prototypes/explore-declutter/`](../design/prototypes/explore-declutter/); the green "Decisions" note on the canvas holds the record below. **Decided 2026-09-28 with Nikita:** (a) **Overview = 1B, signature dishes first**: a "Start with these" strip of 4 dish images, then a compact flavor block (small radar + axis bars), then a one-paragraph culture teaser. Chosen over 1A (radar first) because images are easier to take in than a radar at first glance. A **"See all N ›" link sits at the right of the strip's header** (chosen over a "+9 more" last tile, so all four tiles stay real dishes and it matches "Open region ›"), and the fixed "See all N dishes" button stays at the bottom, so there's an entry at the top and bottom of the panel. (b) **Dish list = 2B, two-across image tiles, for Explore.** Explore is browsing, and a 64px thumbnail is an icon, not a picture. **2A's rows remain the pattern for the at-the-restaurant view and search results**, where density and speed matter. Conditions on 2B: clamp taglines to 2 lines and give the name a fixed height so tiles align; a one-dish region either accepts the half row or spans the full width; **make the final call once #36 has real Mexico illustrations**, and fall back to 2A if they read muddy at tile size. **Direction as first proposed (the rest still stands):** the panel mirrors the map's World › Country › Region hierarchy. (1) **Country = an overview:** one-line summary, flavor chips, the fingerprint radar, food culture below it, and one clear **"See all N dishes →"** button. No search, no filters, no cards. Candidate: a strip of 4–5 signature-dish images above the radar (#38's strip used at country level), because the radar alone is abstract to a newcomer. The AppBar's "Flavor fingerprint" / "Food culture" pills become redundant in `/explore` and go. (2) **All dishes:** the full list, **always grouped by region**. The "Grouped by" control is removed from Explore, since Type grouping is a restaurant question and lives in the at-the-restaurant view. (3) **Region** (map click or header tap): skips the overview and lands on that region's dishes, as today. Breadcrumb and back step up one level. **Region heading is a title, not a card:** name in the map's italic serif, one line of description, inline flavor chips, key ingredients behind "more", no border or background. **Cards:** image + name + `tagline` (#36), plus only the status markers you've set (bookmark, or ✓ + stars; see #40). Unset states and the "+ I tried this" button leave the card. The category plate dot goes (it repeats "Main"). Diet chips show only when they matter to your saved diet prefs (a match or a conflict). **Tap a card → dish detail view** (side sheet on desktop, bottom sheet on phone): large image, full description, chips, Want to try / I tried this → rate, and (confirmed 2026-09-28) the edit ✏️ and delete 🗑 controls, which also leave the card, so every action lives in one place. Logging speed is unaffected where it matters, because the restaurant view keeps one-tap logging. **Filters:** only on the All-dishes level; one compact row (a search icon that expands, a filter icon with a count badge, active filters as removable chips only when set); consider applying saved diet prefs by default as a visible, clearable chip. **Phone:** fits the three-snap sheet: strip "Mexico · 13 dishes", half = overview, full = list, with the detail view over all three. Build together with #36 (the card redesign and the image pilot are one piece of work). **Locality line (added 2026-09-28):** when a dish has #9's optional `locality`, the dish detail view reads "From Puebla · Central Mexico", and the tile may show it as a small meta line. This gives most of the "more specific as you go deeper" feeling with no new map level (see the inbox note on regional specificity). | M |
 
 ### G2 🗺 Track & explore world cuisines
 
@@ -215,6 +214,8 @@ move it; the breadcrumb's current crumb also raises it. Decided with Nikita
 
 Quick captures land here; ranked into tiers during roadmap reviews.
 
+- **Dish plates on the map, world to city** — added 2026-09-29 from Nikita, from the Mexico map-plates preview (`MapPlates.tsx` in the explore-declutter worktree; design options in the [Dishes on the Map artifact](https://claude.ai/artifact/V6cqkwcAV7u5tstFBph6vj)). Dish illustrations float over the map at every zoom: at **world** zoom one small signature plate per country (its most popular illustrated dish), handing over to **one plate per region** at country zoom (plus an "Across {country}" stack at sea for nationwide dishes), then **plates on stems over home cities** inside a region (new optional `origin` field: place + coordinates). Plates fade as a country shrinks on screen, so zooming out never buries a small country. **Preview built for Mexico only.** Before it goes wider: crowding rules for the world view (Europe, Balkans, Southeast Asia: show a plate only where it doesn't overlap a neighbour; bigger or more-explored countries win, the rest appear on zoom); images for many countries (#36/#37); a decision on how world plates coexist with the map's tried / want / flavor-match colouring; possibly personal state on plates (✓ on tried cuisines, or your own top-rated dish). Serves the secondary thesis goal of where cuisines sit in the world. (G2)
+
 - **Regional specificity: split regions over time, no click-through state level** — discussed 2026-09-28 with Nikita. Idea: a third map level (country → region → state) so every click adds specificity, e.g. chana masala → North India → Punjab. **Decided against it as navigation:** at ~20 dishes per country a state holds 1–2 dishes, so each click narrows to a near-empty screen; users browsing rarely drill three levels; state borders for 31 countries plus a third camera threshold is L effort; and many countries (Ireland, Jamaica, Georgia) have no state-level food identity. **What we took instead:** regions drawn where the food changes (#9's region design step) plus an optional `locality` line on dishes (#9, shown by #39). **Regions can be split later without migrating user data**, because a dish's region is resolved from its origin text at read time and never stored with a log; the costs are new `regionMapConfig.ts` coordinates and redirects for old region slugs. Revisit grouping by locality inside a region view (S–M) alongside #29's deeper content. (G2/G4)
 - **Flavor geography: how cuisine changes across a map** — parked 2026-08-23. Analysis in [`designs/flavor-geography.md`](designs/flavor-geography.md), written while choosing the #30 map groupings and kept because the findings outlive that decision. Measured over the six flavor axes: a random pair of the 31 countries sits **5.84** apart; Africa as one group scores **6.48** (worse than random), while **USA + Brazil + Argentina scores 2.31**, the tightest cluster in the data — a grill belt that doesn't touch. Morocco through the Caucasus scores 3.66, tighter than Europe. Four feature ideas fall out: a per-axis gradient map layer (heat belt, acidity belt), neighbour comparison on a country page, a "flavor journey" walking the line between two cuisines, and surfacing discontiguous kinship. Serves the thesis goal of *how cuisines relate to each other*, which nothing currently answers. **Low priority** — parked as ideas, not ranked. (G2/G3)
 - **Wishlist map layer** — third layer for the home map toggle (Explored / Flavor Match / **Wishlist**): countries shaded by how many want-to-try dishes you've bookmarked there. The layer plumbing already exists from flavor match. (G2)
@@ -271,6 +272,84 @@ Unverified on a real phone: whether the filter rail's edge fade reads as
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Explore panel declutter (was #39)** (2026-09-29, G1/G2) — the Explore
+  side panel (phone: bottom sheet) now follows the map's levels, built from
+  the [Explore Declutter canvas](https://claude.ai/artifact/8ay856PGkaFfkxcwo8aRzm).
+  Tested at 390×844 touch and 1440×900 in headless Chromium; **real-phone
+  check still owed**.
+  **Country = overview (1B):** one-line summary, a "Start with these" strip of
+  4 signature dishes (rule-picked, food only, `utils/signatureDishes.ts`) with
+  "See all N ›" in its header (the big pinned button was tried and removed),
+  a compact flavor block, a dining-customs teaser. **Flavor fingerprint and
+  Food culture open inside the panel** with a "‹ Country" back link, exactly
+  like All dishes (the slide-over trays were removed from Explore), and share
+  one visual language with the overview blocks (`components/explore/FlavorBits.tsx`):
+  same card, small-caps labels, axis colours, and hollow axis-colour dots on
+  both the mini and the full radar (the full radar shows them for every
+  country now, and its axis reads "Smoke/Earth" like the bars).
+  **All dishes:** always grouped by region, section headers are italic titles
+  named exactly as on the map (`regionLabelName` everywhere); search and
+  filters are two icon buttons; 2B tiles (image placeholder or real `image`,
+  name, 2-line `tagline`, one status marker). **Food vs drinks (decided with
+  Nikita after two canvas rounds):** regions hold food only and the list ends
+  with a **"To drink in {Country}"** swipe strip (wraps on desktop), each drink
+  labelled with where it's from; the filter tray gets a **"Food or drink"**
+  group with just two chips (finer courses were tried and dropped as
+  overcomplicated), drink sub-filters indented under Drinks; no blue tint on
+  drinks, a glass outline instead.
+  **Region:** title block (no card, no key-ingredients dropdown), food tiles,
+  a "To drink here" strip, other regions; "‹ All dishes" goes back. **Dish
+  detail** (side sheet desktop / bottom sheet phone) holds every action: want
+  to try, I tried this → rating, verdict, edit, delete, log another visit.
+  **Taglines** filled for MX, CN, IE only (sandbox rule).
+  **"Elsewhere" is gone:** unambiguous origin mismatches fixed with aliases in
+  `utils/dishRegion.ts` (US: Texas → Southwest, Louisiana/Kentucky → South,
+  Buffalo NY → nationwide; ~20 more across IT, IN, PK, ID, MY, FR, GR, EG, NG,
+  BR, PT); a "the"-prefix matching fix; remaining ambiguous ones (Paris,
+  Madrid, Adana, Lesvos, Córdoba, and Japan and Peru which have no regions)
+  sit under "Across {country}" and go to #9's region design step.
+  **Map hover card:** a third line of three key ingredients ("Olive oil ·
+  garlic · jamón ibérico", asides like "(pimentón)" stripped) and a combined
+  "3 of 15 tried · 2 on your list" line that only shows when it applies.
+  **Phone:** header is one row (compact "Order help" + icon-only profile);
+  the country is framed above a half-height sheet; the sheet's ✕ and
+  tap-open-map collapse from the day before still work; the filters tray now
+  renders at `<body>` (it was trapped inside the transformed sheet and
+  blocked taps).
+  **Also in this batch, from the parallel image-pilot session:** the first
+  six Mexico dish images (`public/dish-images/MX/`), dish plates floating on
+  the Mexico map (`components/explore/MapPlates.tsx`, see the inbox item
+  "Dish plates on the map"), `scripts/generate-dish-images.mjs` and its
+  prompts (`docs/design/prompts/`), and two prototypes. The 27MB
+  `docs/design/prototypes/image-pilot/` candidates were deliberately left out
+  of git. **Follow-ups:** convert the dish PNGs (~1.5MB each) to WebP before
+  real-phone use; delete the unrouted `Home.tsx` / `CountryDetail.tsx`;
+  hand-curated signature dishes if the rule's picks disappoint.
+  **Round two, 2026-09-30, from Nikita's phone and desktop testing.**
+  *Dish plates on the map* (`utils/plateLayout.ts`, `MapPlates.tsx`): after
+  several tries at budgets, nudges and stacks that all jittered, the rules
+  that hold are the simplest ones: **every dish has one fixed spot forever**
+  (its city; a spot beside its region's name if it has no city, chosen once;
+  a slot in a tight row in open water for nationwide dishes), plates are
+  always drawn there, overlap when cities are close (most popular on top) and
+  separate as you zoom, **region names are drawn above the plates**, and
+  visibility changes only at the screen edge and when the whole layer fades
+  at world zoom. Nothing depends on the zoom level, so nothing can flicker.
+  Drinks are on the map (Mezcal), the bob and shadow pulse stay (shadows off
+  on phone), captions show on hover only, never on touch. **The list now
+  agrees with the map:** a dish with a city but no written origin is filed
+  under the nearest region (Pozole → Coastal, Tacos → Central).
+  *Panel:* the collapsed desktop panel is a docked tab ("Central · 3 dishes ·
+  Open") that stays collapsed while you explore the same country and reopens
+  for a new country or a tapped plate; the dish detail opens **inside the
+  panel** with a back link like Flavor and Culture (the sheet is gone).
+  *Flavor fingerprint:* one interactive radar component in both the overview
+  card (compact) and the full view, labels and dots always visible, the
+  sprinkle plays on tap as well as hover, no bar list anywhere; the full view
+  no longer scrolls sideways on a phone. *Borders:* the rounded variant was
+  rejected (its three-way junctions read as triangles); the default is a
+  faint hand-drawn wobble (`utils/softBorders.ts`). Still owed: a real-phone
+  pass, and the dash pattern could be lighter.
 - **Two dish states, survey reconciliation, Explore as home (was #40, #34 + #6, #41)**
   (2026-09-29, G2/G3/Foundation) — three MVP build-order steps shipped as one
   PR, tested at 390px in headless Chromium; **real-phone check still owed**

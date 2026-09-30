@@ -1,5 +1,6 @@
 import { findDishForAnswer } from './surveyDishes';
 import type { UserDish } from '../data/types';
+import { newId } from './newId';
 
 /** The retired `foodie-favorites` key (#40). Read only to migrate, never written. */
 export const LEGACY_FAVORITES_KEY = 'foodie-favorites';
@@ -30,7 +31,7 @@ export function migrateFavoritesToDishes(
     if (findDishForAnswer(dishes, fav.countryId, fav.dishName)) return;
     if (findDishForAnswer(added, fav.countryId, fav.dishName)) return;
     added.push({
-      id: crypto.randomUUID(),
+      id: newId(),
       countryId: fav.countryId,
       name: fav.dishName,
       tasteRating: 5,

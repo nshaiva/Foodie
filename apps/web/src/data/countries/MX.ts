@@ -114,6 +114,9 @@ export const MX: Country = {
       name: "Tacos",
       pronunciation: "tah-kohs",
       description: "Soft corn tortillas filled with endless variations, carne asada, carnitas, al pastor, barbacoa, fish, topped with onion, cilantro, salsa, and lime.",
+      tagline: "Corn tortillas with al pastor, carnitas or asada",
+      image: "/dish-images/MX/tacos.png", // PREVIEW (image pilot): remove before commit
+      origin: { place: "Mexico City", coordinates: [-99.13, 19.43] }, // PREVIEW (map plates)
       category: "main",
       keyTraits: ["corn tortilla", "cilantro", "salsa"],
       isStreetFood: true,
@@ -126,6 +129,9 @@ export const MX: Country = {
       name: "Mole Poblano",
       pronunciation: "moh-leh poh-blah-noh",
       description: "Complex sauce of dried chilies, chocolate, nuts, spices, and more, typically served over chicken or turkey. Originated in Puebla and requires hours of preparation.",
+      tagline: "Dark chili and chocolate sauce over turkey, from Puebla",
+      image: "/dish-images/MX/mole-poblano.png", // PREVIEW (image pilot): remove before commit
+      origin: { place: "Puebla", coordinates: [-98.2, 19.04] }, // PREVIEW (map plates)
       category: "main",
       keyTraits: ["chocolate", "dried chilies", "complex"],
       regionalOrigin: "Puebla",
@@ -138,6 +144,9 @@ export const MX: Country = {
       name: "Pozole",
       pronunciation: "poh-soh-leh",
       description: "Hearty hominy soup with pork or chicken in a red or green chili broth, garnished with cabbage, radish, oregano, and lime. Traditional for celebrations.",
+      tagline: "Hominy and pork in a red or green chili broth",
+      image: "/dish-images/MX/pozole.png", // PREVIEW (image pilot): remove before commit
+      origin: { place: "Guadalajara", coordinates: [-103.35, 20.67] }, // PREVIEW (map plates)
       category: "soup",
       keyTraits: ["hominy", "chili broth", "pork"],
       popularity: "local-favorite",
@@ -149,6 +158,7 @@ export const MX: Country = {
       name: "Chiles en Nogada",
       pronunciation: "chee-lehs en noh-gah-dah",
       description: "Poblano peppers stuffed with picadillo (meat and fruit mixture), covered in walnut cream sauce and pomegranate seeds. A patriotic dish eaten in September.",
+      tagline: "Stuffed poblano in walnut cream with pomegranate",
       category: "main",
       keyTraits: ["walnut cream", "poblano", "picadillo"],
       regionalOrigin: "Puebla",
@@ -161,6 +171,8 @@ export const MX: Country = {
       name: "Tamales",
       pronunciation: "tah-mah-lehs",
       description: "Corn masa filled with meats, cheese, or sweet fillings, wrapped in corn husks or banana leaves and steamed. A labor of love often made communally.",
+      tagline: "Corn masa steamed in husks or banana leaf, savory or sweet",
+      image: "/dish-images/MX/tamales.png", // PREVIEW (image pilot): remove before commit
       category: "main",
       keyTraits: ["masa", "steamed", "corn husk"],
       popularity: "both",
@@ -172,6 +184,7 @@ export const MX: Country = {
       name: "Guacamole",
       pronunciation: "gwah-kah-moh-leh",
       description: "Mashed avocado with lime, cilantro, onion, tomato, and chili. Simple but essential, served with tortilla chips or as a taco accompaniment.",
+      tagline: "Mashed avocado with lime, cilantro and chili",
       category: "appetizer",
       keyTraits: ["avocado", "lime", "cilantro"],
       popularity: "both",
@@ -183,6 +196,8 @@ export const MX: Country = {
       name: "Elote",
       pronunciation: "eh-loh-teh",
       description: "Grilled corn on the cob slathered with mayonnaise, cotija cheese, chili powder, and lime. Iconic Mexican street food.",
+      tagline: "Grilled corn with mayo, cotija, chili and lime",
+      image: "/dish-images/MX/elote.png", // PREVIEW (image pilot): remove before commit
       category: "street-food",
       keyTraits: ["grilled corn", "cotija", "chili lime"],
       isStreetFood: true,
@@ -195,6 +210,7 @@ export const MX: Country = {
       name: "Churros",
       pronunciation: "choo-rohs",
       description: "Fried dough pastry coated in cinnamon sugar, often served with chocolate sauce for dipping. A beloved street dessert.",
+      tagline: "Fried dough in cinnamon sugar, dipped in chocolate",
       category: "dessert",
       keyTraits: ["fried dough", "cinnamon sugar", "chocolate"],
       isStreetFood: true,
@@ -209,6 +225,7 @@ export const MX: Country = {
       name: "Horchata",
       pronunciation: "or-chah-tah",
       description: "Creamy, refreshing rice-based drink flavored with cinnamon and vanilla. A staple at taquerias and family gatherings.",
+      tagline: "Cold rice drink with cinnamon and vanilla",
       type: "non-alcoholic",
       category: "juice",
       servedHow: "cold",
@@ -222,6 +239,7 @@ export const MX: Country = {
       englishName: "Hibiscus Tea",
       pronunciation: "ha-my-kah",
       description: "Deep red drink made from dried hibiscus flowers, served cold and sweetened. Tart, refreshing, and rich in antioxidants.",
+      tagline: "Tart, deep red hibiscus tea, served cold and sweet",
       type: "non-alcoholic",
       category: "tea",
       servedHow: "cold",
@@ -235,6 +253,7 @@ export const MX: Country = {
       englishName: "Chocolate Caliente",
       pronunciation: "choh-koh-lah-teh kah-lee-en-teh",
       description: "Spiced hot chocolate made with Mexican chocolate tablets, frothed with a molinillo. Flavored with cinnamon and sometimes chili.",
+      tagline: "Cinnamon-spiced chocolate, frothed with a wooden molinillo",
       type: "non-alcoholic",
       category: "street",
       servedHow: "hot",
@@ -247,6 +266,9 @@ export const MX: Country = {
       name: "Mezcal",
       pronunciation: "mes-kahl",
       description: "Smoky agave spirit made primarily in Oaxaca, traditionally sipped neat. The agave hearts are roasted in underground pits.",
+      tagline: "Smoky agave spirit from Oaxaca, sipped neat",
+      image: "/dish-images/MX/mezcal.png", // PREVIEW (image pilot): remove before commit
+      origin: { place: "Oaxaca city", coordinates: [-96.72, 17.06] }, // PREVIEW (map plates)
       type: "alcoholic",
       category: "spirit",
       regionalOrigin: "Oaxaca",
@@ -259,6 +281,7 @@ export const MX: Country = {
       name: "Tequila",
       pronunciation: "teh-kee-lah",
       description: "Famous agave spirit from Jalisco, made exclusively from blue agave. Ranges from unaged blanco to barrel-aged añejo.",
+      tagline: "Blue agave spirit from Jalisco, blanco to añejo",
       type: "alcoholic",
       category: "spirit",
       regionalOrigin: "Jalisco",

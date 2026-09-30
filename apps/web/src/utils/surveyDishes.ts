@@ -2,6 +2,7 @@ import { countries } from '../data/countries';
 import { dishVerdictRating } from './ratings';
 import type { UserDish } from '../data/types';
 import type { SurveyAnswer, SurveySentiment } from '../hooks/useTasteSurvey';
+import { newId } from './newId';
 
 /** A sentiment that means "I've eaten this" (everything but "haven't tried"). */
 export function isTriedSentiment(sentiment: SurveySentiment): boolean {
@@ -85,7 +86,7 @@ export function reconcileSurveyDishes(
     if (findDishForAnswer(kept, a.countryId, a.dishName)) return;
     if (findDishForAnswer(added, a.countryId, a.dishName)) return;
     added.push({
-      id: crypto.randomUUID(),
+      id: newId(),
       countryId: a.countryId,
       name: a.dishName,
       source: 'survey',

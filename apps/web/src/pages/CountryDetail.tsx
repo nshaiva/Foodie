@@ -20,6 +20,7 @@ import { Tray } from '../components/Tray';
 import { axesByIntensity, FLAVOR_AXIS_META } from '../data/flavorAxisMeta';
 import { DishForm } from '../components/DishForm';
 import type { RestaurantTry } from '../data/types';
+import { newId } from '../utils/newId';
 
 /**
  * The country page: one list of everything you can eat and drink here, grouped
@@ -178,7 +179,7 @@ export function CountryDetail() {
       notes: data.notes,
       tasteRating: data.tasteRating,
       restaurantTries: data.initialRestaurantTry
-        ? [{ ...data.initialRestaurantTry, id: crypto.randomUUID() }]
+        ? [{ ...data.initialRestaurantTry, id: newId() }]
         : [],
     });
   };

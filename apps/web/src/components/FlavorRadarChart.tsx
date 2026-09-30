@@ -16,8 +16,26 @@ interface FlavorRadarChartProps {
   colors: ColorPalette;
   /** When provided (with axis data), axis labels become clickable and show driver ingredients */
   ingredientTiers?: IngredientTiers;
-  size?: number;
+  /**
+   * How tall the chart's box is. `full` is the page-sized chart; `fitted` sits
+   * close around the hexagon for a card that holds only the chart; `compact`
+   * is the smaller box of the country overview's card. Everything else (the
+   * tappable axes, the drivers panel, the flavor sentence) is the same at
+   * every size.
+   */
+  size?: RadarSize;
+  /** Fill and stroke of the shape; defaults to the country's primary. Explore
+   *  passes its own so the overview and the tray share one colour. */
+  color?: string;
 }
+
+type RadarSize = 'full' | 'fitted' | 'compact';
+
+const BOX_HEIGHT: Record<RadarSize, string> = {
+  full: 'h-80 md:h-96',
+  fitted: 'h-60 md:h-64',
+  compact: 'h-48',
+};
 
 const axisLabels: Record<FlavorAxisId, string> = {
   heat: 'Heat',
@@ -35,7 +53,7 @@ const TIER_BADGE: Record<keyof IngredientTiers, string> = {
   staples: 'STPL',
 };
 
-export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: FlavorRadarChartProps) {
+export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers, size = 'full', color }: FlavorRadarChartProps) {
   const [selectedAxis, setSelectedAxis] = useState<FlavorAxisId | null>(null);
   const interactive = !!ingredientTiers && hasFlavorAxisData(ingredientTiers);
 
@@ -45,7 +63,7 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: F
     { axis: 'Sweet', value: flavorIntensity.sweetness, fullMark: 10, key: 'sweetness' as FlavorAxisId },
     { axis: 'Umami', value: flavorIntensity.umami, fullMark: 10, key: 'umami' as FlavorAxisId },
     { axis: 'Aromatic', value: flavorIntensity.aromatic, fullMark: 10, key: 'aromatic' as FlavorAxisId },
-    { axis: 'Smoke', value: flavorIntensity.smokeEarth, fullMark: 10, key: 'smokeEarth' as FlavorAxisId },
+    { axis: 'Smoke/Earth', value: flavorIntensity.smokeEarth, fullMark: 10, key: 'smokeEarth' as FlavorAxisId },
   ];
   const keyByDisplay = new Map(data.map(d => [d.axis, d.key]));
 
@@ -57,7 +75,7 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: F
     const { x = 0, y = 0, textAnchor, payload } = props;
     const key = payload ? keyByDisplay.get(payload.value) : undefined;
 
-    if (!interactive || !key) {
+    if (!key) {
       return (
         <text x={x} y={y} textAnchor={textAnchor as 'start' | 'middle' | 'end' | undefined} fill={colors.text} fontSize={12}>
           {payload?.value}
@@ -67,7 +85,11 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: F
 
     const isSelected = selectedAxis === key;
     const axisColor = FLAVOR_AXIS_META[key].color;
-    const W = 110;
+
+    const toggle = () => setSelectedAxis(prev => (prev === key ? null : key));
+    // Wide enough for the longest label in bold, and no wider: at a phone's
+    // width a wider box reaches past the card's edge
+    const W = 100;
     const anchor = (textAnchor ?? 'middle') as 'start' | 'middle' | 'end';
     const fx = anchor === 'start' ? x : anchor === 'end' ? x - W : x - W / 2;
     const justify = anchor === 'start' ? 'flex-start' : anchor === 'end' ? 'flex-end' : 'center';
@@ -75,13 +97,17 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: F
     return (
       <foreignObject x={fx} y={y - 14} width={W} height={26} style={{ overflow: 'visible' }}>
         <div style={{ display: 'flex', justifyContent: justify }}>
+          {/* Without ingredient data a label can't open drivers, but it keeps
+              the same plate dot so every radar reads alike */}
           <span
             className={`radar-lbl${isSelected ? ' sel' : ''}`}
-            style={{ '--ax': axisColor, color: isSelected ? axisColor : colors.text } as React.CSSProperties}
-            onClick={() => setSelectedAxis(prev => (prev === key ? null : key))}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedAxis(prev => (prev === key ? null : key)); } }}
+            style={{ '--ax': axisColor, color: isSelected ? axisColor : colors.text, pointerEvents: interactive ? undefined : 'none' } as React.CSSProperties}
+            {...(interactive && {
+              onClick: toggle,
+              role: 'button',
+              tabIndex: 0,
+              onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } },
+            })}
           >
             <span className="plate" />
             <span className="txt">
@@ -98,9 +124,9 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: F
 
   return (
     <div className="w-full">
-      <div className="h-80 md:h-96 radar-chart">
+      <div className={`${BOX_HEIGHT[size]} radar-chart`}>
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data} margin={{ left: 26, right: 26 }}>
+          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data} margin={{ left: 52, right: 52 }}>
             <PolarGrid
               stroke={`${colors.text}20`}
               strokeWidth={1}
@@ -119,9 +145,9 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: F
             <Radar
               name="Flavor Intensity"
               dataKey="value"
-              stroke={colors.primary}
-              fill={colors.primary}
-              fillOpacity={0.3}
+              stroke={color ?? colors.primary}
+              fill={color ?? colors.primary}
+              fillOpacity={color ? 0.2 : 0.3}
               strokeWidth={2}
             />
           </RadarChart>
@@ -129,7 +155,7 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers }: F
       </div>
 
       {interactive && !selectedAxis && (
-        <p className="text-xs text-center -mt-2 mb-1" style={{ color: systemColors.navyMuted }}>
+        <p className={`text-xs text-center mb-1 ${size === 'full' ? '-mt-2' : 'mt-1'}`} style={{ color: systemColors.navyMuted }}>
           Tap an axis to see the ingredients behind it
         </p>
       )}

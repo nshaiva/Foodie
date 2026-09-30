@@ -31,6 +31,13 @@ export interface Beverage {
   englishName?: string;
   pronunciation?: string;
   description: string;
+  /** One line (~40-80 chars) shown on the tile; the description stays behind a tap. Optional until #9 fills it everywhere. */
+  tagline?: string;
+  /** Dish image URL (#36/#37). Optional: tiles show a tinted plate placeholder without it. */
+  image?: string;
+  /** Where it comes from, when that's a place rather than a whole region: the
+   *  map floats its image over this point once you zoom into the region. */
+  origin?: { place: string; coordinates: [number, number] };
   type: 'alcoholic' | 'non-alcoholic' | 'both';
   category?: BeverageCategory;
   regionalOrigin?: string;
@@ -126,6 +133,13 @@ export interface Dish {
   englishName?: string;
   pronunciation?: string;  // Phonetic spelling, e.g., "tom yoom goong"
   description: string;
+  /** One line (~40-80 chars) shown on the tile; the description stays behind a tap. Optional until #9 fills it everywhere. */
+  tagline?: string;
+  /** Dish image URL (#36/#37). Optional: tiles show a tinted plate placeholder without it. */
+  image?: string;
+  /** Where it comes from, when that's a place rather than a whole region: the
+   *  map floats its image over this point once you zoom into the region. */
+  origin?: { place: string; coordinates: [number, number] };
   category: DishCategory;
   regionalOrigin?: string;
 

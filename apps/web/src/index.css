@@ -266,3 +266,53 @@ label[for],
 /* Explore: an open hand over the map, a closed one while dragging it */
 .explore-map { cursor: grab; }
 .explore-map.is-dragging, .explore-map.is-dragging * { cursor: grabbing !important; }
+
+/* Map plates (#36 preview): dish illustrations float over the map, lift on hover */
+.map-plate .map-plate-disc { transform-box: fill-box; transform-origin: center; transition: transform 250ms cubic-bezier(.3, 1.4, .5, 1); animation: plate-bob 4.5s ease-in-out infinite; }
+.map-plate .map-plate-shadow { transform-box: fill-box; transform-origin: center; animation: plate-shadow 4.5s ease-in-out infinite; }
+@keyframes plate-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2.5px; } }
+@keyframes plate-shadow { 0%, 100% { opacity: .2; scale: 1; } 50% { opacity: .13; scale: .85; } }
+@media (prefers-reduced-motion: reduce) { .map-plate .map-plate-disc, .map-plate .map-plate-shadow { animation: none; } }
+.map-plate .map-plate-name { opacity: 0; transition: opacity 150ms; pointer-events: none; }
+.map-plate:hover .map-plate-disc, .map-plate:focus-visible .map-plate-disc { transform: translateY(-4px) scale(1.18); animation-play-state: paused; }
+.map-plate:hover .map-plate-name, .map-plate:focus-visible .map-plate-name { opacity: 1; }
+.map-plate:focus { outline: none; }
+.map-plate:focus-visible circle:first-of-type { stroke: #C2654A; stroke-width: 2; }
+@media (hover: none) { .map-plate .map-plate-name { opacity: 1; } }
+/* Country-zoom plates stay name-free on touch; the panel names them */
+@media (hover: none) { .map-plate--compact .map-plate-name { opacity: 0; } }
+/* Plate shadows are a desktop nicety; on a phone they're clutter */
+@media (max-width: 767px) { .map-plate .map-plate-shadow { display: none; } }
+/* A plate that finds room as you zoom in eases in rather than popping */
+.map-plate { animation: plate-in 320ms ease-out both; }
+@keyframes plate-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .map-plate { animation: none; } }
+.map-plate--out { animation: plate-out 300ms ease-in both; pointer-events: none; }
+@keyframes plate-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* Explore, desktop: the collapsed panel's drawer tab, docked to the map's
+   right edge. It slides out of the edge as the panel slides in, so exactly
+   one of the two is ever on screen. */
+.panel-tab {
+  box-shadow: -6px 8px 22px -10px rgba(51, 48, 42, 0.45);
+  transition: transform 300ms ease-out, box-shadow 200ms ease;
+}
+.panel-tab:hover { box-shadow: -8px 10px 26px -10px rgba(51, 48, 42, 0.55); }
+.panel-tab--in { transform: translate(100%, -50%); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .panel-tab { transition: none; } }
+
+/* Radar labels: the sprinkle also plays when an axis becomes selected, so a
+   tap on a phone (which never hovers) gets it too. Its own keyframes name, so
+   a click restarts it even when the hover sprinkle has already played. */
+.radar-lbl.sel .spr { animation: radar-sprinkle-sel 0.5s ease-out forwards; }
+.radar-lbl.sel .spr:nth-child(1) { animation-delay: 0s; --dx: -10px; }
+.radar-lbl.sel .spr:nth-child(2) { animation-delay: 0.07s; --dx: 0px; }
+.radar-lbl.sel .spr:nth-child(3) { animation-delay: 0.14s; --dx: 10px; }
+@keyframes radar-sprinkle-sel {
+  0% { opacity: 0; transform: translate(var(--dx, 0), 0) scale(0.5); }
+  40% { opacity: 1; transform: translate(var(--dx, 0), -9px) scale(1.4); }
+  100% { opacity: 0; transform: translate(var(--dx, 0), -13px) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .radar-lbl.sel .spr { animation: none; }
+}

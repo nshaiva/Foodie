@@ -179,9 +179,24 @@ ingredients, list narrowed to it. Focus lives in the URL as `?region=<slug>`
 `nationwide`, `orphan`, or `none`. A region's name is read as a set of aliases —
 split on `&`, `,`, `/` across both the main name and any parenthetical — plus a
 small per-country `REGION_ALIASES` table. Items that resolve to `nationwide` or
-`none` share an "Across {country}" bucket; `orphan` gets "Elsewhere" so a
-failed match is visible rather than silently dropped. Use this rather than
-writing another `detectRegion`.
+`none` share an "Across {country}" bucket. In Explore an `orphan` also goes
+there (with a dev-only `console.warn`); fix a mismatch with an alias in
+`REGION_ALIASES` rather than letting it show. Use this rather than writing
+another `detectRegion`. Region names a user sees always come from
+`regionLabelName`, the same function the map lettering uses.
+
+**Explore panel** (`components/explore/`): the panel mirrors the map's levels,
+country overview → All dishes / Flavor / Culture (all inside the panel, with a
+"‹ Country" back link) → region → dish detail sheet. Regions hold food; drinks
+close the list as one "To drink in {Country}" strip. The only type filter is
+Food or drink (`utils/course.ts`); don't add finer courses.
+
+**Dish plates on the map** (`utils/plateLayout.ts`, `components/explore/MapPlates.tsx`):
+every illustrated dish has one fixed spot (its `origin` city, else beside its
+region's name, else the nationwide row in open water) and is always drawn
+there; region names draw above plates. Don't add zoom-dependent hiding,
+nudging or stacking: every version of that flickered. A dish with a city but
+no `regionalOrigin` is grouped under the nearest region (`resolveRegion`).
 
 `regionFingerprint()` derives a region's flavor axes from its `keyIngredients`;
 coverage is uneven, so it returns a match count and callers hide chips below

@@ -3,6 +3,7 @@ import { systemColors } from '../../data/systemColors';
 import { Tray } from '../Tray';
 import type { DishFilters } from '../../hooks/useDishFilters';
 import type { Lens } from '../../utils/groupDishes';
+import { COURSES } from '../../utils/course';
 
 const LENS_LABELS: Record<Lens, string> = {
   region: 'Region',
@@ -19,10 +20,17 @@ interface LensControlsProps {
   hasBeverages: boolean;
   /** "Clear all" also drops region focus, which lives in the URL, not in filters. */
   onClearRegion?: () => void;
+  /**
+   * Explore's All-dishes header (#39): two icon buttons (search, which opens
+   * a field, and filters, with a count badge) on the same row as `title`, and
+   * no grouping control. The tray and the active-chip row are shared.
+   */
+  compact?: boolean;
+  title?: React.ReactNode;
 }
 
 /** One filter in the rail. `remove` is set only for filters you can turn off. */
-type ChipFamily = 'diet' | 'spice' | 'popularity' | 'drink';
+type ChipFamily = 'diet' | 'spice' | 'popularity' | 'drink' | 'course';
 
 interface Chip {
   id: string;
@@ -44,6 +52,7 @@ const FAMILY_TINT: Record<ChipFamily, { rest: string; active: string; edge: stri
   spice: { rest: `${systemColors.saffron}1A`, active: `${systemColors.saffron}40`, edge: systemColors.saffron },
   popularity: { rest: systemColors.tomatoLight, active: `${systemColors.tomato}45`, edge: systemColors.tomato },
   drink: { rest: '#E4E9EF', active: '#8496AD55', edge: '#8496AD' },
+  course: { rest: '#F1ECE2', active: '#E2D4BF', edge: '#A08B6D' },
 };
 
 function ChipButton({ chip }: { chip: Chip }) {
@@ -63,7 +72,7 @@ function ChipButton({ chip }: { chip: Chip }) {
     <button
       onClick={chip.toggle}
       aria-pressed={chip.active}
-      className="flex-none text-xs font-semibold px-2.5 py-1 rounded-full border whitespace-nowrap transition-colors"
+      className="flex-none text-xs font-semibold px-2.5 py-1 max-md:min-h-11 max-md:px-3.5 rounded-full border whitespace-nowrap transition-colors"
       style={style}
     >
       {chip.label}
@@ -96,7 +105,7 @@ function ChipButton({ chip }: { chip: Chip }) {
  */
 export function LensControls({
   filters, lens, onLensChange, availableLenses, triedCount, hasBeverages,
-  onClearRegion,
+  onClearRegion, compact = false, title,
 }: LensControlsProps) {
   const { diet, setDiet, spice, setSpice, popularity, setPopularity } = filters;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -157,14 +166,23 @@ export function LensControls({
       active: popularity === 'tourist-classic',
       toggle: () => togglePop('tourist-classic'),
     },
-    {
-      id: 'dessert',
-      family: 'popularity',
-      label: '🍰 Dessert',
-      active: filters.dessertOnly,
-      toggle: () => filters.setDessertOnly(!filters.dessertOnly),
-    },
   );
+  chips.push({
+    id: 'dessert',
+    family: 'popularity',
+    label: '🍰 Dessert',
+    active: filters.dessertOnly,
+    toggle: () => filters.setDessertOnly(!filters.dessertOnly),
+  });
+  if (compact) {
+    COURSES.filter(c => c.id !== 'drinks' || hasBeverages).forEach(c => chips.push({
+      id: `course-${c.id}`,
+      family: 'course',
+      label: c.label,
+      active: filters.course.includes(c.id),
+      toggle: () => filters.toggleCourse(c.id),
+    }));
+  }
 
   if (hasBeverages) {
     chips.push(
@@ -207,6 +225,8 @@ export function LensControls({
   };
 
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(!!filters.query);
+  const showSearch = searchOpen || !!filters.query;
 
   // The tray groups by family; the rail only ever shows what's on.
   const GROUPS: { title: string; family?: ChipFamily; hint?: string }[] = [
@@ -214,12 +234,64 @@ export function LensControls({
     { title: 'Diet', family: 'diet' },
     { title: 'Spice', family: 'spice' },
     { title: 'Ordering', family: 'popularity', hint: 'What locals order vs. the classics' },
-    { title: 'Drinks', family: 'drink' },
+    ...(compact
+      ? [{ title: 'Food or drink', family: 'course' as const }]
+      : [{ title: 'Drinks', family: 'drink' as const }]),
   ];
+  const drinksOn = filters.course.includes('drinks');
+  const drinkChips = chips.filter(c => c.family === 'drink');
+
+  const iconButton = 'btn-press relative flex-none w-11 h-11 rounded-full border flex items-center justify-center';
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
+      {compact && (
+        <>
+          <div className="flex items-center gap-2">
+            {title}
+            <button
+              type="button"
+              onClick={() => { if (showSearch) { filters.setQuery(''); setSearchOpen(false); } else setSearchOpen(true); }}
+              aria-label={showSearch ? 'Close search' : 'Search dishes'}
+              aria-expanded={showSearch}
+              className={`${iconButton} ml-auto`}
+              style={{ borderColor: showSearch ? systemColors.tomato : systemColors.border, backgroundColor: systemColors.surface, color: systemColors.navyLight }}
+            >
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={filtersOpen}
+              aria-label={activeChips.length ? `Filters, ${activeChips.length} on` : 'Filters'}
+              className={iconButton}
+              style={{ borderColor: activeChips.length ? systemColors.tomato : systemColors.border, backgroundColor: systemColors.surface, color: systemColors.navyLight }}
+            >
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg>
+              {activeChips.length > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[0.68rem] font-bold leading-[18px] text-center text-white" style={{ backgroundColor: systemColors.tomato }}>
+                  {activeChips.length}
+                </span>
+              )}
+            </button>
+          </div>
+          {showSearch && (
+            <input
+              type="search"
+              autoFocus={searchOpen && !filters.query}
+              value={filters.query}
+              onChange={e => filters.setQuery(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); filters.setQuery(''); setSearchOpen(false); } }}
+              placeholder="Search dishes, flavors, places…"
+              aria-label="Search dishes"
+              className="w-full text-base md:text-sm px-3 py-2.5 md:py-2 rounded-lg border"
+              style={{ borderColor: systemColors.border, color: systemColors.navy, backgroundColor: systemColors.surface }}
+            />
+          )}
+        </>
+      )}
+      {!compact && <div className="flex flex-wrap items-center gap-2">
         <input
           type="search"
           value={filters.query}
@@ -295,7 +367,7 @@ export function LensControls({
             )}
           </div>
         )}
-      </div>
+      </div>}
 
       {/* Only what's on. At rest this row doesn't exist. */}
       {activeChips.length > 0 && (
@@ -334,6 +406,12 @@ export function LensControls({
                 <div className="flex flex-wrap gap-1.5">
                   {members.map(chip => <ChipButton key={chip.id} chip={chip} />)}
                 </div>
+                {/* Under Course, the drink sub-filters show only once Drinks is on */}
+                {group.family === 'course' && drinksOn && drinkChips.length > 0 && (
+                  <div className="mt-2 ml-4 pl-3 border-l-2 flex flex-wrap gap-1.5" style={{ borderColor: FAMILY_TINT.course.edge + '55' }} role="group" aria-label="Drink filters">
+                    {drinkChips.map(chip => <ChipButton key={chip.id} chip={chip} />)}
+                  </div>
+                )}
               </section>
             );
           })}
