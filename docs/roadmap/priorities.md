@@ -350,6 +350,12 @@ at Tier 2.
   rejected (its three-way junctions read as triangles); the default is a
   faint hand-drawn wobble (`utils/softBorders.ts`). Still owed: a real-phone
   pass, and the dash pattern could be lighter.
+  **Egypt joins the sandbox (2026-09-30, Nikita's ask):** all 15 Egyptian
+  items got taglines, four dishes got city coordinates and illustrations in
+  the frozen Mexico style (Koshari and Ful Medames at Cairo, Ta'ameya at
+  Alexandria, Molokhia at Mansoura in the Delta), generated one run of four
+  at about 2¢ each after Nikita's go and reviewed against the prompt file's
+  checks. Sandbox is now MX, CN, IE and EG.
 - **Two dish states, survey reconciliation, Explore as home (was #40, #34 + #6, #41)**
   (2026-09-29, G2/G3/Foundation) — three MVP build-order steps shipped as one
   PR, tested at 390px in headless Chromium; **real-phone check still owed**

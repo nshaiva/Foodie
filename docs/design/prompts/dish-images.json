@@ -101,6 +101,36 @@
         "mustShow": "Tall narrow shot glass; clear spirit; lime and salt",
         "wrong": "Margarita or cocktail glass; amber colour; bottle with a label"
       }
+    ],
+    "EG": [
+      {
+        "slug": "koshari",
+        "name": "Koshari",
+        "subject": "A deep bowl of koshari: white rice, brown lentils and small pasta layered together, topped with chickpeas, a thick red tomato sauce and a tall heap of crispy golden fried onions, a small cup of garlic vinegar sauce beside the bowl.",
+        "mustShow": "Visible layers of rice, lentils and pasta; red tomato sauce; a big pile of crispy fried onions on top",
+        "wrong": "A plain rice pilaf; a pasta dish with meat; a salad"
+      },
+      {
+        "slug": "ful-medames",
+        "name": "Ful Medames",
+        "subject": "A shallow bowl of mashed brown fava beans glistening with olive oil, sprinkled with ground cumin and chopped parsley, a lime wedge and slices of tomato on the rim, a round of whole-wheat baladi flatbread beside it.",
+        "mustShow": "Brown mashed fava beans with olive oil pooled on top; cumin dusting; flatbread",
+        "wrong": "Refried pinto beans; hummus; a bean soup with broth"
+      },
+      {
+        "slug": "taameya",
+        "name": "Ta'ameya",
+        "subject": "Several round green-centred falafel patties, crusted golden brown and coated in sesame seeds, one split to show the bright green fava interior, on a small plate with tahini sauce and pickled vegetables beside them.",
+        "mustShow": "Bright green interior of a split patty; sesame-crusted golden outside",
+        "wrong": "Beige chickpea falafel; meatballs; fritters in a pita"
+      },
+      {
+        "slug": "molokhia",
+        "name": "Molokhia",
+        "subject": "A bowl of thick, glossy, deep green molokhia soup with fried garlic slices and coriander floating on top, a mound of white rice and a round of baladi bread beside it.",
+        "mustShow": "Very dark green, glossy, thick soup; fried garlic on top; rice on the side",
+        "wrong": "Spinach cream soup; pesto; a leafy salad"
+      }
     ]
   }
 }
