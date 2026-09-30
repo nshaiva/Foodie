@@ -278,9 +278,10 @@ label[for],
 .map-plate:hover .map-plate-name, .map-plate:focus-visible .map-plate-name { opacity: 1; }
 .map-plate:focus { outline: none; }
 .map-plate:focus-visible circle:first-of-type { stroke: #C2654A; stroke-width: 2; }
-@media (hover: none) { .map-plate .map-plate-name { opacity: 1; } }
-/* Country-zoom plates stay name-free on touch; the panel names them */
-@media (hover: none) { .map-plate--compact .map-plate-name { opacity: 0; } }
+/* No plate names on touch at any zoom: with no hover, every plate would
+   label itself at once and the names overlap where dishes share a city
+   (three Cairo plates). A tap opens the dish in the sheet, which names it. */
+@media (hover: none) { .map-plate .map-plate-name { opacity: 0; } }
 /* Plate shadows are a desktop nicety; on a phone they're clutter */
 @media (max-width: 767px) { .map-plate .map-plate-shadow { display: none; } }
 /* A plate that finds room as you zoom in eases in rather than popping */

@@ -9,6 +9,8 @@ interface TrayProps {
   /** Small text under the title, e.g. what the panel covers. */
   subtitle?: string;
   children: React.ReactNode;
+  /** Pinned under the scrolling body: the way out once you're done. */
+  footer?: React.ReactNode;
 }
 
 /**
@@ -18,7 +20,7 @@ interface TrayProps {
  * The page content stays where it is — this is a tray you pull out and push
  * back, not a page you go to.
  */
-export function Tray({ open, onClose, title, subtitle, children }: TrayProps) {
+export function Tray({ open, onClose, title, subtitle, children, footer }: TrayProps) {
   useEffect(() => {
     if (!open) return;
     // Capture phase + preventDefault: the tray takes Esc before any page-level
@@ -78,9 +80,14 @@ export function Tray({ open, onClose, title, subtitle, children }: TrayProps) {
           </button>
         </div>
 
-        <div className="overflow-y-auto p-5 pb-8">
+        <div className={`overflow-y-auto p-5 ${footer ? 'pb-5' : 'pb-8'}`}>
           {children}
         </div>
+        {footer && (
+          <div className="flex-none px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] border-t" style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}>
+            {footer}
+          </div>
+        )}
       </aside>
     </>,
     document.body,
