@@ -272,6 +272,29 @@ Unverified on a real phone: whether the filter rail's edge fade reads as
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Explore on a phone: six things Nikita hit on device** (2026-09-30,
+  Foundation, part of #8's per-item checks) — (1) **No plate names on
+  touch** at any zoom: with no hover every plate labelled itself at once and
+  the names overlapped where dishes share a city (three Cairo plates); a tap
+  opens the dish in the sheet, which names it. Desktop keeps hover-to-name.
+  (2) **The filter tray ends in "Show N dishes"** (pinned footer, with
+  "Clear all" beside it once filters are on): filters apply as you tap, so
+  there was nothing to "apply", but the × read as cancel and tap-outside is
+  invisible; the button names what you'll get. `Tray` gained a `footer`
+  slot. (3) **Expand and contract are different icons** on the sheet header
+  (arrows out at half, arrows in at full); both had been the expand glyph.
+  (4) **The sheet scrolls at the half snap.** It was a full-height box
+  translated down 48%, so its scroll box was taller than its content and
+  the lower half hung off-screen; it's now positioned by its top edge, so
+  the box is exactly the visible band at every snap. (5) **The sheet title
+  keeps the country at region level**: "India · North" instead of "North",
+  which alone said nothing once you were a level deep in Butter Chicken.
+  The map breadcrumb already read World › India › North. (6) **The profile
+  star is 22px** on the phone header; the 44px target was fine, the glyph
+  inside it was 14px. **And one line of delight:** once you've logged
+  anything, the strip's world-level hint reads "colouring in as you eat"
+  (desktop: "Countries colour in as you eat through them"), the first place
+  the app says what the map shading means.
 - **Order well: the restaurant view decluttered (part of #42, pulled into
   MVP)** (2026-09-30, G1) — the primary-thesis screen, made scannable at a
   table. One name in all three places (the Home/Explore button, the cuisine

@@ -27,6 +27,8 @@ interface LensControlsProps {
    */
   compact?: boolean;
   title?: React.ReactNode;
+  /** How many entries the current filters leave; names the tray's Done button. */
+  resultCount?: number;
 }
 
 /** One filter in the rail. `remove` is set only for filters you can turn off. */
@@ -105,7 +107,7 @@ function ChipButton({ chip }: { chip: Chip }) {
  */
 export function LensControls({
   filters, lens, onLensChange, availableLenses, triedCount, hasBeverages,
-  onClearRegion, compact = false, title,
+  onClearRegion, compact = false, title, resultCount,
 }: LensControlsProps) {
   const { diet, setDiet, spice, setSpice, popularity, setPopularity } = filters;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -392,6 +394,34 @@ export function LensControls({
         onClose={() => setFiltersOpen(false)}
         title="Filters"
         subtitle={activeChips.length ? `${activeChips.length} on` : 'Narrow the list'}
+        // Filters apply as you tap, so there's nothing to "apply"; the way out
+        // names what you'll see, and clearing sits beside it
+        footer={
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(false)}
+              className="btn-press flex-1 h-12 rounded-xl text-base font-extrabold text-white"
+              style={{ backgroundColor: systemColors.tomato, fontFamily: 'var(--font-heading)' }}
+            >
+              {resultCount === undefined
+                ? 'Done'
+                : resultCount === 0
+                  ? 'Nothing matches'
+                  : `Show ${resultCount} ${resultCount === 1 ? 'dish' : 'dishes'}`}
+            </button>
+            {activeChips.length > 0 && (
+              <button
+                type="button"
+                onClick={clearAll}
+                className="tap h-12 px-3 text-sm font-semibold"
+                style={{ color: systemColors.tomato }}
+              >
+                Clear all
+              </button>
+            )}
+          </div>
+        }
       >
         <div className="space-y-5">
           {GROUPS.map(group => {
@@ -415,15 +445,6 @@ export function LensControls({
               </section>
             );
           })}
-          {activeChips.length > 0 && (
-            <button
-              onClick={() => { clearAll(); setFiltersOpen(false); }}
-              className="tap text-sm font-semibold"
-              style={{ color: systemColors.tomato }}
-            >
-              Clear all filters
-            </button>
-          )}
         </div>
       </Tray>
     </div>

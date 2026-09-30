@@ -615,6 +615,9 @@ export function Explore() {
   };
   const detailEntry = detailKey ? allEntries.find(e => e.key === detailKey) ?? null : null;
   // The back link names the level underneath: the region, All dishes, or the country
+  // The sheet's title. A region alone ("North") loses the country once you're
+  // a level deep in a dish, so the region level reads "India · North".
+  const sheetTitle = scope.level === 'world' ? 'World' : scope.level === 'country' ? scope.country.name : `${scope.country.name} · ${regionLabelName(scope.region.name)}`;
   const detailBackLabel = !country ? '' : scope.level === 'region' ? regionLabelName(scope.region.name) : countryView === 'all' ? 'All dishes' : country.name;
   // Esc steps up one level (dish → where it opened from; All dishes, flavor
   // or culture → overview → world)
@@ -959,7 +962,7 @@ export function Explore() {
           type="button"
           onClick={() => togglePanel(true)}
           aria-expanded={panelOpen}
-          aria-label={`Show panel: ${scope.level === 'world' ? 'World' : scope.level === 'country' ? scope.country.name : regionLabelName(scope.region.name)}`}
+          aria-label={`Show panel: ${sheetTitle}`}
           tabIndex={panelOpen ? -1 : 0}
           className={`panel-tab max-md:hidden absolute right-0 top-1/2 -translate-y-1/2 z-20 flex items-center gap-2.5 pl-2.5 pr-4 py-2.5 min-h-[52px] rounded-l-2xl border border-r-0 text-left ${panelOpen ? 'panel-tab--in' : ''}`}
           style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }}
@@ -971,7 +974,7 @@ export function Explore() {
           <span className="flex flex-col gap-0.5 leading-tight">
             <span className="flex items-center gap-1.5 text-sm font-bold whitespace-nowrap">
               {scope.level !== 'world' && <PlateDot color={scope.country.colorPalette.primary} size={11} />}
-              {scope.level === 'world' ? 'World' : scope.level === 'country' ? scope.country.name : regionLabelName(scope.region.name)}
+              {sheetTitle}
             </span>
             <span className="text-xs whitespace-nowrap" style={{ color: systemColors.navyMuted }}>
               {scope.level === 'world' ? `${countries.length} cuisines` : (n => `${n} ${n === 1 ? 'dish' : 'dishes'}`)(scope.level === 'country' ? allEntries.length : counts[scope.region.name] ?? 0)} · Open
@@ -983,10 +986,12 @@ export function Explore() {
         <div
           ref={panelRef}
           key={scopeKey}
-          className={`z-10 min-h-0 px-5 pb-6 fade-in md:overflow-y-auto md:py-4 md:absolute md:top-3 md:right-3 md:bottom-3 md:w-[440px] md:rounded-2xl md:border md:shadow-[0_14px_36px_-14px_rgba(51,48,42,0.4)] md:transition-transform md:duration-300 md:ease-out ${panelOpen ? '' : 'md:translate-x-[calc(100%+16px)] md:pointer-events-none'} max-md:absolute max-md:inset-0 max-md:rounded-t-2xl max-md:shadow-[0_-8px_20px_rgba(51,48,42,0.14)] max-md:transition-transform max-md:duration-300 max-md:ease-out ${
+          className={`z-10 min-h-0 px-5 pb-6 fade-in md:overflow-y-auto md:py-4 md:absolute md:top-3 md:right-3 md:bottom-3 md:w-[440px] md:rounded-2xl md:border md:shadow-[0_14px_36px_-14px_rgba(51,48,42,0.4)] md:transition-transform md:duration-300 md:ease-out ${panelOpen ? '' : 'md:translate-x-[calc(100%+16px)] md:pointer-events-none'} max-md:absolute max-md:inset-x-0 max-md:bottom-0 max-md:rounded-t-2xl max-md:shadow-[0_-8px_20px_rgba(51,48,42,0.14)] max-md:transition-[top] max-md:duration-300 max-md:ease-out ${
             sheetPos === 'strip' ? 'max-md:overflow-hidden' : 'max-md:overflow-y-auto'
           } ${
-            sheetPos === 'strip' ? 'max-md:translate-y-[calc(100%-54px-env(safe-area-inset-bottom,0px))]' : sheetPos === 'half' ? 'max-md:translate-y-[48%]' : 'max-md:translate-y-0'
+            // Positioned by its top edge, not translated: the box is exactly
+            // the visible band, so the list scrolls to its end at half too
+            sheetPos === 'strip' ? 'max-md:top-[calc(100%-54px-env(safe-area-inset-bottom,0px))]' : sheetPos === 'half' ? 'max-md:top-[48%]' : 'max-md:top-0'
           }`}
           style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}
         >
@@ -1002,9 +1007,9 @@ export function Explore() {
           >
             <div className="flex items-center gap-2 text-sm font-bold" style={{ color: systemColors.navy }}>
               {scope.level !== 'world' && <PlateDot color={scope.country.colorPalette.primary} size={12} />}
-              <span>{scope.level === 'world' ? `${countries.length} cuisines` : scope.level === 'country' ? scope.country.name : regionLabelName(scope.region.name)}</span>
+              <span>{scope.level === 'world' ? `${countries.length} cuisines` : sheetTitle}</span>
               <span className="font-normal text-xs" style={{ color: systemColors.navyMuted }}>
-                {scope.level === 'world' ? 'tap the map, or browse' : scope.level === 'country' ? `${allEntries.length} dishes & drinks` : `${counts[scope.region.name] ?? 0} ${(counts[scope.region.name] ?? 0) === 1 ? 'dish' : 'dishes'}`}
+                {scope.level === 'world' ? (exploredDepth.size ? 'colouring in as you eat' : 'tap the map, or browse') : scope.level === 'country' ? `${allEntries.length} dishes & drinks` : `${counts[scope.region.name] ?? 0} ${(counts[scope.region.name] ?? 0) === 1 ? 'dish' : 'dishes'}`}
               </span>
               {sheetPos === 'strip' ? (
                 <span className="ml-auto text-base leading-none" style={{ color: systemColors.navyMuted }}>⌃</span>
@@ -1017,8 +1022,9 @@ export function Explore() {
                     style={{ color: systemColors.navyMuted }}
                     onClick={e => { e.stopPropagation(); setSheetPos(p => (p === 'full' ? 'half' : 'full')); }}
                   >
+                    {/* Full: arrows point in (contract to half); half: they point out (expand) */}
                     {sheetPos === 'full'
-                      ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 14L4 20M4 20v-5M4 20h5M14 10l6-6M20 4v5M20 4h-5" /></svg>
+                      ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20l6-6M10 14v5M10 14H5M20 4l-6 6M14 10V5M14 10h5" /></svg>
                       : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 10l6-6M20 4v5M20 4h-5M10 14l-6 6M4 20v-5M4 20h5" /></svg>}
                   </button>
                   <button
@@ -1037,7 +1043,7 @@ export function Explore() {
           {panelLevel === 'world' && (
             <>
               <h2 className="max-md:hidden text-lg font-bold" style={{ color: systemColors.navy }}>{flavorMatches ? 'Where next' : '31 cuisines'}</h2>
-              <p className="max-md:hidden text-sm mb-4" style={{ color: systemColors.navyMuted }}>{flavorMatches ? 'Closest to your taste first. Tap one on the map, or pick from the list.' : 'Tap one on the map, or pick from the list.'}</p>
+              <p className="max-md:hidden text-sm mb-4" style={{ color: systemColors.navyMuted }}>{flavorMatches ? 'Closest to your taste first. Tap one on the map, or pick from the list.' : exploredDepth.size ? 'Countries colour in as you eat through them. Tap one on the map, or pick from the list.' : 'Tap one on the map, or pick from the list.'}</p>
               <div className="space-y-1.5">
                 {worldList.map(({ c, progress, match }) => (
                   <button key={c.id} onClick={() => flyToCountry(c.id)} onMouseEnter={() => { if (canHover()) setHovered(c.id); }} onMouseLeave={() => setHovered(null)} className="w-full flex items-center gap-3 rounded-xl border px-3 py-2 text-left btn-press" style={{ backgroundColor: systemColors.surface, borderColor: hovered === c.id ? c.colorPalette.primary : systemColors.border }}>
@@ -1090,6 +1096,7 @@ export function Explore() {
                       availableLenses={['region']}
                       triedCount={triedCount}
                       hasBeverages={allEntries.some(isDrinkEntry)}
+                      resultCount={visible.length}
                     />
                   </div>
                   {visible.length === 0 ? (
