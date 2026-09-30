@@ -325,6 +325,31 @@ at Tier 2.
   of git. **Follow-ups:** convert the dish PNGs (~1.5MB each) to WebP before
   real-phone use; delete the unrouted `Home.tsx` / `CountryDetail.tsx`;
   hand-curated signature dishes if the rule's picks disappoint.
+  **Round two, 2026-09-30, from Nikita's phone and desktop testing.**
+  *Dish plates on the map* (`utils/plateLayout.ts`, `MapPlates.tsx`): after
+  several tries at budgets, nudges and stacks that all jittered, the rules
+  that hold are the simplest ones: **every dish has one fixed spot forever**
+  (its city; a spot beside its region's name if it has no city, chosen once;
+  a slot in a tight row in open water for nationwide dishes), plates are
+  always drawn there, overlap when cities are close (most popular on top) and
+  separate as you zoom, **region names are drawn above the plates**, and
+  visibility changes only at the screen edge and when the whole layer fades
+  at world zoom. Nothing depends on the zoom level, so nothing can flicker.
+  Drinks are on the map (Mezcal), the bob and shadow pulse stay (shadows off
+  on phone), captions show on hover only, never on touch. **The list now
+  agrees with the map:** a dish with a city but no written origin is filed
+  under the nearest region (Pozole → Coastal, Tacos → Central).
+  *Panel:* the collapsed desktop panel is a docked tab ("Central · 3 dishes ·
+  Open") that stays collapsed while you explore the same country and reopens
+  for a new country or a tapped plate; the dish detail opens **inside the
+  panel** with a back link like Flavor and Culture (the sheet is gone).
+  *Flavor fingerprint:* one interactive radar component in both the overview
+  card (compact) and the full view, labels and dots always visible, the
+  sprinkle plays on tap as well as hover, no bar list anywhere; the full view
+  no longer scrolls sideways on a phone. *Borders:* the rounded variant was
+  rejected (its three-way junctions read as triangles); the default is a
+  faint hand-drawn wobble (`utils/softBorders.ts`). Still owed: a real-phone
+  pass, and the dash pattern could be lighter.
 - **Two dish states, survey reconciliation, Explore as home (was #40, #34 + #6, #41)**
   (2026-09-29, G2/G3/Foundation) — three MVP build-order steps shipped as one
   PR, tested at 390px in headless Chromium; **real-phone check still owed**
