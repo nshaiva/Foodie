@@ -96,7 +96,7 @@ export function Home() {
               className="btn-press text-sm font-semibold text-white px-3.5 py-2 rounded-lg"
               style={{ backgroundColor: systemColors.tomato }}
             >
-              🍽 At a restaurant?
+              🍽 Order well
             </Link>
             {/* The same bookmark you tap on a card, with a count — quiet, and it
                 explains itself by resemblance rather than by a word */}

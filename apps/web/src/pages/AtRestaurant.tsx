@@ -1,12 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { countries, getCountryById } from '../data/countries';
+import { STOCKED_REGIONS } from '../data/culinaryRegions';
 import { systemColors } from '../data/systemColors';
 import { useDishes } from '../hooks/useDishes';
 import { useWishlist } from '../hooks/useWishlist';
 import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useDietPrefs } from '../hooks/useDietPrefs';
 import { rankDishesForOrdering, type RankedDish } from '../utils/orderRanking';
+import { dishVerdictRating } from '../utils/ratings';
 import { shapeOrderList, matchesMenuSearch, DEFAULT_SHAPE } from '../utils/orderGrouping';
 import { countryPath } from '../utils/countryPath';
 import { PlateDot } from '../components/Wordmark';
@@ -14,9 +16,9 @@ import { AppBar } from '../components/AppBar';
 import { MenuLookup } from '../components/MenuLookup';
 import { ProfileButton } from '../components/ProfileButton';
 import { UnifiedDishCard } from '../components/country-detail/UnifiedDishCard';
-import { ExpandableText } from '../components/ExpandableText';
+import type { UserDish } from '../data/types';
 import { WantToTryButton } from '../components/WantToTryButton';
-import { spiceChip, popularityChip, dietaryChips, dessertChip } from '../components/dishChips';
+import { DishBlurb } from '../components/DishBlurb';
 
 /**
  * At-the-restaurant view (#1): "I'm at a restaurant trying a new cuisine,
@@ -26,6 +28,10 @@ import { spiceChip, popularityChip, dietaryChips, dessertChip } from '../compone
 export function AtRestaurant() {
   const { id } = useParams<{ id: string }>();
   const country = id ? getCountryById(id) : undefined;
+
+  // The router keeps the scroll offset across navigations, so a cuisine
+  // tapped from far down the picker opened its list far down too
+  useEffect(() => { window.scrollTo(0, 0); }, [id]);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
@@ -38,28 +44,80 @@ export function AtRestaurant() {
   );
 }
 
+/**
+ * The cuisine picker: a search, then the countries you've already eaten
+ * from, then everything grouped by the same eight culinary regions as
+ * Home. Rows in one surface per group, no per-card chrome; the row is the
+ * tap, so there's no arrow to say so.
+ */
 function CuisinePicker() {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const { dishes } = useDishes();
 
+  // Countries you've logged in, most recent first: at a restaurant you're
+  // often back at a cuisine you know
+  const mine = useMemo(() => {
+    const latest = new Map<string, string>();
+    for (const d of dishes) {
+      const prev = latest.get(d.countryId);
+      if (!prev || d.updatedAt > prev) latest.set(d.countryId, d.updatedAt);
+    }
+    return [...latest.entries()]
+      .sort((a, b) => (a[1] < b[1] ? 1 : -1))
+      .map(([id]) => getCountryById(id))
+      .filter((c): c is NonNullable<typeof c> => !!c)
+      .slice(0, 6);
+  }, [dishes]);
+
+  const q = query.trim().toLowerCase();
   const matches = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = q
-      ? countries.filter(c =>
-          c.name.toLowerCase().includes(q) ||
-          c.cuisineProfile.flavorProfile.some(f => f.toLowerCase().includes(q))
-        )
-      : countries;
-    return [...list].sort((a, b) => a.name.localeCompare(b.name));
-  }, [query]);
+    if (!q) return null;
+    return countries
+      .filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        c.cuisineProfile.flavorProfile.some(f => f.toLowerCase().includes(q))
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [q]);
+
+  const groups = useMemo(
+    () => STOCKED_REGIONS.map(r => ({
+      name: r.name,
+      countries: r.countryIds
+        .map(getCountryById)
+        .filter((c): c is NonNullable<typeof c> => !!c)
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    })).filter(g => g.countries.length > 0),
+    []
+  );
+
+  const row = (c: (typeof countries)[number]) => (
+    <button
+      key={c.id}
+      onClick={() => navigate(`/restaurant/${c.id}`)}
+      className="btn-press w-full flex items-center gap-3 px-3.5 py-3 text-left"
+      style={{ borderColor: systemColors.border }}
+    >
+      <PlateDot color={c.colorPalette.primary} size={14} />
+      <span className="flex-1 min-w-0 flex items-baseline gap-2">
+        <span className="text-[15px] font-bold leading-tight" style={{ color: systemColors.navy, fontFamily: 'var(--font-heading)' }}>
+          {c.name}
+        </span>
+        <span className="text-[13px] truncate" style={{ color: systemColors.navyMuted }}>
+          {c.cuisineProfile.flavorProfile.slice(0, 2).map(f => f.split(' ')[0]).join(' · ')}
+        </span>
+      </span>
+    </button>
+  );
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-1" style={{ color: systemColors.navy }}>
-        What are you eating?
+        Order well
       </h1>
       <p className="text-sm mb-4" style={{ color: systemColors.navyMuted }}>
-        Pick the cuisine and get a what-to-order list, ranked for you.
+        Pick the cuisine you're eating and get the dishes worth ordering, ranked for you.
       </p>
 
       <input
@@ -68,34 +126,34 @@ function CuisinePicker() {
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search cuisines…"
         autoFocus
-        className="w-full px-4 py-3 mb-4 rounded-xl border text-base focus:outline-none focus:ring-2"
-        style={{ borderColor: systemColors.border, '--tw-ring-color': systemColors.tomato } as React.CSSProperties}
+        className="w-full px-4 py-3 rounded-xl border text-base bg-white focus:outline-none focus:ring-2"
+        style={{ borderColor: systemColors.border, '--tw-ring-color': `${systemColors.tomato}55` } as React.CSSProperties}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {matches.map(c => (
-          <button
-            key={c.id}
-            onClick={() => navigate(`/restaurant/${c.id}`)}
-            className="card-interactive-sm btn-press flex items-center gap-3 bg-white rounded-xl border px-4 py-3 text-left"
-            style={{ borderColor: systemColors.border }}
-          >
-            <PlateDot color={c.colorPalette.primary} size={16} />
-            <span className="flex-1 min-w-0">
-              <span className="block font-semibold" style={{ color: systemColors.navy }}>{c.name}</span>
-              <span className="block text-xs truncate" style={{ color: systemColors.navyMuted }}>
-                {c.cuisineProfile.flavorProfile.slice(0, 3).map(f => f.split(' ')[0]).join(' · ')}
-              </span>
-            </span>
-            <span className="card-go text-sm">→</span>
-          </button>
-        ))}
-        {matches.length === 0 && (
-          <p className="text-sm py-6 text-center col-span-full" style={{ color: systemColors.navyMuted }}>
+      {matches ? (
+        matches.length > 0 ? (
+          <div className="mt-4"><RowList>{matches.map(row)}</RowList></div>
+        ) : (
+          <p className="text-sm py-6 text-center" style={{ color: systemColors.navyMuted }}>
             No cuisine matches "{query}"
           </p>
-        )}
-      </div>
+        )
+      ) : (
+        <>
+          {mine.length > 0 && (
+            <div>
+              <SectionHeading>Your cuisines</SectionHeading>
+              <RowList>{mine.map(row)}</RowList>
+            </div>
+          )}
+          {groups.map(g => (
+            <div key={g.name}>
+              <SectionHeading>{g.name}</SectionHeading>
+              <RowList>{g.countries.map(row)}</RowList>
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 }
@@ -122,6 +180,8 @@ function OrderList({ countryId }: { countryId: string }) {
   // choose it from how well you know this cuisine, which is why it's a value.
   const { shown, hidden } = useMemo(() => shapeOrderList(ranked, DEFAULT_SHAPE), [ranked]);
   const [menuQuery, setMenuQuery] = useState('');
+  // One row open at a time
+  const [openRow, setOpenRow] = useState<string | null>(null);
   const visible = useMemo(
     () => shown.filter(entry => matchesMenuSearch(entry, menuQuery)),
     [shown, menuQuery]
@@ -146,50 +206,36 @@ function OrderList({ countryId }: { countryId: string }) {
     />
   );
 
+  const rowProps = (name: string, englishName: string | undefined, tried: UserDish | undefined, onTryThis: () => void) => ({
+    tried,
+    wanted: isOnWishlist(countryId, name),
+    open: openRow === name,
+    onToggle: () => setOpenRow(openRow === name ? null : name),
+    onTryThis,
+    cornerActions: cornerActions(name, englishName),
+    crud: dishCrudProps,
+  });
+
   const renderDish = (entry: RankedDish, rank: number) => {
     const { dish, reasons, tried } = entry;
     return (
-      <UnifiedDishCard
+      <OrderRow
         key={dish.name}
-        tried={tried}
-        onTryThis={() => addDish({ countryId, name: dish.name, restaurantTries: [] })}
-        cornerActions={cornerActions(dish.name, dish.englishName)}
-        {...dishCrudProps}
+        rank={rank}
+        accent={country.colorPalette.primary}
+        name={dish.name}
+        line={dish.pronunciation && `“${dish.pronunciation}”`}
+        italic
+        {...rowProps(dish.name, dish.englishName, tried, () => addDish({ countryId, name: dish.name, restaurantTries: [] }))}
       >
-        <div className="flex items-baseline gap-2 pr-12">
-          <span
-            className="flex-none text-xs font-bold w-6 h-6 rounded-full inline-flex items-center justify-center"
-            style={{ backgroundColor: `${country.colorPalette.primary}18`, color: country.colorPalette.primary }}
-          >
-            {rank}
-          </span>
-          <span className="min-w-0">
-            <h4 className="font-bold text-gray-900 leading-tight">{dish.name}</h4>
-            {dish.pronunciation && (
-              <p className="text-xs italic" style={{ color: systemColors.navyMuted }}>
-                "{dish.pronunciation}"
-              </p>
-            )}
-          </span>
-        </div>
-
-        <div className="mt-1.5">
-          <ExpandableText text={dish.description} />
-        </div>
-
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {popularityChip(dish.popularity)}
-          {dessertChip(dish.category)}
-          {spiceChip(dish.spiceLevel)}
-          {dietaryChips(dish.dietary)}
-        </div>
-
-        {reasons.length > 0 && (
-          <p className="text-xs mt-2 font-medium" style={{ color: systemColors.herb }}>
-            {reasons.slice(0, 2).join(' · ')}
-          </p>
-        )}
-      </UnifiedDishCard>
+        <DishBlurb item={dish} kind="dish" country={country}>
+          {reasons.length > 0 && (
+            <p className="text-[13px] font-semibold" style={{ color: systemColors.herb }}>
+              {reasons.slice(0, 2).join(' · ')}
+            </p>
+          )}
+        </DishBlurb>
+      </OrderRow>
     );
   };
 
@@ -205,7 +251,7 @@ function OrderList({ countryId }: { countryId: string }) {
       <div className="flex items-center gap-2.5 mb-1">
         <PlateDot color={country.colorPalette.primary} size={16} />
         <h1 className="text-2xl font-bold" style={{ color: systemColors.navy }}>
-          What to order · {country.name}
+          Order well · {country.name}
         </h1>
       </div>
       <p className="text-sm mb-3" style={{ color: systemColors.navyMuted }}>
@@ -224,9 +270,9 @@ function OrderList({ countryId }: { countryId: string }) {
         style={{ borderColor: systemColors.border, color: systemColors.navy }}
       />
 
-      <div className="space-y-3">
-        {visible.map(entry => renderDish(entry, ranked.indexOf(entry) + 1))}
-      </div>
+      {visible.length > 0 && (
+        <RowList>{visible.map(entry => renderDish(entry, ranked.indexOf(entry) + 1))}</RowList>
+      )}
 
       {visible.length === 0 && (
         <div className="py-2">
@@ -257,12 +303,36 @@ function OrderList({ countryId }: { countryId: string }) {
         </p>
       )}
 
+      {!searching && drinks.length > 0 && (
+        <div>
+          <SectionHeading count={drinks.length}>Drinks</SectionHeading>
+          <RowList>
+            {drinks.map(drink => (
+              <OrderRow
+                key={drink.name}
+                accent={country.colorPalette.primary}
+                name={drink.name}
+                line={drink.englishName}
+                {...rowProps(
+                  drink.name,
+                  drink.englishName,
+                  countryDishes.find(d => d.name.toLowerCase() === drink.name.toLowerCase()),
+                  () => addDish({ countryId, name: drink.name, kind: 'drink', restaurantTries: [] }),
+                )}
+              >
+                <DishBlurb item={drink} kind="drink" country={country} />
+              </OrderRow>
+            ))}
+          </RowList>
+        </div>
+      )}
+
       {/* The escape hatch, and the honest one: our list is about nine dishes and
           a real menu has sixty, so this must never look like the whole cuisine.
           Kept visible when the search finds nothing, which is when it's needed. */}
       <Link
         to={countryPath(countryId)}
-        className="flex items-center justify-between gap-3 mt-5 px-4 py-3 rounded-xl border btn-press"
+        className="flex items-center justify-between gap-3 mt-6 px-4 py-3 rounded-xl border btn-press"
         style={{ borderColor: systemColors.border, backgroundColor: systemColors.surface }}
       >
         <span>
@@ -276,37 +346,11 @@ function OrderList({ countryId }: { countryId: string }) {
         <span className="flex-none text-sm font-bold" style={{ color: systemColors.tomato }}>→</span>
       </Link>
 
-      {!searching && drinks.length > 0 && (
-        <div>
-          <SectionHeading count={drinks.length}>Drinks</SectionHeading>
-          <div className="space-y-2.5">
-            {drinks.map(drink => (
-              <UnifiedDishCard
-                key={drink.name}
-                tried={countryDishes.find(d => d.name.toLowerCase() === drink.name.toLowerCase())}
-                onTryThis={() => addDish({ countryId, name: drink.name, kind: 'drink', restaurantTries: [] })}
-                cornerActions={cornerActions(drink.name, drink.englishName)}
-                {...dishCrudProps}
-              >
-                <div className="pr-12">
-                  <h4 className="font-bold text-gray-900 leading-tight">{drink.name}</h4>
-                  {drink.englishName && (
-                    <p className="text-xs" style={{ color: systemColors.navyMuted }}>{drink.englishName}</p>
-                  )}
-                </div>
-                <div className="mt-1">
-                  <ExpandableText text={drink.description} />
-                </div>
-              </UnifiedDishCard>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-/** Quiet divider above the drinks list. */
+/** Quiet divider above a list. */
 function SectionHeading({ children, count }: { children: React.ReactNode; count?: number }) {
   return (
     <div className="flex items-baseline gap-2 mt-6 mb-2">
@@ -318,5 +362,140 @@ function SectionHeading({ children, count }: { children: React.ReactNode; count?
       )}
       <span className="flex-1 h-px" style={{ backgroundColor: systemColors.border }} />
     </div>
+  );
+}
+
+/** One surface for a list of rows, hairlines between them. */
+function RowList({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="bg-white rounded-2xl border divide-y overflow-hidden"
+      style={{ borderColor: systemColors.border }}
+    >
+      {children}
+    </div>
+  );
+}
+
+type Crud = Pick<
+  React.ComponentProps<typeof UnifiedDishCard>,
+  'onUpdateDish' | 'onDeleteDish' | 'onAddRestaurantTry' | 'onUpdateRestaurantTry' | 'onDeleteRestaurantTry'
+>;
+
+/**
+ * A what-to-order row: rank, name, and how to say it. At a table you scan
+ * and then order out loud, so that is all the row holds; the description,
+ * chips, why it ranks here, and every action (want to try, I tried this,
+ * rate, edit) open in place on a tap, as in Explore's detail (#39). The row
+ * carries only your status, in the same marker Explore's tiles use.
+ */
+function OrderRow({
+  rank, accent, name, line, italic = false, tried, wanted, open,
+  onToggle, onTryThis, cornerActions, crud, children,
+}: {
+  rank?: number;
+  accent: string;
+  name: string;
+  /** Pronunciation for a dish (say it to the server), English name for a drink */
+  line?: string;
+  italic?: boolean;
+  tried?: UserDish;
+  wanted: boolean;
+  open: boolean;
+  onToggle: () => void;
+  onTryThis: () => void;
+  cornerActions: React.ReactNode;
+  crud: Crud;
+  children: React.ReactNode;
+}) {
+  const verdict = tried ? dishVerdictRating(tried) : undefined;
+  const stars = verdict !== undefined ? Math.round(verdict) : undefined;
+
+  return (
+    <div style={{ borderColor: systemColors.border }} data-order-row={name}>
+      <div className="flex items-center gap-1 pl-3.5 pr-2.5">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          className="flex-1 min-w-0 flex items-center gap-3 py-3 text-left"
+        >
+          {rank !== undefined && (
+            <span
+              className="flex-none text-xs font-bold w-6 h-6 rounded-full inline-flex items-center justify-center"
+              style={{ backgroundColor: `${accent}18`, color: accent }}
+            >
+              {rank}
+            </span>
+          )}
+          <span className="min-w-0 flex-1">
+            <span
+              className="block text-[15px] font-bold leading-tight"
+              style={{ color: systemColors.navy, fontFamily: 'var(--font-heading)' }}
+            >
+              {name}
+            </span>
+            {line && (
+              <span className={`block text-[13px] leading-snug mt-0.5 truncate ${italic ? 'italic' : ''}`} style={{ color: systemColors.navyMuted }}>
+                {line}
+              </span>
+            )}
+          </span>
+            {tried ? (
+              <span
+                className="flex-none h-[26px] px-2 rounded-full flex items-center gap-1 text-xs font-bold"
+                style={{ backgroundColor: systemColors.herbLight, color: '#4F6B45' }}
+                role="img"
+                aria-label={stars ? `Tried, rated ${stars} of 5` : 'Tried'}
+              >
+                <CheckIcon size={13} />
+                {stars ? <span style={{ color: '#9A6F12' }}>★ {stars}</span> : null}
+              </span>
+            ) : wanted ? (
+              <span className="flex-none" role="img" aria-label="On your want-to-try list">
+                <BookmarkIcon />
+              </span>
+            ) : null}
+          <svg
+            className={`flex-none w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`}
+            viewBox="0 0 24 24" fill="none" stroke={systemColors.navyMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+
+      </div>
+
+      {open && (
+        <div className="px-3.5 pb-3.5" data-order-row-detail>
+          <UnifiedDishCard
+            bare
+            tried={tried}
+            onTryThis={onTryThis}
+            cornerActions={cornerActions}
+            {...crud}
+          >
+            {children}
+          </UnifiedDishCard>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CheckIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12l5 5 9-10" />
+    </svg>
+  );
+}
+
+function BookmarkIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={systemColors.saffron} stroke={systemColors.saffron} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 3h12v18l-6-4-6 4z" />
+    </svg>
   );
 }

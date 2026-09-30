@@ -14,6 +14,8 @@ interface UnifiedDishCardProps {
   /** Top-right action icons (want-to-try), popular dishes only */
   cornerActions?: React.ReactNode;
   onTryThis?: () => void;
+  /** No card chrome (border, padding): the parent already draws the surface */
+  bare?: boolean;
   onUpdateDish: (id: string, data: Partial<UserDish>) => void;
   onDeleteDish: (id: string) => void;
   onAddRestaurantTry: (dishId: string, data: Omit<RestaurantTry, 'id'>) => void;
@@ -44,6 +46,7 @@ export function UnifiedDishCard({
   children,
   cornerActions,
   onTryThis,
+  bare = false,
   onUpdateDish,
   onDeleteDish,
   onAddRestaurantTry,
@@ -108,13 +111,13 @@ export function UnifiedDishCard({
 
   return (
     <div
-      className="card-interactive relative bg-white rounded-xl border p-4"
-      style={tried
+      className={bare ? 'relative' : 'card-interactive relative bg-white rounded-xl border p-4'}
+      style={bare ? undefined : tried
         ? { borderColor: systemColors.herb, boxShadow: `inset 3px 0 0 ${systemColors.herb}` }
         : { borderColor: '#e5e7eb' }}
     >
       {cornerActions && (
-        <div className="absolute top-3 right-3 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+        <div className={`absolute z-10 ${bare ? 'top-2 right-2' : 'top-3 right-3'} flex items-center gap-1`} onClick={(e) => e.stopPropagation()}>
           {cornerActions}
         </div>
       )}
