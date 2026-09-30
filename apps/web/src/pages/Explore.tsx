@@ -913,16 +913,20 @@ export function Explore() {
 
               {/* One signature plate per country at world zoom (#36 preview);
                   the opened country's hands over to its region plates */}
-              <WorldPlates
-                countries={countries}
-                features={features}
-                projection={baseProjection}
-                zoom={liveZoom}
-                labelScale={labelScale}
-                scopedId={bubbleCountry?.id}
-                scopedFade={showBubbles && areas ? plateFade(areas, liveZoom) : 0}
-                onOpenCountry={id => flyToCountry(id)}
-              />
+              {/* On a phone the whole world is a few dozen px per country, so the
+                  pins wait until a part of the world fills the screen */}
+              {(isDesktop() || liveZoom >= 2.2) && (
+                <WorldPlates
+                  countries={countries}
+                  features={features}
+                  projection={baseProjection}
+                  zoom={liveZoom}
+                  labelScale={labelScale}
+                  scopedId={bubbleCountry?.id}
+                  scopedFade={showBubbles && areas ? plateFade(areas, liveZoom) : 0}
+                  onOpenCountry={id => flyToCountry(id)}
+                />
+              )}
 
             </ZoomableGroup>
           </ComposableMap>
