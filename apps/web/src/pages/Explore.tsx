@@ -515,6 +515,10 @@ export function Explore() {
       if (Math.hypot(c.clientX - s.x, c.clientY - s.y) > 12 || Date.now() - s.t > 600) return; // a drag or a hold
       const target = s.target as Element | null;
       if (target?.closest?.('button, a')) return;
+      // A dish plate: d3-zoom eats the touch before the browser makes a click
+      // of it on iOS, so make the click here
+      const plate = target?.closest?.('[data-plate]');
+      if (plate) { e.preventDefault(); plate.dispatchEvent(new MouseEvent('click', { bubbles: true })); return; }
       const hit = target?.closest?.('[data-r], [data-c]');
       if (!hit) {
         // A tap on open map means you're looking at the map: a half sheet steps aside
