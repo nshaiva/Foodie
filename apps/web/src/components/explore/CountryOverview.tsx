@@ -1,19 +1,20 @@
 import { systemColors } from '../../data/systemColors';
 import type { Country, Dish } from '../../data/types';
 import { signatureDishes } from '../../utils/signatureDishes';
+import { FlavorRadarChart } from '../FlavorRadarChart';
 import { DishImage } from './DishTile';
-import { AxisBars, BlockHeading, BODY_CLASS, BODY_STYLE, CARD_CLASS, CARD_STYLE, MiniRadar, SectionLabel } from './FlavorBits';
+import { BlockHeading, BODY_CLASS, BODY_STYLE, CARD_CLASS, CARD_STYLE, RADAR_COLOR, SectionLabel } from './FlavorBits';
 
 /**
  * The country level of the Explore panel (#39, layout 1B): what the food is
  * like before any list. Signature dishes first (pictures are easier to take in
- * than a radar), then a compact flavor block, then a culture teaser. No
+ * than a chart), then a compact flavor block, then a culture teaser. No
  * search, no filters, no cards: those live one level down, in All dishes,
  * reached from "See all N ›" in the strip's header.
  *
  * The flavor and culture blocks are the condensed form of the trays their
- * links open, drawn with the same pieces (`FlavorBits`), so the tray reads as
- * the same block expanded.
+ * links open, drawn with the same pieces (`FlavorBits`). Flavor is the tray's own
+ * radar at a compact size, tappable axes and ingredient drivers included.
  */
 
 function LinkButton({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
@@ -64,11 +65,13 @@ export function CountryOverview({
             <span className="whitespace-nowrap"><BlockHeading id="start-with">Start with these</BlockHeading></span>
             <span className="max-md:hidden text-xs" style={{ color: systemColors.navyMuted }}>The dishes {country.name} is known for</span>
           </div>
-          {/* The way down to every dish: a 44px target on a phone */}
+          {/* The way down to every dish: a 44px target on a phone. Padded on
+              the left only, so the text ends on the column's right edge
+              without a negative margin widening the column */}
           <button
             type="button"
             onClick={onSeeAll}
-            className="ml-auto -mr-2 flex-none h-11 md:h-8 px-2 inline-flex items-center text-sm font-semibold whitespace-nowrap rounded-lg hover:opacity-80"
+            className="ml-auto flex-none h-11 md:h-8 pl-3 inline-flex items-center text-sm font-semibold whitespace-nowrap rounded-lg hover:opacity-80"
             style={{ color: systemColors.tomato }}
           >
             See all {totalCount} ›
@@ -87,12 +90,9 @@ export function CountryOverview({
       {intensity && (
         <section className="flex flex-col gap-3" aria-labelledby="tastes-like">
           <BlockHeading id="tastes-like">What it tastes like</BlockHeading>
-          <div className={`${CARD_CLASS} px-4 py-3.5 flex flex-col gap-2.5`} style={CARD_STYLE}>
+          <div className={`${CARD_CLASS} p-4 flex flex-col gap-2`} style={CARD_STYLE}>
             <SectionLabel>Flavor fingerprint</SectionLabel>
-            <div className="flex items-center gap-4">
-              <MiniRadar intensity={intensity} />
-              <AxisBars intensity={intensity} />
-            </div>
+            <FlavorRadarChart flavorIntensity={intensity} colors={colors} ingredientTiers={country.cuisineProfile.ingredientTiers} color={RADAR_COLOR} size="compact" />
           </div>
           <LinkButton onClick={onOpenFlavor}>Full flavor fingerprint ›</LinkButton>
         </section>

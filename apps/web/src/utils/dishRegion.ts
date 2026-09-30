@@ -1,4 +1,5 @@
 import type { Beverage, Dish, FlavorAxisId, IngredientTiers, RegionalCuisine } from '../data/types';
+import { regionCoordinates } from '../data/regionMapConfig';
 
 /**
  * Resolving a dish to one of its country's regions.
@@ -20,7 +21,7 @@ import type { Beverage, Dish, FlavorAxisId, IngredientTiers, RegionalCuisine } f
  * which surfaces as an orphan rather than vanishing.
  */
 
-type Placed = Pick<Dish, 'regionalOrigin'> | Pick<Beverage, 'regionalOrigin'>;
+type Placed = Pick<Dish, 'regionalOrigin' | 'origin'> | Pick<Beverage, 'regionalOrigin' | 'origin'>;
 
 /** Origins meaning "the whole country", not a region. */
 const NATIONWIDE = new Set(['nationwide', 'countrywide', 'throughout', 'all over', 'everywhere']);
@@ -146,6 +147,19 @@ export function resolveRegion(
   countryId?: string
 ): RegionMatch {
   const origin = item.regionalOrigin?.trim();
+  // No written origin but a city: the region whose centre is nearest, so the
+  // list files a dish where the map draws it
+  if (!origin && item.origin && countryId) {
+    const [lon, lat] = item.origin.coordinates;
+    const centres = regionCoordinates[countryId];
+    let best: RegionalCuisine | undefined, bestD = Infinity;
+    for (const r of regions ?? []) {
+      const c = centres?.[r.name]; if (!c) continue;
+      const d = (c[0] - lon) ** 2 * Math.cos((lat * Math.PI) / 180) ** 2 + (c[1] - lat) ** 2;
+      if (d < bestD) { bestD = d; best = r; }
+    }
+    if (best) return { kind: 'region', region: best };
+  }
   if (!origin) return { kind: 'none' };
 
   const fragments = originFragments(origin);

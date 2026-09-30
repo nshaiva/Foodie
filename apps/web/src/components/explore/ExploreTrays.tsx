@@ -4,12 +4,12 @@ import type { Country } from '../../data/types';
 import { getSimilarCuisines } from '../../utils/cuisineSimilarity';
 import { FlavorRadarChart } from '../FlavorRadarChart';
 import { IngredientPyramid } from '../IngredientPyramid';
-import { AxisBars, BODY_CLASS, BODY_STYLE, CARD_CLASS, CARD_STYLE, RADAR_COLOR, SectionLabel } from './FlavorBits';
+import { BODY_CLASS, BODY_STYLE, CARD_CLASS, CARD_STYLE, RADAR_COLOR, SectionLabel } from './FlavorBits';
 
 /**
  * The expanded forms of the overview's flavor and culture blocks (#39). Same
  * pieces as the condensed blocks (`FlavorBits`): white bordered cards, small
- * caps labels, the terracotta radar, the axis bars strongest first. The
+ * caps labels, the same terracotta radar at a larger size. The
  * content is the trays' existing content (the radar with its tappable axes,
  * the ingredient build view, meal structure, customs, influences, similar
  * cuisines), only restyled.
@@ -21,11 +21,12 @@ export function FlavorTrayBody({ country }: { country: Country }) {
     <div className="flex flex-col gap-4">
       <div className={`${CARD_CLASS} p-4 flex flex-col gap-3`} style={CARD_STYLE}>
         <SectionLabel>Flavor fingerprint</SectionLabel>
-        <FlavorRadarChart flavorIntensity={profile.flavorIntensity} colors={country.colorPalette} ingredientTiers={profile.ingredientTiers} color={RADAR_COLOR} />
-        <AxisBars intensity={profile.flavorIntensity} showValues />
+        <FlavorRadarChart flavorIntensity={profile.flavorIntensity} colors={country.colorPalette} ingredientTiers={profile.ingredientTiers} color={RADAR_COLOR} size="fitted" />
       </div>
       {profile.ingredientTiers && (
-        <div className={`${CARD_CLASS} p-4 flex flex-col gap-3`} style={CARD_STYLE}>
+        // Clipped sideways: the chips' hidden hover notes are wider than a
+        // phone panel and would otherwise let it scroll sideways
+        <div className={`${CARD_CLASS} p-4 flex flex-col gap-3 overflow-x-clip`} style={CARD_STYLE}>
           <SectionLabel>How it comes together</SectionLabel>
           <IngredientPyramid tiers={profile.ingredientTiers} colors={country.colorPalette} cookingFlow={profile.cookingFlow} />
         </div>

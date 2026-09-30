@@ -16,11 +16,26 @@ interface FlavorRadarChartProps {
   colors: ColorPalette;
   /** When provided (with axis data), axis labels become clickable and show driver ingredients */
   ingredientTiers?: IngredientTiers;
-  size?: number;
+  /**
+   * How tall the chart's box is. `full` is the page-sized chart; `fitted` sits
+   * close around the hexagon for a card that holds only the chart; `compact`
+   * is the smaller box of the country overview's card. Everything else (the
+   * tappable axes, the drivers panel, the flavor sentence) is the same at
+   * every size.
+   */
+  size?: RadarSize;
   /** Fill and stroke of the shape; defaults to the country's primary. Explore
-   *  passes its own so the tray matches the overview's mini radar. */
+   *  passes its own so the overview and the tray share one colour. */
   color?: string;
 }
+
+type RadarSize = 'full' | 'fitted' | 'compact';
+
+const BOX_HEIGHT: Record<RadarSize, string> = {
+  full: 'h-80 md:h-96',
+  fitted: 'h-60 md:h-64',
+  compact: 'h-48',
+};
 
 const axisLabels: Record<FlavorAxisId, string> = {
   heat: 'Heat',
@@ -38,7 +53,7 @@ const TIER_BADGE: Record<keyof IngredientTiers, string> = {
   staples: 'STPL',
 };
 
-export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers, color }: FlavorRadarChartProps) {
+export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers, size = 'full', color }: FlavorRadarChartProps) {
   const [selectedAxis, setSelectedAxis] = useState<FlavorAxisId | null>(null);
   const interactive = !!ingredientTiers && hasFlavorAxisData(ingredientTiers);
 
@@ -72,7 +87,9 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers, col
     const axisColor = FLAVOR_AXIS_META[key].color;
 
     const toggle = () => setSelectedAxis(prev => (prev === key ? null : key));
-    const W = 110;
+    // Wide enough for the longest label in bold, and no wider: at a phone's
+    // width a wider box reaches past the card's edge
+    const W = 100;
     const anchor = (textAnchor ?? 'middle') as 'start' | 'middle' | 'end';
     const fx = anchor === 'start' ? x : anchor === 'end' ? x - W : x - W / 2;
     const justify = anchor === 'start' ? 'flex-start' : anchor === 'end' ? 'flex-end' : 'center';
@@ -107,7 +124,7 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers, col
 
   return (
     <div className="w-full">
-      <div className="h-80 md:h-96 radar-chart">
+      <div className={`${BOX_HEIGHT[size]} radar-chart`}>
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data} margin={{ left: 52, right: 52 }}>
             <PolarGrid
@@ -138,7 +155,7 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers, col
       </div>
 
       {interactive && !selectedAxis && (
-        <p className="text-xs text-center -mt-2 mb-1" style={{ color: systemColors.navyMuted }}>
+        <p className={`text-xs text-center mb-1 ${size === 'full' ? '-mt-2' : 'mt-1'}`} style={{ color: systemColors.navyMuted }}>
           Tap an axis to see the ingredients behind it
         </p>
       )}

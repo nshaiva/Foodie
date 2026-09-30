@@ -4,6 +4,7 @@ import { polygonContains } from 'd3-polygon';
 import type { Feature, Geometry } from 'geojson';
 import type { RegionalCuisine } from '../data/types';
 import { getShortRegionName, regionCoordinates } from '../data/regionMapConfig';
+import { BORDER_STYLE, softenCells } from './softBorders';
 
 /**
  * The wine-map view of a country: dashed borders split it into regions,
@@ -103,7 +104,11 @@ const segDist2 = (px: number, py: number, ax: number, ay: number, bx: number, by
  * country that is farthest from any border or coast. Distances count width
  * three times less than height, because names are long and flat.
  */
-function labelAnchor(cell: [number, number][], rings: [number, number][][], coast: [number, number][], home: [number, number]): [number, number] {
+/** How far a region's name must stay from a place it has to keep clear of,
+ *  in projected px: the plate's radius, and the name's own half size. */
+export type Clearance = { r: number; halfH: number; perChar: number; pad: number };
+
+function labelAnchor(cell: [number, number][], rings: [number, number][][], coast: [number, number][], home: [number, number], avoid: [number, number][] = [], box?: { halfW: number; halfH: number; r: number }): [number, number] {
   // Stay on the landmass the region's own centre is on: the US West Coast's
   // area also takes in Alaska, which has more room but is the wrong place.
   // A centre just offshore goes to the nearest landmass.
@@ -112,10 +117,17 @@ function labelAnchor(cell: [number, number][], rings: [number, number][][], coas
   const xs = cell.map(p => p[0]), ys = cell.map(p => p[1]);
   const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
   const STEPS = 22, SX = 3;
-  let best = home, bestD = -1;
+  // Clear of every place it must avoid: far enough sideways or far enough
+  // up or down that a plate there can't touch the name
+  const clear = (x: number, y: number) => !box || avoid.every(a => Math.abs(a[0] - x) >= box.halfW + box.r || Math.abs(a[1] - y) >= box.halfH + box.r);
+  let best = home, bestD = -1, bestClear = false;
   for (let i = 0; i <= STEPS; i++) for (let j = 0; j <= STEPS; j++) {
     const x = x0 + ((x1 - x0) * i) / STEPS, y = y0 + ((y1 - y0) * j) / STEPS;
     if (!polygonContains(cell, [x, y]) || !polygonContains(land, [x, y])) continue;
+    const ok = clear(x, y);
+    // A clear spot always beats a roomier one that isn't
+    if (bestClear && !ok) continue;
+    if (ok && !bestClear) { bestClear = true; bestD = -1; }
     let d = Infinity;
     for (let k = 0; k < cell.length - 1 && d > bestD; k++) d = Math.min(d, segDist2(x, y, cell[k][0], cell[k][1], cell[k + 1][0], cell[k + 1][1], SX));
     for (let k = 0; k < coast.length && d > bestD; k++) { const dx = (coast[k][0] - x) / SX, dy = coast[k][1] - y; d = Math.min(d, dx * dx + dy * dy); }
@@ -128,9 +140,11 @@ function labelAnchor(cell: [number, number][], rings: [number, number][][], coas
  * Split a country into its regions: each point of land goes to the nearest
  * region centre (a Voronoi diagram in screen space), and everything is
  * clipped to the coastline when drawn. Approximate, but it needs no boundary
- * data, and it turns the whole country into click targets.
+ * data, and it turns the whole country into click targets. `avoid` lists
+ * places (lon/lat) the region names should keep clear of: a city can't move,
+ * a name can sit anywhere in its region.
  */
-export function regionAreas(countryId: string, allRegions: RegionalCuisine[] | undefined, feat: Feature<Geometry>, proj: GeoProjection): RegionAreas | null {
+export function regionAreas(countryId: string, allRegions: RegionalCuisine[] | undefined, feat: Feature<Geometry>, proj: GeoProjection, avoid: [number, number][] = [], clearance?: Clearance): RegionAreas | null {
   const coords = regionCoordinates[countryId];
   const regions = (allRegions ?? []).filter(r => coords?.[r.name]);
   if (!coords || regions.length === 0) return null;
@@ -143,17 +157,24 @@ export function regionAreas(countryId: string, allRegions: RegionalCuisine[] | u
   // small island, just not the coast it sits on or a region border
   const rings = projectedRings(homeLand(countryId, feat, proj), proj);
   const coast = rings.flat();
+  // The landmass extent that names are measured against (so Alaska doesn't
+  // make the US look wide enough for bigger names)
+  const bounds = (() => { const xs = coast.map(p => p[0]), ys = coast.map(p => p[1]); return [[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]] as [[number, number], [number, number]]; })();
+  const polys = regions.map((_, i) => voronoi.cellPolygon(i) as [number, number][]);
+  // Cells and borders come from one softened geometry, so the selected cell's
+  // tint meets the dashed line exactly; labels still use the straight cells
+  const soft = BORDER_STYLE === 'straight'
+    ? { cells: regions.map((_, i) => voronoi.renderCell(i)), borders: voronoi.render() }
+    : softenCells(polys, Math.max(bounds[1][0] - bounds[0][0], bounds[1][1] - bounds[0][1]), BORDER_STYLE);
   return {
     outline: path(feat) ?? '',
-    // The landmass extent that names are measured against (so Alaska doesn't
-    // make the US look wide enough for bigger names)
-    bounds: (() => { const xs = coast.map(p => p[0]), ys = coast.map(p => p[1]); return [[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]] as [[number, number], [number, number]]; })(),
-    borders: regions.length > 1 ? voronoi.render() : '',
+    bounds,
+    borders: regions.length > 1 ? soft.borders : '',
     rings,
     areas: regions.map((region, i) => {
-      const poly = voronoi.cellPolygon(i) as [number, number][];
-      const anchorPx = labelAnchor(poly, rings, coast, pts[i] as [number, number]);
-      return { region, cell: voronoi.renderCell(i), anchor: proj.invert!(anchorPx) as [number, number], anchorPx };
+      const box = clearance && { r: clearance.r, halfH: clearance.halfH, halfW: (regionLabelName(region.name).length * clearance.perChar) / 2 + clearance.pad };
+      const anchorPx = labelAnchor(polys[i], rings, coast, pts[i] as [number, number], avoid.map(a => proj(a) as [number, number]), box);
+      return { region, cell: soft.cells[i], anchor: proj.invert!(anchorPx) as [number, number], anchorPx };
     }),
   };
 }

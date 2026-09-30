@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { systemColors } from '../../data/systemColors';
 import type { Beverage, Country, DietaryInfo, Dish, UserDish } from '../../data/types';
 import { resolveRegion } from '../../utils/dishRegion';
@@ -8,17 +8,20 @@ import { countryInSentence, type Entry } from '../../utils/groupDishes';
 import { RestaurantTryForm } from '../RestaurantTryForm';
 import type { EntryGridActions } from '../country-detail/EntryGrid';
 import { BookmarkIcon, CheckIcon, DishImage } from './DishTile';
+import { BackLink } from './PanelLevels';
 import { entryView } from '../../utils/entryView';
 
 /**
- * The dish detail view (#39): every action on a dish in one place. The tile
+ * The dish detail level (#39): every action on a dish in one place. The tile
  * that opens it is only a picture and a line; here is the large image, the
  * chips that left the tile, the full description, and the controls that used
  * to crowd the card: want to try, I tried this (straight into the rating
  * prompt), the verdict with "Log another visit", edit and delete.
  *
- * A side sheet over the panel on desktop, a bottom sheet on a phone (the
- * Tray's mechanics, with the image as its header instead of a title bar).
+ * It renders inside the Explore panel like All dishes, Flavor and Culture do,
+ * one level down from wherever it was opened: a "‹ {parent}" back link, the
+ * image, then the body. Not an overlay; the panel (or the phone sheet) is the
+ * only surface.
  */
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -77,58 +80,18 @@ const fmtDate = (s: string) => new Date(s).toLocaleDateString('en-US', { month: 
 
 const iconBtn = 'w-11 h-11 flex items-center justify-center rounded-full transition-colors';
 
-export function DishDetailSheet({
-  entry, country, actions, onClose,
-}: {
-  entry: Entry | null;
+/**
+ * `backLabel` names the level the dish was opened from ("All dishes", the
+ * region, or the country for a signature tile or map plate); `onBack` returns
+ * there. Key this on the entry so the rating prompt resets between dishes.
+ */
+export function DishDetail({ entry, country, actions: a, backLabel, onBack }: {
+  entry: Entry;
   country: Country;
   actions: EntryGridActions;
-  onClose: () => void;
+  backLabel: string;
+  onBack: () => void;
 }) {
-  const open = !!entry;
-  // Keep the last dish on screen while the sheet slides away
-  const [shown, setShown] = useState<Entry | null>(entry);
-  if (entry && entry !== shown) setShown(entry);
-
-  useEffect(() => {
-    if (!open) return;
-    // Capture phase + preventDefault: the tray takes Esc before any page-level
-    // Esc handler (Explore's "step up a level") sees it
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); onClose(); } };
-    window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
-  }, [open, onClose]);
-
-  return (
-    <>
-      <div
-        onClick={onClose}
-        aria-hidden="true"
-        className={`fixed inset-0 z-40 transition-opacity duration-300 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        style={{ backgroundColor: 'rgba(43,32,24,0.38)' }}
-      />
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label={shown ? entryView(shown).name : 'Dish'}
-        aria-hidden={!open}
-        data-dish-detail={open ? 'open' : 'closed'}
-        className={[
-          'fixed z-50 flex flex-col transition-transform duration-300 ease-out overflow-hidden',
-          'inset-x-0 bottom-0 max-h-[calc(100dvh-56px)] rounded-t-2xl',
-          open ? 'translate-y-0 shadow-2xl' : 'translate-y-full',
-          'md:inset-x-auto md:top-0 md:right-0 md:bottom-0 md:h-full md:max-h-none md:w-[max(38vw,420px)] md:rounded-none',
-          open ? 'md:translate-x-0' : 'md:translate-y-0 md:translate-x-full',
-        ].join(' ')}
-        style={{ backgroundColor: systemColors.surface }}
-      >
-        {shown && <DetailBody key={shown.key} entry={shown} country={country} actions={actions} onClose={onClose} open={open} />}
-      </aside>
-    </>
-  );
-}
-
-function DetailBody({ entry, country, actions: a, onClose, open }: { entry: Entry; country: Country; actions: EntryGridActions; onClose: () => void; open: boolean }) {
   const v = entryView(entry);
   const source = entry.kind === 'dish' ? entry.dish : entry.kind === 'drink' ? entry.drink : undefined;
   const tried: UserDish | undefined = v.tried;
@@ -198,7 +161,7 @@ function DetailBody({ entry, country, actions: a, onClose, open }: { entry: Entr
     a.onDeleteDish(tried.id);
     setPrompt(null);
     // Your own dish has nothing left to show once it's gone
-    if (entry.kind === 'custom') onClose();
+    if (entry.kind === 'custom') onBack();
   };
 
   const toggleWant = () => {
@@ -211,23 +174,13 @@ function DetailBody({ entry, country, actions: a, onClose, open }: { entry: Entr
   const heading = { fontFamily: 'var(--font-heading)' } as const;
 
   return (
-    <div className="overflow-y-auto overscroll-contain flex-1 min-h-0">
-      <DishImage name={v.name} image={v.image} colors={country.colorPalette} glass={v.isDrink} plate={110} className="w-full h-[210px] md:h-[300px] flex-none">
-        <div className="md:hidden absolute top-2.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.9)' }} aria-hidden />
-        <span className="absolute left-4 bottom-3.5 px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-[0.04em]" style={{ backgroundColor: 'rgba(255,255,255,0.85)', color: systemColors.navyLight }}>Illustration</span>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          tabIndex={open ? 0 : -1}
-          className="absolute top-3.5 right-3.5 w-11 h-11 rounded-full flex items-center justify-center shadow-sm"
-          style={{ backgroundColor: systemColors.surface, color: systemColors.navy }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-        </button>
+    <section className="flex flex-col gap-4 pt-1" data-dish-detail="open" aria-label={v.name}>
+      <BackLink label={backLabel} onClick={onBack} />
+      <DishImage name={v.name} image={v.image} colors={country.colorPalette} glass={v.isDrink} plate={110} className="w-full h-[220px] md:h-[260px] flex-none rounded-2xl">
+        <span className="absolute left-3.5 bottom-3 px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-[0.04em]" style={{ backgroundColor: 'rgba(255,255,255,0.85)', color: systemColors.navyLight }}>Illustration</span>
       </DishImage>
 
-      <div className="px-5 md:px-8 pt-5 md:pt-6 pb-8 flex flex-col gap-4">
+      <div className="pb-6 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           {meta && <div className="text-[13px]" style={{ color: systemColors.navyMuted }}>{meta}</div>}
           <h2 className="text-[1.65rem] md:text-3xl font-extrabold leading-tight" style={{ color: systemColors.navy }}>{v.name}</h2>
@@ -376,6 +329,6 @@ function DetailBody({ entry, country, actions: a, onClose, open }: { entry: Entr
           ) : null}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

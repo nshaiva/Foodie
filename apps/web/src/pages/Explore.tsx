@@ -32,8 +32,9 @@ import { LensControls } from '../components/country-detail/LensControls';
 import type { EntryGridActions } from '../components/country-detail/EntryGrid';
 import { CountryOverview } from '../components/explore/CountryOverview';
 import { AllDishesList, BackLink, RegionView } from '../components/explore/PanelLevels';
-import { DishDetailSheet } from '../components/explore/DishDetailSheet';
+import { DishDetail } from '../components/explore/DishDetailSheet';
 import { MapPlates, WorldPlates } from '../components/explore/MapPlates';
+import { plateLayout } from '../utils/plateLayout';
 import { plateFade } from '../utils/plateFade';
 import type { Country, RegionalCuisine } from '../data/types';
 
@@ -185,6 +186,9 @@ export function Explore() {
   // anything they read about the camera must come from here, not `camera`
   const cameraRef = useRef<Camera>(camera);
   const [liveZoom, setLiveZoom] = useState(1);
+  // The view's centre in base projected px, live through drags and flights,
+  // so the dish plates can tell what's on screen
+  const [liveCenter, setLiveCenter] = useState<[number, number]>(() => baseProjection(WORLD_CENTER) as [number, number]);
   const [scope, setScope] = useState<Scope>({ level: 'world' });
   const scopeRef = useRef<Scope>(scope);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -198,15 +202,23 @@ export function Explore() {
   // The country level has two panel views (#39): the overview, and every dish
   // grouped by region one step down. The region level is the scope's own.
   const [countryView, setCountryView] = useState<'overview' | 'all' | 'flavor' | 'culture'>('overview');
-  // The dish detail sheet, by entry key (it follows the entry as it's logged)
+  // The dish detail level, by entry key (it follows the entry as it's logged).
+  // It sits one level below whatever the panel showed when it opened; the
+  // level underneath stays put, so closing it is just clearing this.
   const [detailKey, setDetailKey] = useState<string | null>(null);
   // Phone bottom sheet: 'strip' docks a slim header at the bottom (the map is
   // the app), 'half' shows map + list, 'full' is all list. Desktop ignores it:
   // every class it drives is max-md scoped.
   const [sheetPos, setSheetPos] = useState<'strip' | 'half' | 'full'>('strip');
+  // Where the sheet and the list were when a dish opened, to return there
+  const detailFrom = useRef<{ sheet: 'strip' | 'half' | 'full'; scroll: number } | null>(null);
   // Desktop panel: tucked away at world level (the map is the experience),
-  // out whenever a country or region is opened, and yours to toggle anytime
+  // out when a country is opened, and yours to toggle anytime. Collapsing it
+  // is a "let me see the map" choice, so it stays collapsed while you keep
+  // exploring the same country (regions, zoom, pan); a different country, a
+  // dish plate, or the tab itself brings it back.
   const [panelOpen, setPanelOpen] = useState(false);
+  const panelOpenRef = useRef(panelOpen);
   const sheetDrag = useRef<{ y: number; moved: boolean } | null>(null);
   const sheetSwiped = useRef(false);
   const panelPull = useRef<{ y: number; atTop: boolean } | null>(null);
@@ -241,6 +253,24 @@ export function Explore() {
    * paints to the box's edges), so framing against the viewBox alone lands a
    * tall country like Peru far too small on a phone.
    */
+  // The map's visible size in base-projection units, kept in state so render
+  // never reads the box itself
+  const [viewSize, setViewSize] = useState<readonly [number, number]>([VIEW_W, VIEW_H]);
+  // The same, minus the open desktop panel: what a country is framed into
+  const [viewBeside, setViewBeside] = useState<readonly [number, number]>([VIEW_W, VIEW_H]);
+  useEffect(() => {
+    const el = mapBox.current; if (!el) return;
+    const measure = () => {
+      const b = el.getBoundingClientRect(); if (!b.width || !b.height) return;
+      const k = Math.min(b.width / VIEW_W, b.height / VIEW_H);
+      setViewSize([b.width / k, b.height / k]);
+      const covered = isDesktop() ? PANEL_W + PANEL_GAP * 2 : 0;
+      setViewBeside([(b.width - covered) / k, b.height / k]);
+    };
+    measure();
+    const ro = new ResizeObserver(measure); ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const viewDims = (besidePanel = false): readonly [number, number] => {
     const box = mapBox.current?.getBoundingClientRect();
     if (!box?.width || !box?.height) return [VIEW_W, VIEW_H];
@@ -298,8 +328,18 @@ export function Explore() {
   };
   const filters = useDishFilters();
   const flight = useRef<number | null>(null);
+  // The zoom a country actually lands at (flyToCountry may zoom past the bare
+  // frame so its names fit): where dish plates start their glide from
+  const [landingZoom, setLandingZoom] = useState<{ id: string; zoom: number } | null>(null);
   const mapBox = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const sameCountry = (s: Scope, id: string) => s.level !== 'world' && s.country.id === id;
+  /** Whether the desktop panel will be out once the camera lands on `id`:
+   *  it is now, or `id` is a new country (which opens it). Framing and the
+   *  panel shift follow this, so a region tap on a collapsed panel lands the
+   *  region in the middle of the whole map, not beside a card that isn't there. */
+  const panelWillShow = (id: string) => isDesktop() && (panelOpenRef.current || !sameCountry(scopeRef.current, id));
 
   const commitScope = (next: Scope) => {
     const cur = scopeRef.current;
@@ -309,7 +349,10 @@ export function Explore() {
     if (same) return;
     setScope(next);
     scopeRef.current = next;
-    setPanelOpen(next.level !== 'world');
+    // The desktop panel opens for a new country and tucks away at world;
+    // moving between a country and its regions leaves it however you set it
+    if (next.level === 'world') { setPanelOpen(false); panelOpenRef.current = false; }
+    else if (!sameCountry(cur, next.country.id)) { setPanelOpen(true); panelOpenRef.current = true; }
     // Peek is a world-level idea; entering a country or region retires it, so
     // zooming back out later lands on the world list, not a stale preview
     if (next.level !== 'world') { cancelPeek(); setPeekId(null); }
@@ -324,10 +367,11 @@ export function Explore() {
 
   /** Zooming and panning only move the camera. What the panel describes
    *  changes when you click a country or a region (or the breadcrumb / Esc). */
-  const onMove = ({ zoom, dragging }: { x: number; y: number; zoom: number; dragging: unknown }) => {
+  const onMove = ({ x, y, zoom, dragging }: { x: number; y: number; zoom: number; dragging: unknown }) => {
     if (flight.current && dragging) { cancelAnimationFrame(flight.current); flight.current = null; }
     if (flight.current) return;
     setLiveZoom(zoom);
+    setLiveCenter([(VIEW_W / 2 - x) / zoom, (VIEW_H / 2 - y) / zoom]);
   };
 
   const onMoveEnd = ({ coordinates, zoom }: { coordinates: [number, number]; zoom: number }) => {
@@ -335,6 +379,7 @@ export function Explore() {
     cameraRef.current = { coordinates, zoom };
     setCamera({ coordinates, zoom });
     setLiveZoom(zoom);
+    setLiveCenter(baseProjection(coordinates) as [number, number]);
   };
 
 
@@ -349,7 +394,7 @@ export function Explore() {
         coordinates: [from.coordinates[0] + (target.coordinates[0] - from.coordinates[0]) * e, from.coordinates[1] + (target.coordinates[1] - from.coordinates[1]) * e],
         zoom: Math.exp(lz0 + (lz1 - lz0) * e),
       };
-      cameraRef.current = next; setCamera(next); setLiveZoom(next.zoom);
+      cameraRef.current = next; setCamera(next); setLiveZoom(next.zoom); setLiveCenter(baseProjection(next.coordinates) as [number, number]);
       if (t < 1) flight.current = requestAnimationFrame(step);
       else flight.current = null;
     };
@@ -367,12 +412,13 @@ export function Explore() {
     setSheetPos(p => (opts?.view === 'all' && p !== 'strip' ? 'full' : 'strip'));
     // Land where every region's name fits: nudge in from the mainland framing
     // until they do (tall, thin countries need it)
-    const cam = frameCountry(country, feat, viewDims(true));
+    const beside = panelWillShow(id);
+    const cam = frameCountry(country, feat, viewDims(beside));
     const areas = hasRegionMap(country) ? getAreas(country, feat) : null;
     if (areas) {
       const counts = staticRegionCounts(country);
       const floor = Math.max(1, 0.75 * labelBoost);
-      const view = viewDims(true);
+      const view = viewDims(beside);
       const centrePx = baseProjection(cam.coordinates)!;
       const fits = (at: number) => labelsFitAt(areas, at, counts, labelScaleAt(at) * floor);
       const inView = (at: number) => labelsInView(areas, at, counts, labelScaleAt(at) * floor, centrePx, view);
@@ -394,15 +440,18 @@ export function Explore() {
         setSeaLayout(placements && { placements, zoom: cam.zoom });
       }
     } else setSeaLayout(null);
-    flyTo({ coordinates: shifted(cam.coordinates, cam.zoom), zoom: cam.zoom }, { level: 'country', country });
+    setLandingZoom({ id: country.id, zoom: cam.zoom });
+    flyTo({ coordinates: beside ? shifted(cam.coordinates, cam.zoom) : cam.coordinates, zoom: cam.zoom }, { level: 'country', country });
     // After flyTo: committing the scope resets the view to the overview
     setCountryView(opts?.view ?? 'overview');
+    setDetailKey(null);
   };
   const flyToRegion = (country: Country, region: RegionalCuisine) => {
     const c = regionCoordinates[country.id]?.[region.name]; if (!c) return;
     setSheetPos('half'); // a region tap shows its dishes while the map stays in view
+    const beside = panelWillShow(country.id);
     const feat = features.get(country.id);
-    const fit = feat ? frameCountry(country, feat, viewDims(true)).zoom : COUNTRY_IN;
+    const fit = feat ? frameCountry(country, feat, viewDims(beside)).zoom : COUNTRY_IN;
     const zoom = Math.max(camera.zoom, Math.max(REGION_IN + 1.2, fit * 1.8));
     // With the sheet at half, "screen centre" is behind the sheet. Aim the
     // region at the middle of the map that stays visible: put the camera's
@@ -413,7 +462,7 @@ export function Explore() {
       const [, effH] = viewDims();
       const p = baseProjection(c)!;
       coordinates = (baseProjection.invert?.([p[0], p[1] + (0.24 * effH) / zoom]) as [number, number]) ?? c;
-    } else coordinates = shifted(c, zoom);
+    } else if (beside) coordinates = shifted(c, zoom);
     flyTo({ coordinates, zoom }, { level: 'region', country, region });
   };
   const zoomOutOneLevel = () => {
@@ -446,7 +495,7 @@ export function Explore() {
   // pinch. Hand it stable wrappers that call the latest version.
   const handlers = useRef({ onMove, onMoveEnd, onTap });
   useLayoutEffect(() => {
-    cameraRef.current = camera; scopeRef.current = scope;
+    cameraRef.current = camera; scopeRef.current = scope; panelOpenRef.current = panelOpen;
     handlers.current = { onMove, onMoveEnd, onTap };
   });
 
@@ -506,18 +555,6 @@ export function Explore() {
   const country = scope.level === 'world' ? peekCountry : scope.country;
   // A peeked country fills the panel exactly as an opened one does
   const panelLevel: Scope['level'] = scope.level === 'world' ? (peekCountry ? 'country' : 'world') : scope.level;
-  // Esc steps up one level (All dishes, flavor or culture → overview → world)
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || e.defaultPrevented || detailKey) return;
-      // A tray or sheet that is open takes Esc for itself
-      if (document.querySelector('[role="dialog"][aria-hidden="false"]')) return;
-      if (panelLevel === 'country' && countryView !== 'overview') { setCountryView('overview'); return; }
-      zoomOutOneLevel();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  });
   const colors = country?.colorPalette;
   const regions = country?.regionalVariations;
   const countryDishes = useMemo(() => (country ? getDishesByCountry(country.id) : []), [country, getDishesByCountry]);
@@ -567,9 +604,40 @@ export function Explore() {
     isOnWishlist, addToWishlist, removeFromWishlist, findWishlistItem,
   } : null;
   const isWanted = (entry: Entry) => !!country && entry.kind !== 'custom' && !(entry.tried) && isOnWishlist(country.id, entry.kind === 'dish' ? entry.dish.name : entry.drink.name);
-  const openDish = (entry: Entry) => setDetailKey(entry.key);
-  const closeDetail = useCallback(() => setDetailKey(null), []);
+  /** Open a dish one level down from wherever the panel is. The phone sheet
+   *  rises to full; a collapsed desktop panel comes out (the detail needs it). */
+  const openDish = (key: string) => {
+    if (!detailKey) detailFrom.current = { sheet: sheetPos, scroll: panelRef.current?.scrollTop ?? 0 };
+    setDetailKey(key);
+    setSheetPos('full');
+    if (isDesktop() && !panelOpenRef.current) togglePanel(true);
+    panelRef.current?.scrollTo({ top: 0 });
+  };
+  /** Back to the level the dish opened from: the sheet where it was (a strip
+   *  becomes half, since you asked for that level), the list where you left it. */
+  const closeDetail = () => {
+    const from = detailFrom.current; detailFrom.current = null;
+    setDetailKey(null);
+    if (from) setSheetPos(from.sheet === 'strip' ? 'half' : from.sheet);
+    requestAnimationFrame(() => panelRef.current?.scrollTo({ top: from?.scroll ?? 0 }));
+  };
   const detailEntry = detailKey ? allEntries.find(e => e.key === detailKey) ?? null : null;
+  // The back link names the level underneath: the region, All dishes, or the country
+  const detailBackLabel = !country ? '' : scope.level === 'region' ? regionLabelName(scope.region.name) : countryView === 'all' ? 'All dishes' : country.name;
+  // Esc steps up one level (dish → where it opened from; All dishes, flavor
+  // or culture → overview → world)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
+      // A tray that is open (the filters) takes Esc for itself
+      if (document.querySelector('[role="dialog"][aria-hidden="false"]')) return;
+      if (detailKey) { closeDetail(); return; }
+      if (panelLevel === 'country' && countryView !== 'overview') { setCountryView('overview'); return; }
+      zoomOutOneLevel();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
   const regionEntries = useMemo(() => {
     if (!country || scope.level !== 'region') return [];
     // The region level shows everything from there; search and filters belong to All dishes
@@ -617,6 +685,18 @@ export function Explore() {
   // still near the landing that placed them; zoom out further and they all
   // go together, zoom in and the inline names take over.
   const showSea = !!seaLayout && !labelsFit && liveZoom >= seaLayout.zoom * 0.85;
+  // Once dish plates show, the regions' dish-count lines step aside at every
+  // zoom: the plates say what's there, and the panel has the counts
+  // The zoom that frames the open country: the plates' "one dish" baseline
+  const fitZoom = useMemo(() => {
+    if (bubbleCountry && landingZoom?.id === bubbleCountry.id) return landingZoom.zoom;
+    const feat = bubbleCountry && features.get(bubbleCountry.id);
+    return bubbleCountry && feat ? frameCountry(bubbleCountry, feat, viewBeside).zoom : 1;
+  }, [bubbleCountry, features, viewBeside, landingZoom]);
+  const platesShowing = useMemo(() => {
+    if (!showBubbles || !areas || scope.level === 'world' || !labelsFit || plateFade(areas, liveZoom) === 0) return false;
+    return plateLayout({ areas, groups: mapGroups, region: scope.level === 'region' ? scope.region : undefined, zoom: liveZoom, labelScale, projection: baseProjection, countryId: scope.country.id, countryName: scope.country.name, center: liveCenter, view: viewSize, fitZoom, fitScale: labelScaleAt(fitZoom) * labelBoost }).length > 0;
+  }, [showBubbles, areas, scope, labelsFit, liveZoom, mapGroups, labelScale, liveCenter, fitZoom, viewSize, labelBoost]);
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
 
   return (
@@ -756,10 +836,29 @@ export function Explore() {
                       })}
                       <path d={areas.borders} fill="none" stroke={REGION_BORDER} strokeWidth={sw} strokeDasharray={`${3 * sw} ${3 * sw}`} style={{ pointerEvents: 'none' }} />
                     </g>
+                          {/* Dish plates sit at their places, under the names (#36 preview) */}
+                    {showBubbles && areas && bubbleCountry && (
+                      <MapPlates
+                        countryId={bubbleCountry.id}
+                        countryName={bubbleCountry.name}
+                        areas={areas}
+                        groups={mapGroups}
+                        region={scope.level === 'region' ? scope.region : undefined}
+                        projection={baseProjection}
+                        zoom={liveZoom}
+                        labelScale={labelScale}
+                        captions={canHover()}
+                        center={liveCenter}
+                        view={viewSize}
+                        fitZoom={fitZoom}
+                        fitScale={labelScaleAt(fitZoom) * labelBoost}
+                        onOpenDish={entry => openDish(entry.key)}
+                      />
+                    )}
                     {areas.areas.map(({ region, anchor }) => {
                       const sel = scope.level === 'region' && scope.region.name === region.name;
                       const dim = scope.level === 'region' && !sel;
-                      const n = counts[region.name] ?? 0;
+                      const n = platesShowing ? 0 : counts[region.name] ?? 0;
                       return (
                         <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
                           <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
@@ -833,20 +932,6 @@ export function Explore() {
                 onOpenCountry={id => flyToCountry(id)}
               />
 
-              {/* Dish plates float over the regions (#36 preview) */}
-              {showBubbles && areas && bubbleCountry && (
-                <MapPlates
-                  countryId={bubbleCountry.id}
-                  countryName={bubbleCountry.name}
-                  areas={areas}
-                  groups={mapGroups}
-                  region={scope.level === 'region' ? scope.region : undefined}
-                  projection={baseProjection}
-                  zoom={liveZoom}
-                  labelScale={labelScale}
-                  onOpenDish={openDish}
-                />
-              )}
             </ZoomableGroup>
           </ComposableMap>
 
@@ -856,28 +941,46 @@ export function Explore() {
           })()}
         </div>
 
-        {/* Desktop: the panel's handle. Open, a small tab on the card's edge
-            tucks it away; closed, a pill names what's inside and brings it back. */}
+        {/* Desktop: the panel's handle. Open, a small round tab on the card's
+            edge tucks it away. */}
         <button
           type="button"
-          onClick={() => togglePanel(!panelOpen)}
+          onClick={() => togglePanel(false)}
           aria-expanded={panelOpen}
-          aria-label={panelOpen ? 'Hide panel' : 'Show panel'}
-          className="max-md:hidden absolute top-3 z-20 md:right-[calc(var(--panel-x)+12px)] md:transition-[right] md:duration-300 btn-press flex items-center gap-1.5 rounded-full border shadow-sm text-sm font-semibold h-9"
-          style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy, padding: panelOpen ? '0 10px' : '0 14px 0 10px' }}
+          aria-label="Hide panel"
+          tabIndex={panelOpen ? 0 : -1}
+          className={`max-md:hidden absolute top-3 z-20 md:right-[calc(var(--panel-x)+12px)] md:transition-[right,opacity] md:duration-300 btn-press flex items-center justify-center rounded-full border shadow-sm w-9 h-9 ${panelOpen ? '' : 'opacity-0 pointer-events-none'}`}
+          style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }}
           data-panel-toggle
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d={panelOpen ? 'M9 6l6 6-6 6' : 'M15 6l-6 6 6 6'} />
+            <path d="M9 6l6 6-6 6" />
           </svg>
-          {!panelOpen && (
-            <span className="flex items-center gap-1.5">
-              {scope.level !== 'world' && <PlateDot color={scope.country.colorPalette.primary} size={10} />}
-              {scope.level === 'world' ? `${countries.length} cuisines`
-                : scope.level === 'country' ? <>{scope.country.name} <span className="font-normal" style={{ color: systemColors.navyMuted }}>· {allEntries.length} dishes</span></>
-                : <>{regionLabelName(scope.region.name)} <span className="font-normal" style={{ color: systemColors.navyMuted }}>· {counts[scope.region.name] ?? 0} dishes</span></>}
+        </button>
+        {/* Collapsed: a drawer tab docked to the map's right edge names what
+            the panel holds, live as the scope changes, and pulls it back out. */}
+        <button
+          type="button"
+          onClick={() => togglePanel(true)}
+          aria-expanded={panelOpen}
+          aria-label={`Show panel: ${scope.level === 'world' ? 'World' : scope.level === 'country' ? scope.country.name : regionLabelName(scope.region.name)}`}
+          tabIndex={panelOpen ? -1 : 0}
+          className={`panel-tab max-md:hidden absolute right-0 top-1/2 -translate-y-1/2 z-20 flex items-center gap-2.5 pl-2.5 pr-4 py-2.5 min-h-[52px] rounded-l-2xl border border-r-0 text-left ${panelOpen ? 'panel-tab--in' : ''}`}
+          style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }}
+          data-panel-tab
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ color: systemColors.tomato }}>
+            <path d="M15 6l-6 6 6 6" />
+          </svg>
+          <span className="flex flex-col gap-0.5 leading-tight">
+            <span className="flex items-center gap-1.5 text-sm font-bold whitespace-nowrap">
+              {scope.level !== 'world' && <PlateDot color={scope.country.colorPalette.primary} size={11} />}
+              {scope.level === 'world' ? 'World' : scope.level === 'country' ? scope.country.name : regionLabelName(scope.region.name)}
             </span>
-          )}
+            <span className="text-xs whitespace-nowrap" style={{ color: systemColors.navyMuted }}>
+              {scope.level === 'world' ? `${countries.length} cuisines` : (n => `${n} ${n === 1 ? 'dish' : 'dishes'}`)(scope.level === 'country' ? allEntries.length : counts[scope.region.name] ?? 0)} · Open
+            </span>
+          </span>
         </button>
 
         {/* ============ panel ============ */}
@@ -978,20 +1081,25 @@ export function Explore() {
                 </div>
               )}
 
-              {panelLevel === 'country' && countryView === 'overview' && (
+              {/* The dish detail: one level below whichever of these it opened from */}
+              {detailEntry && (
+                <DishDetail key={detailEntry.key} entry={detailEntry} country={country} actions={actions} backLabel={detailBackLabel} onBack={closeDetail} />
+              )}
+
+              {!detailEntry && panelLevel === 'country' && countryView === 'overview' && (
                 <div className="pt-2 md:pt-1">
                   <CountryOverview
                     country={country}
                     totalCount={allEntries.length}
                     onSeeAll={seeAll}
-                    onOpenDish={dish => setDetailKey(`d:${dish.name}`)}
+                    onOpenDish={dish => openDish(`d:${dish.name}`)}
                     onOpenFlavor={() => openCountryView('flavor')}
                     onOpenCulture={() => openCountryView('culture')}
                   />
                 </div>
               )}
 
-              {panelLevel === 'country' && countryView === 'all' && (
+              {!detailEntry && panelLevel === 'country' && countryView === 'all' && (
                 <div className="flex flex-col gap-5 pt-1">
                   <div className="flex flex-col gap-1">
                     <BackLink label={country.name} onClick={backToOverview} />
@@ -1011,12 +1119,12 @@ export function Explore() {
                       Nothing matches these filters. <button onClick={filters.reset} className="tap font-semibold" style={{ color: systemColors.tomato }}>Clear filters</button>
                     </div>
                   ) : (
-                    <AllDishesList groups={groups} drinks={drinksOnly ? [] : drinksVisible} whereFor={whereFor} countryLabel={countryInSentence(country.name)} colors={colors} isWanted={isWanted} onOpen={openDish} onOpenRegion={r => flyToRegion(country, r)} />
+                    <AllDishesList groups={groups} drinks={drinksOnly ? [] : drinksVisible} whereFor={whereFor} countryLabel={countryInSentence(country.name)} colors={colors} isWanted={isWanted} onOpen={e => openDish(e.key)} onOpenRegion={r => flyToRegion(country, r)} />
                   )}
                 </div>
               )}
 
-              {panelLevel === 'country' && (countryView === 'flavor' || countryView === 'culture') && (
+              {!detailEntry && panelLevel === 'country' && (countryView === 'flavor' || countryView === 'culture') && (
                 <div className="flex flex-col gap-5 pt-1">
                   <div className="flex flex-col gap-1">
                     <BackLink label={country.name} onClick={backToOverview} />
@@ -1031,22 +1139,16 @@ export function Explore() {
                 </div>
               )}
 
-              {scope.level === 'region' && (
+              {!detailEntry && scope.level === 'region' && (
                 <div className="flex flex-col gap-3 pt-1">
                   <BackLink label="All dishes" onClick={() => flyToCountry(country.id, { view: 'all' })} />
-                  <RegionView country={country} region={scope.region} entries={regionEntries.filter(e => !isDrinkEntry(e))} drinks={regionEntries.filter(isDrinkEntry)} whereFor={whereFor} counts={counts} colors={colors} isWanted={isWanted} onOpen={openDish} onOpenRegion={r => flyToRegion(country, r)} />
+                  <RegionView country={country} region={scope.region} entries={regionEntries.filter(e => !isDrinkEntry(e))} drinks={regionEntries.filter(isDrinkEntry)} whereFor={whereFor} counts={counts} colors={colors} isWanted={isWanted} onOpen={e => openDish(e.key)} onOpenRegion={r => flyToRegion(country, r)} />
                 </div>
               )}
             </>
           )}
         </div>
       </div>
-
-      {country && colors && (
-        <>
-          {actions && <DishDetailSheet entry={detailEntry} country={country} actions={actions} onClose={closeDetail} />}
-        </>
-      )}
     </div>
   );
 }
