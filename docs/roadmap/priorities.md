@@ -41,16 +41,20 @@ moment is still the product's primary goal in the thesis (CLAUDE.md).
 Work top to bottom. A step starts once the steps it depends on are done.
 
 1. ✅ **#40 Two dish states**: shipped 2026-09-29 (see Built).
-2. **#36 Image style pilot**: alongside #40. Mexico only; mostly waiting on
-   Nikita's style pick.
+2. ✅ **#36 Image style pilot**: style C2 chosen 2026-09-29; shipped with
+   wave 1, 2026-10-01 (see Built).
 3. ✅ **#39 Explore panel declutter**: shipped 2026-09-29 (see Built); real
    dish images drop in as #36/#37 produce them.
-4. **#38 Region image preview**: nearly free after #39 (the tile strip exists).
+4. **#38 Region image preview**: nearly free after #39 (the tile strip exists);
+   MX, CN and EG now have the images to prototype it on.
 5. ✅ **#41 Explore becomes the home page**: shipped 2026-09-29 (see Built);
    deleting the now-unrouted `Home.tsx` / `CountryDetail.tsx` is a follow-up.
 6. ✅ **#34 Survey reconciliation (+#6)** *(should)*: shipped 2026-09-29 (see Built).
 7. **#9 Content batch, in waves** (carries #37 images and #10 em dashes):
-   cost each wave before running it.
+   cost each wave before running it. ✅ **Wave 1 (Mexico, China, Egypt)
+   shipped 2026-10-01** (see Built). **Next: wave 2** = Ireland (review
+   already approved) + ~4 more, region design step first, Nikita's go
+   before the run.
 8. **#8 Final mobile sweep**: small; the per-item mobile checks happen inside
    every step above.
 
@@ -89,7 +93,6 @@ gate). Next tier starts below.
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
 | 29 | **Cuisine familiarity levels (First plate · Second helping · Off-menu)** | Added 2026-08-23 from Nikita. What you're offered depends on how well you already know a cuisine: new to it means **fewer**, more fundamental options (an unfamiliar menu is too much choice, not too little); familiar means a wider spread across regions; deep in it means the nuanced dishes first. Level is **per country, never global**. Earned from behaviour (`countryDishProgress()` plus spread across regions/categories) and cold-started by **#5**'s declared familiarity, which also overrides it permanently — build the two together. Nothing is hidden: the list gets shorter and reorders, with a one-tap "show everything". **Decided 2026-08-23:** (a) names are food-native rather than beginner/advanced, which would rank the eater; (b) **#9 expands to ~30 dishes per country** (from ~9.5, so closer to tripling than doubling its dish content) so the deep tier has something deep in it. *(2026-09-28: for MVP, #9 goes to ~20 per country instead; the jump to ~30 and `adventurousness` return when #29 is built.)* **Blocked on content, not code** — there are only **294 dishes** total, ~9.5 per country (plus 155 drinks; the "449" figure quoted earlier counted both), and that *is* the whole dataset, so shipping the mechanism today would reorder the same nine dishes. **Food only (2026-08-23):** drinks never truncate — there are exactly 5 per country (155 total), already fewer than a First plate food list, and drink familiarity doesn't track food familiarity. **Setting the level:** logged dishes are the truth; the seed is **already collected** — the survey deck offers 2 dishes per country and "🤔 Haven't tried it" is a distinct answer, so `foodie-taste-survey` records per-country familiarity today with no new question; and a per-country manual override (`foodie-cuisine-level`, add to `syncKeys.ts`) always wins and is never recalculated away. Onboarding questions and favorites-derived levels were considered and rejected — see the spec. Full spec: [`designs/cuisine-familiarity-levels.md`](designs/cuisine-familiarity-levels.md). **Progress plate by level (2026-08-29, from notes):** once a level exists, "4 of 10 tried" should count against the list your level shows (First plate counts against the short list, not all 30), otherwise a beginner's plate can never fill. Where the level is displayed is still open; a small label beside the plate is the obvious spot. Do not fake a level before #29 ships. | M (mechanism) + gated on #9 (content) |
-| 36 | **Dish image style pilot** 🚩 MVP (do now) | Added 2026-09-28 from Nikita. At the table you're matching the menu, the plates going past and your mood; a picture answers "what is this?" faster than 200 characters of prose. **Risk:** photo-real AI images of real dishes can be confidently wrong (wrong garnish, colour, a generic "Asian noodle" look), and that misleads at exactly the moment the app must be trustworthy. Image models are known to flatten non-Western dishes. **Recommendation: an illustrated style** (watercolor or flat editorial) that reads as a depiction rather than evidence, forgives small inaccuracies, keeps every country consistent and fits the plate-dot brand. Alternative considered: real photos from Wikimedia Commons / Unsplash (accurate, but style varies and licensing is tracked per image). **Pilot scope:** Mexico (sandbox rule: MX/CN/IE only), ~13 dishes. Generate the same 3–4 dishes in 2–3 styles and pick one with Nikita before anything else. Build the card layout: image + a one-line **`tagline`** (~60–80 chars) on the card, with the existing longer description behind a tap. Keep the long text, since it is the "teach me what I'm eating" half of the thesis. Images lazy-load, use a fixed aspect ratio (no layout shift), fall back to the plate dot when missing, and carry a quiet "Illustration" label (menu lookup already labels AI output). Check on a real phone whether cards with images get too tall. **Card layout is now set by #39** (2B image tiles in Explore, rows in the restaurant view; see the [Explore Declutter canvas](https://claude.ai/artifact/8ay856PGkaFfkxcwo8aRzm)); judge the style candidates at tile size, since that is where they'll be seen largest. **Prep done 2026-09-28:** [`docs/design/image-style-pilot.md`](../design/image-style-pilot.md) has the 13 Mexico taglines and the rules for writing them, the style brief (constants, sizes, 3:2 master with a central-square safe area), three candidate styles (watercolor / flat editorial / ink and gouache), 12 ready-to-paste prompts (4 dishes × 3 styles), an accuracy checklist for each dish, and the scoring for choosing a style. Next: Nikita runs the 12 prompts (one image each), then we pick. | S–M (code + small content job) |
 | 37 | **Images + taglines for every dish** 🚩 MVP — rides #9 | Added 2026-09-28. **Only after #36's style is signed off.** **Re-scoped 2026-09-28: dishes only for MVP, ~20 per country × 31 ≈ 620 images**; drinks keep the placeholder tile until after MVP. Generated **in #9's waves, never all at once** (sandbox trio → ≈5 countries → the rest, with a cost estimate and Nikita's go before each wave; see the MVP cost guardrail). Money is not the real cost (a few cents per image). **Reviewing ~620 images for accuracy is**, which is why the style choice matters: illustrations need a lighter review than photo-real images. `tagline` is generated in the same #9 prompt, with the no-em-dash rule. Hosting: compressed images at ~40KB each come to ~40MB, which is fine as static assets on Vercel, or in Supabase Storage. | Content batch + review, inside #9 |
 | 38 | **Region image preview** 🚩 MVP | Added 2026-09-28 from Nikita. In the regional view, a strip of dish thumbnails under a region's name, so "this is where the stews are" reads at a glance and a region feels like a place instead of a list. Lands in both the production region focus (`RegionalMap` / region section header) and the `/explore` trial, where the phone's bottom-sheet strip is the natural home for thumbnails. The layout can be prototyped on #36's Mexico images; it only becomes useful everywhere once #37 runs. | S (after #36) |
 
@@ -299,6 +302,14 @@ Open questions were answered the same day; nothing here is ranked yet.**
 
 ## Suggested next session
 
+**2026-10-01:** wave 1 and the map pass shipped (PR #54). Next, in order:
+**#9 wave 2** (Ireland's approved review + ~4 countries: region design
+step as text, cost, Nikita's go, then text → images; make the generator
+emit WebP and add an `ACROSS_AT` water point per country); **#38 region
+image preview** on the three illustrated countries; the **#8 final mobile
+sweep**. Small follow-ups: delete the unrouted `Home.tsx` /
+`CountryDetail.tsx`; the pin-size handover could become a true morph.
+
 **Updated 2026-09-28: follow the MVP build order at the top of this file.**
 **2026-09-29:** steps 1, 5 and 6 shipped (#40, #41, #34 + #6). Next up is
 step 2 (#36: Nikita runs the 12 pilot prompts and picks a style), then step 3
@@ -343,6 +354,49 @@ Unverified on a real phone: whether the filter rail's edge fade reads as
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Explore map: dishes where they are from, calmer at every zoom**
+  (2026-10-01, G2, PR #54) — a day of phone walkthroughs with Nikita, each
+  decided on a canvas before it was built. **Country zoom** follows boards
+  1 + 3 of the [China de-clutter canvas](https://claude.ai/artifact/8FwW5wA4mXKXXNCbra3gum):
+  region names step back to small quiet caps while plates show, every plate
+  stays where its dish is from, and where plates would overlap the most
+  popular stays on top while the ones underneath fade and shrink (nudged
+  only as far as a visible crescent; they spread back as you zoom in).
+  Board 5's city stacks were built first and rejected on device. **"Across
+  {country}"** (the [Across Egypt canvas](https://claude.ai/artifact/X5PVFZKbBAHzdTEYbubSRA)):
+  nationwide dishes are a stack at sea that fans into a ring on hover, a
+  label-pill flower on touch; culled as one unit so panning never re-fans
+  it; CN and EG gained water points (without one a country's nationwide
+  dishes were silently dropped). **World pins** are 1-3 per country by
+  on-screen area (Egypt 1, Mexico 2, China 3), each a region's top dish at
+  the exact spot it has at country zoom (the same cached placement), so
+  zooming in never moves one; pins grow with zoom and hand over to the
+  region plates. **Phone:** a sea tap returns to the world; the world view
+  is a home framed on the 31 cuisines' land (no Antarctica on a tall
+  screen); plate captions sit on a cream pill in a layer above the region
+  names. **Bug found on the way:** a region dish with no clear spot was
+  dropped from the map, which hid most of Mexico's and Egypt's region dishes
+  on a phone; it now lands as depth. Prototypes in
+  `docs/design/prototypes/{across-cluster,china-declutter}/`.
+- **Content batch wave 1: Mexico, China, Egypt (#9, with #36 and #37's
+  first three countries)** (2026-10-01, G1/G2, PR #54) — the sandbox
+  trio re-scoped by Nikita from MX/CN/IE to MX/CN/EG; Ireland keeps its
+  approved review for wave 2. **Mexico**: six regions (Western Mexico
+  (Jalisco) added; Coastal Regions became Pacific Coast (Sinaloa & Baja);
+  Veracruz is a locality, not a region), 19 dishes. **China**: Xinjiang
+  (Northwest) became Northwest (Xinjiang & Gansu) so Lanzhou belongs
+  honestly, cumin joined the tiers, 18 dishes, city localities. **Egypt**:
+  `flavorAxes` on its ingredients (its regions show chips for the first
+  time), 9 region-first dishes to 19, em dashes swept. Every item resolves
+  to a region or an explicit Nationwide; every region holds 2+ dishes and
+  shows chips. **`locality` folded into `origin.place`** (coordinates
+  optional); the detail sheet reads "From Puebla · Central Mexico". Old
+  `?r=` slugs redirect. **Images**: style C2 (bold ink and flat gouache,
+  decided 2026-09-29), 47 generated on Nikita's go, **47 of 47 passed**
+  review on the first try, every dish in the three countries illustrated;
+  all dish images converted to **WebP** (57 files, 3.8 MB, from 60 MB of
+  PNG; wave 2's generator should write WebP directly). Record:
+  `designs/content-batch-wave1.md` §7-8.
 - **Explore on a phone: six things Nikita hit on device** (2026-09-30,
   Foundation, part of #8's per-item checks) — (1) **No plate names on
   touch** at any zoom: with no hover every plate labelled itself at once and
