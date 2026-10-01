@@ -1,4 +1,4 @@
-import type { Beverage, Dish, RegionalCuisine, UserDish } from '../data/types';
+import type { Beverage, Dish, RegionalCuisine, UserDish, Country } from '../data/types';
 import { resolveRegion } from './dishRegion';
 
 /**
@@ -24,6 +24,24 @@ export interface Group {
   /** True for buckets that aren't a region: nationwide, elsewhere, uncategorised. */
   isBucket?: boolean;
 }
+
+/**
+ * "Across {country}" as a region of its own (Nikita, 2026-10-01): the
+ * nationwide dishes open like any region, in the sheet and on the map, with
+ * the sea cluster as their place. It is never stored; it is made from the
+ * country on the way in.
+ */
+export const ACROSS_GROUP_ID = '__everywhere';
+export function acrossRegion(country: Pick<Country, 'name'>): RegionalCuisine {
+  const name = countryInSentence(country.name);
+  return {
+    name: `Across ${name}`,
+    description: `Dishes eaten all over ${name} rather than in one region: the ones every table knows.`,
+    signatureDishes: [],
+    keyIngredients: [],
+  };
+}
+export const isAcrossRegion = (region: RegionalCuisine) => region.name.startsWith('Across ');
 
 /** Country names that read with "the" in a sentence ("Across the United States"). */
 const TAKES_THE = new Set(['United States', 'United Kingdom', 'Philippines', 'Netherlands', 'United Arab Emirates', 'Czech Republic', 'Dominican Republic']);
@@ -131,7 +149,7 @@ export function groupEntries(
 
   if (everywhere.length) {
     groups.push({
-      id: '__everywhere',
+      id: ACROSS_GROUP_ID,
       label: `Across ${countryInSentence(ctx.countryName)}`,
       entries: everywhere,
       isBucket: true,

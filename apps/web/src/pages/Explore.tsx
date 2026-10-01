@@ -16,7 +16,7 @@ import { useCountryActivity } from '../hooks/useCountryActivity';
 import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { countryDishProgress } from '../utils/dishProgress';
-import { countryInSentence, groupEntries, regionCounts, type Entry } from '../utils/groupDishes';
+import { countryInSentence, groupEntries, regionCounts, acrossRegion, isAcrossRegion, ACROSS_GROUP_ID, type Entry } from '../utils/groupDishes';
 import { entryWhere, isDrinkEntry } from '../utils/course';
 import { homeLand, labelsFitAt, labelsInView, regionAreas, regionLabelName, seaLabelLayout, REGION_BORDER, REGION_INK, REGION_TINT, type RegionAreas, type SeaPlacement } from '../utils/regionAreas';
 import { regionFromSlug, regionSlug } from '../utils/dishRegion';
@@ -34,7 +34,7 @@ import { CountryOverview } from '../components/explore/CountryOverview';
 import { AllDishesList, BackLink, RegionView } from '../components/explore/PanelLevels';
 import { DishDetail } from '../components/explore/DishDetailSheet';
 import { MapPlates, WorldPlates } from '../components/explore/MapPlates';
-import { plateLayout, countryHomes, regionUnits, type RegionUnit } from '../utils/plateLayout';
+import { plateLayout, countryHomes, regionUnits, acrossAt, type RegionUnit } from '../utils/plateLayout';
 import { plateFade } from '../utils/plateFade';
 import type { Country, RegionalCuisine } from '../data/types';
 
@@ -469,7 +469,8 @@ export function Explore() {
     setDetailKey(null);
   };
   const flyToRegion = (country: Country, region: RegionalCuisine) => {
-    const c = regionCoordinates[country.id]?.[region.name]; if (!c) return;
+    // "Across {country}" lives at the sea cluster's water point
+    const c = isAcrossRegion(region) ? acrossAt(country.id) : regionCoordinates[country.id]?.[region.name]; if (!c) return;
     setSheetPos('half'); // a region tap shows its dishes while the map stays in view
     const beside = panelWillShow(country.id);
     const feat = features.get(country.id);
@@ -504,7 +505,7 @@ export function Explore() {
     const regionName = hit.getAttribute('data-r');
     if (regionName) {
       const c = s.level === 'world' ? undefined : s.country;
-      const region = c?.regionalVariations?.find(r => r.name === regionName);
+      const region = c?.regionalVariations?.find(r => r.name === regionName) ?? (c && regionName === acrossRegion(c).name ? acrossRegion(c) : undefined);
       if (c && region && !(s.level === 'region' && s.region.name === regionName)) flyToRegion(c, region);
       return;
     }
@@ -572,7 +573,7 @@ export function Explore() {
     const c = searchParams.get('c'), r = searchParams.get('r');
     const country = c ? getCountryById(c) : undefined;
     if (!country) return;
-    const region = r ? regionFromSlug(r, country.regionalVariations, country.id) : undefined;
+    const region = r ? (regionFromSlug(r, country.regionalVariations, country.id) ?? (r === regionSlug(acrossRegion(country).name) ? acrossRegion(country) : undefined)) : undefined;
     // A one-time landing once the outlines arrive, not a state sync
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (region) flyToRegion(country, region); else flyToCountry(country.id);
@@ -682,7 +683,8 @@ export function Explore() {
   const regionEntries = useMemo(() => {
     if (!country || scope.level !== 'region') return [];
     // The region level shows everything from there; search and filters belong to All dishes
-    return groupEntries(allEntries, 'region', { regions, countryId: country.id, countryName: country.name, orphansAcross: true }).find(g => g.region?.name === scope.region.name)?.entries ?? [];
+    const across = isAcrossRegion(scope.region);
+    return groupEntries(allEntries, 'region', { regions, countryId: country.id, countryName: country.name, orphansAcross: true }).find(g => (across ? g.id === ACROSS_GROUP_ID : g.region?.name === scope.region.name))?.entries ?? [];
   }, [country, scope, allEntries, regions]);
   const openCountryView = (view: 'all' | 'flavor' | 'culture') => {
     setCountryView(view);
@@ -925,6 +927,8 @@ export function Explore() {
                         fitZoom={fitZoom}
                         fitScale={labelScaleAt(fitZoom) * labelBoost}
                         onOpenDish={entry => openDish(entry.key)}
+                        onOpenAcross={() => flyToRegion(bubbleCountry, acrossRegion(bubbleCountry))}
+                        acrossSelected={scope.level === 'region' && isAcrossRegion(scope.region)}
                       />
                     )}
                     {areas.areas.map(({ region, anchor }) => {
@@ -1081,7 +1085,7 @@ export function Explore() {
               {sheetTitle}
             </span>
             <span className="text-xs whitespace-nowrap" style={{ color: systemColors.navyMuted }}>
-              {scope.level === 'world' ? `${countries.length} cuisines` : (n => `${n} ${n === 1 ? 'dish' : 'dishes'}`)(scope.level === 'country' ? allEntries.length : counts[scope.region.name] ?? 0)} · Open
+              {scope.level === 'world' ? `${countries.length} cuisines` : (n => `${n} ${n === 1 ? 'dish' : 'dishes'}`)(scope.level === 'country' ? allEntries.length : counts[scope.region.name] ?? regionEntries.length)} · Open
             </span>
           </span>
         </button>
@@ -1115,7 +1119,7 @@ export function Explore() {
               {scope.level !== 'world' && <PlateDot color={scope.country.colorPalette.primary} size={12} />}
               <span>{scope.level === 'world' ? `${countries.length} cuisines` : sheetTitle}</span>
               <span className="font-normal text-xs" style={{ color: systemColors.navyMuted }}>
-                {scope.level === 'world' ? (exploredDepth.size ? 'colouring in as you eat' : 'tap the map, or browse') : scope.level === 'country' ? `${allEntries.length} dishes & drinks` : `${counts[scope.region.name] ?? 0} ${(counts[scope.region.name] ?? 0) === 1 ? 'dish' : 'dishes'}`}
+                {scope.level === 'world' ? (exploredDepth.size ? 'colouring in as you eat' : 'tap the map, or browse') : scope.level === 'country' ? `${allEntries.length} dishes & drinks` : `${counts[scope.region.name] ?? regionEntries.length} ${(counts[scope.region.name] ?? regionEntries.length) === 1 ? 'dish' : 'dishes'}`}
               </span>
               {sheetPos === 'strip' ? (
                 <span className="ml-auto text-base leading-none" style={{ color: systemColors.navyMuted }}>⌃</span>

@@ -203,9 +203,13 @@ function useLeaving(plates: PlacedPlate[]) {
   return leaving.filter(p => !now.has(p.key));
 }
 
-export function MapPlates({ countryId, countryName, areas, groups, region, projection, zoom, labelScale, captions = true, captionLayer, center, view, fitZoom, fitScale, onOpenDish }: {
+export function MapPlates({ countryId, countryName, areas, groups, region, projection, zoom, labelScale, captions = true, captionLayer, center, view, fitZoom, fitScale, onOpenDish, onOpenAcross, acrossSelected = false }: {
   countryId: string;
   countryName: string;
+  /** A click on the "Across {country}" label opens it as a region. */
+  onOpenAcross?: () => void;
+  /** The Across region is the open scope: the cluster stays open and labelled. */
+  acrossSelected?: boolean;
   areas: RegionAreas;
   /** Every entry grouped by region, unfiltered. */
   groups: Group[];
@@ -254,7 +258,7 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   const acrossN = across[0]?.across?.n ?? 0;
   const withHub = captions || acrossN === 1;
   const acrossRingG = acrossN > 1 ? acrossRing(withHub ? acrossN - 1 : acrossN) : undefined;
-  const acrossOpen = withHub && openStack === 'across' && !!acrossRingG;
+  const acrossOpen = withHub && (openStack === 'across' || acrossSelected) && !!acrossRingG;
 
   const liftOf = (p: PlacedPlate): [number, number] => {
     if (p.across) {
@@ -315,9 +319,9 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
       {[...piles.entries()].map(([id, list]) => stackGroup(id, [...list].sort((a, b) => a.pile!.i - b.pile!.i), list[0].at, openStack === id ? (list[0].pile!.n * (COUNTRY_R * 2 + 8)) / 2 : undefined))}
       {across.length > 0 && at && stackGroup('across', across, at, withHub ? acrossRingG?.ringR : undefined, (
         <>
-          {!withHub && acrossRingG && !region && (
+          {!withHub && acrossRingG && (!region || acrossSelected) && (
             <Marker coordinates={at}>
-              <g transform={`scale(${k})`} style={{ pointerEvents: 'none' }}>
+              <g transform={`scale(${k})`} data-r={`Across ${countryName}`} style={{ cursor: 'pointer' }}>
                 <rect x={-50} y={-15} width={100} height={30} rx={15} fill={systemColors.seaSalt} stroke={systemColors.navy} strokeOpacity={0.25} strokeWidth={1} />
                 <text textAnchor="middle" dominantBaseline="central" y={-5} {...quietCaps} stroke="none">
                   Across {countryName}
@@ -328,10 +332,11 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
               </g>
             </Marker>
           )}
-          {withHub && !region && (
+          {withHub && (!region || acrossSelected) && (
             <Marker coordinates={at}>
-              <g transform={`scale(${k})`} style={{ pointerEvents: 'none' }}>
-                <text textAnchor="middle" {...quietCaps}
+              <g transform={`scale(${k})`} data-r={`Across ${countryName}`} style={{ cursor: 'pointer' }}
+                onClick={e => { e.stopPropagation(); onOpenAcross?.(); }}>
+                <text textAnchor="middle" {...quietCaps} fill={acrossSelected ? systemColors.navy : QUIET_INK}
                   style={{ ...quietCaps.style, transform: `translateY(${acrossLabelY}px)`, transition: 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' }}>
                   Across {countryName}
                 </text>
