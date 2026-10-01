@@ -52,9 +52,11 @@ Work top to bottom. A step starts once the steps it depends on are done.
 6. ✅ **#34 Survey reconciliation (+#6)** *(should)*: shipped 2026-09-29 (see Built).
 7. **#9 Content batch, in waves** (carries #37 images and #10 em dashes):
    cost each wave before running it. ✅ **Wave 1 (Mexico, China, Egypt)
-   shipped 2026-10-01** (see Built). **Next: wave 2** = Ireland (review
-   already approved) + ~4 more, region design step first, Nikita's go
-   before the run.
+   shipped 2026-10-01** (see Built). **India done as a full pass 2026-10-01** on
+   Nikita's ask (6 regions, 22 dishes, 22/22 images; record in
+   `designs/content-batch-wave1.md` §9, her local review pending).
+   **Next: wave 2** = Ireland (review already approved) + ~4 more, region
+   design step first, Nikita's go before the run.
 8. **#8 Final mobile sweep**: small; the per-item mobile checks happen inside
    every step above.
 

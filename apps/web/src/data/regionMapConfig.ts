@@ -117,10 +117,12 @@ export const regionCoordinates: Record<string, Record<string, [number, number]>>
     'Ganja-Gazakh': [46.3, 40.7],
   },
   IN: {
-    'North India': [77, 28],
-    'South India': [78, 13],
-    'West India': [73, 19],
-    'East India': [88, 23],
+    'North India (Punjab & Delhi)': [76.5, 29.8],
+    'West India (Rajasthan & Gujarat)': [74.5, 25.5],
+    'Mumbai & Goa (Maharashtra & the Konkan)': [73.5, 17.5],
+    'East India (Bengal & Bihar)': [87.5, 23.5],
+    'Hyderabad & the Deccan (Telangana & Andhra)': [79, 17],
+    'South India (Tamil Nadu, Kerala & Karnataka)': [77.5, 11.5],
   },
   PK: {
     'Punjab': [74, 31],

@@ -520,3 +520,54 @@ serves one format. For wave 2, make the generator write WebP directly
 (or run the conversion in `generate-dish-images.mjs`) so this is never a
 manual step again. The generator's PNG sources stay untracked in
 `docs/design/prototypes/image-pilot/finals/`.
+
+## 9. India pass (2026-10-01, on Nikita's "full pass of India"; for her local review)
+
+Run as one pass, text then images, the way wave 1 went. Measured before:
+4 compass regions, 10 dishes (no taglines, no images), 6 drinks, 4 em
+dashes, no `flavorAxes` (one of the 28 unmapped countries), and the roadmap
+already expected India to "get finer" at the region design step.
+
+### Region design: 4 → 6
+
+| Region | (a) food changes | (b) recognized | (c) fillable | Verdict |
+|---|---|---|---|---|
+| North India (Punjab & Delhi) | Yes: tandoor, dairy, wheat breads, Mughal gravies | "Punjabi", "Mughlai" on every sign | 6 dishes (butter chicken, dal makhani, palak paneer, rogan josh, chole bhature, tandoori) | **Keep**; Kashmir and Lucknow fold in as localities |
+| West India (Rajasthan & Gujarat) | Yes: the desert pantry, baked dumplings, sweet-sour vegetarian thalis, laal maas | "Gujarati", "Rajasthani" are restaurant categories | 2 (dal baati churma, dhokla) | **Narrowed**: Mumbai and Goa left it |
+| Mumbai & Goa (Maharashtra & the Konkan) | Yes: bread-based street food, coconut and kokum, Goa's Portuguese kitchen | "Goan", "Mumbai street food" | 3 (vada pav, pav bhaji, vindaloo) | **New** (split from West) |
+| East India (Bengal & Bihar) | Yes: river fish in mustard, panch phoron, the sweets | "Bengali" | 2 (machher jhol, kathi roll); Bihar named so Varanasi/Patna don't read as Bengal on the map | **Keep**, renamed |
+| Hyderabad & the Deccan (Telangana & Andhra) | Yes: Nizami slow cooking vs Andhra's heat; rice not wheat | "Hyderabadi" is a restaurant category; "Andhra" is a warning | 2 (haleem, kodi vepudu) | **New** (split from South) |
+| South India (Tamil Nadu, Kerala & Karnataka) | Yes: fermented batters, coconut, tamarind, curry leaves | "South Indian" / "Udupi" / "Chettinad" / "Kerala" | 4 (dosa, idli sambar, Chettinad chicken, Kerala fish curry) | **Keep**; Karnataka split considered and dropped (it would hold dosa + 1) |
+
+Points in `regionMapConfig.ts`; the Voronoi was checked by hand for Jaipur
+(West, not North), Lucknow and Varanasi (North and East respectively),
+Chennai and Bangalore (South, not Deccan). `goa` needed an alias: three
+letters is below the token split's minimum.
+
+### Dishes: 10 + 12 = 22, taglines for all 28 items
+
+New, region-first: Idli Sambar, Chettinad Chicken, Kerala Fish Curry
+(South); Vada Pav, Pav Bhaji, Vindaloo (Mumbai & Goa); Dhokla, Dal Baati
+Churma (West); Machher Jhol, Kathi Roll (East); Hyderabadi Haleem, Kodi
+Vepudu (Deccan). Nationwide: Biryani, Samosa, Gulab Jamun (and chai, nimbu
+pani, mango lassi). Localities where the dish is genuinely one place's
+(Delhi, Kashmir, Chettinad, Kerala, Mumbai, Goa, Gujarat, Rajasthan,
+Kolkata, Hyderabad, Andhra Pradesh). `flavorAxes` on the tiers plus five
+ingredients the regions needed (curry leaves, mustard oil, tamarind,
+coconut, jaggery): every region now shows chips (2 to 5 matches). Water
+point for the Across cluster in the Bay of Bengal.
+
+**Judgment calls for Nikita:** Biryani stays Nationwide rather than
+becoming "Hyderabadi Biryani" (every city claims one); Vindaloo over Goan
+fish curry for Goa (the name people know); Laal Maas benched for West;
+Karnataka not split out. Any of these is a one-line change.
+
+### Images
+
+22 dishes, two runs under the 15 cap, same `c2-v1` prompt, about 44¢.
+**22 of 22 passed review** on the first generation (the thali for dal baati
+churma, the paper-wrapped kathi roll and the dry Andhra chicken all read
+right at tile size). Converted to WebP into `public/dish-images/IN/`;
+every India dish now carries an image. Running tally: 78 of 78 generated
+images have passed first time across four countries, so the ~30% redo
+allowance in §4 can drop to ~10% for wave 2's estimate.
