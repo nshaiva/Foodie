@@ -441,6 +441,162 @@
         "mustShow": "Thick smooth white porridge; dark century egg slices; scallion; golden fried dough stick",
         "wrong": "Oatmeal with fruit; risotto; fried rice; a clear soup"
       }
+    ],
+    "IN": [
+      {
+        "slug": "butter-chicken",
+        "name": "Butter Chicken",
+        "subject": "A round copper-coloured bowl of smooth orange-red butter chicken gravy with pieces of chicken, a swirl of white cream on top and a few fenugreek leaves, a torn piece of blistered naan bread resting on the rim.",
+        "mustShow": "Smooth bright orange-red creamy gravy; cream swirl; naan",
+        "wrong": "A dry curry; green or brown sauce; rice in the bowl"
+      },
+      {
+        "slug": "biryani",
+        "name": "Biryani",
+        "subject": "A wide shallow metal platter of long-grain rice in mixed white, yellow and saffron-orange strands, pieces of spiced meat tucked in, topped with crispy brown fried onions, mint leaves and a boiled egg half, a small bowl of white raita beside it.",
+        "mustShow": "Streaked white and saffron rice; crispy fried onions on top; mint; raita",
+        "wrong": "Plain yellow pilaf; fried rice with vegetables; meat in gravy beside plain rice"
+      },
+      {
+        "slug": "dal-makhani",
+        "name": "Dal Makhani",
+        "subject": "A small dark copper pot of thick, glossy black-brown lentil curry with a swirl of cream and a pat of melting butter on top, a sprinkle of coriander, two butter-brushed naan triangles beside it.",
+        "mustShow": "Very dark, thick, creamy lentils; cream swirl and butter on top",
+        "wrong": "Yellow dal; thin soupy lentils; chickpeas"
+      },
+      {
+        "slug": "palak-paneer",
+        "name": "Palak Paneer",
+        "subject": "A bowl of thick, deep green spinach puree with white cubes of paneer cheese set into it, a thin swirl of cream on top and a few slivers of ginger, two folded rotis beside the bowl.",
+        "mustShow": "Deep green smooth puree; white paneer cubes; cream swirl",
+        "wrong": "Leafy spinach salad; tofu in brown sauce; a green soup with chunks of vegetable"
+      },
+      {
+        "slug": "dosa",
+        "name": "Dosa",
+        "subject": "A very large, thin, golden-brown crisp dosa crepe folded into a long cylinder that overhangs a round steel plate, a small steel bowl of orange-red sambar and a small bowl of white coconut chutney beside it.",
+        "mustShow": "Huge thin crisp golden crepe, folded long; sambar and white coconut chutney in small steel bowls",
+        "wrong": "A thick pancake; a wrap with filling showing; a tortilla"
+      },
+      {
+        "slug": "samosa",
+        "name": "Samosa",
+        "subject": "Three golden-brown fried pastry triangles with blistered, flaky surfaces on a small plate, one broken open to show a yellow spiced potato and green pea filling, a small bowl of green mint chutney and one of brown tamarind chutney beside them.",
+        "mustShow": "Triangular pyramid shape; blistered golden pastry; potato and pea filling visible; green and brown chutneys",
+        "wrong": "Spring rolls; empanada half-moons; a sandwich"
+      },
+      {
+        "slug": "rogan-josh",
+        "name": "Rogan Josh",
+        "subject": "A bowl of lamb pieces on the bone in a deep red, slightly oily gravy with a red oil sheen at the edges, a few strands of fried onion on top, a mound of white rice beside it.",
+        "mustShow": "Deep red gravy with a red oil sheen; lamb on the bone",
+        "wrong": "Brown stew; orange creamy sauce; chicken"
+      },
+      {
+        "slug": "chole-bhature",
+        "name": "Chole Bhature",
+        "subject": "A large puffed, golden, balloon-like fried bread (bhatura) beside a steel bowl of dark brown spiced chickpea curry topped with sliced raw onion, a green chili and a lime wedge, on a round steel plate.",
+        "mustShow": "Big puffed golden bread balloon; dark brown chickpeas; raw onion rings and green chili",
+        "wrong": "Flat naan; hummus; chickpeas in a pale sauce"
+      },
+      {
+        "slug": "tandoori-chicken",
+        "name": "Tandoori Chicken",
+        "subject": "Two chicken legs with bright red-orange charred tandoori marinade and blackened edges on a hot iron plate, with sliced raw red onion rings, a lime wedge and a sprig of coriander, a small bowl of green mint chutney beside it.",
+        "mustShow": "Bright red-orange marinade with black char; chicken on the bone; onion rings and lime",
+        "wrong": "Pale roast chicken; chicken in gravy; boneless strips"
+      },
+      {
+        "slug": "gulab-jamun",
+        "name": "Gulab Jamun",
+        "subject": "A small glass bowl holding three dark golden-brown round dumplings glistening in clear golden syrup, a few slivered pistachios on top and a dried rose petal.",
+        "mustShow": "Dark golden-brown round balls shining with syrup in a bowl; pistachio slivers",
+        "wrong": "Donut holes with sugar; chocolate truffles; dry fried balls without syrup"
+      },
+      {
+        "slug": "idli-sambar",
+        "name": "Idli Sambar",
+        "subject": "Three soft, round, pure white steamed idli cakes on a round steel plate, a small steel bowl of orange-red sambar with pieces of vegetable and a small bowl of white coconut chutney beside them.",
+        "mustShow": "Smooth white round cakes, slightly domed; orange sambar; white coconut chutney",
+        "wrong": "Rice balls; dumplings with filling; pancakes"
+      },
+      {
+        "slug": "chettinad-chicken",
+        "name": "Chettinad Chicken",
+        "subject": "A bowl of chicken pieces coated in a thick, dark brown, coarse-ground masala flecked with black pepper and whole dried red chilies, curry leaves scattered on top, a folded paratha beside it.",
+        "mustShow": "Dark brown coarse masala clinging to the chicken; curry leaves; whole dried red chilies",
+        "wrong": "Red creamy curry; a pale coconut curry; chicken in thin soup"
+      },
+      {
+        "slug": "kerala-fish-curry",
+        "name": "Kerala Fish Curry",
+        "subject": "A shallow clay pot of fish pieces in a smooth orange-red coconut gravy with curry leaves and a few slices of green chili on top, a mound of plump white rice and a lacy white appam beside it.",
+        "mustShow": "Clay pot; orange-red smooth coconut gravy; curry leaves; fish pieces",
+        "wrong": "Fish fried in batter; a yellow curry with cream; a fish stew with potatoes"
+      },
+      {
+        "slug": "vada-pav",
+        "name": "Vada Pav",
+        "subject": "A soft square white bread roll split open and holding a round golden fried potato fritter, a smear of red-brown dry garlic chutney, a whole fried green chili resting against it, on a square of paper.",
+        "mustShow": "Round golden fritter in a soft square roll; dry red garlic chutney; a fried green chili",
+        "wrong": "A hamburger with a meat patty; a hot dog; a sandwich with lettuce and tomato"
+      },
+      {
+        "slug": "vindaloo",
+        "name": "Vindaloo",
+        "subject": "A bowl of pork chunks in a glossy, deep red-brown curry with a red oil sheen, whole dried red chilies and a few curry leaves on top, a mound of white rice and a folded Goan bread (pao) beside it.",
+        "mustShow": "Deep red-brown glossy curry; pork chunks; whole dried red chilies",
+        "wrong": "Orange creamy curry; chicken; a curry with potatoes and peas"
+      },
+      {
+        "slug": "dhokla",
+        "name": "Dhokla",
+        "subject": "A plate of pale yellow, spongy, square steamed dhokla pieces, their tops dotted with black mustard seeds, green curry leaves and slit green chilies, a scattering of grated coconut and coriander, a small bowl of green chutney beside them.",
+        "mustShow": "Pale yellow spongy square cakes; black mustard seeds and curry leaves on top",
+        "wrong": "Cornbread; a sponge cake with icing; a cheese cube"
+      },
+      {
+        "slug": "dal-baati-churma",
+        "name": "Dal Baati Churma",
+        "subject": "A round steel thali plate with three hard, round, golden-brown baked wheat balls (baati), one cracked open, a small steel bowl of yellow-brown mixed dal, and a mound of crumbly golden churma, a pat of ghee melting on the baati.",
+        "mustShow": "Round baked wheat balls, one cracked; a bowl of dal; crumbly golden churma; melting ghee",
+        "wrong": "Bread rolls; dumplings in soup; a pastry"
+      },
+      {
+        "slug": "machher-jhol",
+        "name": "Machher Jhol",
+        "subject": "A bowl of thin, yellow-orange turmeric gravy with two steaks of fried river fish and chunks of potato, a slit green chili and a few coriander leaves, a mound of white rice beside it.",
+        "mustShow": "Thin yellow-orange gravy; fish steaks with skin; potato chunks",
+        "wrong": "Thick creamy curry; fish fillets; a fish fried in batter"
+      },
+      {
+        "slug": "kathi-roll",
+        "name": "Kathi Roll",
+        "subject": "A flaky paratha roll wrapped in white paper, cut at an angle to show an egg-coated layer around a filling of charred kebab meat, sliced red onion and green chili, a lime wedge beside it.",
+        "mustShow": "Paper-wrapped roll cut to show the egg layer, kebab meat and onions",
+        "wrong": "A burrito with rice and beans; a shawarma in pita; a sandwich"
+      },
+      {
+        "slug": "hyderabadi-haleem",
+        "name": "Hyderabadi Haleem",
+        "subject": "A bowl of thick, smooth, brown porridge-like haleem with a shiny pool of ghee on top, heaped with crispy brown fried onions, chopped mint and coriander, slivers of fried cashew and a lime wedge on the rim.",
+        "mustShow": "Smooth thick brown porridge texture; crispy fried onions and ghee on top; lime wedge",
+        "wrong": "Chunky stew with visible vegetables; a soup; meat in gravy"
+      },
+      {
+        "slug": "kodi-vepudu",
+        "name": "Kodi Vepudu",
+        "subject": "A plate of dry-fried chicken pieces coated in a dark red, almost black, clinging chili masala with fried curry leaves and sliced green chilies scattered over, no gravy, a lime wedge beside it.",
+        "mustShow": "Dry chicken pieces in a dark red clinging masala; fried curry leaves; no gravy",
+        "wrong": "Chicken in a wet curry; breaded fried chicken; a pale stir-fry"
+      },
+      {
+        "slug": "pav-bhaji",
+        "name": "Pav Bhaji",
+        "subject": "A steel plate with a mound of orange-red mashed vegetable bhaji with a square of butter melting on top and chopped coriander, two soft square bread rolls (pav) toasted golden with butter, a heap of chopped raw onion and a lime wedge.",
+        "mustShow": "Orange-red smooth mash with melting butter; two toasted square rolls; raw onion and lime",
+        "wrong": "A vegetable curry with chunks; a burger; rice with curry"
+      }
     ]
   }
 }

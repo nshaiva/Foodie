@@ -122,6 +122,7 @@ const ACROSS_AT: Record<string, [number, number]> = {
   MX: [-90.8, 25.6],   // Gulf of Mexico
   CN: [124.5, 31.5],   // East China Sea, off Shanghai
   EG: [30.3, 33.0],    // Mediterranean, north of the Delta
+  IN: [86.5, 16.0],    // Bay of Bengal, off the east coast
 };
 
 
