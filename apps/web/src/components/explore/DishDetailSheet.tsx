@@ -178,13 +178,13 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack }: {
   const heading = { fontFamily: 'var(--font-heading)' } as const;
 
   return (
-    <section className="flex flex-col gap-4 pt-1" data-dish-detail="open" aria-label={v.name}>
+    <section className="flex flex-col gap-3 md:gap-4 pt-1" data-dish-detail="open" aria-label={v.name}>
       <BackLink label={backLabel} onClick={onBack} />
-      <DishImage name={v.name} image={v.image} colors={country.colorPalette} glass={v.isDrink} plate={110} className="w-full h-[220px] md:h-[260px] flex-none rounded-2xl">
+      <DishImage name={v.name} image={v.image} colors={country.colorPalette} glass={v.isDrink} plate={110} className="w-full h-[168px] md:h-[260px] flex-none rounded-2xl">
         <span className="absolute left-3.5 bottom-3 px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-[0.04em]" style={{ backgroundColor: 'rgba(255,255,255,0.85)', color: systemColors.navyLight }}>Illustration</span>
       </DishImage>
 
-      <div className="pb-6 flex flex-col gap-4">
+      <div className="pb-3 md:pb-6 flex flex-col gap-3 md:gap-4">
         <div className="flex flex-col gap-1">
           {meta && <div className="text-[13px]" style={{ color: systemColors.navyMuted }}>{meta}</div>}
           <h2 className="text-[1.65rem] md:text-3xl font-extrabold leading-tight" style={{ color: systemColors.navy }}>{v.name}</h2>
