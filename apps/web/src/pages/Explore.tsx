@@ -954,7 +954,7 @@ export function Explore() {
                                 {regionLabelName(region.name)}
                               </text>
                             )}
-                            {n > 0 && (
+                            {!quietNames && n > 0 && (
                               <text textAnchor="middle" dominantBaseline="central" y={11} fill={systemColors.navyMuted} fontSize={9.5} letterSpacing="0.12em"
                                 stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke">
                                 {n} {n === 1 ? 'DISH' : 'DISHES'}
