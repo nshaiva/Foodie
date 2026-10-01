@@ -37,7 +37,14 @@ export function ProfileButton({ compact = false }: { compact?: boolean } = {}) {
         className={`flex items-center gap-2 text-sm rounded-full border px-3 py-1.5 transition-colors hover:opacity-80 ${compact ? 'max-md:w-11 max-md:h-11 max-md:px-0 max-md:justify-center' : ''}`}
         style={{ borderColor: systemColors.border, color: systemColors.navy, backgroundColor: systemColors.surface }}
       >
-        <span className={compact ? 'max-md:text-[30px] max-md:leading-none' : ''} style={{ color: systemColors.tomato }} aria-hidden={compact || undefined}>✦</span>
+        {/* On the phone the ✦ is drawn, not typed: a text glyph sits low in its
+            line box and never quite centres in the 44px circle */}
+        {compact && (
+          <svg className="md:hidden block" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 0 L15 9 L24 12 L15 15 L12 24 L9 15 L0 12 L9 9 Z" fill={systemColors.tomato} />
+          </svg>
+        )}
+        <span className={compact ? 'max-md:hidden' : ''} style={{ color: systemColors.tomato }} aria-hidden={compact || undefined}>✦</span>
         {compact ? <span className="max-md:hidden">My profile</span> : 'My profile'}
       </button>
 
