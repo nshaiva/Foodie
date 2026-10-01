@@ -54,7 +54,7 @@ export function CountryOverview({
           </span>
         </div>
         {/* Two lines at most on a phone, where the half sheet has room for little else */}
-        <p className="text-[15px] leading-relaxed max-md:line-clamp-2" style={{ color: systemColors.navyLight }}>{firstSentence(country.cuisineProfile.summary)}</p>
+        <p className="text-[15px] leading-relaxed" style={{ color: systemColors.navyLight }}>{firstSentence(country.cuisineProfile.summary)}</p>
       </div>
 
       <section className="flex flex-col gap-3" aria-labelledby="start-with">

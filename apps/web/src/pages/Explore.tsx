@@ -16,7 +16,7 @@ import { useCountryActivity } from '../hooks/useCountryActivity';
 import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { countryDishProgress } from '../utils/dishProgress';
-import { countryInSentence, groupEntries, regionCounts, type Entry } from '../utils/groupDishes';
+import { countryInSentence, groupEntries, regionCounts, acrossRegion, isAcrossRegion, ACROSS_GROUP_ID, type Entry } from '../utils/groupDishes';
 import { entryWhere, isDrinkEntry } from '../utils/course';
 import { homeLand, labelsFitAt, labelsInView, regionAreas, regionLabelName, seaLabelLayout, REGION_BORDER, REGION_INK, REGION_TINT, type RegionAreas, type SeaPlacement } from '../utils/regionAreas';
 import { regionFromSlug, regionSlug } from '../utils/dishRegion';
@@ -34,7 +34,7 @@ import { CountryOverview } from '../components/explore/CountryOverview';
 import { AllDishesList, BackLink, RegionView } from '../components/explore/PanelLevels';
 import { DishDetail } from '../components/explore/DishDetailSheet';
 import { MapPlates, WorldPlates } from '../components/explore/MapPlates';
-import { plateLayout, countryHomes, regionUnits, type RegionUnit } from '../utils/plateLayout';
+import { plateLayout, countryHomes, regionUnits, acrossAt, COUNTRY_R, type RegionUnit } from '../utils/plateLayout';
 import { plateFade } from '../utils/plateFade';
 import type { Country, RegionalCuisine } from '../data/types';
 
@@ -469,7 +469,8 @@ export function Explore() {
     setDetailKey(null);
   };
   const flyToRegion = (country: Country, region: RegionalCuisine) => {
-    const c = regionCoordinates[country.id]?.[region.name]; if (!c) return;
+    // "Across {country}" lives at the sea cluster's water point
+    const c = isAcrossRegion(region) ? acrossAt(country.id) : regionCoordinates[country.id]?.[region.name]; if (!c) return;
     setSheetPos('half'); // a region tap shows its dishes while the map stays in view
     const beside = panelWillShow(country.id);
     const feat = features.get(country.id);
@@ -504,7 +505,7 @@ export function Explore() {
     const regionName = hit.getAttribute('data-r');
     if (regionName) {
       const c = s.level === 'world' ? undefined : s.country;
-      const region = c?.regionalVariations?.find(r => r.name === regionName);
+      const region = c?.regionalVariations?.find(r => r.name === regionName) ?? (c && regionName === acrossRegion(c).name ? acrossRegion(c) : undefined);
       if (c && region && !(s.level === 'region' && s.region.name === regionName)) flyToRegion(c, region);
       return;
     }
@@ -572,7 +573,7 @@ export function Explore() {
     const c = searchParams.get('c'), r = searchParams.get('r');
     const country = c ? getCountryById(c) : undefined;
     if (!country) return;
-    const region = r ? regionFromSlug(r, country.regionalVariations, country.id) : undefined;
+    const region = r ? (regionFromSlug(r, country.regionalVariations, country.id) ?? (r === regionSlug(acrossRegion(country).name) ? acrossRegion(country) : undefined)) : undefined;
     // A one-time landing once the outlines arrive, not a state sync
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (region) flyToRegion(country, region); else flyToCountry(country.id);
@@ -682,7 +683,8 @@ export function Explore() {
   const regionEntries = useMemo(() => {
     if (!country || scope.level !== 'region') return [];
     // The region level shows everything from there; search and filters belong to All dishes
-    return groupEntries(allEntries, 'region', { regions, countryId: country.id, countryName: country.name, orphansAcross: true }).find(g => g.region?.name === scope.region.name)?.entries ?? [];
+    const across = isAcrossRegion(scope.region);
+    return groupEntries(allEntries, 'region', { regions, countryId: country.id, countryName: country.name, orphansAcross: true }).find(g => (across ? g.id === ACROSS_GROUP_ID : g.region?.name === scope.region.name))?.entries ?? [];
   }, [country, scope, allEntries, regions]);
   const openCountryView = (view: 'all' | 'flavor' | 'culture') => {
     setCountryView(view);
@@ -754,17 +756,40 @@ export function Explore() {
     const feat = bubbleCountry && features.get(bubbleCountry.id);
     return bubbleCountry && feat ? frameCountry(bubbleCountry, feat, viewBeside).zoom : 1;
   }, [bubbleCountry, features, viewBeside, landingZoom]);
-  const platesShowing = useMemo(() => {
+  const mapPlates = useMemo(() => {
     // Whether names fit inline doesn't matter here: plates draw either way
-    if (!showBubbles || !areas || scope.level === 'world' || plateFade(areas, liveZoom) === 0) return false;
-    return plateLayout({ areas, groups: mapGroups, region: scope.level === 'region' ? scope.region : undefined, zoom: liveZoom, labelScale, projection: baseProjection, countryId: scope.country.id, countryName: scope.country.name, center: liveCenter, view: viewSize, fitZoom, fitScale: labelScaleAt(fitZoom) * labelBoost }).length > 0;
+    if (!showBubbles || !areas || scope.level === 'world' || plateFade(areas, liveZoom) === 0) return [];
+    return plateLayout({ areas, groups: mapGroups, region: scope.level === 'region' ? scope.region : undefined, zoom: liveZoom, labelScale, projection: baseProjection, countryId: scope.country.id, countryName: scope.country.name, center: liveCenter, view: viewSize, fitZoom, fitScale: labelScaleAt(fitZoom) * labelBoost });
   }, [showBubbles, areas, scope, liveZoom, mapGroups, labelScale, liveCenter, fitZoom, viewSize, labelBoost]);
+  const platesShowing = mapPlates.length > 0;
+  // A region's cap steps up or down off any plate sitting on its anchor
+  // (Nikita, 2026-10-01: never a name over a picture). Offsets in the cap's
+  // own units (the labelScale group), picked once per render from the plates
+  // actually on the map.
+  const capLift = useMemo(() => {
+    const out: Record<string, number> = {};
+    if (!areas || !mapPlates.length) return out;
+    const R = (COUNTRY_R + 2.5) * labelScale;
+    const plates = mapPlates.map(p => { const [x, y] = baseProjection(p.at) as [number, number]; return [x * liveZoom + p.lift[0] * labelScale, y * liveZoom + p.lift[1] * labelScale] as [number, number]; });
+    for (const { region, anchorPx } of areas.areas) {
+      const cx = anchorPx[0] * liveZoom, cy = anchorPx[1] * liveZoom;
+      const halfW = (regionLabelName(region.name).length * 9.5 * 0.68 * labelScale) / 2 + 4, halfH = 7 * labelScale;
+      const clear = (dy: number) => plates.every(([px, py]) => Math.abs(px - cx) > halfW + R || Math.abs(py - (cy + dy)) > halfH + R);
+      const step = R + halfH + 6;
+      const dy = [0, -step, step, -2 * step, 2 * step].find(clear) ?? 0;
+      if (dy) out[region.name] = dy / labelScale;
+    }
+    return out;
+  }, [areas, mapPlates, labelScale, liveZoom]);
   // Region names are small quiet caps at every zoom and for every country
   // (Nikita, 2026-10-01), whether or not it has plates yet, so the style
   // never flips between countries or levels; the open region's cap keeps
   // full ink, the others dim. Countries without plates keep their dish
   // count under the cap.
   const quietNames = scope.level !== 'world';
+  // Caps fade out with the plates as the country shrinks on screen, so a
+  // selected region zoomed out to the world leaves no pile of names behind
+  const capFade = areas ? plateFade(areas, liveZoom) : 0;
   // Quiet caps are small enough to always sit on the land, so the at-sea fallback is for the full names only
   const showSea = !!seaLayout && !labelsFit && !quietNames && liveZoom >= seaLayout.zoom * 0.85;
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
@@ -925,6 +950,8 @@ export function Explore() {
                         fitZoom={fitZoom}
                         fitScale={labelScaleAt(fitZoom) * labelBoost}
                         onOpenDish={entry => openDish(entry.key)}
+                        onOpenAcross={() => flyToRegion(bubbleCountry, acrossRegion(bubbleCountry))}
+                        acrossSelected={scope.level === 'region' && isAcrossRegion(scope.region)}
                       />
                     )}
                     {areas.areas.map(({ region, anchor }) => {
@@ -933,16 +960,16 @@ export function Explore() {
                       const n = platesShowing ? 0 : counts[region.name] ?? 0;
                       return (
                         <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
-                          <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit || quietNames ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
+                          <g transform={`scale(${labelScale / liveZoom})`} opacity={quietNames ? capFade : labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
                             {/* With plates showing, the names are wayfinding, not content: small quiet caps so the food leads (decided 2026-10-01) */}
                             {quietNames ? (
                               <>
-                                <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={dim ? REGION_BORDER : sel ? REGION_INK : QUIET_INK} fontSize={sel ? 10.5 : 9.5} fontWeight={700} letterSpacing="0.14em"
+                                <text textAnchor="middle" dominantBaseline="central" y={(n ? -5 : 0) + (capLift[region.name] ?? 0)} fill={dim ? REGION_BORDER : sel ? REGION_INK : QUIET_INK} fontSize={sel ? 10.5 : 9.5} fontWeight={700} letterSpacing="0.14em"
                                   stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)', textTransform: 'uppercase' }}>
                                   {regionLabelName(region.name)}
                                 </text>
                                 {n > 0 && (
-                                  <text textAnchor="middle" dominantBaseline="central" y={8} fontSize={7.5} letterSpacing="0.12em" fill={dim ? REGION_BORDER : systemColors.navyMuted}
+                                  <text textAnchor="middle" dominantBaseline="central" y={8 + (capLift[region.name] ?? 0)} fontSize={7.5} letterSpacing="0.12em" fill={dim ? REGION_BORDER : systemColors.navyMuted}
                                     stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke">
                                     {n} {n === 1 ? 'DISH' : 'DISHES'}
                                   </text>
@@ -1081,7 +1108,7 @@ export function Explore() {
               {sheetTitle}
             </span>
             <span className="text-xs whitespace-nowrap" style={{ color: systemColors.navyMuted }}>
-              {scope.level === 'world' ? `${countries.length} cuisines` : (n => `${n} ${n === 1 ? 'dish' : 'dishes'}`)(scope.level === 'country' ? allEntries.length : counts[scope.region.name] ?? 0)} · Open
+              {scope.level === 'world' ? `${countries.length} cuisines` : (n => `${n} ${n === 1 ? 'dish' : 'dishes'}`)(scope.level === 'country' ? allEntries.length : counts[scope.region.name] ?? regionEntries.length)} · Open
             </span>
           </span>
         </button>
@@ -1095,14 +1122,16 @@ export function Explore() {
           } ${
             // Positioned by its top edge, not translated: the box is exactly
             // the visible band, so the list scrolls to its end at half too
-            sheetPos === 'strip' ? 'max-md:top-[calc(100%-54px-env(safe-area-inset-bottom,0px))]' : sheetPos === 'half' ? 'max-md:top-[48%]' : 'max-md:top-0'
+            // The strip is exactly the title row (44px), so no half-line of the
+            // list ever peeks out under it (Nikita, 2026-10-01)
+            sheetPos === 'strip' ? 'max-md:top-[calc(100%-44px-env(safe-area-inset-bottom,0px))]' : sheetPos === 'half' ? 'max-md:top-[48%]' : 'max-md:top-0'
           }`}
           style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}
         >
           {/* The strip: the scope title. Taps only, no dragging: the strip opens
               the sheet, the header's controls close it or expand it. */}
           <div
-            className="md:hidden sticky top-0 z-10 -mx-5 px-5 py-2 select-none"
+            className="md:hidden sticky top-0 z-10 -mx-5 px-5 py-3 select-none"
             style={{ backgroundColor: systemColors.seaSalt }}
             onClick={() => { if (sheetPos === 'strip') raiseFromStrip(); }}
             role={sheetPos === 'strip' ? 'button' : undefined}
@@ -1113,7 +1142,7 @@ export function Explore() {
               {scope.level !== 'world' && <PlateDot color={scope.country.colorPalette.primary} size={12} />}
               <span>{scope.level === 'world' ? `${countries.length} cuisines` : sheetTitle}</span>
               <span className="font-normal text-xs" style={{ color: systemColors.navyMuted }}>
-                {scope.level === 'world' ? (exploredDepth.size ? 'colouring in as you eat' : 'tap the map, or browse') : scope.level === 'country' ? `${allEntries.length} dishes & drinks` : `${counts[scope.region.name] ?? 0} ${(counts[scope.region.name] ?? 0) === 1 ? 'dish' : 'dishes'}`}
+                {scope.level === 'world' ? (exploredDepth.size ? 'colouring in as you eat' : 'tap the map, or browse') : scope.level === 'country' ? `${allEntries.length} dishes & drinks` : `${counts[scope.region.name] ?? regionEntries.length} ${(counts[scope.region.name] ?? regionEntries.length) === 1 ? 'dish' : 'dishes'}`}
               </span>
               {sheetPos === 'strip' ? (
                 <span className="ml-auto text-base leading-none" style={{ color: systemColors.navyMuted }}>⌃</span>

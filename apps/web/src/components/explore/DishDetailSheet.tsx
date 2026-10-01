@@ -174,26 +174,26 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack }: {
     else a.addToWishlist({ countryId: a.countryId, dishName: source.name, englishName: source.englishName });
   };
 
-  const primaryBtn = 'btn-press h-[52px] rounded-xl flex items-center justify-center gap-2 text-base font-extrabold';
+  const primaryBtn = 'btn-press h-[46px] md:h-[52px] rounded-xl flex items-center justify-center gap-2 text-[15px] md:text-base font-extrabold';
   const heading = { fontFamily: 'var(--font-heading)' } as const;
 
   return (
-    <section className="flex flex-col gap-4 pt-1" data-dish-detail="open" aria-label={v.name}>
+    <section className="flex flex-col gap-3 md:gap-4 pt-1" data-dish-detail="open" aria-label={v.name}>
       <BackLink label={backLabel} onClick={onBack} />
-      <DishImage name={v.name} image={v.image} colors={country.colorPalette} glass={v.isDrink} plate={110} className="w-full h-[220px] md:h-[260px] flex-none rounded-2xl">
+      <DishImage name={v.name} image={v.image} colors={country.colorPalette} glass={v.isDrink} plate={110} className="w-full h-[148px] md:h-[260px] flex-none rounded-2xl">
         <span className="absolute left-3.5 bottom-3 px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-[0.04em]" style={{ backgroundColor: 'rgba(255,255,255,0.85)', color: systemColors.navyLight }}>Illustration</span>
       </DishImage>
 
-      <div className="pb-6 flex flex-col gap-4">
+      <div className="pb-2 md:pb-6 flex flex-col gap-2.5 md:gap-4">
         <div className="flex flex-col gap-1">
-          {meta && <div className="text-[13px]" style={{ color: systemColors.navyMuted }}>{meta}</div>}
-          <h2 className="text-[1.65rem] md:text-3xl font-extrabold leading-tight" style={{ color: systemColors.navy }}>{v.name}</h2>
+          {meta && <div className="text-xs md:text-[13px]" style={{ color: systemColors.navyMuted }}>{meta}</div>}
+          <h2 className="text-[1.35rem] md:text-3xl font-extrabold leading-tight" style={{ color: systemColors.navy }}>{v.name}</h2>
           {(v.englishName || source?.pronunciation) && (
             <div className="text-[13px]" style={{ color: systemColors.navyMuted }}>
               {[v.englishName, source?.pronunciation && `say “${source.pronunciation}”`].filter(Boolean).join(' · ')}
             </div>
           )}
-          {source?.tagline && <p className="text-base font-medium leading-snug mt-1" style={{ color: systemColors.navyLight }}>{source.tagline}</p>}
+          {source?.tagline && <p className="text-[15px] md:text-base font-medium leading-snug md:mt-1" style={{ color: systemColors.navyLight }}>{source.tagline}</p>}
         </div>
 
         {/* Tried: the verdict and everything that edits it */}
@@ -270,7 +270,7 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack }: {
           </div>
         )}
 
-        {source?.description && <p className="text-[15px] leading-relaxed" style={{ color: systemColors.navyLight }}>{source.description}</p>}
+        {source?.description && <p className="text-sm md:text-[15px] leading-normal md:leading-relaxed" style={{ color: systemColors.navyLight }}>{source.description}</p>}
 
         {/* Visits, for a tried dish */}
         {tried && visits.length > 0 && (
