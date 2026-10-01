@@ -23,7 +23,7 @@ export function AppBar({ actions, children, fullBleed = false }: AppBarProps) {
   const column = fullBleed ? 'px-4 md:px-6' : 'max-w-6xl mx-auto px-4';
   return (
     <header style={{ backgroundColor: systemColors.surface, borderBottom: `1px solid ${systemColors.border}` }}>
-      <div className={`${column} pt-4 pb-3 flex items-start md:items-center justify-between gap-3`}>
+      <div className={`${column} pt-3 pb-3 md:pt-4 flex items-center justify-between gap-3`}>
         <Wordmark />
         {actions && (
           <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
