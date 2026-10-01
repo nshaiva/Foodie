@@ -11,7 +11,7 @@ import { entryView } from './entryView';
  */
 
 export const PLATE_R = 21; // plate radius in screen px
-export const WORLD_R = 10; // world zoom: a pin that marks the cuisine, not a picture of it
+export const WORLD_R = 12.5; // world zoom: a pin that marks the cuisine, legible at a glance (was 10; Nikita, 2026-10-01)
 export const COUNTRY_R = 15; // country-zoom plates, tucked under the region name
 const NEIGHBOUR_OPACITY = 0.7; // other regions' plates while one region is open
 
@@ -122,6 +122,7 @@ const ACROSS_AT: Record<string, [number, number]> = {
   MX: [-90.8, 25.6],   // Gulf of Mexico
   CN: [124.5, 31.5],   // East China Sea, off Shanghai
   EG: [30.3, 33.0],    // Mediterranean, north of the Delta
+  IN: [86.5, 16.0],    // Bay of Bengal, off the east coast
 };
 
 
@@ -208,6 +209,9 @@ function placeHomes(areas: RegionAreas, groups: Group[], projection: GeoProjecti
     space.block(captionBox(`Across ${countryName}`, ax, ay + (COUNTRY_R + 18) * s, s * 1.2));
   }
   cands.sort((a, b) => plateRank(a.entry) - plateRank(b.entry) || a.tier - b.tier);
+  // A dish with a city sits on it no matter what, so it claims that spot
+  // first and the region dishes placed around the name steer clear of it
+  for (const c of cands) if (c.kind === 'city') { const [x, y] = px(c.base); space.take(x, y, r); }
 
   const around: [number, number][] = [[0, D], [0, -D], [D, 0], [-D, 0], [D, D], [-D, D], [D, -D], [-D, -D], [0, E], [0, -E], [E, 0], [-E, 0]];
   // The nationwide group: a stack at the water point, most popular on top.
@@ -312,23 +316,28 @@ export function plateLayout({ areas, groups, region, zoom, labelScale, projectio
   const NUDGE_DIR: [number, number][] = [[-0.87, 0.5], [0.87, 0.5], [0, -1], [-0.87, -0.5], [0.87, -0.5], [0, 1]];
   const plates = clusters.flatMap((c): PlacedPlate[] => {
     // The pile: the hub plus every member that had to be nudged to show at all
+    // Resting lift for each member: the ones that would be covered are nudged
+    const rest = c.members.map((h, i): [number, number] => {
+      if (i === 0) return [0, 0];
+      const [hx, hy] = px(h.at);
+      const dx = hx - c.px[0], dy = hy - c.px[1], d = Math.hypot(dx, dy);
+      if (d >= SHOW) return [0, 0];
+      const [ux, uy] = d > 2 ? [dx / d, dy / d] : NUDGE_DIR[(i - 1) % NUDGE_DIR.length];
+      return [(ux * (SHOW - d)) / s, (uy * (SHOW - d)) / s];
+    });
     const inPile = c.members.filter((h, i) => { if (i === 0) return true; const [hx, hy] = px(h.at); return Math.hypot(hx - c.px[0], hy - c.px[1]) < SHOW; });
     const pileN = inPile.length > 1 ? inPile.length : 0;
     const GAP = COUNTRY_R * 2 + 8;
+    // Open, the pile is a row centred where it sits, each plate keeping the
+    // side it rests on (left to right), so nothing crosses over as it opens
+    const restX = (h: Home) => { const i = c.members.indexOf(h); const [hx] = px(h.at); return hx + rest[i][0] * s; };
+    const rowOrder = [...inPile].sort((a, b) => restX(a) - restX(b));
     return c.members.flatMap((h, i): PlacedPlate[] => {
       const [hx, hy] = px(h.at);
       if (!onScreen(hx, hy)) return [];
-      let lift: [number, number] = [0, 0];
-      const pi = inPile.indexOf(h);
-      if (i > 0) {
-        const dx = hx - c.px[0], dy = hy - c.px[1], d = Math.hypot(dx, dy);
-        if (d < SHOW) {
-          const [ux, uy] = d > 2 ? [dx / d, dy / d] : NUDGE_DIR[(i - 1) % NUDGE_DIR.length];
-          lift = [(ux * (SHOW - d)) / s, (uy * (SHOW - d)) / s];
-        }
-      }
-      // Open, the pile is a row centred where it sits, most popular first
-      const pile = pileN && pi >= 0 ? { id: `pile:${c.hub.entry.key}`, i: pi, n: pileN, spread: [((pi - (pileN - 1) / 2) * GAP) - (pi > 0 ? (hx - c.px[0]) / s : 0), -(pi > 0 ? (hy - c.px[1]) / s : 0)] as [number, number] } : undefined;
+      const lift = rest[i];
+      const pi = inPile.indexOf(h), slot = rowOrder.indexOf(h);
+      const pile = pileN && pi >= 0 ? { id: `pile:${c.hub.entry.key}`, i: pi, n: pileN, spread: [((slot - (pileN - 1) / 2) * GAP) - (hx - c.px[0]) / s, -(hy - c.px[1]) / s] as [number, number] } : undefined;
       return [{ key: h.entry.key, entry: h.entry, at: h.at, lift, r: COUNTRY_R, compact: true, label: h.label, region: h.region,
         opacity: dimFor(h), under: i > 0 ? i : undefined, pile }];
     });

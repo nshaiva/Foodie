@@ -64,7 +64,7 @@ function Plate({ entry, at, lift, k, badge, label, onClick, onHover, id, stem = 
           <circle r={2.6} fill={systemColors.navy} />
         </>}
         {/* CSS transform rather than the attribute, so a lift that changes (the Across fan) eases there */}
-        <g style={{ transform: `translate(${dx}px, ${dy}px)`, transition: slide ? 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' : undefined }}>
+        <g style={{ transform: `translate(${dx}px, ${dy}px)`, transition: slide ? 'transform 160ms ease-out' : undefined }}>
           <g className={['map-plate', compact && 'map-plate--compact', leaving && 'map-plate--out', world && 'map-plate--world', under && `map-plate--under-${Math.min(3, under)}`].filter(Boolean).join(' ')} role="button" tabIndex={0} aria-label={label} data-plate={v.name}
             onClick={e => { e.stopPropagation(); onClick(); }}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
@@ -107,11 +107,13 @@ function PlateCaption({ plate, k }: { plate: PlacedPlate; k: number }) {
   const w = plate.label.length * 11 * 0.56 + 18, h = 20;
   return (
     <Marker coordinates={plate.at} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
-      <g transform={`scale(${k}) translate(${dx} ${dy - (plate.r + 19)})`} style={{ pointerEvents: 'none' }}>
+      <g transform={`scale(${k})`} style={{ pointerEvents: 'none' }}>
+        <g style={{ transform: `translate(${dx}px, ${dy - (plate.r + 19)}px)`, transition: 'transform 160ms ease-out' }}>
         <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={h / 2} fill={systemColors.seaSalt} stroke={systemColors.navy} strokeOpacity={0.25} strokeWidth={1} />
         <text textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700} fill={systemColors.navy} style={{ fontFamily: 'var(--font-heading)' }}>
           {plate.label}
         </text>
+        </g>
       </g>
     </Marker>
   );
@@ -140,7 +142,7 @@ export function WorldPlates({ countries, features, projection, zoom, labelScale,
   const path = geoPath(projection);
   // Pins grow from a marker into a plate as you zoom toward a country, so the
   // handover to its region plates is a crossfade at one size, not a jump
-  const grow = Math.max(0, Math.min(1, (zoom - 1.4) / 2));
+  const grow = Math.max(0, Math.min(1, (zoom - 1.2) / 1.2));
   const R = WORLD_R + (COUNTRY_R - WORLD_R) * grow;
   type Spot = { c: Country; entry: Entry; at: [number, number]; px: [number, number]; area: number; i: number };
   const spots: Spot[] = countries.flatMap(c => {
@@ -293,7 +295,9 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
           // cluster's hub opens it; every other tap opens the dish
           if (!captions && p.pile && openStack !== p.pile.id) { setOpenStack(p.pile.id); return; }
           if (isHub && closed && !captions && withHub && acrossN > 1) { setOpenStack('across'); return; }
-          setOpenStack(null);
+          // The fan stays as it is: closing it here slid the plates out from
+          // under the pointer as the sheet opened. Hover-out (or a press
+          // elsewhere on touch) closes it.
           onOpenDish(p.entry);
         }}
         onHover={captions ? (on => setHovered(on ? p.key : cur => (cur === p.key ? null : cur))) : undefined} />
