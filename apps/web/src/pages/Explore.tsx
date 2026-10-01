@@ -34,7 +34,7 @@ import { CountryOverview } from '../components/explore/CountryOverview';
 import { AllDishesList, BackLink, RegionView } from '../components/explore/PanelLevels';
 import { DishDetail } from '../components/explore/DishDetailSheet';
 import { MapPlates, WorldPlates } from '../components/explore/MapPlates';
-import { plateLayout, countryHomes, regionUnits, acrossAt, type RegionUnit } from '../utils/plateLayout';
+import { plateLayout, countryHomes, regionUnits, acrossAt, COUNTRY_R, type RegionUnit } from '../utils/plateLayout';
 import { plateFade } from '../utils/plateFade';
 import type { Country, RegionalCuisine } from '../data/types';
 
@@ -756,17 +756,40 @@ export function Explore() {
     const feat = bubbleCountry && features.get(bubbleCountry.id);
     return bubbleCountry && feat ? frameCountry(bubbleCountry, feat, viewBeside).zoom : 1;
   }, [bubbleCountry, features, viewBeside, landingZoom]);
-  const platesShowing = useMemo(() => {
+  const mapPlates = useMemo(() => {
     // Whether names fit inline doesn't matter here: plates draw either way
-    if (!showBubbles || !areas || scope.level === 'world' || plateFade(areas, liveZoom) === 0) return false;
-    return plateLayout({ areas, groups: mapGroups, region: scope.level === 'region' ? scope.region : undefined, zoom: liveZoom, labelScale, projection: baseProjection, countryId: scope.country.id, countryName: scope.country.name, center: liveCenter, view: viewSize, fitZoom, fitScale: labelScaleAt(fitZoom) * labelBoost }).length > 0;
+    if (!showBubbles || !areas || scope.level === 'world' || plateFade(areas, liveZoom) === 0) return [];
+    return plateLayout({ areas, groups: mapGroups, region: scope.level === 'region' ? scope.region : undefined, zoom: liveZoom, labelScale, projection: baseProjection, countryId: scope.country.id, countryName: scope.country.name, center: liveCenter, view: viewSize, fitZoom, fitScale: labelScaleAt(fitZoom) * labelBoost });
   }, [showBubbles, areas, scope, liveZoom, mapGroups, labelScale, liveCenter, fitZoom, viewSize, labelBoost]);
+  const platesShowing = mapPlates.length > 0;
+  // A region's cap steps up or down off any plate sitting on its anchor
+  // (Nikita, 2026-10-01: never a name over a picture). Offsets in the cap's
+  // own units (the labelScale group), picked once per render from the plates
+  // actually on the map.
+  const capLift = useMemo(() => {
+    const out: Record<string, number> = {};
+    if (!areas || !mapPlates.length) return out;
+    const R = (COUNTRY_R + 2.5) * labelScale;
+    const plates = mapPlates.map(p => { const [x, y] = baseProjection(p.at) as [number, number]; return [x * liveZoom + p.lift[0] * labelScale, y * liveZoom + p.lift[1] * labelScale] as [number, number]; });
+    for (const { region, anchorPx } of areas.areas) {
+      const cx = anchorPx[0] * liveZoom, cy = anchorPx[1] * liveZoom;
+      const halfW = (regionLabelName(region.name).length * 9.5 * 0.68 * labelScale) / 2 + 4, halfH = 7 * labelScale;
+      const clear = (dy: number) => plates.every(([px, py]) => Math.abs(px - cx) > halfW + R || Math.abs(py - (cy + dy)) > halfH + R);
+      const step = R + halfH + 6;
+      const dy = [0, -step, step, -2 * step, 2 * step].find(clear) ?? 0;
+      if (dy) out[region.name] = dy / labelScale;
+    }
+    return out;
+  }, [areas, mapPlates, labelScale, liveZoom]);
   // Region names are small quiet caps at every zoom and for every country
   // (Nikita, 2026-10-01), whether or not it has plates yet, so the style
   // never flips between countries or levels; the open region's cap keeps
   // full ink, the others dim. Countries without plates keep their dish
   // count under the cap.
   const quietNames = scope.level !== 'world';
+  // Caps fade out with the plates as the country shrinks on screen, so a
+  // selected region zoomed out to the world leaves no pile of names behind
+  const capFade = areas ? plateFade(areas, liveZoom) : 0;
   // Quiet caps are small enough to always sit on the land, so the at-sea fallback is for the full names only
   const showSea = !!seaLayout && !labelsFit && !quietNames && liveZoom >= seaLayout.zoom * 0.85;
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
@@ -937,16 +960,16 @@ export function Explore() {
                       const n = platesShowing ? 0 : counts[region.name] ?? 0;
                       return (
                         <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
-                          <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit || quietNames ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
+                          <g transform={`scale(${labelScale / liveZoom})`} opacity={quietNames ? capFade : labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
                             {/* With plates showing, the names are wayfinding, not content: small quiet caps so the food leads (decided 2026-10-01) */}
                             {quietNames ? (
                               <>
-                                <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={dim ? REGION_BORDER : sel ? REGION_INK : QUIET_INK} fontSize={sel ? 10.5 : 9.5} fontWeight={700} letterSpacing="0.14em"
+                                <text textAnchor="middle" dominantBaseline="central" y={(n ? -5 : 0) + (capLift[region.name] ?? 0)} fill={dim ? REGION_BORDER : sel ? REGION_INK : QUIET_INK} fontSize={sel ? 10.5 : 9.5} fontWeight={700} letterSpacing="0.14em"
                                   stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)', textTransform: 'uppercase' }}>
                                   {regionLabelName(region.name)}
                                 </text>
                                 {n > 0 && (
-                                  <text textAnchor="middle" dominantBaseline="central" y={8} fontSize={7.5} letterSpacing="0.12em" fill={dim ? REGION_BORDER : systemColors.navyMuted}
+                                  <text textAnchor="middle" dominantBaseline="central" y={8 + (capLift[region.name] ?? 0)} fontSize={7.5} letterSpacing="0.12em" fill={dim ? REGION_BORDER : systemColors.navyMuted}
                                     stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke">
                                     {n} {n === 1 ? 'DISH' : 'DISHES'}
                                   </text>
