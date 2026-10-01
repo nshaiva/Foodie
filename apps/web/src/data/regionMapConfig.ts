@@ -121,7 +121,7 @@ export const regionCoordinates: Record<string, Record<string, [number, number]>>
     'West India (Rajasthan & Gujarat)': [74.5, 25.5],
     'Mumbai & Goa (Maharashtra & the Konkan)': [73.5, 17.5],
     'East India (Bengal & Bihar)': [87.5, 23.5],
-    'Hyderabad & the Deccan (Telangana & Andhra)': [79, 17],
+    'Hyderabad & the Deccan': [79, 17],
     'South India (Tamil Nadu, Kerala & Karnataka)': [77.5, 11.5],
   },
   PK: {
