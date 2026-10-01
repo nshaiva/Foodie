@@ -40,13 +40,11 @@ export type PlacedPlate = {
    *  most popular first. `lift` is its stacked offset; the ring positions
    *  come from acrossRing() at render time. */
   across?: { i: number; n: number };
-  /** Dishes that share a city stack: the most popular (i 0) on top with
-   *  "+N", the rest peeking out behind it until the stack is opened. */
-  stack?: { id: string; i: number; n: number };
+  /** Depth where plates overlap at this zoom: 0 is the most popular, on
+   *  top at full strength; 1, 2, 3+ sit underneath, each fainter and
+   *  smaller (the China de-clutter canvas, boards 1 + 3, 2026-10-01). */
+  under?: number;
 };
-
-/** Where the plates behind a closed city stack peek out, in screen px. */
-export const PEEK: [number, number][] = [[-14, 6], [14, 6], [0, 9], [-24, 10], [24, 10], [0, 13]];
 
 /**
  * The "Across {country}" cluster's ring. With a hub (desktop) the most
@@ -60,6 +58,53 @@ export function acrossRing(n: number): { ringR: number; at: (i: number) => [numb
     ringR,
     at: i => { const a = -Math.PI / 2 + (i * 2 * Math.PI) / n; return [Math.cos(a) * ringR, Math.sin(a) * ringR]; },
   };
+}
+
+/**
+ * A region's unit for the world pins: its illustrated dishes, most popular
+ * first, and the spot its top dish has at country zoom (from the same
+ * placement the country zoom uses), so zooming in never moves a pin.
+ */
+export type RegionUnit = { region: RegionalCuisine; at: [number, number]; entries: Entry[] };
+
+/** A country's placed dishes, computed (and cached) exactly as the country zoom will. */
+export function countryHomes(areas: RegionAreas, groups: Group[], projection: GeoProjection, countryId: string, countryName: string, fitZoom: number, fitScale: number): { entry: Entry; at: [number, number]; region?: RegionalCuisine }[] {
+  const cacheKey = `${countryId}|${groups.map(g => imaged(g.entries).map(e => e.key).join(',')).join(';')}`;
+  let placed = homes.get(cacheKey);
+  if (!placed) { placed = placeHomes(areas, groups, projection, countryId, countryName, fitZoom, fitScale); homes.set(cacheKey, placed); }
+  return placed.map(h => ({ entry: h.entry, at: h.at, region: h.region }));
+}
+
+export function regionUnits(placed: { entry: Entry; at: [number, number]; region?: RegionalCuisine }[]): RegionUnit[] {
+  const byRegion = new Map<string, RegionUnit>();
+  for (const h of [...placed].sort((a, b) => plateRank(a.entry) - plateRank(b.entry))) {
+    if (!h.region) continue;
+    const u = byRegion.get(h.region.name);
+    if (u) u.entries.push(h.entry); else byRegion.set(h.region.name, { region: h.region, at: h.at, entries: [h.entry] });
+  }
+  return [...byRegion.values()];
+}
+
+/**
+ * Which units a country shows at world zoom: the one with the best-ranked
+ * hub first, then whichever is farthest from those chosen, so the picks
+ * spread across the country. Deterministic, so a growing budget only ever
+ * adds a pin, never moves one.
+ */
+export function worldPicks(units: RegionUnit[], budget: number, px: (at: [number, number]) => [number, number]): RegionUnit[] {
+  if (!units.length) return [];
+  const rest = [...units].sort((a, b) => plateRank(a.entries[0]) - plateRank(b.entries[0]));
+  const picks = [rest.shift()!];
+  while (picks.length < budget && rest.length) {
+    let best = 0, bestD = -1;
+    rest.forEach((u, i) => {
+      const [x, y] = px(u.at);
+      const d = Math.min(...picks.map(q => { const [a, b] = px(q.at); return Math.hypot(a - x, b - y); }));
+      if (d > bestD) { bestD = d; best = i; }
+    });
+    picks.push(rest.splice(best, 1)[0]);
+  }
+  return picks;
 }
 
 // The stack's little jitter, so a closed cluster reads as a pile, not one plate
@@ -165,12 +210,6 @@ function placeHomes(areas: RegionAreas, groups: Group[], projection: GeoProjecti
   // (hover) and may pass over neighbours
   const acrossTotal = cands.filter(c => c.kind === 'across').length;
   let acrossN = 0;
-  // Dishes from the same city stack (Beijing's duck, dumplings and scallion
-  // pancake); cands are already most popular first, so index 0 is the top
-  const cityKey = (c: Cand) => c.base.join(',');
-  const cityTotal = new Map<string, number>();
-  cands.filter(c => c.kind === 'city').forEach(c => cityTotal.set(cityKey(c), (cityTotal.get(cityKey(c)) ?? 0) + 1));
-  const cityN = new Map<string, number>();
   return cands.flatMap((c): Home[] => {
     const [bx, by] = px(c.base);
     const name = entryView(c.entry).name;
@@ -183,12 +222,7 @@ function placeHomes(areas: RegionAreas, groups: Group[], projection: GeoProjecti
     }
     const spots = around;
     const homeOnLand = onLand(bx, by);
-    if (c.kind === 'city') {
-      const key = cityKey(c), n = cityTotal.get(key)!, i = cityN.get(key) ?? 0;
-      cityN.set(key, i + 1);
-      if (i === 0) space.take(bx, by, r);
-      return [{ entry: c.entry, tier: c.tier, at: c.base, region: c.region, label, stack: n > 1 ? { id: key, i, n } : undefined }];
-    }
+    if (c.kind === 'city') return [{ entry: c.entry, tier: c.tier, at: c.base, region: c.region, label }];
     for (const [dx, dy] of spots) {
       const x = bx + dx * s, y = by + dy * s;
       if (homeOnLand && !onLand(x, y)) continue;
@@ -197,7 +231,19 @@ function placeHomes(areas: RegionAreas, groups: Group[], projection: GeoProjecti
       space.take(x, y, r);
       return [{ entry: c.entry, tier: c.tier, at: geo(x, y), region: c.region, label, stayWithName: true }];
     }
-    return [];
+    // No clear spot (a small region on a phone, where the names run big): the
+    // plate still lands, on the first spot that is at least on its own land,
+    // else on the anchor itself. Overlap is shown as depth; a dish is never
+    // dropped from the map
+    for (const [dx, dy] of spots) {
+      const x = bx + dx * s, y = by + dy * s;
+      if (homeOnLand && !onLand(x, y)) continue;
+      if (c.region && nearestArea(x, y).region.name !== c.region.name) continue;
+      space.take(x, y, r);
+      return [{ entry: c.entry, tier: c.tier, at: geo(x, y), region: c.region, label, stayWithName: true }];
+    }
+    space.take(bx, by, r);
+    return [{ entry: c.entry, tier: c.tier, at: c.base, region: c.region, label, stayWithName: true }];
   });
 }
 
@@ -225,18 +271,56 @@ export function plateLayout({ areas, groups, region, zoom, labelScale, projectio
     const sx = (x / zoom - center[0]) * zoom + view[0] / 2, sy = (y / zoom - center[1]) * zoom + view[1] / 2;
     return sx > -margin && sx < view[0] + margin && sy > -margin && sy < view[1] + margin;
   };
-  // Least popular first, so the most popular ends up on top where plates meet
-  const order = [...placed].sort((a, b) => plateRank(b.entry) - plateRank(a.entry) || b.tier - a.tier);
-  return order.flatMap((h): PlacedPlate[] => {
-    const [hx, hy] = (projection(h.at) as [number, number]).map(n => n * zoom);
-    const lift = h.lift ?? [0, 0];
-    // The Across cluster leaves and returns as one: culled from its hub with
-    // the ring's reach as margin, so panning never drops plates one by one
-    // (which re-fanned the rest to new positions)
-    if (h.across ? !onScreen(hx, hy, r + acrossRing(h.across.n).ringR * s) : !onScreen(hx + lift[0] * s, hy + lift[1] * s)) return [];
-    return [{ key: h.entry.key, entry: h.entry, at: h.at, lift, r: COUNTRY_R, compact: true, label: h.label, region: h.region, across: h.across, stack: h.stack,
-      opacity: region && h.region && h.region.name !== region.name ? NEIGHBOUR_OPACITY : undefined }];
-  });
+  const px = (at: [number, number]) => (projection(at) as [number, number]).map(n => n * zoom) as [number, number];
+
+  // Most popular first: it becomes the hub wherever plates meet
+  const order = [...placed].sort((a, b) => plateRank(a.entry) - plateRank(b.entry) || a.tier - b.tier);
+  const dimFor = (h: Home) => (region && h.region && h.region.name !== region.name ? NEIGHBOUR_OPACITY : undefined);
+
+  // Plates that would overlap on screen at this zoom keep their own places
+  // but take a depth: the most popular on top at full strength, the ones
+  // underneath fainter and smaller (decided 2026-10-01, the China de-clutter
+  // canvas, boards 1 + 3). Zoom in and they separate again, each where its
+  // dish is from. Nationwide dishes keep their own cluster at sea.
+  const TOUCH = (COUNTRY_R * 2 + 6) * s;
+  type Cluster = { hub: Home; px: [number, number]; members: Home[] };
+  const clusters: Cluster[] = [];
+  const across: PlacedPlate[] = [];
+  for (const h of order) {
+    const [hx, hy] = px(h.at);
+    if (h.across) {
+      // The Across cluster leaves and returns as one: culled from its hub with
+      // the ring's reach as margin, so panning never drops plates one by one
+      if (!onScreen(hx, hy, r + acrossRing(h.across.n).ringR * s)) continue;
+      across.push({ key: h.entry.key, entry: h.entry, at: h.at, lift: h.lift ?? [0, 0], r: COUNTRY_R, compact: true, label: h.label, across: h.across });
+      continue;
+    }
+    const near = clusters.find(c => Math.hypot(c.px[0] - hx, c.px[1] - hy) < TOUCH);
+    if (near) near.members.push(h); else clusters.push({ hub: h, px: [hx, hy], members: [h] });
+  }
+  // A plate underneath that its top would cover completely (Guadalajara and
+  // the town of Tequila are a couple of px apart at country zoom) is nudged
+  // just far enough to show a crescent, in a fixed direction per depth so
+  // the pile fans a little. As you zoom in the real gap opens and the nudge
+  // shrinks to nothing, so every plate ends up exactly where its dish is from.
+  const SHOW = COUNTRY_R * 1.15 * s; // centre distance at which a good crescent shows
+  const NUDGE_DIR: [number, number][] = [[-0.87, 0.5], [0.87, 0.5], [0, -1], [-0.87, -0.5], [0.87, -0.5], [0, 1]];
+  const plates = clusters.flatMap((c): PlacedPlate[] =>
+    c.members.flatMap((h, i): PlacedPlate[] => {
+      const [hx, hy] = px(h.at);
+      if (!onScreen(hx, hy)) return [];
+      let lift: [number, number] = [0, 0];
+      if (i > 0) {
+        const dx = hx - c.px[0], dy = hy - c.px[1], d = Math.hypot(dx, dy);
+        if (d < SHOW) {
+          const [ux, uy] = d > 2 ? [dx / d, dy / d] : NUDGE_DIR[(i - 1) % NUDGE_DIR.length];
+          lift = [(ux * (SHOW - d)) / s, (uy * (SHOW - d)) / s];
+        }
+      }
+      return [{ key: h.entry.key, entry: h.entry, at: h.at, lift, r: COUNTRY_R, compact: true, label: h.label, region: h.region,
+        opacity: dimFor(h), under: i > 0 ? i : undefined }];
+    }));
+  return [...plates, ...across];
 }
 
 /** Where a country's "Across" label sits, if its stack is showing. */

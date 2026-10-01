@@ -1,0 +1,409 @@
+{
+  "tamales": {
+    "version": "c2-v1",
+    "model": "chatgpt-image-latest",
+    "quality": "medium",
+    "date": "2026-09-29",
+    "prompt": "Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Two tamales on a plate, each lying in its opened pale tan dried corn husk, showing soft pale yellow steamed corn masa, one cut open to reveal a red chili pork filling, a small bowl of red salsa beside them; the husks are opened, not eaten. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "tamales-ref.png": {
+    "version": "c2-v1",
+    "model": "chatgpt-image-latest",
+    "quality": "high",
+    "ref": "docs/design/prototypes/image-pilot/GF-c2-set.png",
+    "date": "2026-09-29",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Two tamales on a plate, each lying in its opened pale tan dried corn husk, showing soft pale yellow steamed corn masa, one cut open to reveal a red chili pork filling, a small bowl of red salsa beside them; the husks are opened, not eaten. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "tacos.png": {
+    "version": "c2-v1",
+    "model": "chatgpt-image-latest",
+    "quality": "high",
+    "ref": "docs/design/prototypes/image-pilot/GF-c2-set.png",
+    "date": "2026-09-29",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Three small street tacos on a plate, each on two stacked soft corn tortillas, filled with red-orange marinated pork al pastor, topped with diced white onion, chopped cilantro and a small piece of pineapple, a lime wedge and a little bowl of green salsa beside them. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "mole-poblano.png": {
+    "version": "c2-v1",
+    "model": "chatgpt-image-latest",
+    "quality": "high",
+    "ref": "docs/design/prototypes/image-pilot/GF-c2-set.png",
+    "date": "2026-09-29",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A piece of turkey on a plate covered in thick, glossy, very dark brown-black mole sauce, sprinkled with toasted sesame seeds, a small mound of red Mexican rice beside it, two folded corn tortillas at the edge. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "elote.png": {
+    "version": "c2-v1",
+    "model": "chatgpt-image-latest",
+    "quality": "medium",
+    "ref": "docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "date": "2026-09-29",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. One whole grilled corn cob on a wooden stick, the yellow kernels lightly charred, coated in a thin layer of white mayonnaise, crumbled white cotija cheese and a dusting of red chili powder, lying on a small plate with a lime wedge beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "pozole.png": {
+    "version": "c2-v1",
+    "model": "chatgpt-image-latest",
+    "quality": "medium",
+    "ref": "docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "date": "2026-09-29",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A deep bowl of pozole rojo, a brick-red chili broth full of large puffed white hominy kernels, irregular and burst open at the top like popcorn, not round chickpeas, with pieces of pork, topped with shredded green cabbage, thin radish slices and a pinch of dried oregano, a lime wedge and a crisp tostada beside the bowl. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "pozole-sunburst.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "ref": "docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "date": "2026-09-29",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A deep bowl of pozole rojo, a brick-red chili broth full of large puffed white hominy kernels, irregular and burst open at the top like popcorn, not round chickpeas, with pieces of pork, topped with shredded green cabbage, thin radish slices and a pinch of dried oregano, a lime wedge and a crisp tostada beside the bowl. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "mezcal.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1250,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 226
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1527
+    },
+    "date": "2026-09-29",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A small, shallow round clay cup (copita) of clear mezcal, two orange slices dusted with red chili-worm salt (sal de gusano) and a small dish of that orange-red salt beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "tacos-sb.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1259,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 235
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1536
+    },
+    "date": "2026-09-29",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Three small street tacos on a plate, each on two stacked soft corn tortillas, filled with red-orange marinated pork al pastor, topped with diced white onion, chopped cilantro and a small piece of pineapple, a lime wedge and a little bowl of green salsa beside them. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "chiles-en-nogada.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1265,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 241
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1542
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. One whole roasted green poblano pepper on a plate, stuffed and completely covered in a smooth, thick, ivory-white walnut cream sauce, scattered with bright red pomegranate seeds and a few flat green parsley leaves, so the plate shows green, white and red; served plain, not battered or fried. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "guacamole.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1260,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 236
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1537
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A rough grey-black volcanic stone molcajete bowl on three short legs, filled with chunky, coarsely mashed green avocado mixed with diced white onion, diced red tomato and chopped cilantro, a lime wedge and a small pile of triangular yellow corn tortilla chips beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "churros.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1244,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 220
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1521
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Four long, straight golden fried churros with deep star-shaped ridges along their length, coated in cinnamon sugar, on a small plate beside a small cup of thick dark hot chocolate for dipping. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "cochinita-pibil.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1259,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 235
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1536
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A plate of shredded pork stained deep orange-red with achiote, piled on a partly unfolded dark green banana leaf, topped with a tangle of bright pink pickled red onion rings, a small bowl of orange habanero salsa and two corn tortillas beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "sopa-de-lima.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1245,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 221
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1522
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A wide bowl of clear golden chicken broth with shredded white chicken, a heap of thin crisp fried tortilla strips on top, a thin slice of green lima citrus floating in it and a few cilantro leaves. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "tlayudas.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1260,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 236
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1537
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. One very large, thin, crisp corn tortilla lying flat on a plate, spread with dark refried black beans, covered in shredded green cabbage, strands of white quesillo cheese, slices of tomato and avocado, and strips of thin grilled dark-red tasajo beef on top. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "mole-negro.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1249,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 225
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1526
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A piece of chicken on a plate completely coated in thick, glossy, jet-black mole sauce, a few toasted sesame seeds on top, a small mound of white rice beside it and a folded corn tortilla at the edge. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "carne-asada.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1259,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 235
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1536
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Thin slices of charred grilled beef with dark grill marks on a plate, a charred whole spring onion and a grilled green jalapeño beside them, a small bowl of brown charro beans, a lime wedge and a stack of pale flour tortillas at the edge. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "burritos.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1251,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 227
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1528
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Two slim, tightly rolled flour tortilla burritos on a plate, each about the thickness of a wrist, one cut in half to show a single filling of shredded brown machaca beef, a small bowl of red salsa beside them. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "birria.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1264,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 240
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1541
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A bowl of dark red birria consomé with tender shredded meat, beside two folded corn tortilla tacos fried to a red-orange crisp, filled with shredded beef and melted white cheese, one dipped halfway into the broth, diced white onion and cilantro sprinkled on top, a lime wedge beside them. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "tortas-ahogadas.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1254,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 230
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1531
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A crusty oval birote bread roll filled with shredded carnitas pork, lying in a shallow bowl and completely drowned in thin bright red-orange tomato sauce, sliced white onion rings and a lime wedge on top, a spoon resting in the bowl. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "aguachile.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1257,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 233
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1534
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A shallow round plate of butterflied raw pink-white shrimp fanned out in a pool of thin bright green lime and chili sauce, with thin slices of cucumber and rings of red onion over them, a few cilantro leaves and a lime wedge beside the plate. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "pescado-a-la-veracruzana.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1259,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 235
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1536
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A whole white fish fillet on a plate covered in a chunky red tomato sauce with green olives, capers, sliced white onion and a few strips of pickled jalapeño, a sprig of herb on top and a small mound of white rice beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "tacos-de-pescado.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1255,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 231
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1532
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Two soft corn tortillas on a plate, each holding a golden beer-battered fried fish piece, topped with shredded pale green cabbage, a drizzle of white crema, diced tomato and onion, a lime wedge and a small bowl of red salsa beside them. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  }
+}

@@ -34,7 +34,7 @@ import { CountryOverview } from '../components/explore/CountryOverview';
 import { AllDishesList, BackLink, RegionView } from '../components/explore/PanelLevels';
 import { DishDetail } from '../components/explore/DishDetailSheet';
 import { MapPlates, WorldPlates } from '../components/explore/MapPlates';
-import { plateLayout } from '../utils/plateLayout';
+import { plateLayout, countryHomes, regionUnits, type RegionUnit } from '../utils/plateLayout';
 import { plateFade } from '../utils/plateFade';
 import type { Country, RegionalCuisine } from '../data/types';
 
@@ -692,6 +692,25 @@ export function Explore() {
     const feat = bubbleCountry && features.get(bubbleCountry.id);
     return bubbleCountry && feat ? getAreas(bubbleCountry, feat) : null;
   }, [bubbleCountry, features]);
+  // Every country's region units, for the world pins: each region's top dish
+  // at the spot the country zoom gives it (the same cached placement), so
+  // nothing moves as you zoom in
+  const worldUnits = useMemo(() => {
+    const out = new Map<string, RegionUnit[]>();
+    for (const c of countries) {
+      const feat = features.get(c.id); if (!feat) continue;
+      const a = getAreas(c, feat);
+      if (!a) { out.set(c.id, []); continue; }
+      const entries: Entry[] = [
+        ...c.popularDishes.map<Entry>(dish => ({ kind: 'dish', key: `d:${dish.name}`, dish })),
+        ...(c.popularBeverages ?? []).map<Entry>(drink => ({ kind: 'drink', key: `b:${drink.name}`, drink })),
+      ];
+      const groups = groupEntries(entries, 'region', { regions: c.regionalVariations, countryId: c.id, countryName: c.name, orphansAcross: true });
+      const fit = frameCountry(c, feat, viewBeside).zoom;
+      out.set(c.id, regionUnits(countryHomes(a, groups, baseProjection, c.id, c.name, fit, labelScaleAt(fit) * labelBoost)));
+    }
+    return out;
+  }, [features, viewBeside, labelBoost]);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
   // The SVG group above the region names where a hovered plate's caption renders
   const [plateCaptionLayer, setPlateCaptionLayer] = useState<SVGGElement | null>(null);
@@ -712,7 +731,6 @@ export function Explore() {
   // Sea-set names show while the inline ones can't fit and the camera is
   // still near the landing that placed them; zoom out further and they all
   // go together, zoom in and the inline names take over.
-  const showSea = !!seaLayout && !labelsFit && liveZoom >= seaLayout.zoom * 0.85;
   // Once dish plates show, the regions' dish-count lines step aside at every
   // zoom: the plates say what's there, and the panel has the counts
   // The zoom that frames the open country: the plates' "one dish" baseline
@@ -722,11 +740,14 @@ export function Explore() {
     return bubbleCountry && feat ? frameCountry(bubbleCountry, feat, viewBeside).zoom : 1;
   }, [bubbleCountry, features, viewBeside, landingZoom]);
   const platesShowing = useMemo(() => {
-    if (!showBubbles || !areas || scope.level === 'world' || !labelsFit || plateFade(areas, liveZoom) === 0) return false;
+    // Whether names fit inline doesn't matter here: plates draw either way
+    if (!showBubbles || !areas || scope.level === 'world' || plateFade(areas, liveZoom) === 0) return false;
     return plateLayout({ areas, groups: mapGroups, region: scope.level === 'region' ? scope.region : undefined, zoom: liveZoom, labelScale, projection: baseProjection, countryId: scope.country.id, countryName: scope.country.name, center: liveCenter, view: viewSize, fitZoom, fitScale: labelScaleAt(fitZoom) * labelBoost }).length > 0;
-  }, [showBubbles, areas, scope, labelsFit, liveZoom, mapGroups, labelScale, liveCenter, fitZoom, viewSize, labelBoost]);
+  }, [showBubbles, areas, scope, liveZoom, mapGroups, labelScale, liveCenter, fitZoom, viewSize, labelBoost]);
   // Country zoom with plates on the map: region names step back to quiet caps (decided 2026-10-01)
   const quietNames = platesShowing && scope.level === 'country';
+  // Quiet caps are small enough to always sit on the land, so the at-sea fallback is for the full names only
+  const showSea = !!seaLayout && !labelsFit && !quietNames && liveZoom >= seaLayout.zoom * 0.85;
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
 
   return (
@@ -892,7 +913,7 @@ export function Explore() {
                       const n = platesShowing ? 0 : counts[region.name] ?? 0;
                       return (
                         <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
-                          <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
+                          <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit || quietNames ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
                             {/* With plates showing, the names are wayfinding, not content: small quiet caps so the food leads (decided 2026-10-01) */}
                             {quietNames ? (
                               <text textAnchor="middle" dominantBaseline="central" fill={dim ? REGION_BORDER : QUIET_INK} fontSize={9.5} fontWeight={700} letterSpacing="0.14em"
@@ -981,6 +1002,7 @@ export function Explore() {
                   labelScale={labelScale}
                   scopedId={bubbleCountry?.id}
                   scopedFade={showBubbles && areas ? plateFade(areas, liveZoom) : 0}
+                  unitsFor={worldUnits}
                   onOpenCountry={id => flyToCountry(id)}
                 />
               )}

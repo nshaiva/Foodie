@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { geoPath, type GeoProjection } from 'd3-geo';
 import type { Feature, Geometry } from 'geojson';
@@ -9,9 +9,7 @@ import { Marker } from 'react-simple-maps';
 import { systemColors } from '../../data/systemColors';
 import { entryView } from '../../utils/entryView';
 import { plateFade } from '../../utils/plateFade';
-import { plateLayout, signature, acrossAt, acrossRing, plateRank, PEEK, PLATE_R, WORLD_R, COUNTRY_R, type PlacedPlate } from '../../utils/plateLayout';
-import { resolveRegion } from '../../utils/dishRegion';
-import { regionCoordinates } from '../../data/regionMapConfig';
+import { plateLayout, signature, acrossAt, acrossRing, worldPicks, PLATE_R, WORLD_R, COUNTRY_R, type PlacedPlate, type RegionUnit } from '../../utils/plateLayout';
 
 /**
  * Dish illustrations floating over the map (#36 preview).
@@ -30,9 +28,9 @@ import { regionCoordinates } from '../../data/regionMapConfig';
  * Only dishes and drinks with an `image` show; the list has the rest.
  */
 
-function Plate({ entry, at, lift, k, badge, label, onClick, onHover, id, stem = false, r: R = PLATE_R, opacity, compact = false, leaving = false, world = false, peek = false }: {
-  /** Behind a closed city stack: half-faded and smaller. */
-  peek?: boolean;
+function Plate({ entry, at, lift, k, badge, label, onClick, onHover, id, stem = false, r: R = PLATE_R, opacity, compact = false, leaving = false, world = false, under }: {
+  /** Depth under a more popular neighbour (1, 2, 3+): fainter and smaller. */
+  under?: number;
   /** Given, the name is drawn by the parent in a layer above the map's
    *  labels (see PlateCaption); absent, it sits in the plate's own group. */
   onHover?: (hovering: boolean) => void;
@@ -61,7 +59,7 @@ function Plate({ entry, at, lift, k, badge, label, onClick, onHover, id, stem = 
         </>}
         {/* CSS transform rather than the attribute, so a lift that changes (the Across fan) eases there */}
         <g style={{ transform: `translate(${dx}px, ${dy}px)`, transition: 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' }}>
-          <g className={['map-plate', compact && 'map-plate--compact', leaving && 'map-plate--out', world && 'map-plate--world', peek && 'map-plate--peek'].filter(Boolean).join(' ')} role="button" tabIndex={0} aria-label={label} data-plate={v.name}
+          <g className={['map-plate', compact && 'map-plate--compact', leaving && 'map-plate--out', world && 'map-plate--world', under && `map-plate--under-${Math.min(3, under)}`].filter(Boolean).join(' ')} role="button" tabIndex={0} aria-label={label} data-plate={v.name}
             onClick={e => { e.stopPropagation(); onClick(); }}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
             onMouseEnter={onHover && (() => onHover(true))} onMouseLeave={onHover && (() => onHover(false))}
@@ -119,7 +117,9 @@ function PlateCaption({ plate, k }: { plate: PlacedPlate; k: number }) {
  * out (bigger countries win) and appear as you zoom in. The scoped country's
  * plate fades out as its region plates fade in.
  */
-export function WorldPlates({ countries, features, projection, zoom, labelScale, scopedId, scopedFade, onOpenCountry }: {
+export function WorldPlates({ countries, features, projection, zoom, labelScale, scopedId, scopedFade, unitsFor, onOpenCountry }: {
+  /** Every country's region units (Explore computes them once the outlines are in). */
+  unitsFor: Map<string, RegionUnit[]>;
   countries: Country[];
   features: Map<string, Feature<Geometry>>;
   projection: GeoProjection;
@@ -136,49 +136,26 @@ export function WorldPlates({ countries, features, projection, zoom, labelScale,
   // handover to its region plates is a crossfade at one size, not a jump
   const grow = Math.max(0, Math.min(1, (zoom - 1.4) / 2));
   const R = WORLD_R + (COUNTRY_R - WORLD_R) * grow;
-  // Each country's most popular illustrated dish per region, at the region's
-  // centre: the extra pins a big country earns (decided 2026-10-01)
-  const regionPicks = useMemo(() => {
-    const out = new Map<string, { entry: Entry; at: [number, number] }[]>();
-    for (const c of countries) {
-      const best = new Map<string, Entry>();
-      for (const dish of c.popularDishes) {
-        if (!dish.image) continue;
-        const m = resolveRegion(dish, c.regionalVariations, c.id);
-        if (m.kind !== 'region') continue;
-        const entry: Entry = { kind: 'dish', key: `d:${dish.name}`, dish };
-        const cur = best.get(m.region.name);
-        if (!cur || plateRank(entry) < plateRank(cur)) best.set(m.region.name, entry);
-      }
-      const picks: { entry: Entry; at: [number, number] }[] = [];
-      for (const [name, entry] of best) { const at = regionCoordinates[c.id]?.[name]; if (at) picks.push({ entry, at }); }
-      out.set(c.id, picks);
-    }
-    return out;
-  }, [countries]);
   type Spot = { c: Country; entry: Entry; at: [number, number]; px: [number, number]; area: number; i: number };
   const spots: Spot[] = countries.flatMap(c => {
     const feat = features.get(c.id);
-    const sig = feat && signature(c);
-    if (!feat || !sig) return [];
+    if (!feat) return [];
     const land = homeLand(c.id, feat, projection);
     const [[x0, y0], [x1, y1]] = path.bounds(land);
     const area = path.area(land);
     const toPx = (p: [number, number]) => (projection(p) as [number, number]).map(n => n * zoom) as [number, number];
-    const centre = projection.invert!([(x0 + x1) / 2, (y0 + y1) / 2]) as [number, number];
-    const pins: Spot[] = [{ c, entry: sig, at: centre, px: toPx(centre), area, i: 0 }];
     // The pin budget follows how much screen the country takes: Egypt 1,
     // Mexico 2, China 3 at the phone's first-pins zoom, never more than 3
     const budget = Math.max(1, Math.min(3, Math.floor((area * zoom * zoom) / 3500)));
-    const picks = (regionPicks.get(c.id) ?? []).filter(p => p.entry.key !== sig.key).map(p => ({ ...p, px: toPx(p.at) }));
-    while (pins.length < budget && picks.length) {
-      // The region farthest from every pin so far, so the extras spread out
-      let best = 0, bestD = -1;
-      picks.forEach((p, idx) => { const d = Math.min(...pins.map(q => Math.hypot(q.px[0] - p.px[0], q.px[1] - p.px[1]))); if (d > bestD) { bestD = d; best = idx; } });
-      const [p] = picks.splice(best, 1);
-      pins.push({ c, entry: p.entry, at: p.at, px: p.px, area, i: pins.length });
-    }
-    return pins;
+    // Pins are region units: the same dish at the same spot the country zoom
+    // shows, so zooming in never moves one (decided 2026-10-01)
+    const units = unitsFor.get(c.id) ?? [];
+    if (units.length) return worldPicks(units, budget, toPx).map((u, i) => ({ c, entry: u.entries[0], at: u.at, px: toPx(u.at), area, i }));
+    // No regions yet (Japan, Ethiopia, Peru): the signature dish at the centre
+    const sig = signature(c);
+    if (!sig) return [];
+    const centre = projection.invert!([(x0 + x1) / 2, (y0 + y1) / 2]) as [number, number];
+    return [{ c, entry: sig, at: centre, px: toPx(centre), area, i: 0 }];
   }).sort((a, b) => b.area - a.area || a.i - b.i);
   const placed: Spot[] = [];
   for (const s of spots) {
@@ -187,8 +164,10 @@ export function WorldPlates({ countries, features, projection, zoom, labelScale,
   return (
     <g>
       {placed.map(({ c, entry, at, i }) => {
-        // The opened country's pins fade out as its region plates fade in
-        const opacity = c.id === scopedId ? 1 - scopedFade : 1;
+        // The opened country's pins go as its region plates arrive: gone by
+        // the time those are a third of the way in, so they never linger as
+        // ghosts over the real plates
+        const opacity = c.id === scopedId ? Math.max(0, 1 - scopedFade * 3) : 1;
         if (opacity <= 0.02) return null;
         return <Plate key={`${c.id}:${i}`} id={`plate-w-${c.id}-${i}`} entry={entry} at={at} lift={[0, 0]} k={k} r={R} opacity={opacity} compact world
           label={`${c.name} · ${entryView(entry).name}`} onClick={() => onOpenCountry(c.id)} />;
@@ -249,16 +228,8 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   const plates = fade === 0 ? [] : plateLayout({ areas, groups, region, zoom, labelScale, projection, countryId, countryName, center, view, fitZoom, fitScale });
   const leaving = useLeaving(plates);
   const [hovered, setHovered] = useState<string | null>(null);
-  // The open stack: 'across' for the sea cluster, a city key for a city stack.
-  // Desktop opens on hover; touch opens on a tap of the hub and closes on a
-  // tap anywhere else
+  // The sea cluster, open or not: hover opens it on desktop
   const [openStack, setOpenStack] = useState<string | null>(null);
-  useEffect(() => {
-    if (captions || !openStack) return;
-    const close = (e: TouchEvent) => { if (!(e.target as Element | null)?.closest?.('[data-stack]')) setOpenStack(null); };
-    document.addEventListener('touchstart', close, { capture: true, passive: true });
-    return () => document.removeEventListener('touchstart', close, { capture: true });
-  }, [captions, openStack]);
   if (fade === 0 || (!plates.length && !leaving.length)) return null;
   const at = acrossAt(countryId);
 
@@ -274,24 +245,12 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   const acrossRingG = acrossN > 1 ? acrossRing(withHub ? acrossN - 1 : acrossN) : undefined;
   const acrossOpen = withHub && openStack === 'across' && !!acrossRingG;
 
-  // City stacks (decided 2026-10-01, from the China de-clutter canvas): the
-  // most popular dish on top with "+N", the others peeking out behind it at
-  // half strength; open, they fan into a ring like the sea cluster
-  const stacks = new Map<string, PlacedPlate[]>();
-  for (const p of plates) if (p.stack) stacks.set(p.stack.id, [...(stacks.get(p.stack.id) ?? []), p]);
-  for (const list of stacks.values()) list.sort((a, b) => a.stack!.i - b.stack!.i);
-  const stackRing = (id: string) => acrossRing(stacks.get(id)![0].stack!.n - 1);
-
   const liftOf = (p: PlacedPlate): [number, number] => {
     if (p.across) {
       if (!acrossRingG) return [0, 0];
       if (!withHub) return acrossRingG.at(p.across.i);
       if (p.across.i === 0) return [0, 0];
       return acrossOpen ? acrossRingG.at(p.across.i - 1) : p.lift;
-    }
-    if (p.stack) {
-      if (p.stack.i === 0) return [0, 0];
-      return openStack === p.stack.id ? stackRing(p.stack.id).at(p.stack.i - 1) : PEEK[(p.stack.i - 1) % PEEK.length];
     }
     return p.lift;
   };
@@ -300,19 +259,15 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   const hoveredPlate = captions && hovered ? plates.find(p => p.key === hovered) : undefined;
   const caption = hoveredPlate && <PlateCaption plate={{ ...hoveredPlate, lift: liftOf(hoveredPlate) }} k={k} />;
   const plate = (p: PlacedPlate) => {
-    const stackId = p.across ? 'across' : p.stack?.id;
-    const isHub = p.across ? p.across.i === 0 : p.stack?.i === 0;
-    const n = p.across ? acrossN : p.stack?.n ?? 1;
-    const closed = !!stackId && openStack !== stackId;
-    const hubWithStack = isHub && n > 1 && (p.across ? withHub : true);
+    const isHub = !!p.across && p.across.i === 0;
+    const closed = !!p.across && openStack !== 'across';
     return (
       <Plate key={p.key} id={`plate-${p.key.replace(/\W/g, '')}`} entry={p.entry} at={p.at} lift={liftOf(p)} k={k} leaving={p.leaving}
-        r={p.r} compact={p.compact} stem={p.stem} opacity={p.opacity} label={p.label}
-        peek={!!p.stack && !isHub && closed}
-        badge={hubWithStack && closed ? n - 1 : p.badge}
+        r={p.r} compact={p.compact} stem={p.stem} opacity={p.opacity} label={p.label} under={p.under}
+        badge={isHub && closed && withHub && acrossN > 1 ? acrossN - 1 : p.badge}
         onClick={() => {
-          // On touch, a closed stack's hub opens the stack; the dish opens from the fan
-          if (!captions && stackId && closed && (p.across ? withHub : true)) { setOpenStack(stackId); return; }
+          // On touch the sea cluster's closed hub opens it; every other plate opens its dish
+          if (isHub && closed && !captions && withHub && acrossN > 1) { setOpenStack('across'); return; }
           setOpenStack(null);
           onOpenDish(p.entry);
         }}
@@ -323,8 +278,8 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   // the hover across the gaps between fanned plates
   const stackGroup = (id: string, list: PlacedPlate[], hubAt: [number, number], ringR: number | undefined, extra?: React.ReactNode) => (
     <g key={`stack-${id}`} data-stack={id}
-      onMouseEnter={captions ? () => setOpenStack(id) : undefined}
-      onMouseLeave={captions ? () => setOpenStack(cur => (cur === id ? null : cur)) : undefined}>
+      onMouseEnter={captions && id === 'across' ? () => setOpenStack(id) : undefined}
+      onMouseLeave={captions && id === 'across' ? () => setOpenStack(cur => (cur === id ? null : cur)) : undefined}>
       {openStack === id && ringR !== undefined && (
         <Marker coordinates={hubAt}>
           <circle r={(ringR + COUNTRY_R + 14) * k} fill="transparent" />
@@ -337,8 +292,8 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   );
   return (
     <g opacity={fade} style={{ pointerEvents: fade < 0.6 ? 'none' : undefined }}>
-      {[...plates.filter(p => !p.across && !p.stack), ...leaving].map(plate)}
-      {[...stacks.entries()].map(([id, list]) => stackGroup(id, list, list[0].at, stackRing(id).ringR))}
+      {/* Deepest first, so where dishes crowd the most popular is drawn on top */}
+      {[...plates.filter(p => !p.across), ...leaving].sort((a, b) => (b.under ?? 0) - (a.under ?? 0)).map(plate)}
       {across.length > 0 && at && stackGroup('across', across, at, withHub ? acrossRingG?.ringR : undefined, (
         <>
           {!withHub && acrossRingG && !region && (
