@@ -113,7 +113,7 @@ function placeHomes(areas: RegionAreas, groups: Group[], projection: GeoProjecti
   for (const g of groups) {
     imaged(g.entries).forEach((entry, tier) => {
       const o = originOf(entry);
-      if (o) { const [x, y] = px(o.coordinates); cands.push({ entry, tier, base: o.coordinates, region: nearestArea(x, y).region, place: o.place, kind: 'city' }); }
+      if (o?.coordinates) { const [x, y] = px(o.coordinates); cands.push({ entry, tier, base: o.coordinates, region: nearestArea(x, y).region, place: o.place, kind: 'city' }); }
       else if (g.region) cands.push({ entry, tier, base: areas.areas.find(a => a.region.name === g.region!.name)!.anchor, region: g.region, kind: 'region' });
       else if (water) cands.push({ entry, tier, base: water, kind: 'across' });
     });

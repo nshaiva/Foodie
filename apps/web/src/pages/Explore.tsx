@@ -535,7 +535,7 @@ export function Explore() {
     const c = searchParams.get('c'), r = searchParams.get('r');
     const country = c ? getCountryById(c) : undefined;
     if (!country) return;
-    const region = r ? regionFromSlug(r, country.regionalVariations) : undefined;
+    const region = r ? regionFromSlug(r, country.regionalVariations, country.id) : undefined;
     // A one-time landing once the outlines arrive, not a state sync
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (region) flyToRegion(country, region); else flyToCountry(country.id);

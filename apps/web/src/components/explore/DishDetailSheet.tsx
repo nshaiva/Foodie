@@ -107,12 +107,16 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack }: {
   const [editingVisit, setEditingVisit] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
 
+  // "From Puebla · Central Mexico": the locality first when the dish has one,
+  // then the region it rolls up to (or "Across Mexico" for nationwide dishes)
   const regionLine = (() => {
     if (!source) return entry.kind === 'custom' ? entry.userDish.region : undefined;
     const m = resolveRegion(source, country.regionalVariations, country.id);
-    if (m.kind === 'region') return regionLabelName(m.region.name);
-    if (m.kind === 'orphan') return m.origin;
-    return `Across ${countryInSentence(country.name)}`;
+    const region = m.kind === 'region' ? regionLabelName(m.region.name)
+      : m.kind === 'orphan' ? m.origin
+      : `Across ${countryInSentence(country.name)}`;
+    const place = source.origin?.place;
+    return place && place !== region ? `From ${place} · ${region}` : region;
   })();
   const meta = [entry.kind === 'custom' ? 'My dish' : label(source?.category), regionLine].filter(Boolean).join(' · ');
   const chips = entry.kind === 'dish' ? dishChips(entry.dish) : entry.kind === 'drink' ? drinkChips(entry.drink) : [];
