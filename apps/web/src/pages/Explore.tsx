@@ -395,19 +395,34 @@ export function Explore() {
   // zoom 1 at the equator, which on a tall phone is mostly Arctic sea and
   // Antarctica. On a desktop this comes out at zoom 1 anyway (the width is
   // the limit); on a phone it is ~1.3, centred on the inhabited band.
-  const worldHome = useMemo<Camera>(() => {
-    if (!features.size) return { coordinates: WORLD_CENTER, zoom: 1 };
+  // The 31 cuisines' land, in base projected px: what the world view frames
+  // and how far the map can be panned
+  const landBox = useMemo(() => {
+    if (!features.size) return null;
     const path = geoPath(baseProjection);
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const [id, f] of features) {
       const [[a, b], [c, d]] = path.bounds(homeLand(id, f, baseProjection));
       x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d);
     }
+    return { x0, y0, x1, y1 };
+  }, [features]);
+  // Panning stops at the cuisines (with a margin), so the empty poles and the
+  // blank beyond Antarctica are never on screen (Nikita, 2026-10-01). d3-zoom
+  // centres the band when it is shorter than the view, as on a phone.
+  const panExtent = useMemo<[[number, number], [number, number]]>(() => {
+    if (!landBox) return [[0, 0], [VIEW_W, VIEW_H]];
+    const pad = 48;
+    return [[landBox.x0 - pad, landBox.y0 - pad], [landBox.x1 + pad, landBox.y1 + pad]];
+  }, [landBox]);
+  const worldHome = useMemo<Camera>(() => {
+    if (!landBox) return { coordinates: WORLD_CENTER, zoom: 1 };
+    const { x0, y0, x1, y1 } = landBox;
     const pad = 20;
     const zoom = Math.max(1, Math.min(2, viewSize[0] / (x1 - x0 + pad * 2), viewSize[1] / (y1 - y0 + pad * 2)));
     const coordinates = baseProjection.invert!([(x0 + x1) / 2, (y0 + y1) / 2]) as [number, number];
     return zoom > 1.01 ? { coordinates, zoom } : { coordinates: WORLD_CENTER, zoom: 1 };
-  }, [features, viewSize]);
+  }, [landBox, viewSize]);
   const flyToWorld = () => { cancelPeek(); setPeekId(null); setSheetPos('strip'); flyTo(worldHome, { level: 'world' }); };
   const flyToCountry = (id: string, opts?: { view?: 'overview' | 'all' | 'flavor' | 'culture' }) => {
     const feat = features.get(id), country = getCountryById(id);
@@ -830,6 +845,7 @@ export function Explore() {
               zoom={camera.zoom}
               minZoom={1}
               maxZoom={MAX_ZOOM}
+              translateExtent={panExtent}
               onMove={stableOnMove}
               onMoveEnd={stableOnMoveEnd}
               filterZoomEvent={filterZoomEvent}
