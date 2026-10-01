@@ -64,7 +64,7 @@ function Plate({ entry, at, lift, k, badge, label, onClick, onHover, id, stem = 
           <circle r={2.6} fill={systemColors.navy} />
         </>}
         {/* CSS transform rather than the attribute, so a lift that changes (the Across fan) eases there */}
-        <g style={{ transform: `translate(${dx}px, ${dy}px)`, transition: slide ? 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' : undefined }}>
+        <g style={{ transform: `translate(${dx}px, ${dy}px)`, transition: slide ? 'transform 160ms ease-out' : undefined }}>
           <g className={['map-plate', compact && 'map-plate--compact', leaving && 'map-plate--out', world && 'map-plate--world', under && `map-plate--under-${Math.min(3, under)}`].filter(Boolean).join(' ')} role="button" tabIndex={0} aria-label={label} data-plate={v.name}
             onClick={e => { e.stopPropagation(); onClick(); }}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
@@ -107,11 +107,13 @@ function PlateCaption({ plate, k }: { plate: PlacedPlate; k: number }) {
   const w = plate.label.length * 11 * 0.56 + 18, h = 20;
   return (
     <Marker coordinates={plate.at} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
-      <g transform={`scale(${k}) translate(${dx} ${dy - (plate.r + 19)})`} style={{ pointerEvents: 'none' }}>
+      <g transform={`scale(${k})`} style={{ pointerEvents: 'none' }}>
+        <g style={{ transform: `translate(${dx}px, ${dy - (plate.r + 19)}px)`, transition: 'transform 160ms ease-out' }}>
         <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={h / 2} fill={systemColors.seaSalt} stroke={systemColors.navy} strokeOpacity={0.25} strokeWidth={1} />
         <text textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700} fill={systemColors.navy} style={{ fontFamily: 'var(--font-heading)' }}>
           {plate.label}
         </text>
+        </g>
       </g>
     </Marker>
   );
