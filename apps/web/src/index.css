@@ -297,7 +297,6 @@ label[for],
 .map-plate--under-1 .map-plate-disc { transform: scale(.84); }
 .map-plate--under-2 .map-plate-disc { transform: scale(.72); }
 .map-plate--under-3 .map-plate-disc { transform: scale(.64); }
-.map-plate--under-1, .map-plate--under-2, .map-plate--under-3 { transition: opacity 200ms; }
 .map-plate--under-1:hover, .map-plate--under-2:hover, .map-plate--under-3:hover,
 .map-plate--under-1:focus-visible, .map-plate--under-2:focus-visible, .map-plate--under-3:focus-visible { opacity: 1; }
 @keyframes plate-out { from { opacity: 1; } to { opacity: 0; } }

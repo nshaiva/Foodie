@@ -31,7 +31,10 @@ import { plateLayout, signature, acrossAt, acrossRing, worldPicks, PLATE_R, WORL
  * Only dishes and drinks with an `image` show; the list has the rest.
  */
 
-function Plate({ entry, at, lift, k, badge, label, onClick, onHover, id, stem = false, r: R = PLATE_R, opacity, compact = false, leaving = false, world = false, under }: {
+function Plate({ entry, at, lift, k, badge, label, onClick, onHover, id, stem = false, r: R = PLATE_R, opacity, compact = false, leaving = false, world = false, under, slide = false }: {
+  /** Ease a change of lift (an opening fan or pile). Off while zooming, where
+   *  every frame recomputes lifts and easing reads as wobble and flicker. */
+  slide?: boolean;
   /** Depth under a more popular neighbour (1, 2, 3+): fainter and smaller. */
   under?: number;
   /** Given, the name is drawn by the parent in a layer above the map's
@@ -61,7 +64,7 @@ function Plate({ entry, at, lift, k, badge, label, onClick, onHover, id, stem = 
           <circle r={2.6} fill={systemColors.navy} />
         </>}
         {/* CSS transform rather than the attribute, so a lift that changes (the Across fan) eases there */}
-        <g style={{ transform: `translate(${dx}px, ${dy}px)`, transition: 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' }}>
+        <g style={{ transform: `translate(${dx}px, ${dy}px)`, transition: slide ? 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' : undefined }}>
           <g className={['map-plate', compact && 'map-plate--compact', leaving && 'map-plate--out', world && 'map-plate--world', under && `map-plate--under-${Math.min(3, under)}`].filter(Boolean).join(' ')} role="button" tabIndex={0} aria-label={label} data-plate={v.name}
             onClick={e => { e.stopPropagation(); onClick(); }}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
@@ -283,6 +286,7 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
     return (
       <Plate key={p.key} id={`plate-${p.key.replace(/\W/g, '')}`} entry={p.entry} at={p.at} lift={liftOf(p)} k={k} leaving={p.leaving}
         r={p.r} compact={p.compact} stem={p.stem} opacity={p.opacity} label={p.label} under={pileOpen ? undefined : p.under}
+        slide={!!p.across || !!p.pile}
         badge={isHub && closed && withHub && acrossN > 1 ? acrossN - 1 : p.badge}
         onClick={() => {
           // On touch a closed pile slides apart on the first tap, and the sea
