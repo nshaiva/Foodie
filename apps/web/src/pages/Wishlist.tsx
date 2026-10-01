@@ -118,7 +118,7 @@ export function Wishlist() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
-      <AppBar actions={<ProfileButton />}>
+      <AppBar actions={<ProfileButton compact />}>
         <h1 className="text-3xl font-bold flex items-center gap-2.5" style={{ color: systemColors.navy }}>
           <PlateDot color={systemColors.saffron} size={14} />
           Want to try

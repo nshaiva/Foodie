@@ -35,7 +35,7 @@ export function AtRestaurant() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: systemColors.seaSalt }}>
-      <AppBar actions={<ProfileButton />} />
+      <AppBar actions={<ProfileButton compact />} />
 
       <main className="max-w-xl mx-auto px-4 py-5">
         {country ? <OrderList countryId={country.id} /> : <CuisinePicker />}
