@@ -110,7 +110,7 @@ export const IN: Country = {
       distinctiveTraits: ["Fish-centric", "Renowned sweets", "Mustard oil", "Subtle spicing"]
     },
     {
-      name: "Hyderabad & the Deccan (Telangana & Andhra)",
+      name: "Hyderabad & the Deccan",
       description: "The Deccan plateau's two tables: Hyderabad's courtly Nizami cooking, slow-cooked biryani, haleem and salan, and Andhra's reputation as India's hottest kitchen, with gongura, tamarind and red chili in everything. Rice, not wheat, and heat that is meant.",
       signatureDishes: ["Hyderabadi Biryani", "Hyderabadi Haleem", "Mirchi ka Salan", "Kodi Vepudu", "Gongura Pachadi"],
       keyIngredients: ["chilies", "tamarind", "yogurt", "basmati rice", "curry leaves", "ghee"],

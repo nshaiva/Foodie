@@ -11,7 +11,7 @@ import { entryView } from './entryView';
  */
 
 export const PLATE_R = 21; // plate radius in screen px
-export const WORLD_R = 10; // world zoom: a pin that marks the cuisine, not a picture of it
+export const WORLD_R = 12.5; // world zoom: a pin that marks the cuisine, legible at a glance (was 10; Nikita, 2026-10-01)
 export const COUNTRY_R = 15; // country-zoom plates, tucked under the region name
 const NEIGHBOUR_OPACITY = 0.7; // other regions' plates while one region is open
 
@@ -209,6 +209,9 @@ function placeHomes(areas: RegionAreas, groups: Group[], projection: GeoProjecti
     space.block(captionBox(`Across ${countryName}`, ax, ay + (COUNTRY_R + 18) * s, s * 1.2));
   }
   cands.sort((a, b) => plateRank(a.entry) - plateRank(b.entry) || a.tier - b.tier);
+  // A dish with a city sits on it no matter what, so it claims that spot
+  // first and the region dishes placed around the name steer clear of it
+  for (const c of cands) if (c.kind === 'city') { const [x, y] = px(c.base); space.take(x, y, r); }
 
   const around: [number, number][] = [[0, D], [0, -D], [D, 0], [-D, 0], [D, D], [-D, D], [D, -D], [-D, -D], [0, E], [0, -E], [E, 0], [-E, 0]];
   // The nationwide group: a stack at the water point, most popular on top.

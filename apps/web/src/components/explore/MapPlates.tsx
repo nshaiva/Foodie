@@ -140,7 +140,7 @@ export function WorldPlates({ countries, features, projection, zoom, labelScale,
   const path = geoPath(projection);
   // Pins grow from a marker into a plate as you zoom toward a country, so the
   // handover to its region plates is a crossfade at one size, not a jump
-  const grow = Math.max(0, Math.min(1, (zoom - 1.4) / 2));
+  const grow = Math.max(0, Math.min(1, (zoom - 1.2) / 1.2));
   const R = WORLD_R + (COUNTRY_R - WORLD_R) * grow;
   type Spot = { c: Country; entry: Entry; at: [number, number]; px: [number, number]; area: number; i: number };
   const spots: Spot[] = countries.flatMap(c => {

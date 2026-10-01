@@ -767,17 +767,23 @@ export function Explore() {
   // own units (the labelScale group), picked once per render from the plates
   // actually on the map.
   const capLift = useMemo(() => {
-    const out: Record<string, number> = {};
+    const out: Record<string, [number, number]> = {};
     if (!areas || !mapPlates.length) return out;
     const R = (COUNTRY_R + 2.5) * labelScale;
     const plates = mapPlates.map(p => { const [x, y] = baseProjection(p.at) as [number, number]; return [x * liveZoom + p.lift[0] * labelScale, y * liveZoom + p.lift[1] * labelScale] as [number, number]; });
+    // Caps placed so far, as boxes, so a cap that steps aside doesn't land on a neighbour's
+    const placedCaps: [number, number, number, number][] = [];
     for (const { region, anchorPx } of areas.areas) {
       const cx = anchorPx[0] * liveZoom, cy = anchorPx[1] * liveZoom;
       const halfW = (regionLabelName(region.name).length * 9.5 * 0.68 * labelScale) / 2 + 4, halfH = 7 * labelScale;
-      const clear = (dy: number) => plates.every(([px, py]) => Math.abs(px - cx) > halfW + R || Math.abs(py - (cy + dy)) > halfH + R);
-      const step = R + halfH + 6;
-      const dy = [0, -step, step, -2 * step, 2 * step].find(clear) ?? 0;
-      if (dy) out[region.name] = dy / labelScale;
+      const clear = ([dx, dy]: [number, number]) =>
+        plates.every(([px, py]) => Math.abs(px - (cx + dx)) > halfW + R || Math.abs(py - (cy + dy)) > halfH + R) &&
+        placedCaps.every(([x0, y0, x1, y1]) => cx + dx + halfW + 6 < x0 || cx + dx - halfW - 6 > x1 || cy + dy + halfH + 4 < y0 || cy + dy - halfH - 4 > y1);
+      const step = R + halfH + 6, side = halfW + R + 6;
+      const tries: [number, number][] = [[0, 0], [0, -step], [0, step], [-side, 0], [side, 0], [0, -2 * step], [0, 2 * step], [-side, -step], [side, -step], [-side, step], [side, step]];
+      const move = tries.find(clear) ?? [0, 0];
+      placedCaps.push([cx + move[0] - halfW, cy + move[1] - halfH, cx + move[0] + halfW, cy + move[1] + halfH]);
+      if (move[0] || move[1]) out[region.name] = [move[0] / labelScale, move[1] / labelScale];
     }
     return out;
   }, [areas, mapPlates, labelScale, liveZoom]);
@@ -964,12 +970,12 @@ export function Explore() {
                             {/* With plates showing, the names are wayfinding, not content: small quiet caps so the food leads (decided 2026-10-01) */}
                             {quietNames ? (
                               <>
-                                <text textAnchor="middle" dominantBaseline="central" y={(n ? -5 : 0) + (capLift[region.name] ?? 0)} fill={dim ? REGION_BORDER : sel ? REGION_INK : QUIET_INK} fontSize={sel ? 10.5 : 9.5} fontWeight={700} letterSpacing="0.14em"
+                                <text textAnchor="middle" dominantBaseline="central" x={capLift[region.name]?.[0] ?? 0} y={(n ? -5 : 0) + (capLift[region.name]?.[1] ?? 0)} fill={dim ? REGION_BORDER : sel ? REGION_INK : QUIET_INK} fontSize={sel ? 10.5 : 9.5} fontWeight={700} letterSpacing="0.14em"
                                   stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)', textTransform: 'uppercase' }}>
                                   {regionLabelName(region.name)}
                                 </text>
                                 {n > 0 && (
-                                  <text textAnchor="middle" dominantBaseline="central" y={8 + (capLift[region.name] ?? 0)} fontSize={7.5} letterSpacing="0.12em" fill={dim ? REGION_BORDER : systemColors.navyMuted}
+                                  <text textAnchor="middle" dominantBaseline="central" x={capLift[region.name]?.[0] ?? 0} y={8 + (capLift[region.name]?.[1] ?? 0)} fontSize={7.5} letterSpacing="0.12em" fill={dim ? REGION_BORDER : systemColors.navyMuted}
                                     stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke">
                                     {n} {n === 1 ? 'DISH' : 'DISHES'}
                                   </text>
