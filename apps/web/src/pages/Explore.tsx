@@ -744,8 +744,10 @@ export function Explore() {
     if (!showBubbles || !areas || scope.level === 'world' || plateFade(areas, liveZoom) === 0) return false;
     return plateLayout({ areas, groups: mapGroups, region: scope.level === 'region' ? scope.region : undefined, zoom: liveZoom, labelScale, projection: baseProjection, countryId: scope.country.id, countryName: scope.country.name, center: liveCenter, view: viewSize, fitZoom, fitScale: labelScaleAt(fitZoom) * labelBoost }).length > 0;
   }, [showBubbles, areas, scope, liveZoom, mapGroups, labelScale, liveCenter, fitZoom, viewSize, labelBoost]);
-  // Country zoom with plates on the map: region names step back to quiet caps (decided 2026-10-01)
-  const quietNames = platesShowing && scope.level === 'country';
+  // Plates on the map: region names step back to quiet caps, at country and
+  // region zoom alike so the style never flips (Nikita, 2026-10-01); the open
+  // region's cap keeps full ink, the others dim
+  const quietNames = platesShowing;
   // Quiet caps are small enough to always sit on the land, so the at-sea fallback is for the full names only
   const showSea = !!seaLayout && !labelsFit && !quietNames && liveZoom >= seaLayout.zoom * 0.85;
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
@@ -916,7 +918,7 @@ export function Explore() {
                           <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit || quietNames ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
                             {/* With plates showing, the names are wayfinding, not content: small quiet caps so the food leads (decided 2026-10-01) */}
                             {quietNames ? (
-                              <text textAnchor="middle" dominantBaseline="central" fill={dim ? REGION_BORDER : QUIET_INK} fontSize={9.5} fontWeight={700} letterSpacing="0.14em"
+                              <text textAnchor="middle" dominantBaseline="central" fill={dim ? REGION_BORDER : sel ? REGION_INK : QUIET_INK} fontSize={sel ? 10.5 : 9.5} fontWeight={700} letterSpacing="0.14em"
                                 stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)', textTransform: 'uppercase' }}>
                                 {regionLabelName(region.name)}
                               </text>
