@@ -1095,14 +1095,16 @@ export function Explore() {
           } ${
             // Positioned by its top edge, not translated: the box is exactly
             // the visible band, so the list scrolls to its end at half too
-            sheetPos === 'strip' ? 'max-md:top-[calc(100%-54px-env(safe-area-inset-bottom,0px))]' : sheetPos === 'half' ? 'max-md:top-[48%]' : 'max-md:top-0'
+            // The strip is exactly the title row (44px), so no half-line of the
+            // list ever peeks out under it (Nikita, 2026-10-01)
+            sheetPos === 'strip' ? 'max-md:top-[calc(100%-44px-env(safe-area-inset-bottom,0px))]' : sheetPos === 'half' ? 'max-md:top-[48%]' : 'max-md:top-0'
           }`}
           style={{ borderColor: systemColors.border, backgroundColor: systemColors.seaSalt }}
         >
           {/* The strip: the scope title. Taps only, no dragging: the strip opens
               the sheet, the header's controls close it or expand it. */}
           <div
-            className="md:hidden sticky top-0 z-10 -mx-5 px-5 py-2 select-none"
+            className="md:hidden sticky top-0 z-10 -mx-5 px-5 py-3 select-none"
             style={{ backgroundColor: systemColors.seaSalt }}
             onClick={() => { if (sheetPos === 'strip') raiseFromStrip(); }}
             role={sheetPos === 'strip' ? 'button' : undefined}
