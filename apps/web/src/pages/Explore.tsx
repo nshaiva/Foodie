@@ -755,7 +755,7 @@ export function Explore() {
   return (
     <div className="h-dvh flex flex-col" style={{ backgroundColor: systemColors.seaSalt }}>
       {/* One row on a phone: one short restaurant label, icon-only profile, 44px targets */}
-      <AppBar actions={<span className="flex items-center gap-1.5 md:gap-4">
+      <AppBar fullBleed actions={<span className="flex items-center gap-1.5 md:gap-4">
         <Link
           to="/restaurant"
           aria-label="Order well"
