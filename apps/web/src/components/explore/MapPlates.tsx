@@ -4,6 +4,9 @@ import { geoPath, type GeoProjection } from 'd3-geo';
 import type { Feature, Geometry } from 'geojson';
 import type { Group, Entry } from '../../utils/groupDishes';
 import { homeLand, type RegionAreas } from '../../utils/regionAreas';
+// The map's quiet caps: the same style the region names use while plates show
+const QUIET_INK = '#9C7F77';
+const quietCaps = { fontSize: 9.5, fontWeight: 700, letterSpacing: '0.14em', fill: QUIET_INK, stroke: systemColors.seaSalt, strokeWidth: 2.5, strokeLinejoin: 'round' as const, paintOrder: 'stroke' as const, style: { fontFamily: 'var(--font-heading)', textTransform: 'uppercase' as const } };
 import type { Country, RegionalCuisine } from '../../data/types';
 import { Marker } from 'react-simple-maps';
 import { systemColors } from '../../data/systemColors';
@@ -300,7 +303,7 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
             <Marker coordinates={at}>
               <g transform={`scale(${k})`} style={{ pointerEvents: 'none' }}>
                 <rect x={-50} y={-15} width={100} height={30} rx={15} fill={systemColors.seaSalt} stroke={systemColors.navy} strokeOpacity={0.25} strokeWidth={1} />
-                <text textAnchor="middle" dominantBaseline="central" y={-4} fontSize={12} fontStyle="italic" fontWeight={500} fill={systemColors.navyMuted} style={{ fontFamily: 'var(--font-brand)' }}>
+                <text textAnchor="middle" dominantBaseline="central" y={-5} {...quietCaps} stroke="none">
                   Across {countryName}
                 </text>
                 <text textAnchor="middle" dominantBaseline="central" y={8} fontSize={7.5} letterSpacing="0.12em" fill={systemColors.navyMuted}>
@@ -312,9 +315,8 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
           {withHub && !region && (
             <Marker coordinates={at}>
               <g transform={`scale(${k})`} style={{ pointerEvents: 'none' }}>
-                <text textAnchor="middle" fontSize={13} fontStyle="italic" fontWeight={500} fill={systemColors.navyMuted}
-                  stroke={systemColors.seaSalt} strokeWidth={3} paintOrder="stroke"
-                  style={{ fontFamily: 'var(--font-brand)', transform: `translateY(${acrossLabelY}px)`, transition: 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' }}>
+                <text textAnchor="middle" {...quietCaps}
+                  style={{ ...quietCaps.style, transform: `translateY(${acrossLabelY}px)`, transition: 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' }}>
                   Across {countryName}
                 </text>
               </g>

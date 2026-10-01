@@ -395,19 +395,34 @@ export function Explore() {
   // zoom 1 at the equator, which on a tall phone is mostly Arctic sea and
   // Antarctica. On a desktop this comes out at zoom 1 anyway (the width is
   // the limit); on a phone it is ~1.3, centred on the inhabited band.
-  const worldHome = useMemo<Camera>(() => {
-    if (!features.size) return { coordinates: WORLD_CENTER, zoom: 1 };
+  // The 31 cuisines' land, in base projected px: what the world view frames
+  // and how far the map can be panned
+  const landBox = useMemo(() => {
+    if (!features.size) return null;
     const path = geoPath(baseProjection);
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const [id, f] of features) {
       const [[a, b], [c, d]] = path.bounds(homeLand(id, f, baseProjection));
       x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d);
     }
+    return { x0, y0, x1, y1 };
+  }, [features]);
+  // Panning stops at the cuisines (with a margin), so the empty poles and the
+  // blank beyond Antarctica are never on screen (Nikita, 2026-10-01). d3-zoom
+  // centres the band when it is shorter than the view, as on a phone.
+  const panExtent = useMemo<[[number, number], [number, number]]>(() => {
+    if (!landBox) return [[0, 0], [VIEW_W, VIEW_H]];
+    const pad = 48;
+    return [[landBox.x0 - pad, landBox.y0 - pad], [landBox.x1 + pad, landBox.y1 + pad]];
+  }, [landBox]);
+  const worldHome = useMemo<Camera>(() => {
+    if (!landBox) return { coordinates: WORLD_CENTER, zoom: 1 };
+    const { x0, y0, x1, y1 } = landBox;
     const pad = 20;
     const zoom = Math.max(1, Math.min(2, viewSize[0] / (x1 - x0 + pad * 2), viewSize[1] / (y1 - y0 + pad * 2)));
     const coordinates = baseProjection.invert!([(x0 + x1) / 2, (y0 + y1) / 2]) as [number, number];
     return zoom > 1.01 ? { coordinates, zoom } : { coordinates: WORLD_CENTER, zoom: 1 };
-  }, [features, viewSize]);
+  }, [landBox, viewSize]);
   const flyToWorld = () => { cancelPeek(); setPeekId(null); setSheetPos('strip'); flyTo(worldHome, { level: 'world' }); };
   const flyToCountry = (id: string, opts?: { view?: 'overview' | 'all' | 'flavor' | 'culture' }) => {
     const feat = features.get(id), country = getCountryById(id);
@@ -744,8 +759,12 @@ export function Explore() {
     if (!showBubbles || !areas || scope.level === 'world' || plateFade(areas, liveZoom) === 0) return false;
     return plateLayout({ areas, groups: mapGroups, region: scope.level === 'region' ? scope.region : undefined, zoom: liveZoom, labelScale, projection: baseProjection, countryId: scope.country.id, countryName: scope.country.name, center: liveCenter, view: viewSize, fitZoom, fitScale: labelScaleAt(fitZoom) * labelBoost }).length > 0;
   }, [showBubbles, areas, scope, liveZoom, mapGroups, labelScale, liveCenter, fitZoom, viewSize, labelBoost]);
-  // Country zoom with plates on the map: region names step back to quiet caps (decided 2026-10-01)
-  const quietNames = platesShowing && scope.level === 'country';
+  // Region names are small quiet caps at every zoom and for every country
+  // (Nikita, 2026-10-01), whether or not it has plates yet, so the style
+  // never flips between countries or levels; the open region's cap keeps
+  // full ink, the others dim. Countries without plates keep their dish
+  // count under the cap.
+  const quietNames = scope.level !== 'world';
   // Quiet caps are small enough to always sit on the land, so the at-sea fallback is for the full names only
   const showSea = !!seaLayout && !labelsFit && !quietNames && liveZoom >= seaLayout.zoom * 0.85;
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
@@ -753,7 +772,7 @@ export function Explore() {
   return (
     <div className="h-dvh flex flex-col" style={{ backgroundColor: systemColors.seaSalt }}>
       {/* One row on a phone: one short restaurant label, icon-only profile, 44px targets */}
-      <AppBar actions={<span className="flex items-center gap-1.5 md:gap-4">
+      <AppBar fullBleed actions={<span className="flex items-center gap-1.5 md:gap-4">
         <Link
           to="/restaurant"
           aria-label="Order well"
@@ -826,6 +845,7 @@ export function Explore() {
               zoom={camera.zoom}
               minZoom={1}
               maxZoom={MAX_ZOOM}
+              translateExtent={panExtent}
               onMove={stableOnMove}
               onMoveEnd={stableOnMoveEnd}
               filterZoomEvent={filterZoomEvent}
@@ -916,17 +936,25 @@ export function Explore() {
                           <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit || quietNames ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
                             {/* With plates showing, the names are wayfinding, not content: small quiet caps so the food leads (decided 2026-10-01) */}
                             {quietNames ? (
-                              <text textAnchor="middle" dominantBaseline="central" fill={dim ? REGION_BORDER : QUIET_INK} fontSize={9.5} fontWeight={700} letterSpacing="0.14em"
-                                stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)', textTransform: 'uppercase' }}>
-                                {regionLabelName(region.name)}
-                              </text>
+                              <>
+                                <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={dim ? REGION_BORDER : sel ? REGION_INK : QUIET_INK} fontSize={sel ? 10.5 : 9.5} fontWeight={700} letterSpacing="0.14em"
+                                  stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)', textTransform: 'uppercase' }}>
+                                  {regionLabelName(region.name)}
+                                </text>
+                                {n > 0 && (
+                                  <text textAnchor="middle" dominantBaseline="central" y={8} fontSize={7.5} letterSpacing="0.12em" fill={dim ? REGION_BORDER : systemColors.navyMuted}
+                                    stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke">
+                                    {n} {n === 1 ? 'DISH' : 'DISHES'}
+                                  </text>
+                                )}
+                              </>
                             ) : (
                               <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={dim ? REGION_BORDER : REGION_INK} fontSize={sel ? 17 : 15} fontStyle="italic" fontWeight={500}
                                 stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)' }}>
                                 {regionLabelName(region.name)}
                               </text>
                             )}
-                            {n > 0 && (
+                            {!quietNames && n > 0 && (
                               <text textAnchor="middle" dominantBaseline="central" y={11} fill={systemColors.navyMuted} fontSize={9.5} letterSpacing="0.12em"
                                 stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke">
                                 {n} {n === 1 ? 'DISH' : 'DISHES'}
