@@ -231,8 +231,16 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   const plates = fade === 0 ? [] : plateLayout({ areas, groups, region, zoom, labelScale, projection, countryId, countryName, center, view, fitZoom, fitScale });
   const leaving = useLeaving(plates);
   const [hovered, setHovered] = useState<string | null>(null);
-  // The sea cluster, open or not: hover opens it on desktop
+  // The open cluster: 'across' for the sea cluster, or a pile's id. Hover
+  // opens on desktop; on touch a tap on the pile opens it and a press
+  // anywhere else closes it
   const [openStack, setOpenStack] = useState<string | null>(null);
+  useEffect(() => {
+    if (!openStack || captions) return;
+    const close = (e: Event) => { if (!(e.target as Element | null)?.closest?.('[data-stack]')) setOpenStack(null); };
+    document.addEventListener('pointerdown', close, { capture: true, passive: true });
+    return () => document.removeEventListener('pointerdown', close, { capture: true });
+  }, [openStack, captions]);
   if (fade === 0 || (!plates.length && !leaving.length)) return null;
   const at = acrossAt(countryId);
 
@@ -255,8 +263,11 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
       if (p.across.i === 0) return [0, 0];
       return acrossOpen ? acrossRingG.at(p.across.i - 1) : p.lift;
     }
+    if (p.pile && openStack === p.pile.id) return p.pile.spread;
     return p.lift;
   };
+  const piles = new Map<string, PlacedPlate[]>();
+  for (const p of plates) if (p.pile) piles.set(p.pile.id, [...(piles.get(p.pile.id) ?? []), p]);
   const acrossLabelY = acrossOpen && acrossRingG ? acrossRingG.ringR + COUNTRY_R + 18 : COUNTRY_R + 18;
 
   const hoveredPlate = captions && hovered ? plates.find(p => p.key === hovered) : undefined;
@@ -264,12 +275,15 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   const plate = (p: PlacedPlate) => {
     const isHub = !!p.across && p.across.i === 0;
     const closed = !!p.across && openStack !== 'across';
+    const pileOpen = !!p.pile && openStack === p.pile.id;
     return (
       <Plate key={p.key} id={`plate-${p.key.replace(/\W/g, '')}`} entry={p.entry} at={p.at} lift={liftOf(p)} k={k} leaving={p.leaving}
-        r={p.r} compact={p.compact} stem={p.stem} opacity={p.opacity} label={p.label} under={p.under}
+        r={p.r} compact={p.compact} stem={p.stem} opacity={p.opacity} label={p.label} under={pileOpen ? undefined : p.under}
         badge={isHub && closed && withHub && acrossN > 1 ? acrossN - 1 : p.badge}
         onClick={() => {
-          // On touch the sea cluster's closed hub opens it; every other plate opens its dish
+          // On touch a closed pile slides apart on the first tap, and the sea
+          // cluster's hub opens it; every other tap opens the dish
+          if (!captions && p.pile && openStack !== p.pile.id) { setOpenStack(p.pile.id); return; }
           if (isHub && closed && !captions && withHub && acrossN > 1) { setOpenStack('across'); return; }
           setOpenStack(null);
           onOpenDish(p.entry);
@@ -281,8 +295,8 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   // the hover across the gaps between fanned plates
   const stackGroup = (id: string, list: PlacedPlate[], hubAt: [number, number], ringR: number | undefined, extra?: React.ReactNode) => (
     <g key={`stack-${id}`} data-stack={id}
-      onMouseEnter={captions && id === 'across' ? () => setOpenStack(id) : undefined}
-      onMouseLeave={captions && id === 'across' ? () => setOpenStack(cur => (cur === id ? null : cur)) : undefined}>
+      onMouseEnter={captions ? () => setOpenStack(id) : undefined}
+      onMouseLeave={captions ? () => setOpenStack(cur => (cur === id ? null : cur)) : undefined}>
       {openStack === id && ringR !== undefined && (
         <Marker coordinates={hubAt}>
           <circle r={(ringR + COUNTRY_R + 14) * k} fill="transparent" />
@@ -296,7 +310,9 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   return (
     <g opacity={fade} style={{ pointerEvents: fade < 0.6 ? 'none' : undefined }}>
       {/* Deepest first, so where dishes crowd the most popular is drawn on top */}
-      {[...plates.filter(p => !p.across), ...leaving].sort((a, b) => (b.under ?? 0) - (a.under ?? 0)).map(plate)}
+      {[...plates.filter(p => !p.across && !p.pile), ...leaving].sort((a, b) => (b.under ?? 0) - (a.under ?? 0)).map(plate)}
+      {/* Piles after the rest, so an open one slides over its neighbours */}
+      {[...piles.entries()].map(([id, list]) => stackGroup(id, [...list].sort((a, b) => a.pile!.i - b.pile!.i), list[0].at, openStack === id ? (list[0].pile!.n * (COUNTRY_R * 2 + 8)) / 2 : undefined))}
       {across.length > 0 && at && stackGroup('across', across, at, withHub ? acrossRingG?.ringR : undefined, (
         <>
           {!withHub && acrossRingG && !region && (

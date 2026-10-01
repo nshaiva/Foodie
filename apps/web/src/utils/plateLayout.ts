@@ -44,6 +44,11 @@ export type PlacedPlate = {
    *  top at full strength; 1, 2, 3+ sit underneath, each fainter and
    *  smaller (the China de-clutter canvas, boards 1 + 3, 2026-10-01). */
   under?: number;
+  /** A pile: plates whose real spots are within a plate of each other
+   *  (Puebla's mole and chiles en nogada), which no zoom can separate. On
+   *  hover or tap the pile slides apart into a row (`spread` is each plate's
+   *  lift then) and settles back after. */
+  pile?: { id: string; i: number; n: number; spread: [number, number] };
 };
 
 /**
@@ -305,11 +310,16 @@ export function plateLayout({ areas, groups, region, zoom, labelScale, projectio
   // shrinks to nothing, so every plate ends up exactly where its dish is from.
   const SHOW = COUNTRY_R * 1.15 * s; // centre distance at which a good crescent shows
   const NUDGE_DIR: [number, number][] = [[-0.87, 0.5], [0.87, 0.5], [0, -1], [-0.87, -0.5], [0.87, -0.5], [0, 1]];
-  const plates = clusters.flatMap((c): PlacedPlate[] =>
-    c.members.flatMap((h, i): PlacedPlate[] => {
+  const plates = clusters.flatMap((c): PlacedPlate[] => {
+    // The pile: the hub plus every member that had to be nudged to show at all
+    const inPile = c.members.filter((h, i) => { if (i === 0) return true; const [hx, hy] = px(h.at); return Math.hypot(hx - c.px[0], hy - c.px[1]) < SHOW; });
+    const pileN = inPile.length > 1 ? inPile.length : 0;
+    const GAP = COUNTRY_R * 2 + 8;
+    return c.members.flatMap((h, i): PlacedPlate[] => {
       const [hx, hy] = px(h.at);
       if (!onScreen(hx, hy)) return [];
       let lift: [number, number] = [0, 0];
+      const pi = inPile.indexOf(h);
       if (i > 0) {
         const dx = hx - c.px[0], dy = hy - c.px[1], d = Math.hypot(dx, dy);
         if (d < SHOW) {
@@ -317,9 +327,12 @@ export function plateLayout({ areas, groups, region, zoom, labelScale, projectio
           lift = [(ux * (SHOW - d)) / s, (uy * (SHOW - d)) / s];
         }
       }
+      // Open, the pile is a row centred where it sits, most popular first
+      const pile = pileN && pi >= 0 ? { id: `pile:${c.hub.entry.key}`, i: pi, n: pileN, spread: [((pi - (pileN - 1) / 2) * GAP) - (pi > 0 ? (hx - c.px[0]) / s : 0), -(pi > 0 ? (hy - c.px[1]) / s : 0)] as [number, number] } : undefined;
       return [{ key: h.entry.key, entry: h.entry, at: h.at, lift, r: COUNTRY_R, compact: true, label: h.label, region: h.region,
-        opacity: dimFor(h), under: i > 0 ? i : undefined }];
-    }));
+        opacity: dimFor(h), under: i > 0 ? i : undefined, pile }];
+    });
+  });
   return [...plates, ...across];
 }
 
