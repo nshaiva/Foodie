@@ -35,9 +35,11 @@ export interface Beverage {
   tagline?: string;
   /** Dish image URL (#36/#37). Optional: tiles show a tinted plate placeholder without it. */
   image?: string;
-  /** Where it comes from, when that's a place rather than a whole region: the
-   *  map floats its image over this point once you zoom into the region. */
-  origin?: { place: string; coordinates: [number, number] };
+  /** Where it comes from, when that's a place rather than a whole region (#9's
+   *  `locality`): the detail view reads "From Puebla · Central Mexico". Only
+   *  filled when the drink is genuinely tied to one place. With `coordinates`
+   *  the map also floats its image over that point at region zoom. */
+  origin?: { place: string; coordinates?: [number, number] };
   type: 'alcoholic' | 'non-alcoholic' | 'both';
   category?: BeverageCategory;
   regionalOrigin?: string;
@@ -137,9 +139,12 @@ export interface Dish {
   tagline?: string;
   /** Dish image URL (#36/#37). Optional: tiles show a tinted plate placeholder without it. */
   image?: string;
-  /** Where it comes from, when that's a place rather than a whole region: the
-   *  map floats its image over this point once you zoom into the region. */
-  origin?: { place: string; coordinates: [number, number] };
+  /** Where it comes from, when that's a place rather than a whole region (#9's
+   *  `locality`): the detail view reads "From Puebla · Central Mexico". Only
+   *  filled when the dish is genuinely tied to one place; left out for dishes
+   *  eaten everywhere so the batch doesn't invent precision. With
+   *  `coordinates` the map also floats its image over that point at region zoom. */
+  origin?: { place: string; coordinates?: [number, number] };
   category: DishCategory;
   regionalOrigin?: string;
 

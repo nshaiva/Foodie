@@ -96,7 +96,8 @@ export const regionCoordinates: Record<string, Record<string, [number, number]>>
     'Central Mexico': [-99, 19.5],
     'Oaxaca': [-96.5, 17],
     'Yucatán': [-89, 20.5],
-    'Coastal Regions': [-105, 22],
+    'Western Mexico (Jalisco)': [-103.5, 20.7],   // Guadalajara
+    'Pacific Coast (Sinaloa & Baja)': [-107.4, 24.8],  // Culiacán; the area still reaches Ensenada
   },
   IT: {
     'Northern Italy': [11, 45.5],
@@ -138,7 +139,7 @@ export const regionCoordinates: Record<string, Record<string, [number, number]>>
     "Guangdong (Cantonese)": [113.3,23.3],
     "Jiangnan (Shanghai & Huaiyang)": [120.2,31.5],
     "Northern China (Beijing & Shandong)": [117.5,38],
-    "Xinjiang (Northwest)": [85,41.5],
+    "Northwest (Xinjiang & Gansu)": [100,38],   // Hexi corridor, so Lanzhou falls in its area rather than Sichuan's
   },
   VN: {
     "Northern Vietnam": [105.5,21.2],

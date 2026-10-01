@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>2: stacks per city</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500&family=Nunito:wght@700&display=swap">
+<style>
+body{margin:0}
+.scene{position:relative;width:390px;height:600px;overflow:hidden;background:#f5f0e6;font-family:Nunito,system-ui,sans-serif}
+.land-b{position:absolute;inset:0;background:#8e3b31;clip-path:polygon(8% 30%,22% 18%,40% 12%,60% 10%,78% 16%,90% 24%,94% 40%,90% 56%,80% 68%,68% 78%,56% 84%,44% 80%,34% 72%,22% 64%,12% 54%,6% 42%)}
+.land{position:absolute;inset:0;background:#ead9d2;clip-path:polygon(8% 30%,22% 18%,40% 12%,60% 10%,78% 16%,90% 24%,94% 40%,90% 56%,80% 68%,68% 78%,56% 84%,44% 80%,34% 72%,22% 64%,12% 54%,6% 42%);transform:scale(.992)}
+.div{position:absolute;border-top:1px dashed #b07a70;transform-origin:0 0}
+.plate{position:absolute;width:35px;height:35px;margin:-17.5px 0 0 -17.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 2.5px #fff;overflow:hidden}
+.plate img{position:absolute;left:50%;top:50%;width:195%;height:auto;transform:translate(-50%,-50%);display:block}
+.name{position:absolute;transform:translateX(-50%);font:italic 500 15px Fraunces,serif;color:#5a4a46;white-space:nowrap;text-shadow:0 0 3px #f5f0e6,0 0 3px #f5f0e6,0 0 3px #f5f0e6}
+.sea{position:absolute;transform:translateX(-50%);font:italic 500 12px Fraunces,serif;color:#6e6c67;white-space:nowrap}
+.badge{position:absolute;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#c2654a;color:#fff;font:700 9px Nunito,sans-serif;line-height:16px;text-align:center;box-shadow:0 0 0 2px #fff;transition:opacity 150ms}
+.stack{position:absolute;width:0;height:0}
+.stack .fan{transition:transform 260ms cubic-bezier(.3,1.4,.5,1)}
+.stack .f1{transform:translate(-3px,-3px)}.stack .f2{transform:translate(3px,2px)}
+.stack:hover .f1{transform:translate(-46px,-10px)}.stack:hover .f2{transform:translate(46px,-10px)}
+.stack:hover .badge{opacity:0}
+.stack .hub{z-index:2}
+.stack .hit{position:absolute;left:-70px;top:-50px;width:140px;height:100px}
+.strip{position:absolute;left:0;right:0;bottom:0;height:56px;background:#fff;border-top:1px solid #e3ddd3;display:flex;align-items:center;padding:0 16px;font:700 14px Nunito,sans-serif;color:#2b3045}
+.strip small{margin-left:auto;font-weight:700;font-size:11px;color:#9a958d;letter-spacing:.08em}
+.hint{position:absolute;left:12px;top:10px;font:700 10px Nunito,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#9a958d}
+.hint2{position:absolute;right:12px;top:10px;font:700 10px Nunito,sans-serif;color:#c2654a}
+</style>
+</helmet>
+<div class="scene">
+  <div class="land-b"></div><div class="land"></div>
+  <div class="div" style="left:140px;top:110px;width:230px;transform:rotate(62deg)"></div>
+  <div class="div" style="left:200px;top:230px;width:170px;transform:rotate(-20deg)"></div>
+  <div class="div" style="left:140px;top:250px;width:190px;transform:rotate(38deg)"></div>
+  <div class="div" style="left:60px;top:260px;width:120px;transform:rotate(-30deg)"></div>
+  <div class="hint">2 · One plate per city, +N</div>
+  <div class="hint2">hover Beijing →</div>
+
+  <div class="name" style="left:95px;top:150px">Northwest</div>
+  <div class="name" style="left:262px;top:128px">Northern China</div>
+  <div class="name" style="left:168px;top:300px">Sichuan</div>
+  <div class="name" style="left:300px;top:272px">Jiangnan</div>
+  <div class="name" style="left:255px;top:420px">Guangdong</div>
+
+  <div class="plate" style="left:85px;top:150px"><img src="/_blob/9110144b3cb1bcde177ceb923c191185" alt="Chuanr"></div>
+  <div class="plate" style="left:150px;top:235px"><img src="/_blob/a612856f31831daca7dd280ae72b48f4" alt="Lanzhou Lamian"></div>
+
+  <div class="stack" style="left:267px;top:172px">
+    <div class="hit"></div>
+    <div class="plate fan f2"><img src="/_blob/f2f999b487a5936e8b5f191305c1ea8a" alt="Jiaozi"></div>
+    <div class="plate fan f1"><img src="/_blob/cbea17aaef4410063e6d4ecb3a41515e" alt="Congyou Bing"></div>
+    <div class="plate hub"><img src="/_blob/01479e29892056919e215aa06c374608" alt="Beijing Kaoya"></div>
+    <div class="badge" style="left:9px;top:-23px;z-index:3">+2</div>
+  </div>
+
+  <div class="stack" style="left:320px;top:306px">
+    <div class="plate" style="transform:translate(3px,3px)"><img src="/_blob/74aed2825a7a9ca5316c0c07fba3db93" alt="Hongshao Rou"></div>
+    <div class="plate" style="transform:translate(-3px,-2px)"><img src="/_blob/a85a1c38c773e0b7a40d45ec0b995692" alt="Yangzhou Chaofan"></div>
+    <div class="plate hub"><img src="/_blob/17521936f316297ea559300df99416ac" alt="Xiaolongbao"></div>
+    <div class="badge" style="left:9px;top:-23px;z-index:3">+2</div>
+  </div>
+
+  <div class="stack" style="left:167px;top:345px">
+    <div class="plate" style="transform:translate(3px,3px)"><img src="/_blob/30b33a1b4a5e122f700fa639f3d182d5" alt="Sichuan Hot Pot"></div>
+    <div class="plate" style="transform:translate(-3px,2px)"><img src="/_blob/a13965db8950353e6952bce570048efa" alt="Dan Dan Mian"></div>
+    <div class="plate" style="transform:translate(2px,-3px)"><img src="/_blob/42bdea7c7508e3f0c4b6dcb9f7e15a9f" alt="Gongbao Jiding"></div>
+    <div class="plate hub"><img src="/_blob/844daf7f65784eb61d00e14866ecd3a7" alt="Mapo Doufu"></div>
+    <div class="badge" style="left:9px;top:-23px;z-index:3">+3</div>
+  </div>
+
+  <div class="stack" style="left:255px;top:450px">
+    <div class="plate" style="transform:translate(3px,3px)"><img src="/_blob/d9418d751e5cc01d39f492b515debcbf" alt="Har Gow"></div>
+    <div class="plate hub"><img src="/_blob/aee4a9bdb382cb189aeb735a3157d742" alt="Char Siu"></div>
+    <div class="badge" style="left:9px;top:-23px;z-index:3">+1</div>
+  </div>
+
+  <div class="plate" style="left:355px;top:228px"><img src="/_blob/cc50f4c7f417e3bfb3002cf1f5a7f122" alt="Baozi"></div>
+  <div class="sea" style="left:355px;top:252px">Across China</div>
+
+  <div class="strip">China <small>18 DISHES</small></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":600}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

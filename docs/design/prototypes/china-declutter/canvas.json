@@ -1,0 +1,21 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-01T19:10:00Z" },
+  "title": "China on a phone: de-clutter options",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 600, "title": "0 · Today" },
+    "Recede.dc.html": { "x": 470, "y": 0, "w": 390, "h": 600, "title": "1 · Names recede" },
+    "Stacks.dc.html": { "x": 940, "y": 0, "w": 390, "h": 600, "title": "2 · Stacks per city (hover Beijing)", "is_interactive": true },
+    "Depth.dc.html": { "x": 1410, "y": 0, "w": 390, "h": 600, "title": "3 · Depth: the one underneath fades" },
+    "Budget.dc.html": { "x": 1880, "y": 0, "w": 390, "h": 600, "title": "4 · One per region at country zoom" },
+    "Combo.dc.html": { "x": 2350, "y": 0, "w": 390, "h": 600, "title": "5 · 1 + 2 + 3 together" }
+  },
+  "order": ["Combo.dc.html", "Budget.dc.html", "Depth.dc.html", "Stacks.dc.html", "Recede.dc.html", "Main.dc.html"],
+  "notes": {
+    "t": { "x": 0, "y": -300, "text": "China at country zoom on a phone: six ways to calm it", "kind": "title1", "maxW": 2740 },
+    "s": { "x": 0, "y": 720, "w": 560, "text": "Same 15 plates and 5 region names in every board (390 px wide, the sheet strip at the bottom). Only the treatment changes: what recedes, what stacks, what waits for region zoom. Hover the Beijing stack in board 2.", "fill": "green" }
+  },
+  "designSystems": []
+}

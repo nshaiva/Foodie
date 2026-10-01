@@ -1,0 +1,332 @@
+{
+  "mahshi.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1249,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 225
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1526
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A platter of stuffed vegetables: small hollowed zucchini, a green bell pepper, an eggplant and tightly rolled dark green vine leaves, all filled with herbed rice, glistening in a thin red tomato broth. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "fattah.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1249,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 225
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1526
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A deep platter with layers of torn toasted flatbread and white rice soaked in a thin broth, topped with chunks of browned lamb and a bright red tomato and garlic sauce poured over, a few fried garlic slices on top. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "hamam-mahshi.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1255,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 231
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1532
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Two small whole roasted pigeons on a plate, skin burnished deep golden brown, one cut open to show a stuffing of dark green cracked wheat (freekeh) spilling out, a lemon wedge and a few sprigs of parsley beside them. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "hawawshi.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1260,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 236
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1537
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A round whole-wheat baladi flatbread cut into wedges, the bread crisp and browned with oil stains, each wedge thick with a filling of spiced minced beef, onion and green pepper, one wedge pulled out to show the filling, a few pickles beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "sayadeya.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1252,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 228
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1529
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A plate of golden-brown rice tinted with turmeric and dark caramelized onions, a whole fried white fish fillet laid on top, a lime wedge and a sprinkle of chopped parsley, a small bowl of thin tomato sauce beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "umm-ali.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1243,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 219
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1520
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A round shallow clay dish of golden baked pudding with torn flaky pastry pieces soaked in milk, the top blistered and browned, scattered with pistachios, almonds, raisins and shredded coconut. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "kebda-eskandarani.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1245,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 221
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1522
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A crusty oblong white bread roll split open and stuffed with dark brown chopped fried liver pieces mixed with sliced green chili and onion, a few bright pickled vegetables beside it on a small plate. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "samak-mashwi.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1249,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 225
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1526
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. One whole grilled fish on a plate with charred grill marks and crisp skin, scored on the side, a lime wedge and a small bowl of pale tahini sauce beside it, a few slices of tomato and cucumber. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "bamia.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1244,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 220
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1521
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A bowl of small whole green okra pods and chunks of beef in a thick red tomato sauce, a few fried garlic slices and chopped coriander on top, a mound of white rice beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "weika.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1247,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 223
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1524
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A bowl of thick glossy dark green stew, smoother than a soup, with a few fried garlic slices on top, beside torn pieces of a large flat golden-brown rustic bread (aish shamsi). One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "zarb.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1255,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 231
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1532
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A large round metal tray of pit-roasted food: a pile of browned lamb pieces, whole roasted chicken quarters, charred potatoes, carrots and onions, all smoky and darkened at the edges, a few flatbreads tucked at the side. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "farasheeh.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1254,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 230
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1531
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A stack of very thin, large, pale flatbreads with blistered brown spots, folded loosely on a plate, a small glass of amber tea with a sprig of green herb in it and a small dish of white cheese beside them. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "feteer-meshaltet.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1242,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 218
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1519
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A round golden baked pastry cut into wedges, its edge showing dozens of thin flaky buttery layers, one wedge lifted, a small dish of honey and a wedge of white cheese beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "kofta.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1253,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 229
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1530
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Three long skewers of charred grilled minced meat, each oblong and ridged with grill marks, resting on a plate with a round baladi flatbread, a small bowl of pale tahini, sliced tomato, onion and parsley. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "macarona-bechamel.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1250,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 226
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1527
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A square slab of baked pasta on a plate, cut to show a layer of penne pasta, a dark brown layer of spiced minced beef in the middle and a thick creamy white béchamel top baked golden brown. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  }
+}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { geoPath, type GeoProjection } from 'd3-geo';
 import type { Feature, Geometry } from 'geojson';
 import type { Group, Entry } from '../../utils/groupDishes';
@@ -8,7 +9,7 @@ import { Marker } from 'react-simple-maps';
 import { systemColors } from '../../data/systemColors';
 import { entryView } from '../../utils/entryView';
 import { plateFade } from '../../utils/plateFade';
-import { plateLayout, signature, acrossAt, PLATE_R, WORLD_R, COUNTRY_R, type PlacedPlate } from '../../utils/plateLayout';
+import { plateLayout, signature, acrossAt, acrossRing, worldPicks, PLATE_R, WORLD_R, COUNTRY_R, type PlacedPlate, type RegionUnit } from '../../utils/plateLayout';
 
 /**
  * Dish illustrations floating over the map (#36 preview).
@@ -27,7 +28,12 @@ import { plateLayout, signature, acrossAt, PLATE_R, WORLD_R, COUNTRY_R, type Pla
  * Only dishes and drinks with an `image` show; the list has the rest.
  */
 
-function Plate({ entry, at, lift, k, badge, label, onClick, id, stem = false, r: R = PLATE_R, opacity, compact = false, leaving = false, world = false }: {
+function Plate({ entry, at, lift, k, badge, label, onClick, onHover, id, stem = false, r: R = PLATE_R, opacity, compact = false, leaving = false, world = false, under }: {
+  /** Depth under a more popular neighbour (1, 2, 3+): fainter and smaller. */
+  under?: number;
+  /** Given, the name is drawn by the parent in a layer above the map's
+   *  labels (see PlateCaption); absent, it sits in the plate's own group. */
+  onHover?: (hovering: boolean) => void;
   entry: Entry; at: [number, number]; lift: [number, number]; k: number;
   badge?: number; label: string; onClick: () => void; id: string;
   /** Draw a stem down to a dot on the exact point (region zoom only). */
@@ -51,10 +57,13 @@ function Plate({ entry, at, lift, k, badge, label, onClick, id, stem = false, r:
           <line x1={0} y1={0} x2={dx} y2={dy + R} stroke={systemColors.navy} strokeOpacity={0.45} strokeWidth={1} />
           <circle r={2.6} fill={systemColors.navy} />
         </>}
-        <g transform={`translate(${dx} ${dy})`}>
-          <g className={['map-plate', compact && 'map-plate--compact', leaving && 'map-plate--out', world && 'map-plate--world'].filter(Boolean).join(' ')} role="button" tabIndex={0} aria-label={label} data-plate={v.name}
+        {/* CSS transform rather than the attribute, so a lift that changes (the Across fan) eases there */}
+        <g style={{ transform: `translate(${dx}px, ${dy}px)`, transition: 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' }}>
+          <g className={['map-plate', compact && 'map-plate--compact', leaving && 'map-plate--out', world && 'map-plate--world', under && `map-plate--under-${Math.min(3, under)}`].filter(Boolean).join(' ')} role="button" tabIndex={0} aria-label={label} data-plate={v.name}
             onClick={e => { e.stopPropagation(); onClick(); }}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
+            onMouseEnter={onHover && (() => onHover(true))} onMouseLeave={onHover && (() => onHover(false))}
+            onFocus={onHover && (() => onHover(true))} onBlur={onHover && (() => onHover(false))}
             style={{ cursor: 'pointer' }}>
             {!world && <ellipse className="map-plate-shadow" cx={0} cy={R + 9} rx={R * 0.7} ry={3.5} fill={systemColors.navy} opacity={0.2} />}
             <g className="map-plate-disc">
@@ -66,14 +75,37 @@ function Plate({ entry, at, lift, k, badge, label, onClick, id, stem = false, r:
                 <text textAnchor="middle" dominantBaseline="central" fontSize={9.5} fontWeight={700} fill="#fff">+{badge}</text>
               </g> : null}
             </g>
-            <g className="map-plate-name" transform={`translate(0 ${-(R + 17)})`}>
-              <text textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700} fill={systemColors.navy}
-                stroke="#fff" strokeWidth={4} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)' }}>
-                {label}
-              </text>
-            </g>
+            {!onHover && (
+              <g className="map-plate-name" transform={`translate(0 ${-(R + 17)})`}>
+                <text textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700} fill={systemColors.navy}
+                  stroke="#fff" strokeWidth={4} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)' }}>
+                  {label}
+                </text>
+              </g>
+            )}
           </g>
         </g>
+      </g>
+    </Marker>
+  );
+}
+
+/**
+ * The hovered plate's name, on a cream pill. Drawn in its own layer above the
+ * region names (Explore hands MapPlates a `<g>` placed after them), so the
+ * name you asked for is never painted under "Northern China" or a neighbour's
+ * plate. Width is estimated the same way plateLayout's captionBox does.
+ */
+function PlateCaption({ plate, k }: { plate: PlacedPlate; k: number }) {
+  const [dx, dy] = plate.lift;
+  const w = plate.label.length * 11 * 0.56 + 18, h = 20;
+  return (
+    <Marker coordinates={plate.at} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
+      <g transform={`scale(${k}) translate(${dx} ${dy - (plate.r + 19)})`} style={{ pointerEvents: 'none' }}>
+        <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={h / 2} fill={systemColors.seaSalt} stroke={systemColors.navy} strokeOpacity={0.25} strokeWidth={1} />
+        <text textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700} fill={systemColors.navy} style={{ fontFamily: 'var(--font-heading)' }}>
+          {plate.label}
+        </text>
       </g>
     </Marker>
   );
@@ -85,7 +117,9 @@ function Plate({ entry, at, lift, k, badge, label, onClick, id, stem = false, r:
  * out (bigger countries win) and appear as you zoom in. The scoped country's
  * plate fades out as its region plates fade in.
  */
-export function WorldPlates({ countries, features, projection, zoom, labelScale, scopedId, onOpenCountry }: {
+export function WorldPlates({ countries, features, projection, zoom, labelScale, scopedId, scopedFade, unitsFor, onOpenCountry }: {
+  /** Every country's region units (Explore computes them once the outlines are in). */
+  unitsFor: Map<string, RegionUnit[]>;
   countries: Country[];
   features: Map<string, Feature<Geometry>>;
   projection: GeoProjection;
@@ -98,28 +132,45 @@ export function WorldPlates({ countries, features, projection, zoom, labelScale,
 }) {
   const k = labelScale / zoom;
   const path = geoPath(projection);
-  const spots = countries.flatMap(c => {
+  // Pins grow from a marker into a plate as you zoom toward a country, so the
+  // handover to its region plates is a crossfade at one size, not a jump
+  const grow = Math.max(0, Math.min(1, (zoom - 1.4) / 2));
+  const R = WORLD_R + (COUNTRY_R - WORLD_R) * grow;
+  type Spot = { c: Country; entry: Entry; at: [number, number]; px: [number, number]; area: number; i: number };
+  const spots: Spot[] = countries.flatMap(c => {
     const feat = features.get(c.id);
-    const sig = feat && signature(c);
-    if (!feat || !sig) return [];
+    if (!feat) return [];
     const land = homeLand(c.id, feat, projection);
     const [[x0, y0], [x1, y1]] = path.bounds(land);
-    const at = projection.invert!([(x0 + x1) / 2, (y0 + y1) / 2]) as [number, number];
-    return [{ c, sig, at, px: [(x0 + x1) / 2 * zoom, (y0 + y1) / 2 * zoom], area: path.area(land) }];
-  }).sort((a, b) => b.area - a.area);
-  const placed: typeof spots = [];
+    const area = path.area(land);
+    const toPx = (p: [number, number]) => (projection(p) as [number, number]).map(n => n * zoom) as [number, number];
+    // The pin budget follows how much screen the country takes: Egypt 1,
+    // Mexico 2, China 3 at the phone's first-pins zoom, never more than 3
+    const budget = Math.max(1, Math.min(3, Math.floor((area * zoom * zoom) / 3500)));
+    // Pins are region units: the same dish at the same spot the country zoom
+    // shows, so zooming in never moves one (decided 2026-10-01)
+    const units = unitsFor.get(c.id) ?? [];
+    if (units.length) return worldPicks(units, budget, toPx).map((u, i) => ({ c, entry: u.entries[0], at: u.at, px: toPx(u.at), area, i }));
+    // No regions yet (Japan, Ethiopia, Peru): the signature dish at the centre
+    const sig = signature(c);
+    if (!sig) return [];
+    const centre = projection.invert!([(x0 + x1) / 2, (y0 + y1) / 2]) as [number, number];
+    return [{ c, entry: sig, at: centre, px: toPx(centre), area, i: 0 }];
+  }).sort((a, b) => b.area - a.area || a.i - b.i);
+  const placed: Spot[] = [];
   for (const s of spots) {
-    if (placed.every(p => Math.hypot(p.px[0] - s.px[0], p.px[1] - s.px[1]) > WORLD_R * 2.6 * labelScale)) placed.push(s);
+    if (placed.every(p => Math.hypot(p.px[0] - s.px[0], p.px[1] - s.px[1]) > R * 2.6 * labelScale)) placed.push(s);
   }
   return (
     <g>
-      {placed.map(({ c, sig, at }) => {
-        // The opened country's plate goes the moment it opens; its own dishes
-        // take over once the camera lands (see MapPlates)
-        if (c.id === scopedId) return null;
-        const opacity = 1;
-        return <Plate key={c.id} id={`plate-w-${c.id}`} entry={sig} at={at} lift={[0, 0]} k={k} r={WORLD_R} opacity={opacity} compact world
-          label={`${c.name} · ${entryView(sig).name}`} onClick={() => onOpenCountry(c.id)} />;
+      {placed.map(({ c, entry, at, i }) => {
+        // The opened country's pins go as its region plates arrive: gone by
+        // the time those are a third of the way in, so they never linger as
+        // ghosts over the real plates
+        const opacity = c.id === scopedId ? Math.max(0, 1 - scopedFade * 3) : 1;
+        if (opacity <= 0.02) return null;
+        return <Plate key={`${c.id}:${i}`} id={`plate-w-${c.id}-${i}`} entry={entry} at={at} lift={[0, 0]} k={k} r={R} opacity={opacity} compact world
+          label={`${c.name} · ${entryView(entry).name}`} onClick={() => onOpenCountry(c.id)} />;
       })}
     </g>
   );
@@ -149,7 +200,7 @@ function useLeaving(plates: PlacedPlate[]) {
   return leaving.filter(p => !now.has(p.key));
 }
 
-export function MapPlates({ countryId, countryName, areas, groups, region, projection, zoom, labelScale, center, view, fitZoom, fitScale, onOpenDish }: {
+export function MapPlates({ countryId, countryName, areas, groups, region, projection, zoom, labelScale, captions = true, captionLayer, center, view, fitZoom, fitScale, onOpenDish }: {
   countryId: string;
   countryName: string;
   areas: RegionAreas;
@@ -160,8 +211,10 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   projection: GeoProjection;
   zoom: number;
   labelScale: number;
-  /** False on touch: names show once a plate is tapped (hover-only via CSS). */
+  /** False on touch: no plate names at all (a tap opens the dish, which names it). */
   captions?: boolean;
+  /** An SVG group placed above the region names; the hovered plate's name renders there. */
+  captionLayer?: Element | null;
   center: readonly [number, number];
   view: readonly [number, number];
   fitZoom: number;
@@ -174,23 +227,102 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   const fade = plateFade(areas, zoom);
   const plates = fade === 0 ? [] : plateLayout({ areas, groups, region, zoom, labelScale, projection, countryId, countryName, center, view, fitZoom, fitScale });
   const leaving = useLeaving(plates);
+  const [hovered, setHovered] = useState<string | null>(null);
+  // The sea cluster, open or not: hover opens it on desktop
+  const [openStack, setOpenStack] = useState<string | null>(null);
   if (fade === 0 || (!plates.length && !leaving.length)) return null;
   const at = acrossAt(countryId);
-  const acrossShowing = !region && plates.some(p => !p.region && !p.stem);
-  return (
-    <g opacity={fade} style={{ pointerEvents: fade < 0.6 ? 'none' : undefined }}>
-      {[...plates, ...leaving].map(p => (
-        <Plate key={p.key} id={`plate-${p.key.replace(/\W/g, '')}`} entry={p.entry} at={p.at} lift={p.lift} k={k} leaving={p.leaving}
-          r={p.r} compact={p.compact} stem={p.stem} opacity={p.opacity} badge={p.badge} label={p.label} onClick={() => onOpenDish(p.entry)} />
-      ))}
-      {acrossShowing && at && (
-        <Marker coordinates={at}>
-          <text transform={`scale(${k})`} y={COUNTRY_R + 18} textAnchor="middle" fontSize={13} fontStyle="italic" fontWeight={500} fill={systemColors.navyMuted}
-            stroke={systemColors.seaSalt} strokeWidth={3} paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)', pointerEvents: 'none' }}>
-            Across {countryName}
-          </text>
+
+  // The "Across {country}" cluster at sea. Desktop: the most popular dish is
+  // the hub with "+N", the rest stack under it and fan into a ring on hover.
+  // Touch: a label pill is the hub and every dish sits on the ring, since
+  // there is no hover to open a stack with.
+  const across = plates.filter(p => p.across).sort((a, b) => a.across!.i - b.across!.i);
+  // Sized from the cluster's total, never the on-screen count, so nothing re-fans.
+  // One nationwide dish (China: baozi) is just a plate with the label, on both
+  const acrossN = across[0]?.across?.n ?? 0;
+  const withHub = captions || acrossN === 1;
+  const acrossRingG = acrossN > 1 ? acrossRing(withHub ? acrossN - 1 : acrossN) : undefined;
+  const acrossOpen = withHub && openStack === 'across' && !!acrossRingG;
+
+  const liftOf = (p: PlacedPlate): [number, number] => {
+    if (p.across) {
+      if (!acrossRingG) return [0, 0];
+      if (!withHub) return acrossRingG.at(p.across.i);
+      if (p.across.i === 0) return [0, 0];
+      return acrossOpen ? acrossRingG.at(p.across.i - 1) : p.lift;
+    }
+    return p.lift;
+  };
+  const acrossLabelY = acrossOpen && acrossRingG ? acrossRingG.ringR + COUNTRY_R + 18 : COUNTRY_R + 18;
+
+  const hoveredPlate = captions && hovered ? plates.find(p => p.key === hovered) : undefined;
+  const caption = hoveredPlate && <PlateCaption plate={{ ...hoveredPlate, lift: liftOf(hoveredPlate) }} k={k} />;
+  const plate = (p: PlacedPlate) => {
+    const isHub = !!p.across && p.across.i === 0;
+    const closed = !!p.across && openStack !== 'across';
+    return (
+      <Plate key={p.key} id={`plate-${p.key.replace(/\W/g, '')}`} entry={p.entry} at={p.at} lift={liftOf(p)} k={k} leaving={p.leaving}
+        r={p.r} compact={p.compact} stem={p.stem} opacity={p.opacity} label={p.label} under={p.under}
+        badge={isHub && closed && withHub && acrossN > 1 ? acrossN - 1 : p.badge}
+        onClick={() => {
+          // On touch the sea cluster's closed hub opens it; every other plate opens its dish
+          if (isHub && closed && !captions && withHub && acrossN > 1) { setOpenStack('across'); return; }
+          setOpenStack(null);
+          onOpenDish(p.entry);
+        }}
+        onHover={captions ? (on => setHovered(on ? p.key : cur => (cur === p.key ? null : cur))) : undefined} />
+    );
+  };
+  // A stack's group: hover opens it on desktop, and a transparent disc holds
+  // the hover across the gaps between fanned plates
+  const stackGroup = (id: string, list: PlacedPlate[], hubAt: [number, number], ringR: number | undefined, extra?: React.ReactNode) => (
+    <g key={`stack-${id}`} data-stack={id}
+      onMouseEnter={captions && id === 'across' ? () => setOpenStack(id) : undefined}
+      onMouseLeave={captions && id === 'across' ? () => setOpenStack(cur => (cur === id ? null : cur)) : undefined}>
+      {openStack === id && ringR !== undefined && (
+        <Marker coordinates={hubAt}>
+          <circle r={(ringR + COUNTRY_R + 14) * k} fill="transparent" />
         </Marker>
       )}
+      {/* Least popular first, so the hub ends up on top */}
+      {[...list].reverse().map(plate)}
+      {extra}
+    </g>
+  );
+  return (
+    <g opacity={fade} style={{ pointerEvents: fade < 0.6 ? 'none' : undefined }}>
+      {/* Deepest first, so where dishes crowd the most popular is drawn on top */}
+      {[...plates.filter(p => !p.across), ...leaving].sort((a, b) => (b.under ?? 0) - (a.under ?? 0)).map(plate)}
+      {across.length > 0 && at && stackGroup('across', across, at, withHub ? acrossRingG?.ringR : undefined, (
+        <>
+          {!withHub && acrossRingG && !region && (
+            <Marker coordinates={at}>
+              <g transform={`scale(${k})`} style={{ pointerEvents: 'none' }}>
+                <rect x={-50} y={-15} width={100} height={30} rx={15} fill={systemColors.seaSalt} stroke={systemColors.navy} strokeOpacity={0.25} strokeWidth={1} />
+                <text textAnchor="middle" dominantBaseline="central" y={-4} fontSize={12} fontStyle="italic" fontWeight={500} fill={systemColors.navyMuted} style={{ fontFamily: 'var(--font-brand)' }}>
+                  Across {countryName}
+                </text>
+                <text textAnchor="middle" dominantBaseline="central" y={8} fontSize={7.5} letterSpacing="0.12em" fill={systemColors.navyMuted}>
+                  {acrossN} {acrossN === 1 ? 'DISH' : 'DISHES'}
+                </text>
+              </g>
+            </Marker>
+          )}
+          {withHub && !region && (
+            <Marker coordinates={at}>
+              <g transform={`scale(${k})`} style={{ pointerEvents: 'none' }}>
+                <text textAnchor="middle" fontSize={13} fontStyle="italic" fontWeight={500} fill={systemColors.navyMuted}
+                  stroke={systemColors.seaSalt} strokeWidth={3} paintOrder="stroke"
+                  style={{ fontFamily: 'var(--font-brand)', transform: `translateY(${acrossLabelY}px)`, transition: 'transform 260ms cubic-bezier(.3, 1.4, .5, 1)' }}>
+                  Across {countryName}
+                </text>
+              </g>
+            </Marker>
+          )}
+        </>
+      ))}
+      {caption && (captionLayer ? createPortal(caption, captionLayer) : caption)}
     </g>
   );
 }

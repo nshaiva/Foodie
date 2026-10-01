@@ -1,0 +1,20 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-01T18:30:00Z" },
+  "title": "Across Egypt: cluster options",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 620, "h": 360, "title": "A · Stack, fans out on hover", "is_interactive": true },
+    "Flower.dc.html": { "x": 700, "y": 0, "w": 620, "h": 360, "title": "B · Flower, always open" },
+    "Honeycomb.dc.html": { "x": 0, "y": 480, "w": 620, "h": 360, "title": "C · Honeycomb" },
+    "Arc.dc.html": { "x": 700, "y": 480, "w": 620, "h": 360, "title": "D · Arc off the coast" },
+    "Today.dc.html": { "x": 1400, "y": 0, "w": 620, "h": 360, "title": "Today · the row" }
+  },
+  "order": ["Today.dc.html", "Arc.dc.html", "Honeycomb.dc.html", "Flower.dc.html", "Main.dc.html"],
+  "notes": {
+    "t": { "x": 0, "y": -300, "text": "Across Egypt: seven nationwide dishes, four ways", "kind": "title1", "maxW": 2020 },
+    "s": { "x": 1400, "y": 480, "w": 520, "text": "Hover the stack in A. Every option keeps the same 35px plates, white rims and the italic 'Across Egypt' label the map uses today; only the arrangement changes. Three region plates sit on land for scale.", "fill": "green" }
+  },
+  "designSystems": []
+}

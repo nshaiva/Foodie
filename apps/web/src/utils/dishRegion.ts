@@ -47,7 +47,12 @@ const REGION_ALIASES: Record<string, Record<string, string>> = {
   },
   MX: {
     puebla: 'Central Mexico',
-    jalisco: 'Central Mexico',                     // west-central; nearest tradition
+    guadalajara: 'Western Mexico (Jalisco)',
+    ensenada: 'Pacific Coast (Sinaloa & Baja)',
+    'baja california': 'Pacific Coast (Sinaloa & Baja)',
+    mazatlan: 'Pacific Coast (Sinaloa & Baja)',
+    mazatlán: 'Pacific Coast (Sinaloa & Baja)',
+    veracruz: NATIONWIDE_ALIAS,                    // Gulf coast, no region of its own (wave 1 decision)
   },
   IE: {
     galway: 'Connacht & the Wild Atlantic Way',
@@ -149,7 +154,7 @@ export function resolveRegion(
   const origin = item.regionalOrigin?.trim();
   // No written origin but a city: the region whose centre is nearest, so the
   // list files a dish where the map draws it
-  if (!origin && item.origin && countryId) {
+  if (!origin && item.origin?.coordinates && countryId) {
     const [lon, lat] = item.origin.coordinates;
     const centres = regionCoordinates[countryId];
     let best: RegionalCuisine | undefined, bestD = Infinity;
@@ -207,10 +212,22 @@ export function regionSlug(name: string): string {
     .replace(/^-|-$/g, '');
 }
 
+/**
+ * Slugs of regions that were renamed or merged, so old links keep landing.
+ * Keyed by country id, then old slug -> current slug.
+ */
+const RETIRED_REGION_SLUGS: Record<string, Record<string, string>> = {
+  MX: { 'coastal-regions': 'pacific-coast' },   // wave 1 of #9, 2026-10-01
+  CN: { xinjiang: 'northwest' },                 // renamed to cover Gansu, same day
+};
+
 export function regionFromSlug(
   slug: string,
-  regions: RegionalCuisine[] | undefined
+  regions: RegionalCuisine[] | undefined,
+  countryId?: string
 ): RegionalCuisine | undefined {
+  const retired = countryId ? RETIRED_REGION_SLUGS[countryId]?.[slug] : undefined;
+  if (retired) slug = retired;
   // A region's parenthetical is a name people use too: "The South (Gaúcho
   // Country)" answers to ?region=gaucho-country as well as ?region=the-south.
   return regions?.find(r => {

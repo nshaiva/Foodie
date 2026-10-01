@@ -1,0 +1,398 @@
+{
+  "mapo-doufu.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1260,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 236
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1537
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A shallow bowl of soft white tofu cubes in a glossy bright red chili oil sauce flecked with brown minced pork and fermented bean paste, chopped green scallion and a dusting of brown ground Sichuan peppercorn on top, a small bowl of white rice beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "beijing-kaoya.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1252,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 228
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1529
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Slices of roast duck with glossy mahogany-brown crackling skin fanned on a plate, beside a small stack of thin white pancakes, matchsticks of cucumber and scallion, and a small dish of dark sweet bean sauce. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "xiaolongbao.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1246,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 222
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1523
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A round bamboo steamer basket lined with a leaf, holding six small pleated white dumplings with a twisted top knot, one lifted on a spoon beside a small dish of dark vinegar with ginger threads. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "gongbao-jiding.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1253,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 229
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1530
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A plate of diced chicken stir-fried glossy brown with whole dried red chilies, golden roasted peanuts and short pieces of scallion, a few red-brown Sichuan peppercorns visible, a small bowl of white rice beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "jiaozi.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1247,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 223
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1524
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A plate of plump crescent-shaped boiled white dumplings with pleated edges, slightly translucent, a small dish of dark vinegar with a swirl of red chili oil beside them and a pair of chopsticks. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "char-siu.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1250,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 226
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1527
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Thick slices of roast pork with a glossy deep red lacquered edge and lightly charred caramelized corners, fanned over a mound of white rice on a plate with a few stalks of green choy sum beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "lanzhou-lamian.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1257,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 233
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1534
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A large bowl of clear light-brown beef broth with long thin hand-pulled wheat noodles, thin slices of beef and white radish, a swirl of red chili oil, chopped green scallion and cilantro on top, chopsticks resting on the rim. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "hongshao-rou.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1259,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 235
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1536
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A small deep bowl of cubes of pork belly with visible layers of fat and meat, glazed glossy dark mahogany red-brown in a sticky soy sauce, a few pieces of star anise and scallion in the sauce, a small bowl of white rice beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "dan-dan-mian.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1254,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 230
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1531
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A bowl of thin yellow wheat noodles topped with crumbled crispy brown minced pork, chopped pickled mustard greens, chopped green scallion and crushed peanuts, sitting in a pool of red chili oil and pale sesame paste at the bottom of the bowl. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "congyou-bing.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1257,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 233
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1534
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A round golden pan-fried flatbread cut into wedges on a plate, its surface blistered and flaky with visible coiled layers and flecks of green scallion, one wedge lifted to show the layers, a small dish of dark dipping sauce beside it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "wonton-noodle-soup.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1257,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 233
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1534
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A bowl of clear light golden broth with a nest of very thin springy yellow egg noodles and four plump wontons with translucent skins showing pink shrimp inside, two stalks of green gai lan on top, a pair of chopsticks resting on the bowl. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "har-gow.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1250,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 226
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1527
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A round bamboo steamer basket holding four translucent white dumplings shaped like half moons with many fine pleats along the top, pink shrimp faintly visible through the skin, a small dish of light soy sauce beside the basket. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "chuanr.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1248,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 224
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1525
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. Five long thin metal skewers of charred grilled lamb cubes with pieces of browned fat between them, dusted thickly with golden-brown cumin seeds and red chili flakes, lying in a row on a plate. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "dapanji.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1258,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 234
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1535
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A very large wide plate heaped with chicken pieces on the bone and chunks of potato in a glossy red-brown sauce with whole dried red chilies, star anise and green and red pepper pieces, wide flat belt noodles tucked under the edge of the stew. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "sichuan-hot-pot.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1261,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 237
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1538
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A round metal hot pot divided by a curved partition, one half a deep red broth thick with dried red chilies and Sichuan peppercorns, the other half a pale clear broth, small plates of thinly sliced raw beef, tofu and green leafy vegetables arranged around it. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "yangzhou-chaofan.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1247,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 223
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1524
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A mound of fried rice on a plate with every grain separate, flecked with yellow scrambled egg, small pink shrimp, diced pink ham, green peas and chopped scallion, lightly golden rather than brown. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "baozi.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1245,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 221
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1522
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A round bamboo steamer basket holding three large fluffy white steamed buns with pleated swirled tops, one torn open to show a brown pork and scallion filling, wisps of steam rising. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  },
+  "congee.png": {
+    "version": "c2-v1",
+    "model": "gpt-image-2.5-sunburst",
+    "quality": "medium",
+    "size": "1152x768",
+    "ref": "/Users/nikitashaiva/Documents/Foodie/docs/design/prototypes/image-pilot/GF-c2-set-768.png",
+    "usage": {
+      "input_tokens": 1263,
+      "input_tokens_details": {
+        "image_tokens": 1024,
+        "text_tokens": 239
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "image_tokens": 277,
+        "text_tokens": 0
+      },
+      "total_tokens": 1540
+    },
+    "date": "2026-10-01",
+    "prompt": "Use the attached image only as a style reference: match its ink line weight, flat gouache fills, colour palette, level of detail and plain cream background exactly. Do not copy its dishes or its 2x2 layout; draw one new dish. Hand-drawn illustration with bold, thick dark-brown ink outlines, simplified shapes with little small detail, and flat opaque gouache fills with minimal shading, clear enough to read as a small icon. A deep white bowl of smooth, thick, pale white rice porridge topped with slices of dark century egg, shreds of pale pork, chopped green scallion and a few drops of sesame oil, a short golden fried dough stick (youtiao) cut into pieces beside the bowl. One serving centered on a plain warm cream background, seen from a 45-degree angle, the food or drink taking up no more than 60% of the frame width and kept inside the central square of a 3:2 frame with generous margin all round, soft even light, no text, no people, no hands, no logos, no table or scenery."
+  }
+}

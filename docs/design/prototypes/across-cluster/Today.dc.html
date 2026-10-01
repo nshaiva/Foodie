@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Today: the row</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500&family=Nunito:wght@700&display=swap">
+<style>
+body{margin:0}
+.scene{position:relative;width:620px;height:360px;overflow:hidden;background:#f5f0e6;font-family:Nunito,system-ui,sans-serif}
+.land-b{position:absolute;inset:0;background:#8e3b31;clip-path:polygon(0 72%,18% 70%,30% 62%,40% 58%,52% 60%,62% 66%,78% 64%,100% 70%,100% 100%,0 100%)}
+.land{position:absolute;inset:0;background:#ead9d2;clip-path:polygon(0 73%,18% 71%,30% 63%,40% 59%,52% 61%,62% 67%,78% 65%,100% 71%,100% 100%,0 100%);transform:translateY(2px)}
+.plate{position:absolute;width:35px;height:35px;margin:-17.5px 0 0 -17.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 2.5px #fff;overflow:hidden}
+.plate img{position:absolute;left:50%;top:50%;width:195%;height:auto;transform:translate(-50%,-50%);display:block}
+.shadow{position:absolute;width:26px;height:7px;margin-left:-13px;margin-top:12px;border-radius:50%;background:rgba(37,46,71,.18)}
+.label{position:absolute;transform:translateX(-50%);font:italic 500 15px Fraunces,serif;color:#6e6c67;white-space:nowrap;text-shadow:0 0 3px #f5f0e6,0 0 3px #f5f0e6,0 0 3px #f5f0e6}
+.hint{position:absolute;left:14px;top:12px;font:700 11px Nunito,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#9a958d}
+</style>
+</helmet>
+<div class="scene">
+  <div class="land-b"></div>
+  <div class="land"></div>
+  <div class="hint">Today · the row</div>
+
+  <div class="plate" style="left:150px;top:290px"><img src="/_blob/1a4b79bc292a2a6cf9041ec373ba20ce" alt="Sayadeya"></div>
+  <div class="plate" style="left:300px;top:300px"><img src="/_blob/80f97feddbbfcbe06f7487fe8221fd56" alt="Molokhia"></div>
+  <div class="plate" style="left:440px;top:310px"><img src="/_blob/1e99aa18d24014f559ad6ecd73db4717" alt="Koshari"></div>
+
+  <div class="shadow" style="left:184px;top:152px"></div>
+  <div class="shadow" style="left:226px;top:152px"></div>
+  <div class="shadow" style="left:268px;top:152px"></div>
+  <div class="shadow" style="left:310px;top:152px"></div>
+  <div class="shadow" style="left:352px;top:152px"></div>
+  <div class="shadow" style="left:394px;top:152px"></div>
+  <div class="shadow" style="left:436px;top:152px"></div>
+  <div class="plate" style="left:184px;top:110px"><img src="/_blob/7861c8d6cd84b7b3eb5bfc51bfe06c7b" alt="Macarona Béchamel"></div>
+  <div class="plate" style="left:226px;top:110px"><img src="/_blob/a6fd8a6f56e2bf354a143bdeb439fa74" alt="Kofta"></div>
+  <div class="plate" style="left:268px;top:110px"><img src="/_blob/aae7116a4a0083f3cae7eec90daebf27" alt="Feteer Meshaltet"></div>
+  <div class="plate" style="left:310px;top:110px"><img src="/_blob/0891ab05d93ef95c18264de7044ac780" alt="Ful Medames"></div>
+  <div class="plate" style="left:352px;top:110px"><img src="/_blob/bc74aa1d9358dbf6fca4e3a289eec3ed" alt="Ta'ameya"></div>
+  <div class="plate" style="left:394px;top:110px"><img src="/_blob/fa7219d0cbd04da7c3f476862862f330" alt="Mahshi"></div>
+  <div class="plate" style="left:436px;top:110px"><img src="/_blob/3c5162616eb95797b7b79f6ad9e0a4af" alt="Umm Ali"></div>
+  <div class="label" style="left:310px;top:150px">Across Egypt</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":620,"height":360}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

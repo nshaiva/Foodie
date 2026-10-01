@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>4: one plate per region at country zoom</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500&family=Nunito:wght@700&display=swap">
+<style>
+body{margin:0}
+.scene{position:relative;width:390px;height:600px;overflow:hidden;background:#f5f0e6;font-family:Nunito,system-ui,sans-serif}
+.land-b{position:absolute;inset:0;background:#8e3b31;clip-path:polygon(8% 30%,22% 18%,40% 12%,60% 10%,78% 16%,90% 24%,94% 40%,90% 56%,80% 68%,68% 78%,56% 84%,44% 80%,34% 72%,22% 64%,12% 54%,6% 42%)}
+.land{position:absolute;inset:0;background:#ead9d2;clip-path:polygon(8% 30%,22% 18%,40% 12%,60% 10%,78% 16%,90% 24%,94% 40%,90% 56%,80% 68%,68% 78%,56% 84%,44% 80%,34% 72%,22% 64%,12% 54%,6% 42%);transform:scale(.992)}
+.div{position:absolute;border-top:1px dashed #b07a70;transform-origin:0 0}
+.plate{position:absolute;width:35px;height:35px;margin:-17.5px 0 0 -17.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 2.5px #fff;overflow:hidden}
+.plate img{position:absolute;left:50%;top:50%;width:195%;height:auto;transform:translate(-50%,-50%);display:block}
+.name{position:absolute;transform:translateX(-50%);font:italic 500 15px Fraunces,serif;color:#5a4a46;white-space:nowrap;text-shadow:0 0 3px #f5f0e6,0 0 3px #f5f0e6,0 0 3px #f5f0e6;text-align:center;line-height:1}
+.name small{display:block;font:700 8.5px Nunito,sans-serif;letter-spacing:.14em;color:#9a958d;margin-top:3px}
+.sea{position:absolute;transform:translateX(-50%);font:italic 500 12px Fraunces,serif;color:#6e6c67;white-space:nowrap}
+.strip{position:absolute;left:0;right:0;bottom:0;height:56px;background:#fff;border-top:1px solid #e3ddd3;display:flex;align-items:center;padding:0 16px;font:700 14px Nunito,sans-serif;color:#2b3045}
+.strip small{margin-left:auto;font-weight:700;font-size:11px;color:#9a958d;letter-spacing:.08em}
+.hint{position:absolute;left:12px;top:10px;font:700 10px Nunito,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#9a958d}
+</style>
+</helmet>
+<div class="scene">
+  <div class="land-b"></div><div class="land"></div>
+  <div class="div" style="left:140px;top:110px;width:230px;transform:rotate(62deg)"></div>
+  <div class="div" style="left:200px;top:230px;width:170px;transform:rotate(-20deg)"></div>
+  <div class="div" style="left:140px;top:250px;width:190px;transform:rotate(38deg)"></div>
+  <div class="div" style="left:60px;top:260px;width:120px;transform:rotate(-30deg)"></div>
+  <div class="hint">4 · One per region; the rest at region zoom</div>
+
+  <div class="plate" style="left:110px;top:178px"><img src="/_blob/9110144b3cb1bcde177ceb923c191185" alt="Chuanr"></div>
+  <div class="name" style="left:110px;top:200px">Northwest<small>3 DISHES</small></div>
+
+  <div class="plate" style="left:262px;top:150px"><img src="/_blob/01479e29892056919e215aa06c374608" alt="Beijing Kaoya"></div>
+  <div class="name" style="left:262px;top:172px">Northern China<small>4 DISHES</small></div>
+
+  <div class="plate" style="left:168px;top:330px"><img src="/_blob/844daf7f65784eb61d00e14866ecd3a7" alt="Mapo Doufu"></div>
+  <div class="name" style="left:168px;top:352px">Sichuan<small>4 DISHES</small></div>
+
+  <div class="plate" style="left:310px;top:282px"><img src="/_blob/17521936f316297ea559300df99416ac" alt="Xiaolongbao"></div>
+  <div class="name" style="left:310px;top:304px">Jiangnan<small>5 DISHES</small></div>
+
+  <div class="plate" style="left:255px;top:432px"><img src="/_blob/aee4a9bdb382cb189aeb735a3157d742" alt="Char Siu"></div>
+  <div class="name" style="left:255px;top:454px">Guangdong<small>4 DISHES</small></div>
+
+  <div class="plate" style="left:355px;top:228px"><img src="/_blob/cc50f4c7f417e3bfb3002cf1f5a7f122" alt="Baozi"></div>
+  <div class="sea" style="left:355px;top:252px">Across China</div>
+
+  <div class="strip">China <small>18 DISHES</small></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":600}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

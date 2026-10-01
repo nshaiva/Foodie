@@ -100,6 +100,83 @@
         "subject": "A tall, narrow caballito shot glass of clear blanco tequila, a lime wedge and a small pile of coarse white salt beside it.",
         "mustShow": "Tall narrow shot glass; clear spirit; lime and salt",
         "wrong": "Margarita or cocktail glass; amber colour; bottle with a label"
+      },
+      {
+        "slug": "cochinita-pibil",
+        "name": "Cochinita Pibil",
+        "subject": "A plate of shredded pork stained deep orange-red with achiote, piled on a partly unfolded dark green banana leaf, topped with a tangle of bright pink pickled red onion rings, a small bowl of orange habanero salsa and two corn tortillas beside it.",
+        "mustShow": "Orange-red shredded pork; banana leaf underneath; pink pickled onions on top",
+        "wrong": "Pale pulled pork in brown barbecue sauce; a whole roast; a taco shell"
+      },
+      {
+        "slug": "sopa-de-lima",
+        "name": "Sopa de Lima",
+        "subject": "A wide bowl of clear golden chicken broth with shredded white chicken, a heap of thin crisp fried tortilla strips on top, a thin slice of green lima citrus floating in it and a few cilantro leaves.",
+        "mustShow": "Clear golden broth; crisp tortilla strips piled on top; a citrus slice",
+        "wrong": "Creamy or red soup; noodles; a bowl of lime wedges"
+      },
+      {
+        "slug": "tlayudas",
+        "name": "Tlayudas",
+        "subject": "One very large, thin, crisp corn tortilla lying flat on a plate, spread with dark refried black beans, covered in shredded green cabbage, strands of white quesillo cheese, slices of tomato and avocado, and strips of thin grilled dark-red tasajo beef on top.",
+        "mustShow": "Huge thin flat tortilla, open like a pizza; black bean layer; white string cheese; thin grilled beef strips",
+        "wrong": "A pizza with red tomato sauce and melted yellow cheese; a folded quesadilla; a small taco"
+      },
+      {
+        "slug": "mole-negro",
+        "name": "Mole Negro",
+        "subject": "A piece of chicken on a plate completely coated in thick, glossy, jet-black mole sauce, a few toasted sesame seeds on top, a small mound of white rice beside it and a folded corn tortilla at the edge.",
+        "mustShow": "Jet-black, not brown, glossy sauce over the chicken; sesame seeds",
+        "wrong": "Dark brown gravy; chocolate dessert sauce; red chili sauce"
+      },
+      {
+        "slug": "carne-asada",
+        "name": "Carne Asada",
+        "subject": "Thin slices of charred grilled beef with dark grill marks on a plate, a charred whole spring onion and a grilled green jalapeño beside them, a small bowl of brown charro beans, a lime wedge and a stack of pale flour tortillas at the edge.",
+        "mustShow": "Thin sliced beef with grill marks; soft pale flour tortillas; charred onion",
+        "wrong": "A thick steak; corn tortillas; a fajita skillet with peppers and onions"
+      },
+      {
+        "slug": "burritos",
+        "name": "Burritos",
+        "subject": "Two slim, tightly rolled flour tortilla burritos on a plate, each about the thickness of a wrist, one cut in half to show a single filling of shredded brown machaca beef, a small bowl of red salsa beside them.",
+        "mustShow": "Slim, tightly rolled, one filling visible; pale flour tortilla",
+        "wrong": "A fat US-style burrito stuffed with rice, lettuce, cheese and sour cream; foil wrapping; a wet burrito covered in sauce"
+      },
+      {
+        "slug": "birria",
+        "name": "Birria",
+        "subject": "A bowl of dark red birria consomé with tender shredded meat, beside two folded corn tortilla tacos fried to a red-orange crisp, filled with shredded beef and melted white cheese, one dipped halfway into the broth, diced white onion and cilantro sprinkled on top, a lime wedge beside them.",
+        "mustShow": "Red-orange crisp folded tacos; a bowl of deep red broth for dipping; shredded meat",
+        "wrong": "Soft yellow tacos with lettuce; chili con carne; beef stew with potatoes and carrots"
+      },
+      {
+        "slug": "tortas-ahogadas",
+        "name": "Tortas Ahogadas",
+        "subject": "A crusty oval birote bread roll filled with shredded carnitas pork, lying in a shallow bowl and completely drowned in thin bright red-orange tomato sauce, sliced white onion rings and a lime wedge on top, a spoon resting in the bowl.",
+        "mustShow": "Whole sandwich submerged in thin red sauce in a bowl; crusty bread showing above the sauce; a spoon",
+        "wrong": "A dry sandwich on a plate; a burger; a sandwich with melted cheese"
+      },
+      {
+        "slug": "aguachile",
+        "name": "Aguachile",
+        "subject": "A shallow round plate of butterflied raw pink-white shrimp fanned out in a pool of thin bright green lime and chili sauce, with thin slices of cucumber and rings of red onion over them, a few cilantro leaves and a lime wedge beside the plate.",
+        "mustShow": "Butterflied shrimp in a thin bright green liquid; cucumber slices; red onion rings",
+        "wrong": "Shrimp cocktail in a glass; cooked orange shrimp in a creamy sauce; a tossed salad"
+      },
+      {
+        "slug": "pescado-a-la-veracruzana",
+        "name": "Pescado a la Veracruzana",
+        "subject": "A whole white fish fillet on a plate covered in a chunky red tomato sauce with green olives, capers, sliced white onion and a few strips of pickled jalapeño, a sprig of herb on top and a small mound of white rice beside it.",
+        "mustShow": "Red tomato sauce with visible green olives and capers over white fish",
+        "wrong": "Fried fish in batter; fish with cream sauce; a fish stew in a bowl"
+      },
+      {
+        "slug": "tacos-de-pescado",
+        "name": "Tacos de Pescado",
+        "subject": "Two soft corn tortillas on a plate, each holding a golden beer-battered fried fish piece, topped with shredded pale green cabbage, a drizzle of white crema, diced tomato and onion, a lime wedge and a small bowl of red salsa beside them.",
+        "mustShow": "Golden battered fish strip in a soft corn tortilla; shredded cabbage; white crema drizzle",
+        "wrong": "Grilled unbattered fish; hard taco shells; shrimp instead of fish; lettuce and yellow cheese"
       }
     ],
     "EG": [
@@ -130,6 +207,239 @@
         "subject": "A bowl of thick, glossy, deep green molokhia soup with fried garlic slices and coriander floating on top, a mound of white rice and a round of baladi bread beside it.",
         "mustShow": "Very dark green, glossy, thick soup; fried garlic on top; rice on the side",
         "wrong": "Spinach cream soup; pesto; a leafy salad"
+      },
+      {
+        "slug": "mahshi",
+        "name": "Mahshi",
+        "subject": "A platter of stuffed vegetables: small hollowed zucchini, a green bell pepper, an eggplant and tightly rolled dark green vine leaves, all filled with herbed rice, glistening in a thin red tomato broth.",
+        "mustShow": "Several different stuffed vegetables plus rolled vine leaves together; rice filling visible; tomato broth",
+        "wrong": "Only stuffed peppers with melted cheese; cabbage rolls in cream sauce; a salad"
+      },
+      {
+        "slug": "fattah",
+        "name": "Fattah",
+        "subject": "A deep platter with layers of torn toasted flatbread and white rice soaked in a thin broth, topped with chunks of browned lamb and a bright red tomato and garlic sauce poured over, a few fried garlic slices on top.",
+        "mustShow": "Visible layers of bread and rice under meat; red tomato garlic sauce on top; chunks of lamb",
+        "wrong": "Fattoush salad; a rice pilaf; hummus with pita"
+      },
+      {
+        "slug": "hamam-mahshi",
+        "name": "Hamam Mahshi",
+        "subject": "Two small whole roasted pigeons on a plate, skin burnished deep golden brown, one cut open to show a stuffing of dark green cracked wheat (freekeh) spilling out, a lemon wedge and a few sprigs of parsley beside them.",
+        "mustShow": "Small whole roasted birds, much smaller than a chicken; dark green-brown grain stuffing spilling out",
+        "wrong": "A large roast chicken; a turkey; a duck with sauce"
+      },
+      {
+        "slug": "hawawshi",
+        "name": "Hawawshi",
+        "subject": "A round whole-wheat baladi flatbread cut into wedges, the bread crisp and browned with oil stains, each wedge thick with a filling of spiced minced beef, onion and green pepper, one wedge pulled out to show the filling, a few pickles beside it.",
+        "mustShow": "Round flatbread crisp and oily; thick minced beef filling inside the bread; cut into wedges",
+        "wrong": "A hamburger; a pizza with cheese; a folded quesadilla"
+      },
+      {
+        "slug": "sayadeya",
+        "name": "Sayadeya",
+        "subject": "A plate of golden-brown rice tinted with turmeric and dark caramelized onions, a whole fried white fish fillet laid on top, a lime wedge and a sprinkle of chopped parsley, a small bowl of thin tomato sauce beside it.",
+        "mustShow": "Golden-brown onion-tinted rice; fish on top; lime",
+        "wrong": "Plain white rice; a fish and chips plate; paella with seafood"
+      },
+      {
+        "slug": "umm-ali",
+        "name": "Umm Ali",
+        "subject": "A round shallow clay dish of golden baked pudding with torn flaky pastry pieces soaked in milk, the top blistered and browned, scattered with pistachios, almonds, raisins and shredded coconut.",
+        "mustShow": "Baked pudding with pastry layers visible; browned top; nuts and raisins on top",
+        "wrong": "Rice pudding in a bowl; bread pudding slice with sauce; a cake"
+      },
+      {
+        "slug": "kebda-eskandarani",
+        "name": "Kebda Eskandarani",
+        "subject": "A crusty oblong white bread roll split open and stuffed with dark brown chopped fried liver pieces mixed with sliced green chili and onion, a few bright pickled vegetables beside it on a small plate.",
+        "mustShow": "Crusty split roll; dark chopped liver filling; green chili slices",
+        "wrong": "A hamburger; a hot dog; sliced liver on a plate with gravy"
+      },
+      {
+        "slug": "samak-mashwi",
+        "name": "Samak Mashwi",
+        "subject": "One whole grilled fish on a plate with charred grill marks and crisp skin, scored on the side, a lime wedge and a small bowl of pale tahini sauce beside it, a few slices of tomato and cucumber.",
+        "mustShow": "Whole grilled fish with grill marks and head on; lime; pale tahini",
+        "wrong": "Fish fillet; fried battered fish; fish in red sauce"
+      },
+      {
+        "slug": "bamia",
+        "name": "Bamia",
+        "subject": "A bowl of small whole green okra pods and chunks of beef in a thick red tomato sauce, a few fried garlic slices and chopped coriander on top, a mound of white rice beside it.",
+        "mustShow": "Whole small okra pods in red tomato sauce; beef chunks; white rice",
+        "wrong": "Green okra fried crisp; gumbo with sausage; a salad"
+      },
+      {
+        "slug": "weika",
+        "name": "Weika",
+        "subject": "A bowl of thick glossy dark green stew, smoother than a soup, with a few fried garlic slices on top, beside torn pieces of a large flat golden-brown rustic bread (aish shamsi).",
+        "mustShow": "Very thick glossy dark green stew; torn flat rustic bread beside it",
+        "wrong": "Spinach salad; a clear soup; okra pods visible (this is ground okra, no pods)"
+      },
+      {
+        "slug": "zarb",
+        "name": "Zarb",
+        "subject": "A large round metal tray of pit-roasted food: a pile of browned lamb pieces, whole roasted chicken quarters, charred potatoes, carrots and onions, all smoky and darkened at the edges, a few flatbreads tucked at the side.",
+        "mustShow": "Big metal tray; lamb and chicken together with roasted root vegetables; charred, smoky look",
+        "wrong": "A single steak; a stew in a bowl; a barbecue grill with grates visible"
+      },
+      {
+        "slug": "farasheeh",
+        "name": "Farasheeh",
+        "subject": "A stack of very thin, large, pale flatbreads with blistered brown spots, folded loosely on a plate, a small glass of amber tea with a sprig of green herb in it and a small dish of white cheese beside them.",
+        "mustShow": "Paper-thin pale blistered flatbread; small glass of amber tea with a green herb sprig",
+        "wrong": "Thick pita; naan; a tortilla with filling"
+      },
+      {
+        "slug": "feteer-meshaltet",
+        "name": "Feteer Meshaltet",
+        "subject": "A round golden baked pastry cut into wedges, its edge showing dozens of thin flaky buttery layers, one wedge lifted, a small dish of honey and a wedge of white cheese beside it.",
+        "mustShow": "Round pastry with visible paper-thin layers at the cut edge; golden; honey and white cheese",
+        "wrong": "A croissant; a pizza; a pie with filling"
+      },
+      {
+        "slug": "kofta",
+        "name": "Kofta",
+        "subject": "Three long skewers of charred grilled minced meat, each oblong and ridged with grill marks, resting on a plate with a round baladi flatbread, a small bowl of pale tahini, sliced tomato, onion and parsley.",
+        "mustShow": "Long ridged minced-meat skewers with char; flatbread; tahini",
+        "wrong": "Round meatballs in sauce; cubed meat skewers; a burger"
+      },
+      {
+        "slug": "macarona-bechamel",
+        "name": "Macarona Béchamel",
+        "subject": "A square slab of baked pasta on a plate, cut to show a layer of penne pasta, a dark brown layer of spiced minced beef in the middle and a thick creamy white béchamel top baked golden brown.",
+        "mustShow": "Square cut slab; visible layers of pasta, minced beef and white béchamel; browned top",
+        "wrong": "Lasagna with red sauce and melted cheese; macaroni and cheese; spaghetti"
+      }
+    ],
+    "CN": [
+      {
+        "slug": "mapo-doufu",
+        "name": "Mapo Doufu",
+        "subject": "A shallow bowl of soft white tofu cubes in a glossy bright red chili oil sauce flecked with brown minced pork and fermented bean paste, chopped green scallion and a dusting of brown ground Sichuan peppercorn on top, a small bowl of white rice beside it.",
+        "mustShow": "Red glossy sauce; soft white tofu cubes; minced pork; scallion on top",
+        "wrong": "Fried crispy tofu; a brown soy stir-fry; a soup"
+      },
+      {
+        "slug": "beijing-kaoya",
+        "name": "Beijing Kaoya",
+        "subject": "Slices of roast duck with glossy mahogany-brown crackling skin fanned on a plate, beside a small stack of thin white pancakes, matchsticks of cucumber and scallion, and a small dish of dark sweet bean sauce.",
+        "mustShow": "Mahogany lacquered duck skin; thin pale pancakes; cucumber and scallion sticks; dark sauce",
+        "wrong": "A whole roast chicken; duck in orange sauce; a sandwich"
+      },
+      {
+        "slug": "xiaolongbao",
+        "name": "Xiaolongbao",
+        "subject": "A round bamboo steamer basket lined with a leaf, holding six small pleated white dumplings with a twisted top knot, one lifted on a spoon beside a small dish of dark vinegar with ginger threads.",
+        "mustShow": "Pleated dumplings with a top knot in a bamboo basket; spoon; dark vinegar dish",
+        "wrong": "Pan-fried potstickers; large buns; wontons in soup"
+      },
+      {
+        "slug": "gongbao-jiding",
+        "name": "Gongbao Jiding",
+        "subject": "A plate of diced chicken stir-fried glossy brown with whole dried red chilies, golden roasted peanuts and short pieces of scallion, a few red-brown Sichuan peppercorns visible, a small bowl of white rice beside it.",
+        "mustShow": "Diced chicken; whole dried red chilies; roasted peanuts; scallion pieces",
+        "wrong": "Breaded sweet and sour chicken; cashew chicken with vegetables; a sauce-flooded dish"
+      },
+      {
+        "slug": "jiaozi",
+        "name": "Jiaozi",
+        "subject": "A plate of plump crescent-shaped boiled white dumplings with pleated edges, slightly translucent, a small dish of dark vinegar with a swirl of red chili oil beside them and a pair of chopsticks.",
+        "mustShow": "Crescent pleated boiled dumplings, pale and soft; vinegar dip with chili oil",
+        "wrong": "Fried golden potstickers; round steamed buns; wontons"
+      },
+      {
+        "slug": "char-siu",
+        "name": "Char Siu",
+        "subject": "Thick slices of roast pork with a glossy deep red lacquered edge and lightly charred caramelized corners, fanned over a mound of white rice on a plate with a few stalks of green choy sum beside it.",
+        "mustShow": "Red-glazed pork with charred edges; sliced; white rice",
+        "wrong": "Pink ham; pulled pork in barbecue sauce; pork chops"
+      },
+      {
+        "slug": "lanzhou-lamian",
+        "name": "Lanzhou Lamian",
+        "subject": "A large bowl of clear light-brown beef broth with long thin hand-pulled wheat noodles, thin slices of beef and white radish, a swirl of red chili oil, chopped green scallion and cilantro on top, chopsticks resting on the rim.",
+        "mustShow": "Clear broth; long thin noodles; white radish slices; red chili oil swirl; green herbs",
+        "wrong": "Thick ramen with egg and pork belly; pho with bean sprouts; a creamy soup"
+      },
+      {
+        "slug": "hongshao-rou",
+        "name": "Hongshao Rou",
+        "subject": "A small deep bowl of cubes of pork belly with visible layers of fat and meat, glazed glossy dark mahogany red-brown in a sticky soy sauce, a few pieces of star anise and scallion in the sauce, a small bowl of white rice beside it.",
+        "mustShow": "Glossy mahogany cubes of layered pork belly; sticky dark sauce; star anise",
+        "wrong": "Dry sliced bacon; pork in pale brown gravy; a stir-fry with vegetables"
+      },
+      {
+        "slug": "dan-dan-mian",
+        "name": "Dan Dan Mian",
+        "subject": "A bowl of thin yellow wheat noodles topped with crumbled crispy brown minced pork, chopped pickled mustard greens, chopped green scallion and crushed peanuts, sitting in a pool of red chili oil and pale sesame paste at the bottom of the bowl.",
+        "mustShow": "Thin noodles; crumbled crispy pork on top; red chili oil pooling below; sesame paste",
+        "wrong": "Noodles in broth; spaghetti bolognese; peanut sauce noodles with vegetables"
+      },
+      {
+        "slug": "congyou-bing",
+        "name": "Congyou Bing",
+        "subject": "A round golden pan-fried flatbread cut into wedges on a plate, its surface blistered and flaky with visible coiled layers and flecks of green scallion, one wedge lifted to show the layers, a small dish of dark dipping sauce beside it.",
+        "mustShow": "Round flaky golden flatbread with green scallion flecks; cut wedges showing layers",
+        "wrong": "A pancake stack with syrup; naan; a pizza"
+      },
+      {
+        "slug": "wonton-noodle-soup",
+        "name": "Wonton Noodle Soup",
+        "subject": "A bowl of clear light golden broth with a nest of very thin springy yellow egg noodles and four plump wontons with translucent skins showing pink shrimp inside, two stalks of green gai lan on top, a pair of chopsticks resting on the bowl.",
+        "mustShow": "Thin yellow egg noodles; wontons with shrimp visible through the skin; clear broth; green gai lan",
+        "wrong": "Thick white udon; fried wontons; a red spicy broth"
+      },
+      {
+        "slug": "har-gow",
+        "name": "Har Gow",
+        "subject": "A round bamboo steamer basket holding four translucent white dumplings shaped like half moons with many fine pleats along the top, pink shrimp faintly visible through the skin, a small dish of light soy sauce beside the basket.",
+        "mustShow": "Translucent pleated half-moon dumplings; pink shrimp showing through; bamboo basket",
+        "wrong": "Opaque white buns; fried dumplings; dumplings in soup"
+      },
+      {
+        "slug": "chuanr",
+        "name": "Chuanr",
+        "subject": "Five long thin metal skewers of charred grilled lamb cubes with pieces of browned fat between them, dusted thickly with golden-brown cumin seeds and red chili flakes, lying in a row on a plate.",
+        "mustShow": "Thin metal skewers; charred lamb cubes with fat; visible cumin seeds and red chili flakes",
+        "wrong": "Wooden satay skewers with peanut sauce; a kebab in bread; vegetable skewers"
+      },
+      {
+        "slug": "dapanji",
+        "name": "Dapanji",
+        "subject": "A very large wide plate heaped with chicken pieces on the bone and chunks of potato in a glossy red-brown sauce with whole dried red chilies, star anise and green and red pepper pieces, wide flat belt noodles tucked under the edge of the stew.",
+        "mustShow": "Huge plate; chicken on the bone with potato chunks in red-brown sauce; wide flat noodles under the edge",
+        "wrong": "Chicken curry with rice; fried chicken; thin noodles in soup"
+      },
+      {
+        "slug": "sichuan-hot-pot",
+        "name": "Sichuan Hot Pot",
+        "subject": "A round metal hot pot divided by a curved partition, one half a deep red broth thick with dried red chilies and Sichuan peppercorns, the other half a pale clear broth, small plates of thinly sliced raw beef, tofu and green leafy vegetables arranged around it.",
+        "mustShow": "Divided yin-yang pot with red chili broth and clear broth; floating dried chilies; raw sliced meat and greens around it",
+        "wrong": "A single pot of stew; fondue with cheese; a wok stir-fry"
+      },
+      {
+        "slug": "yangzhou-chaofan",
+        "name": "Yangzhou Chaofan",
+        "subject": "A mound of fried rice on a plate with every grain separate, flecked with yellow scrambled egg, small pink shrimp, diced pink ham, green peas and chopped scallion, lightly golden rather than brown.",
+        "mustShow": "Pale golden loose fried rice; visible egg, small shrimp, pink ham, green peas",
+        "wrong": "Dark brown soy-heavy rice; rice with a fried egg on top; a risotto"
+      },
+      {
+        "slug": "baozi",
+        "name": "Baozi",
+        "subject": "A round bamboo steamer basket holding three large fluffy white steamed buns with pleated swirled tops, one torn open to show a brown pork and scallion filling, wisps of steam rising.",
+        "mustShow": "Big fluffy white buns with pleated tops in a bamboo basket; filling visible in one",
+        "wrong": "Small translucent dumplings; baked golden bread rolls; sliced bread"
+      },
+      {
+        "slug": "congee",
+        "name": "Congee",
+        "subject": "A deep white bowl of smooth, thick, pale white rice porridge topped with slices of dark century egg, shreds of pale pork, chopped green scallion and a few drops of sesame oil, a short golden fried dough stick (youtiao) cut into pieces beside the bowl.",
+        "mustShow": "Thick smooth white porridge; dark century egg slices; scallion; golden fried dough stick",
+        "wrong": "Oatmeal with fruit; risotto; fried rice; a clear soup"
       }
     ]
   }
