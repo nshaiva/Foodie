@@ -991,9 +991,9 @@ export function Explore() {
 
               {/* One signature plate per country at world zoom (#36 preview);
                   the opened country's hands over to its region plates */}
-              {/* On a phone the whole world is a few dozen px per country, so the
-                  pins wait until a part of the world fills the screen */}
-              {(isDesktop() || liveZoom >= 2.2) && (
+              {/* On a phone too, from the outermost zoom (Nikita, 2026-10-01): the
+                  spacing rule keeps it to the few biggest countries until you zoom */}
+              {(
                 <WorldPlates
                   countries={countries}
                   features={features}
