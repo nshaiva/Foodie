@@ -56,6 +56,8 @@ const VIEW_W = 800;
 const VIEW_H = 500;
 const BASE_SCALE = 130;
 const WORLD_CENTER: [number, number] = [10, 25];
+// Region names while dish plates show: present, but behind the food
+const QUIET_INK = '#9C7F77';
 const COUNTRY_IN = 2.2;  // a framed country is always at least this close
 const REGION_IN = 4.6;   // and a framed region at least this
 const MAX_ZOOM = 220;  // Jamaica needs ~140× to fill the frame
@@ -389,7 +391,24 @@ export function Explore() {
     if (then) commitScope(then);
     flight.current = requestAnimationFrame(step);
   };
-  const flyToWorld = () => { cancelPeek(); setPeekId(null); setSheetPos('strip'); flyTo({ coordinates: WORLD_CENTER, zoom: 1 }, { level: 'world' }); };
+  // The world view: the 31 cuisines' land framed into the screen, rather than
+  // zoom 1 at the equator, which on a tall phone is mostly Arctic sea and
+  // Antarctica. On a desktop this comes out at zoom 1 anyway (the width is
+  // the limit); on a phone it is ~1.3, centred on the inhabited band.
+  const worldHome = useMemo<Camera>(() => {
+    if (!features.size) return { coordinates: WORLD_CENTER, zoom: 1 };
+    const path = geoPath(baseProjection);
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const [id, f] of features) {
+      const [[a, b], [c, d]] = path.bounds(homeLand(id, f, baseProjection));
+      x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d);
+    }
+    const pad = 20;
+    const zoom = Math.max(1, Math.min(2, viewSize[0] / (x1 - x0 + pad * 2), viewSize[1] / (y1 - y0 + pad * 2)));
+    const coordinates = baseProjection.invert!([(x0 + x1) / 2, (y0 + y1) / 2]) as [number, number];
+    return zoom > 1.01 ? { coordinates, zoom } : { coordinates: WORLD_CENTER, zoom: 1 };
+  }, [features, viewSize]);
+  const flyToWorld = () => { cancelPeek(); setPeekId(null); setSheetPos('strip'); flyTo(worldHome, { level: 'world' }); };
   const flyToCountry = (id: string, opts?: { view?: 'overview' | 'all' | 'flavor' | 'culture' }) => {
     const feat = features.get(id), country = getCountryById(id);
     if (!feat || !country) return;
@@ -481,10 +500,10 @@ export function Explore() {
   // react-simple-maps re-attaches d3-zoom whenever these handlers change
   // identity, which (with a fresh closure every render) was every frame of a
   // pinch. Hand it stable wrappers that call the latest version.
-  const handlers = useRef({ onMove, onMoveEnd, onTap });
+  const handlers = useRef({ onMove, onMoveEnd, onTap, flyToWorld });
   useLayoutEffect(() => {
     cameraRef.current = camera; scopeRef.current = scope; panelOpenRef.current = panelOpen;
-    handlers.current = { onMove, onMoveEnd, onTap };
+    handlers.current = { onMove, onMoveEnd, onTap, flyToWorld };
   });
 
   // d3-zoom stops touch events at the svg (stopImmediatePropagation), so a
@@ -509,7 +528,10 @@ export function Explore() {
       if (plate) { e.preventDefault(); plate.dispatchEvent(new MouseEvent('click', { bubbles: true })); return; }
       const hit = target?.closest?.('[data-r], [data-c]');
       if (!hit) {
-        // A tap on open map means you're looking at the map: a half sheet steps aside
+        // A tap on open sea with a country open is "take me back": the world
+        // view, nothing selected (decided 2026-10-01). At world level it means
+        // you're looking at the map: a half sheet steps aside
+        if (scopeRef.current.level !== 'world') { e.preventDefault(); handlers.current.flyToWorld(); return; }
         setSheetPos(p => (p === 'half' ? 'strip' : p));
         return;
       }
@@ -540,6 +562,15 @@ export function Explore() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (region) flyToRegion(country, region); else flyToCountry(country.id);
   }, [features]); // eslint-disable-line react-hooks/exhaustive-deps
+  // No deep link: open on the world home, in place (nothing to animate from)
+  const homed = useRef(false);
+  useEffect(() => {
+    if (homed.current || features.size === 0 || searchParams.get('c')) return;
+    homed.current = true;
+    const home = worldHome;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    cameraRef.current = home; setCamera(home); setLiveZoom(home.zoom); setLiveCenter(baseProjection(home.coordinates) as [number, number]);
+  }, [features, worldHome]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   // ---- panel data ----
@@ -662,6 +693,8 @@ export function Explore() {
     return bubbleCountry && feat ? getAreas(bubbleCountry, feat) : null;
   }, [bubbleCountry, features]);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
+  // The SVG group above the region names where a hovered plate's caption renders
+  const [plateCaptionLayer, setPlateCaptionLayer] = useState<SVGGElement | null>(null);
   // Names render as large as still fit cleanly: full size where the country
   // has room, stepping down to a readable floor on tight ones (a wide country
   // on a tall phone can't zoom further without cropping). Below the floor
@@ -692,6 +725,8 @@ export function Explore() {
     if (!showBubbles || !areas || scope.level === 'world' || !labelsFit || plateFade(areas, liveZoom) === 0) return false;
     return plateLayout({ areas, groups: mapGroups, region: scope.level === 'region' ? scope.region : undefined, zoom: liveZoom, labelScale, projection: baseProjection, countryId: scope.country.id, countryName: scope.country.name, center: liveCenter, view: viewSize, fitZoom, fitScale: labelScaleAt(fitZoom) * labelBoost }).length > 0;
   }, [showBubbles, areas, scope, labelsFit, liveZoom, mapGroups, labelScale, liveCenter, fitZoom, viewSize, labelBoost]);
+  // Country zoom with plates on the map: region names step back to quiet caps (decided 2026-10-01)
+  const quietNames = platesShowing && scope.level === 'country';
   const scopeKey = scope.level === 'world' ? (peekCountry ? `c:${peekCountry.id}` : 'world') : scope.level === 'country' ? `c:${scope.country.id}` : `r:${scope.country.id}:${scope.region.name}`;
 
   return (
@@ -843,6 +878,7 @@ export function Explore() {
                         zoom={liveZoom}
                         labelScale={labelScale}
                         captions={canHover()}
+                        captionLayer={plateCaptionLayer}
                         center={liveCenter}
                         view={viewSize}
                         fitZoom={fitZoom}
@@ -857,10 +893,18 @@ export function Explore() {
                       return (
                         <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
                           <g transform={`scale(${labelScale / liveZoom})`} opacity={labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
-                            <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={dim ? REGION_BORDER : REGION_INK} fontSize={sel ? 17 : 15} fontStyle="italic" fontWeight={500}
-                              stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)' }}>
-                              {regionLabelName(region.name)}
-                            </text>
+                            {/* With plates showing, the names are wayfinding, not content: small quiet caps so the food leads (decided 2026-10-01) */}
+                            {quietNames ? (
+                              <text textAnchor="middle" dominantBaseline="central" fill={dim ? REGION_BORDER : QUIET_INK} fontSize={9.5} fontWeight={700} letterSpacing="0.14em"
+                                stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)', textTransform: 'uppercase' }}>
+                                {regionLabelName(region.name)}
+                              </text>
+                            ) : (
+                              <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={dim ? REGION_BORDER : REGION_INK} fontSize={sel ? 17 : 15} fontStyle="italic" fontWeight={500}
+                                stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)' }}>
+                                {regionLabelName(region.name)}
+                              </text>
+                            )}
                             {n > 0 && (
                               <text textAnchor="middle" dominantBaseline="central" y={11} fill={systemColors.navyMuted} fontSize={9.5} letterSpacing="0.12em"
                                 stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke">
@@ -894,10 +938,17 @@ export function Explore() {
                               <g transform={`scale(${labelScale / liveZoom})`} style={{ cursor: 'pointer' }} data-r={p.region.name}
                                 onClick={e => { e.stopPropagation(); flyToRegion(bubbleCountry!, p.region); }}>
                                 <rect x={-(name.length * 4.5)} y={-12} width={name.length * 9} height={n ? 32 : 24} fill="transparent" />
-                                <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={REGION_INK} fontSize={15} fontStyle="italic" fontWeight={500}
-                                  stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)' }}>
-                                  {name}
-                                </text>
+                                {quietNames ? (
+                                  <text textAnchor="middle" dominantBaseline="central" fill={QUIET_INK} fontSize={9.5} fontWeight={700} letterSpacing="0.14em"
+                                    stroke={systemColors.seaSalt} strokeWidth={2.5} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-heading)', textTransform: 'uppercase' }}>
+                                    {name}
+                                  </text>
+                                ) : (
+                                  <text textAnchor="middle" dominantBaseline="central" y={n ? -5 : 0} fill={REGION_INK} fontSize={15} fontStyle="italic" fontWeight={500}
+                                    stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke" style={{ fontFamily: 'var(--font-brand)' }}>
+                                    {name}
+                                  </text>
+                                )}
                                 {n > 0 && (
                                   <text textAnchor="middle" dominantBaseline="central" y={11} fill={systemColors.navyMuted} fontSize={9.5} letterSpacing="0.12em"
                                     stroke={systemColors.seaSalt} strokeWidth={3} strokeLinejoin="round" paintOrder="stroke">
@@ -910,6 +961,9 @@ export function Explore() {
                         })}
                       </g>
                     )}
+                    {/* The hovered plate's name lands here, above every region
+                        name, so it is never painted under one */}
+                    <g ref={setPlateCaptionLayer} style={{ pointerEvents: 'none' }} />
                   </g>
                 );
               })()}

@@ -289,6 +289,9 @@ label[for],
 @keyframes plate-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .map-plate { animation: none; } }
 .map-plate--out { animation: plate-out 300ms ease-in both; pointer-events: none; }
+/* Behind a closed city stack: there, but clearly underneath */
+.map-plate--peek { opacity: .5; transition: opacity 200ms; }
+.map-plate--peek .map-plate-disc { transform: scale(.8); }
 @keyframes plate-out { from { opacity: 1; } to { opacity: 0; } }
 
 /* Explore, desktop: the collapsed panel's drawer tab, docked to the map's

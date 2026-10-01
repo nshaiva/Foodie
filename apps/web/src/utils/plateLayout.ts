@@ -16,12 +16,12 @@ export const COUNTRY_R = 15; // country-zoom plates, tucked under the region nam
 const NEIGHBOUR_OPACITY = 0.7; // other regions' plates while one region is open
 
 const RANK = { both: 0, 'tourist-classic': 1, 'local-favorite': 2 } as const;
-const rank = (e: Entry) => {
+export const plateRank = (e: Entry) => {
   const src = e.kind === 'dish' ? e.dish : e.kind === 'drink' ? e.drink : undefined;
   const p = src && 'popularity' in src ? src.popularity : undefined;
   return p ? RANK[p] : 3;
 };
-const imaged = (entries: Entry[]) => entries.filter(e => entryView(e).image).sort((a, b) => rank(a) - rank(b));
+const imaged = (entries: Entry[]) => entries.filter(e => entryView(e).image).sort((a, b) => plateRank(a) - plateRank(b));
 const originOf = (e: Entry) => (e.kind === 'dish' ? e.dish.origin : e.kind === 'drink' ? e.drink.origin : undefined);
 
 /** A country's signature: its most popular dish with an image. */
@@ -36,10 +36,43 @@ export type PlacedPlate = {
   badge?: number;
   /** Peeking out from behind a more popular neighbour. */
   behind?: boolean;
+  /** A nationwide dish: its place in the "Across {country}" cluster at sea,
+   *  most popular first. `lift` is its stacked offset; the ring positions
+   *  come from acrossRing() at render time. */
+  across?: { i: number; n: number };
+  /** Dishes that share a city stack: the most popular (i 0) on top with
+   *  "+N", the rest peeking out behind it until the stack is opened. */
+  stack?: { id: string; i: number; n: number };
 };
 
+/** Where the plates behind a closed city stack peek out, in screen px. */
+export const PEEK: [number, number][] = [[-14, 6], [14, 6], [0, 9], [-24, 10], [24, 10], [0, 13]];
+
+/**
+ * The "Across {country}" cluster's ring. With a hub (desktop) the most
+ * popular dish sits in the middle with "+N" and the rest fan out around it
+ * on hover; without one (touch, no hover) a label pill is the hub and every
+ * dish sits on the ring. Offsets are in screen px at labelScale 1.
+ */
+export function acrossRing(n: number): { ringR: number; at: (i: number) => [number, number] } {
+  const ringR = Math.max(58, n > 1 ? (COUNTRY_R * 2 + 12) / (2 * Math.sin(Math.PI / n)) : 0);
+  return {
+    ringR,
+    at: i => { const a = -Math.PI / 2 + (i * 2 * Math.PI) / n; return [Math.cos(a) * ringR, Math.sin(a) * ringR]; },
+  };
+}
+
+// The stack's little jitter, so a closed cluster reads as a pile, not one plate
+const STACK_JITTER: [number, number][] = [[0, 0], [-3, -3], [3, -2], [-2, 2], [2, 3], [-4, 1], [4, -4], [-1, -4], [1, 4], [-3, 4]];
+
 // Open water for each country's "Across" stack, in lon/lat.
-const ACROSS_AT: Record<string, [number, number]> = { MX: [-90.8, 25.6] };
+// A country without one shows no nationwide plates at all, so every country
+// with images needs an entry (wave 2: add one per country as it gets images).
+const ACROSS_AT: Record<string, [number, number]> = {
+  MX: [-90.8, 25.6],   // Gulf of Mexico
+  CN: [124.5, 31.5],   // East China Sea, off Shanghai
+  EG: [30.3, 33.0],    // Mediterranean, north of the Delta
+};
 
 
 const PAD = 4; // breathing room between anything placed, in screen px
@@ -78,6 +111,8 @@ const captionBox = (text: string, cx: number, cy: number, s: number): Box => {
 type Home = { entry: Entry; tier: number; at: [number, number]; region?: RegionalCuisine; label: string;
   /** Nationwide dishes only: a fixed screen offset from the shared water point, so the group stays a group. */
   lift?: [number, number];
+  across?: { i: number; n: number };
+  stack?: { id: string; i: number; n: number };
   /** No city of its own: it stays with its region's name. */
   stayWithName?: boolean };
 // Every dish's one spot on the map, per country. Decided once and kept, so
@@ -122,26 +157,38 @@ function placeHomes(areas: RegionAreas, groups: Group[], projection: GeoProjecti
     const [ax, ay] = px(water);
     space.block(captionBox(`Across ${countryName}`, ax, ay + (COUNTRY_R + 18) * s, s * 1.2));
   }
-  cands.sort((a, b) => rank(a.entry) - rank(b.entry) || a.tier - b.tier);
+  cands.sort((a, b) => plateRank(a.entry) - plateRank(b.entry) || a.tier - b.tier);
 
   const around: [number, number][] = [[0, D], [0, -D], [D, 0], [-D, 0], [D, D], [-D, D], [D, -D], [-D, -D], [0, E], [0, -E], [E, 0], [-E, 0]];
-  // The nationwide group: a tight row at the water point, side by side,
-  // most popular in the middle, then alternating right and left
-  const G = (COUNTRY_R + 2.5) * 2 + 6;
+  // The nationwide group: a stack at the water point, most popular on top.
+  // Only the stack's own disc is taken; the ring it fans into is transient
+  // (hover) and may pass over neighbours
+  const acrossTotal = cands.filter(c => c.kind === 'across').length;
   let acrossN = 0;
+  // Dishes from the same city stack (Beijing's duck, dumplings and scallion
+  // pancake); cands are already most popular first, so index 0 is the top
+  const cityKey = (c: Cand) => c.base.join(',');
+  const cityTotal = new Map<string, number>();
+  cands.filter(c => c.kind === 'city').forEach(c => cityTotal.set(cityKey(c), (cityTotal.get(cityKey(c)) ?? 0) + 1));
+  const cityN = new Map<string, number>();
   return cands.flatMap((c): Home[] => {
     const [bx, by] = px(c.base);
     const name = entryView(c.entry).name;
-    const label = c.place ? `${name} · ${c.place}` : name;
+    // "Beijing Kaoya · Beijing" says it twice; the place only adds when the name doesn't carry it
+    const label = c.place && !name.toLowerCase().includes(c.place.toLowerCase()) ? `${name} · ${c.place}` : name;
     if (c.kind === 'across') {
       const i = acrossN++;
-      const dx = i === 0 ? 0 : Math.ceil(i / 2) * G * (i % 2 ? 1 : -1);
-      space.take(bx + dx * s, by, r);
-      return [{ entry: c.entry, tier: c.tier, at: c.base, lift: [dx, 0], label }];
+      if (i === 0) space.take(bx, by, r);
+      return [{ entry: c.entry, tier: c.tier, at: c.base, lift: STACK_JITTER[i % STACK_JITTER.length], label, across: { i, n: acrossTotal } }];
     }
     const spots = around;
     const homeOnLand = onLand(bx, by);
-    if (c.kind === 'city') return [{ entry: c.entry, tier: c.tier, at: c.base, region: c.region, label }];
+    if (c.kind === 'city') {
+      const key = cityKey(c), n = cityTotal.get(key)!, i = cityN.get(key) ?? 0;
+      cityN.set(key, i + 1);
+      if (i === 0) space.take(bx, by, r);
+      return [{ entry: c.entry, tier: c.tier, at: c.base, region: c.region, label, stack: n > 1 ? { id: key, i, n } : undefined }];
+    }
     for (const [dx, dy] of spots) {
       const x = bx + dx * s, y = by + dy * s;
       if (homeOnLand && !onLand(x, y)) continue;
@@ -174,17 +221,20 @@ export function plateLayout({ areas, groups, region, zoom, labelScale, projectio
   let placed = homes.get(cacheKey);
   if (!placed) { placed = placeHomes(areas, groups, projection, countryId, countryName, fitZoom, fitScale); homes.set(cacheKey, placed); }
   const r = (COUNTRY_R + 2.5) * s;
-  const onScreen = (x: number, y: number) => {
+  const onScreen = (x: number, y: number, margin = r) => {
     const sx = (x / zoom - center[0]) * zoom + view[0] / 2, sy = (y / zoom - center[1]) * zoom + view[1] / 2;
-    return sx > -r && sx < view[0] + r && sy > -r && sy < view[1] + r;
+    return sx > -margin && sx < view[0] + margin && sy > -margin && sy < view[1] + margin;
   };
   // Least popular first, so the most popular ends up on top where plates meet
-  const order = [...placed].sort((a, b) => rank(b.entry) - rank(a.entry) || b.tier - a.tier);
+  const order = [...placed].sort((a, b) => plateRank(b.entry) - plateRank(a.entry) || b.tier - a.tier);
   return order.flatMap((h): PlacedPlate[] => {
     const [hx, hy] = (projection(h.at) as [number, number]).map(n => n * zoom);
     const lift = h.lift ?? [0, 0];
-    if (!onScreen(hx + lift[0] * s, hy + lift[1] * s)) return [];
-    return [{ key: h.entry.key, entry: h.entry, at: h.at, lift, r: COUNTRY_R, compact: true, label: h.label, region: h.region,
+    // The Across cluster leaves and returns as one: culled from its hub with
+    // the ring's reach as margin, so panning never drops plates one by one
+    // (which re-fanned the rest to new positions)
+    if (h.across ? !onScreen(hx, hy, r + acrossRing(h.across.n).ringR * s) : !onScreen(hx + lift[0] * s, hy + lift[1] * s)) return [];
+    return [{ key: h.entry.key, entry: h.entry, at: h.at, lift, r: COUNTRY_R, compact: true, label: h.label, region: h.region, across: h.across, stack: h.stack,
       opacity: region && h.region && h.region.name !== region.name ? NEIGHBOUR_OPACITY : undefined }];
   });
 }
