@@ -41,3 +41,6 @@ coverage/
 
 # Vercel
 .vercel
+
+# Image generator sources (the app serves WebP copies from apps/web/public/dish-images)
+docs/design/prototypes/image-pilot/
