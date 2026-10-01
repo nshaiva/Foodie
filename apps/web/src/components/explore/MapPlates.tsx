@@ -295,7 +295,9 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
           // cluster's hub opens it; every other tap opens the dish
           if (!captions && p.pile && openStack !== p.pile.id) { setOpenStack(p.pile.id); return; }
           if (isHub && closed && !captions && withHub && acrossN > 1) { setOpenStack('across'); return; }
-          setOpenStack(null);
+          // The fan stays as it is: closing it here slid the plates out from
+          // under the pointer as the sheet opened. Hover-out (or a press
+          // elsewhere on touch) closes it.
           onOpenDish(p.entry);
         }}
         onHover={captions ? (on => setHovered(on ? p.key : cur => (cur === p.key ? null : cur))) : undefined} />
