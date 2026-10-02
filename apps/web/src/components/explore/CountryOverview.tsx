@@ -1,8 +1,8 @@
 import { systemColors } from '../../data/systemColors';
 import type { Country, Dish } from '../../data/types';
-import { FlavorRadarChart } from '../FlavorRadarChart';
+import { FlavorMark, LeadChips } from './FlavorMark';
 import { DishImage } from './DishTile';
-import { BlockHeading, BODY_CLASS, BODY_STYLE, CARD_CLASS, CARD_STYLE, RADAR_COLOR, SectionLabel } from './FlavorBits';
+import { BlockHeading, BODY_CLASS, BODY_STYLE, RADAR_COLOR, SectionLabel } from './FlavorBits';
 
 /**
  * The country level of the Explore panel (#39, layout 1B): what the food is
@@ -53,17 +53,31 @@ export function CountryOverview({
 
   return (
     <div className="flex flex-col gap-7 pb-4">
-      <div className="flex flex-col gap-2">
-        {/* On the phone the strip already names the country */}
-        <div className="max-md:hidden flex items-center gap-2.5">
-          <span className="w-3 h-3 rounded-full flex-none" style={{ backgroundColor: colors.primary }} aria-hidden />
-          <h2 className="text-2xl font-extrabold" style={{ color: systemColors.navy }}>{country.name}</h2>
-          <span className="text-xs ml-auto" style={{ color: systemColors.navyMuted }}>
-            {country.capital}{regionCount ? ` · ${regionCount} regions` : ` · ${country.region}`}
-          </span>
+      <div className="flex flex-col gap-2.5">
+        {/* The head (Nikita, 2026-10-02): name and capital on one line, the
+            three strongest axes as chips under it, and the fingerprint as a
+            small mark at the right. The sentence follows at full width, then
+            the link: the mark and the link both open the full fingerprint. */}
+        <div className="flex items-start gap-3">
+          <div className="flex-1 min-w-0 flex flex-col gap-2">
+            {/* On the phone the strip already names the country */}
+            <div className="max-md:hidden flex items-center gap-2.5">
+              <span className="w-3 h-3 rounded-full flex-none" style={{ backgroundColor: colors.primary }} aria-hidden />
+              <h2 className="text-2xl font-extrabold" style={{ color: systemColors.navy }}>{country.name}</h2>
+              <span className="text-xs" style={{ color: systemColors.navyMuted }}>
+                {country.capital}{regionCount ? ` · ${regionCount} regions` : ` · ${country.region}`}
+              </span>
+            </div>
+            {intensity && <LeadChips intensity={intensity} />}
+          </div>
+          {intensity && (
+            <div className="flex-none -mt-1 -mr-1">
+              <FlavorMark intensity={intensity} color={RADAR_COLOR} onOpen={onOpenFlavor} />
+            </div>
+          )}
         </div>
-        {/* Two lines at most on a phone, where the half sheet has room for little else */}
         <p className="text-[15px] leading-relaxed" style={{ color: systemColors.navyLight }}>{firstSentence(country.cuisineProfile.summary)}</p>
+        {intensity && <LinkButton onClick={onOpenFlavor}>Full flavor fingerprint ›</LinkButton>}
       </div>
 
       <section className="flex flex-col gap-3" aria-labelledby="start-with">
@@ -95,17 +109,6 @@ export function CountryOverview({
           ))}
         </div>
       </section>
-
-      {intensity && (
-        <section className="flex flex-col gap-3" aria-labelledby="tastes-like">
-          <BlockHeading id="tastes-like">What it tastes like</BlockHeading>
-          <div className={`${CARD_CLASS} p-4 flex flex-col gap-2`} style={CARD_STYLE}>
-            <SectionLabel>Flavor fingerprint</SectionLabel>
-            <FlavorRadarChart flavorIntensity={intensity} colors={colors} ingredientTiers={country.cuisineProfile.ingredientTiers} color={RADAR_COLOR} size="compact" />
-          </div>
-          <LinkButton onClick={onOpenFlavor}>Full flavor fingerprint ›</LinkButton>
-        </section>
-      )}
 
       {customs && (
         <section className="flex flex-col gap-2.5" aria-labelledby="food-culture">

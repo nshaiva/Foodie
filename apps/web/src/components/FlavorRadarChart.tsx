@@ -10,6 +10,7 @@ import {
 import type { FlavorIntensity, ColorPalette, IngredientTiers, FlavorAxisId } from '../data/types';
 import { FLAVOR_AXIS_META, driversForAxis, hasFlavorAxisData } from '../data/flavorAxisMeta';
 import { systemColors } from '../data/systemColors';
+import { FlavorAxisIcon } from './FlavorAxisIcon';
 
 interface FlavorRadarChartProps {
   flavorIntensity: FlavorIntensity;
@@ -109,7 +110,7 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers, siz
               onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } },
             })}
           >
-            <span className="plate" />
+            <span className="plate axis-badge" style={{ color: axisColor, '--ax': axisColor } as React.CSSProperties}><FlavorAxisIcon axis={key} size={17} /></span>
             <span className="txt">
               <i className="spr" /><i className="spr" /><i className="spr" />
               {payload?.value}
@@ -126,7 +127,7 @@ export function FlavorRadarChart({ flavorIntensity, colors, ingredientTiers, siz
     <div className="w-full">
       <div className={`${BOX_HEIGHT[size]} radar-chart`}>
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data} margin={{ left: 52, right: 52 }}>
+          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data} margin={{ left: 56, right: 56 }}>
             <PolarGrid
               stroke={`${colors.text}20`}
               strokeWidth={1}

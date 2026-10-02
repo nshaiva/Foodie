@@ -42,6 +42,7 @@ you on the country ranked for you, and the separate restaurant page is gone.
 History of the cut and build order: [Appendix B](#b-mvp-history).
 
 **Recently shipped** (details in [`built.md`](built.md)):
+- 2026-10-02 · Flavor axis icons; the overview's head is chips plus a flavor mark; the search finds dishes (PR #66)
 - 2026-10-02 · One verdict per dish: visits hidden, "Ate it again", an optional where line (#64)
 - 2026-10-02 · Cleanup: old pages and Finder duplicates deleted; zoom buttons ride above the phone sheet (#65)
 - 2026-10-02 · Order well folds into Explore: personal strip, Ranked / Region toggle, "Where are you eating?" search (#42, PR #62)
