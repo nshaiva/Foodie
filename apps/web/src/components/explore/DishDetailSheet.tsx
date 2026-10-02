@@ -356,7 +356,6 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack, rank
                   I tried this
                 </button>
               </div>
-              <p className="text-center text-[13px]" style={{ color: systemColors.navyMuted }}>You'll rate it next. 4 or 5 stars makes it a favorite.</p>
             </>
           ) : null}
         </div>
