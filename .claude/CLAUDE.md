@@ -56,7 +56,7 @@ foodie/
 │   │   ├── mockups/            # Static HTML design mockups
 │   │   └── prototypes/         # Interactive prototypes / session artifacts (save new ones here)
 │   ├── archive/                # Superseded build plans & tech designs (historical record)
-│   └── roadmap/                # priorities.md (ranked backlog + idea inbox), notes.md, implemented/ specs
+│   └── roadmap/                # priorities.md (skimmable backlog + inbox, appendix at bottom), built.md (changelog), designs/ (unbuilt specs), implemented/ (shipped specs), notes.md
 └── .claude/                    # Claude Code configuration
 ```
 

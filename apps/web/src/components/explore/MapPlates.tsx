@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { geoPath, type GeoProjection } from 'd3-geo';
 import type { Feature, Geometry } from 'geojson';
@@ -208,13 +208,16 @@ function useLeaving(plates: PlacedPlate[]) {
   return leaving.filter(p => !now.has(p.key));
 }
 
-export function MapPlates({ countryId, countryName, areas, groups, region, projection, zoom, labelScale, captions = true, captionLayer, center, view, fitZoom, fitScale, onOpenDish, onOpenAcross, acrossSelected = false }: {
+export function MapPlates({ countryId, countryName, areas, groups, region, projection, zoom, labelScale, captions = true, captionLayer, center, view, fitZoom, fitScale, onOpenDish, onOpenAcross, acrossSelected = false, onOpenBoxes }: {
   countryId: string;
   countryName: string;
   /** A click on the "Across {country}" label opens it as a region. */
   onOpenAcross?: () => void;
   /** The Across region is the open scope: the cluster stays open and labelled. */
   acrossSelected?: boolean;
+  /** Screen-space boxes (base px × zoom) that an open fan covers, or null when
+   *  nothing is open: Explore dims the region caps underneath them. */
+  onOpenBoxes?: (boxes: [number, number, number, number][] | null) => void;
   areas: RegionAreas;
   /** Every entry grouped by region, unfiltered. */
   groups: Group[];
@@ -250,7 +253,8 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
     document.addEventListener('pointerdown', close, { capture: true, passive: true });
     return () => document.removeEventListener('pointerdown', close, { capture: true });
   }, [openStack, captions]);
-  if (fade === 0 || (!plates.length && !leaving.length)) return null;
+  // Nothing to draw: decided after the hooks below, which must run every render
+  const empty = fade === 0 || (!plates.length && !leaving.length);
   const at = acrossAt(countryId);
 
   // The "Across {country}" cluster at sea. Desktop: the most popular dish is
@@ -278,6 +282,31 @@ export function MapPlates({ countryId, countryName, areas, groups, region, proje
   const piles = new Map<string, PlacedPlate[]>();
   for (const p of plates) if (p.pile) piles.set(p.pile.id, [...(piles.get(p.pile.id) ?? []), p]);
   const acrossLabelY = acrossOpen && acrossRingG ? acrossRingG.ringR + COUNTRY_R + 18 : COUNTRY_R + 18;
+
+  // What the open fan covers, for the caps underneath it
+  const openBoxes = useMemo<[number, number, number, number][] | null>(() => {
+    const openId = acrossOpen ? 'across' : openStack;
+    if (!openId) return null;
+    const R = (COUNTRY_R + 4) * labelScale;
+    const members = openId === 'across' ? across : plates.filter(p => p.pile?.id === openId);
+    const boxes: [number, number, number, number][] = members.map(p => {
+      const [x, y] = projection(p.at) as [number, number];
+      const [dx, dy] = liftOf(p);
+      const cx = x * zoom + dx * labelScale, cy = y * zoom + dy * labelScale;
+      return [cx - R, cy - R, cx + R, cy + R];
+    });
+    if (openId === 'across' && at) {
+      const [x, y] = projection(at) as [number, number];
+      const halfW = (`Across ${countryName}`.length * 9.5 * 0.68 * labelScale) / 2 + 6, halfH = 8 * labelScale;
+      const cy = y * zoom + acrossLabelY * labelScale;
+      boxes.push([x * zoom - halfW, cy - halfH, x * zoom + halfW, cy + halfH]);
+    }
+    return boxes;
+    // liftOf and the lists are derived from the same inputs listed here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [acrossOpen, openStack, plates, labelScale, zoom, at, countryName, acrossLabelY]);
+  useEffect(() => { onOpenBoxes?.(openBoxes); }, [openBoxes, onOpenBoxes]);
+  if (empty) return null;
 
   const hoveredPlate = captions && hovered ? plates.find(p => p.key === hovered) : undefined;
   const caption = hoveredPlate && <PlateCaption plate={{ ...hoveredPlate, lift: liftOf(hoveredPlate) }} k={k} />;
