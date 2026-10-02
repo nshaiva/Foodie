@@ -930,7 +930,8 @@ export function Explore() {
               : scope.level === 'country' ? (hasRegionMap(scope.country) ? 'Click a region to open it' : 'No regional map for this cuisine yet')
               : `Esc for all of ${scope.country.name}`}
           </div>
-          <div className="absolute bottom-3 max-md:bottom-24 right-3 md:right-[calc(var(--panel-x)+12px)] md:transition-[right] md:duration-300 z-10 flex flex-col gap-1">
+          {/* Phone: the zoom buttons ride above the sheet (it covered them at half, #8) and leave with the map at full */}
+          <div className={`absolute bottom-3 right-3 md:right-[calc(var(--panel-x)+12px)] md:transition-[right] md:duration-300 max-md:transition-[bottom] max-md:duration-300 z-10 flex flex-col gap-1 ${sheetPos === 'half' ? 'max-md:bottom-[calc(52%+12px)]' : sheetPos === 'full' ? 'max-md:hidden' : 'max-md:bottom-[calc(44px+12px+env(safe-area-inset-bottom,0px))]'}`} data-zoom-controls>
             <button onClick={() => flyTo({ coordinates: camera.coordinates, zoom: Math.min(MAX_ZOOM, camera.zoom * 1.7) })} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom in">+</button>
             <button onClick={() => { const z = Math.max(1, camera.zoom / 1.7); flyTo({ coordinates: camera.coordinates, zoom: z }); }} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom out">−</button>
           </div>
@@ -1188,7 +1189,8 @@ export function Explore() {
         <div
           ref={panelRef}
           key={scopeKey}
-          className={`z-10 min-h-0 px-5 pb-6 fade-in md:overflow-y-auto md:py-4 md:absolute md:top-3 md:right-3 md:bottom-3 md:w-[440px] md:rounded-2xl md:border md:shadow-[0_14px_36px_-14px_rgba(51,48,42,0.4)] md:transition-transform md:duration-300 md:ease-out ${panelOpen ? '' : 'md:translate-x-[calc(100%+16px)] md:pointer-events-none'} max-md:absolute max-md:inset-x-0 max-md:bottom-0 max-md:rounded-t-2xl max-md:shadow-[0_-8px_20px_rgba(51,48,42,0.14)] max-md:transition-[top] max-md:duration-300 max-md:ease-out ${
+          data-panel
+          className={`z-10 min-h-0 px-5 pb-6 md:overflow-y-auto md:py-4 md:absolute md:top-3 md:right-3 md:bottom-3 md:w-[440px] md:rounded-2xl md:border md:shadow-[0_14px_36px_-14px_rgba(51,48,42,0.4)] md:transition-transform md:duration-300 md:ease-out ${panelOpen ? '' : 'md:translate-x-[calc(100%+16px)] md:pointer-events-none'} max-md:absolute max-md:inset-x-0 max-md:bottom-0 max-md:rounded-t-2xl max-md:shadow-[0_-8px_20px_rgba(51,48,42,0.14)] max-md:transition-[top] max-md:duration-300 max-md:ease-out ${
             sheetPos === 'strip' ? 'max-md:overflow-hidden' : 'max-md:overflow-y-auto'
           } ${
             // Positioned by its top edge, not translated: the box is exactly

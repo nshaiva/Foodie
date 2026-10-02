@@ -215,13 +215,6 @@ move it; the breadcrumb's current crumb also raises it. Decided with Nikita
 
 Quick captures land here; ranked into tiers during roadmap reviews.
 
-- **Spice reaction on the rating prompt** — added 2026-10-02 from the
-  one-verdict discussion. One optional tap when you rate: "too hot / right /
-  could go hotter". Spice tolerance today is inferred from the spice level
-  of dishes rated 4 or 5, which can't tell "loved it despite the heat" from
-  "loved the heat"; one tap would feed both the spice slider and the
-  ranking's spice-fit reason. The only extra input worth adding; nothing
-  else (flavor tags, textures) until this proves useful. S. (G3)
 **Added 2026-10-01 from Nikita (a batch of notes; categorized, not built).
 Open questions were answered the same day; nothing here is ranked yet.**
 
@@ -375,9 +368,27 @@ at Tier 2.
   had it Sep 28, 2026 · Casa Oaxaca". The Add a Try form, the Visits list
   and the per-visit stars are gone from the UI and `RestaurantTryForm.tsx`
   is deleted; `restaurantTries` stays in the data so old logs load and keep
-  their fallback average. No migration. **Not done, by choice:** a one-tap
-  spice reaction in the same prompt, the one extra input that would sharpen
-  spice tolerance; parked in the Inbox.
+  their fallback average. No migration. A one-tap spice reaction in the
+  same prompt was offered as the one input that would sharpen spice
+  tolerance; **Nikita declined it (2026-10-02)**, so it is not on the board.
+- **Cleanup: the old pages and the Finder duplicates are gone; zoom buttons
+  ride above the phone sheet** (2026-10-02, Foundation) — deleted the
+  unrouted `Home.tsx` and `CountryDetail.tsx` (a follow-up owed since #41)
+  and everything only they reached: the old `WorldMap`, `RegionMap`,
+  `RegionalMap`, `MapLegend`, `CountryFinder`, `CountryCard`,
+  `NextCountrySuggestions`, `DishSection`, `CountryHeader`, `RegionRail`,
+  the slides, `CookingFlow`, `DishForm`, `StarRating`, `ViewToggle`,
+  `useMediaQuery`, `countryHelpers`, `signatureDishes` (replaced by
+  `useCountryRanking`), plus the nine Finder-style " 2" duplicate files that
+  had been committed by accident (33 files, found by walking imports from
+  `main.tsx`). Type check, lint and build pass; CLAUDE.md's key-files list
+  points at Explore now. **Zoom buttons (#8's found item):** on a phone they
+  sat under the half sheet; they now ride 12px above the sheet at strip and
+  half and leave with the map at full, animating with the sheet. **Desktop
+  panel flicker (Nikita's report, same day):** the panel is rebuilt per
+  level and played a 220ms fade from transparent, so every region click
+  showed the map through it for a few frames; the fade is gone and the
+  panel switches outright (measured: opacity 1 on every frame).
 - **Order well folds into Explore: the strip is personal, All dishes toggles
   Ranked / Region, and a search on the map replaces the Order well button
   and page (#42)** (2026-10-02, G1) — from Nikita's question "can Order well collapse
