@@ -384,7 +384,11 @@ at Tier 2.
   `main.tsx`). Type check, lint and build pass; CLAUDE.md's key-files list
   points at Explore now. **Zoom buttons (#8's found item):** on a phone they
   sat under the half sheet; they now ride 12px above the sheet at strip and
-  half and leave with the map at full, animating with the sheet.
+  half and leave with the map at full, animating with the sheet. **Desktop
+  panel flicker (Nikita's report, same day):** the panel is rebuilt per
+  level and played a 220ms fade from transparent, so every region click
+  showed the map through it for a few frames; the fade is gone and the
+  panel switches outright (measured: opacity 1 on every frame).
 - **Order well folds into Explore: the strip is personal, All dishes toggles
   Ranked / Region, and a search on the map replaces the Order well button
   and page (#42)** (2026-10-02, G1) — from Nikita's question "can Order well collapse

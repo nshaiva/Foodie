@@ -1189,7 +1189,8 @@ export function Explore() {
         <div
           ref={panelRef}
           key={scopeKey}
-          className={`z-10 min-h-0 px-5 pb-6 fade-in md:overflow-y-auto md:py-4 md:absolute md:top-3 md:right-3 md:bottom-3 md:w-[440px] md:rounded-2xl md:border md:shadow-[0_14px_36px_-14px_rgba(51,48,42,0.4)] md:transition-transform md:duration-300 md:ease-out ${panelOpen ? '' : 'md:translate-x-[calc(100%+16px)] md:pointer-events-none'} max-md:absolute max-md:inset-x-0 max-md:bottom-0 max-md:rounded-t-2xl max-md:shadow-[0_-8px_20px_rgba(51,48,42,0.14)] max-md:transition-[top] max-md:duration-300 max-md:ease-out ${
+          data-panel
+          className={`z-10 min-h-0 px-5 pb-6 md:overflow-y-auto md:py-4 md:absolute md:top-3 md:right-3 md:bottom-3 md:w-[440px] md:rounded-2xl md:border md:shadow-[0_14px_36px_-14px_rgba(51,48,42,0.4)] md:transition-transform md:duration-300 md:ease-out ${panelOpen ? '' : 'md:translate-x-[calc(100%+16px)] md:pointer-events-none'} max-md:absolute max-md:inset-x-0 max-md:bottom-0 max-md:rounded-t-2xl max-md:shadow-[0_-8px_20px_rgba(51,48,42,0.14)] max-md:transition-[top] max-md:duration-300 max-md:ease-out ${
             sheetPos === 'strip' ? 'max-md:overflow-hidden' : 'max-md:overflow-y-auto'
           } ${
             // Positioned by its top edge, not translated: the box is exactly
