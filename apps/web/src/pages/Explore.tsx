@@ -930,7 +930,8 @@ export function Explore() {
               : scope.level === 'country' ? (hasRegionMap(scope.country) ? 'Click a region to open it' : 'No regional map for this cuisine yet')
               : `Esc for all of ${scope.country.name}`}
           </div>
-          <div className="absolute bottom-3 max-md:bottom-24 right-3 md:right-[calc(var(--panel-x)+12px)] md:transition-[right] md:duration-300 z-10 flex flex-col gap-1">
+          {/* Phone: the zoom buttons ride above the sheet (it covered them at half, #8) and leave with the map at full */}
+          <div className={`absolute bottom-3 right-3 md:right-[calc(var(--panel-x)+12px)] md:transition-[right] md:duration-300 max-md:transition-[bottom] max-md:duration-300 z-10 flex flex-col gap-1 ${sheetPos === 'half' ? 'max-md:bottom-[calc(52%+12px)]' : sheetPos === 'full' ? 'max-md:hidden' : 'max-md:bottom-[calc(44px+12px+env(safe-area-inset-bottom,0px))]'}`} data-zoom-controls>
             <button onClick={() => flyTo({ coordinates: camera.coordinates, zoom: Math.min(MAX_ZOOM, camera.zoom * 1.7) })} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom in">+</button>
             <button onClick={() => { const z = Math.max(1, camera.zoom / 1.7); flyTo({ coordinates: camera.coordinates, zoom: z }); }} className="w-8 h-8 rounded-md border font-bold shadow-sm" style={{ backgroundColor: systemColors.surface, borderColor: systemColors.border, color: systemColors.navy }} aria-label="Zoom out">−</button>
           </div>

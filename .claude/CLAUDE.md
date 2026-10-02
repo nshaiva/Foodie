@@ -206,10 +206,13 @@ no `regionalOrigin` is grouped under the nearest region (`resolveRegion`).
 coverage is uneven, so it returns a match count and callers hide chips below
 `FINGERPRINT_MIN_MATCHES`.
 
-**Key files**: `pages/CountryDetail.tsx`, `hooks/useDishFilters.ts`,
-`components/country-detail/{LensControls,DishSection,EntryGrid}.tsx`,
-`components/map/RegionalMap.tsx`, `data/regionMapConfig.ts` (hand-maintained
-coordinates; a country missing from them falls back to a button grid).
+**Key files**: `pages/Explore.tsx` (the map and the panel), `components/explore/*`
+(panel levels, tiles, the dish sheet, the cuisine search, map plates),
+`hooks/useDishFilters.ts`, `components/country-detail/{LensControls,EntryGrid}.tsx`
+(shared with Want to try), `data/regionMapConfig.ts` (hand-maintained
+coordinates). The old `/country/:id` page, the old Home and their map
+components were deleted 2026-10-02; the notes above describe the Explore
+panel's country level, which inherited their lenses, filters and region model.
 
 **Below the list**: Flavor fingerprint (radar + ingredient pyramid) and Food
 culture (meal structure, customs, influences, similar cuisines) as disclosures.
@@ -223,8 +226,9 @@ the front, so the active set never needs a separate summary. Phone and desktop
 share the markup and differ in one declaration: `.chip-rail` scrolls sideways
 with an edge fade below `md`, and `md:flex-wrap` lets it wrap above. Prefer this
 — a CSS breakpoint on shared markup — over a JavaScript `isMobile` branch. The
-codebase has exactly one such branch (`Home.tsx`, where the world map genuinely
-cannot render at 390px); everything else is a breakpoint.
+only such branches are Explore's `isDesktop()` checks, where the side panel
+and the phone sheet genuinely need different camera framing; everything else
+is a breakpoint.
 
 ## Build Commands
 
