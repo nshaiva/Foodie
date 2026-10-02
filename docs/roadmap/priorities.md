@@ -215,6 +215,13 @@ move it; the breadcrumb's current crumb also raises it. Decided with Nikita
 
 Quick captures land here; ranked into tiers during roadmap reviews.
 
+- **Spice reaction on the rating prompt** — added 2026-10-02 from the
+  one-verdict discussion. One optional tap when you rate: "too hot / right /
+  could go hotter". Spice tolerance today is inferred from the spice level
+  of dishes rated 4 or 5, which can't tell "loved it despite the heat" from
+  "loved the heat"; one tap would feed both the spice slider and the
+  ranking's spice-fit reason. The only extra input worth adding; nothing
+  else (flavor tags, textures) until this proves useful. S. (G3)
 **Added 2026-10-01 from Nikita (a batch of notes; categorized, not built).
 Open questions were answered the same day; nothing here is ranked yet.**
 
@@ -352,6 +359,25 @@ Unverified on a real phone: whether the filter rail's edge fade reads as
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **One verdict per dish: visits hidden, "Ate it again", an optional
+  where line** (2026-10-02, G3/Foundation) — Nikita asked whether per-visit
+  logging was worth keeping given restaurant tracking is a non-goal. Measured
+  in `usePersonalFlavorProfile.ts`: visits only reach the profile as a
+  fallback average when a dish has no verdict of its own, a 10% log-scaled
+  frequency term, and a recency date the dish's own `updatedAt` already
+  provides; the restaurant name is used nowhere. The inconsistency she hit:
+  the first log was stars + thoughts, but "Log another visit" opened a
+  different form with a date picker and a restaurant field. **Now:** one
+  form every time. "Ate it again" (the dish sheet and the Want to try card)
+  reopens the same How was it? prompt pre-filled; saving replaces the
+  verdict and notes and stamps `updatedAt`. The prompt gained one optional
+  **Where** line (`UserDish.where`, free text). The verdict box reads "Last
+  had it Sep 28, 2026 · Casa Oaxaca". The Add a Try form, the Visits list
+  and the per-visit stars are gone from the UI and `RestaurantTryForm.tsx`
+  is deleted; `restaurantTries` stays in the data so old logs load and keep
+  their fallback average. No migration. **Not done, by choice:** a one-tap
+  spice reaction in the same prompt, the one extra input that would sharpen
+  spice tolerance; parked in the Inbox.
 - **Order well folds into Explore: the strip is personal, All dishes toggles
   Ranked / Region, and a search on the map replaces the Order well button
   and page (#42)** (2026-10-02, G1) — from Nikita's question "can Order well collapse

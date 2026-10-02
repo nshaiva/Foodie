@@ -63,14 +63,18 @@ foodie/
 ## Key Features
 
 ### Dish Logging
-- Log dishes with taste ratings (1-5 stars)
-- Track restaurant tries with per-visit ratings
-- Auto-detect region from dish name
-- **Rating semantics (verdict model)**: a dish-level `tasteRating` is the user's
-  declared verdict and wins wherever it exists; otherwise the average of rated
-  tries fills in (shown as "avg of N tries"). "I ate out" ratings stay on the
-  visit and never auto-set the verdict. Shared helpers: `utils/ratings.ts`
-  (`dishVerdictRating`, `isDerivedRating`, `ratingSignal`)
+- Log dishes with taste ratings (1-5 stars), one notes box and an optional
+  one-line `where`
+- **One verdict per dish (2026-10-02).** Eating it again is "Ate it again",
+  which reopens the same rating prompt pre-filled; saving replaces the
+  verdict and stamps `updatedAt` ("Last had it {date} · {where}"). There is
+  no per-visit log in the UI any more.
+- `restaurantTries` is legacy data: never written or shown now, kept so old
+  logs load. **Rating semantics (verdict model)**: a dish-level `tasteRating`
+  is the user's declared verdict and wins wherever it exists; otherwise the
+  average of old rated tries fills in (shown as "avg of N tries"). Shared
+  helpers: `utils/ratings.ts` (`dishVerdictRating`, `isDerivedRating`,
+  `ratingSignal`)
 
 ### Two dish states (no heart)
 - A dish is either **want to try** (bookmark) or **tried with a verdict**
@@ -121,7 +125,7 @@ Analyzes user's logged dishes to generate a personalized taste profile:
 
 **User Data** (localStorage):
 - `foodie-restaurants`: Restaurant entries with visits
-- `foodie-dishes`: Dishes with restaurant tries and cooking attempts
+- `foodie-dishes`: Dishes with a verdict, notes, `where`, and legacy tries
 - `foodie-wishlist`: Saved dishes to try (bookmark icon)
 - `foodie-diet-prefs`, `foodie-taste-survey`: food preferences and survey answers
 - `foodie-map-layer`, `foodie-view-mode`: per-device view prefs — **not synced**
