@@ -487,6 +487,14 @@ export function Explore() {
     setSheetPos('half');
     if (isDesktop() && !panelOpenRef.current) togglePanel(true);
   };
+  /** A dish picked from the search: its country, then the dish itself. */
+  const openFoundDish = (id: string, key: string) => {
+    setPickerOpen(false);
+    flyToCountry(id);
+    // After the fly: the country's entries exist on the next render, and the
+    // later calls win over flyToCountry's strip / overview resets
+    openDish(key);
+  };
   const flyToRegion = (country: Country, region: RegionalCuisine) => {
     // "Across {country}" lives at the sea cluster's water point
     const c = isAcrossRegion(region) ? acrossAt(country.id) : regionCoordinates[country.id]?.[region.name]; if (!c) return;
@@ -1383,7 +1391,7 @@ export function Explore() {
           )}
         </div>
       </div>
-      <CuisinePicker open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={openFound} />
+      <CuisinePicker open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={openFound} onPickDish={openFoundDish} />
     </div>
   );
 }

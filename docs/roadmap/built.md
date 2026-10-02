@@ -11,6 +11,46 @@ specs for shipped features live in [`implemented/`](implemented/).
 
 
 
+- **Flavor axis icons, the overview's flavor mark and lead chips, and a
+  search that finds dishes** (2026-10-02, G1/G4, PR #66) — Nikita: the overview's radar should be
+  icons in the axis colours, no labels, no sentence, no tap; the full
+  fingerprint keeps all three and teaches the icons. Six stroke-only icons
+  in `components/FlavorAxisIcon.tsx` (flame, half citrus, honey drop,
+  steaming bowl, leaf, smoke off the ground), drawn on the [canvas's
+  "Flavor icons" page](https://claude.ai/artifact/LXK84YzzCVr3xNYGevh6i4).
+  `FlavorRadarChart` gained `labels="icons"`: vertices carry only the icon,
+  nothing is tappable, the hint and the interpretation are left out, and the
+  hexagon grows into the room the words used to take. Each icon sits a
+  little further out along its axis so the hexagon's edge never touches it,
+  and its **name rises above it in the axis colour with the spice sprinkle**
+  on hover, or on a tap where there is no hover (Nikita, after the first
+  cut: no native tooltip). The name sits on the side away from the chart
+  (above the top vertex, below the bottom one, hanging outward beside the
+  side ones) so it never crosses a hexagon edge. **One badge everywhere**
+  (`.axis-badge`): a 17px mark on a 28px soft disc of its axis colour, the
+  beside each name in the full fingerprint and on the personal radar.
+  **Where the glance lives took three rounds** (the [canvas's "Flavor
+  icons" page](https://claude.ai/artifact/LXK84YzzCVr3xNYGevh6i4) has each):
+  a glance radar with icon-only vertices in the old card ("too much white
+  space"), then a 180px glyph beside the sentence ("too cluttered"), then
+  four alternatives drawn (stacked, a six-badge strip, three lead chips, a
+  small mark) and Nikita's pick, a mix of the last two. **Shipped:** the
+  overview's head is the name and capital on one line, the three strongest
+  axes as small chips under it (`LeadChips`: badge + word, "Smoke/Earth"
+  reads "Smoke"), and the fingerprint as a **64px mark** at the right
+  (`components/explore/FlavorMark.tsx`): the hexagon with the cuisine's
+  shape, three spokes, and a dot at each corner in its axis colour.
+  Hovering or tapping a dot swells it into its badge in place, with the
+  sprinkle; tapping the shape opens the full fingerprint, and so does "Full
+  flavor fingerprint ›" under the sentence. The radar's icon-only glance
+  mode was removed again; the full fingerprint is the only radar now. **Untouched
+  by request:** the build view ("How it comes together") and the flavor
+  matrix. **The map's search finds dishes as well as cuisines** (Nikita,
+  same day): one field; matches list Cuisines, then up to 12 Dishes by name
+  or English name across every country (`dishIndex()` built once), a dish
+  row showing its country; picking a dish flies to the country and opens
+  that dish's sheet. "Your cuisines" stays underneath when the field is
+  empty. The tray is now titled "Search".
 - **One verdict per dish: visits hidden, "Ate it again", an optional
   where line** (2026-10-02, G3/Foundation) — Nikita asked whether per-visit
   logging was worth keeping given restaurant tracking is a non-goal. Measured
