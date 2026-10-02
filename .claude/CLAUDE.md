@@ -148,7 +148,7 @@ backup and sync automatically.
 /country/:id          → redirects to /?c=<id>&r=<region> (old links)
 /wishlist             → Want to try + derived Favorites (4–5★)
 /profile              → Taste profile
-/restaurant(/:id)     → At-the-restaurant view (frozen for MVP)
+/restaurant(/:id)     → redirects to /?find=1 (the map's cuisine search) or /?c=<id>
 ```
 Link to a country with `utils/countryPath.ts`, not a hand-built URL.
 

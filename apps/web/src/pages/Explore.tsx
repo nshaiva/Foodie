@@ -10,13 +10,14 @@ import { systemColors } from '../data/systemColors';
 import { getAlpha2FromNumeric } from '../data/countryGeoMapping';
 import { regionCoordinates } from '../data/regionMapConfig';
 import { useDishes } from '../hooks/useDishes';
+import { useCountryRanking } from '../hooks/useCountryRanking';
 import { useWishlist } from '../hooks/useWishlist';
 import { useDishFilters } from '../hooks/useDishFilters';
 import { useCountryActivity } from '../hooks/useCountryActivity';
 import { usePersonalFlavorProfile } from '../hooks/usePersonalFlavorProfile';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { countryDishProgress } from '../utils/dishProgress';
-import { countryInSentence, groupEntries, regionCounts, acrossRegion, isAcrossRegion, ACROSS_GROUP_ID, type Entry } from '../utils/groupDishes';
+import { countryInSentence, groupEntries, regionCounts, acrossRegion, isAcrossRegion, ACROSS_GROUP_ID, type Entry, type Group } from '../utils/groupDishes';
 import { entryWhere, isDrinkEntry } from '../utils/course';
 import { homeLand, labelsFitAt, labelsInView, regionAreas, regionLabelName, seaLabelLayout, REGION_BORDER, REGION_INK, REGION_TINT, type RegionAreas, type SeaPlacement } from '../utils/regionAreas';
 import { regionFromSlug, regionSlug } from '../utils/dishRegion';
@@ -31,10 +32,12 @@ import { CultureTrayBody, FlavorTrayBody } from '../components/explore/ExploreTr
 import { LensControls } from '../components/country-detail/LensControls';
 import type { EntryGridActions } from '../components/country-detail/EntryGrid';
 import { CountryOverview } from '../components/explore/CountryOverview';
-import { AllDishesList, BackLink, RegionView } from '../components/explore/PanelLevels';
+import { AllDishesList, ArrangeToggle, BackLink, RegionView, type Arrangement } from '../components/explore/PanelLevels';
 import { DishDetail } from '../components/explore/DishDetailSheet';
+import { CuisinePicker } from '../components/explore/CuisinePicker';
+import { MenuLookup } from '../components/MenuLookup';
 import { MapPlates, WorldPlates } from '../components/explore/MapPlates';
-import { plateLayout, countryHomes, regionUnits, acrossAt, COUNTRY_R, type RegionUnit } from '../utils/plateLayout';
+import { plateLayout, countryHomes, regionUnits, acrossAt, acrossRing, COUNTRY_R, type RegionUnit } from '../utils/plateLayout';
 import { plateFade } from '../utils/plateFade';
 import type { Country, RegionalCuisine } from '../data/types';
 
@@ -199,6 +202,13 @@ export function Explore() {
   // The country level has two panel views (#39): the overview, and every dish
   // grouped by region one step down. The region level is the scope's own.
   const [countryView, setCountryView] = useState<'overview' | 'all' | 'flavor' | 'culture'>('overview');
+  // How All dishes is arranged (Nikita, 2026-10-02): ranked for you by
+  // default, or grouped by region. Same dishes either way; only the order.
+  const [arrangement, setArrangement] = useState<Arrangement>('ranked');
+  // The map's search (Nikita, 2026-10-02: "a search in the map instead of
+  // an Order well button"): a cuisine picker that lands on the country's
+  // overview, where "Start with these" is already ranked for you
+  const [pickerOpen, setPickerOpen] = useState(false);
   // The dish detail level, by entry key (it follows the entry as it's logged).
   // It sits one level below whatever the panel showed when it opened; the
   // level underneath stays put, so closing it is just clearing this.
@@ -468,6 +478,15 @@ export function Explore() {
     setCountryView(opts?.view ?? 'overview');
     setDetailKey(null);
   };
+  /** A cuisine picked from the search: fly to it with the sheet at half, so
+   *  the four ranked dishes are in view the moment the map lands. */
+  const openFound = (id: string) => {
+    setPickerOpen(false);
+    setArrangement('ranked');
+    flyToCountry(id);
+    setSheetPos('half');
+    if (isDesktop() && !panelOpenRef.current) togglePanel(true);
+  };
   const flyToRegion = (country: Country, region: RegionalCuisine) => {
     // "Across {country}" lives at the sea cluster's water point
     const c = isAcrossRegion(region) ? acrossAt(country.id) : regionCoordinates[country.id]?.[region.name]; if (!c) return;
@@ -570,12 +589,14 @@ export function Explore() {
   useEffect(() => {
     if (landed.current || features.size === 0) return;
     landed.current = true;
-    const c = searchParams.get('c'), r = searchParams.get('r');
+    const c = searchParams.get('c'), r = searchParams.get('r'), find = searchParams.get('find') !== null;
     const country = c ? getCountryById(c) : undefined;
-    if (!country) return;
+    // The old /restaurant link arrives as ?find=1 and opens the search;
+    // /restaurant/:id lands on the country like any ?c link
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!country) { if (find) { setPickerOpen(true); setSearchParams({}, { replace: true }); } return; }
     const region = r ? (regionFromSlug(r, country.regionalVariations, country.id) ?? (r === regionSlug(acrossRegion(country).name) ? acrossRegion(country) : undefined)) : undefined;
     // A one-time landing once the outlines arrive, not a state sync
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (region) flyToRegion(country, region); else flyToCountry(country.id);
   }, [features]); // eslint-disable-line react-hooks/exhaustive-deps
   // No deep link: open on the world home, in place (nothing to animate from)
@@ -597,6 +618,9 @@ export function Explore() {
   const colors = country?.colorPalette;
   const regions = country?.regionalVariations;
   const countryDishes = useMemo(() => (country ? getDishesByCountry(country.id) : []), [country, getDishesByCountry]);
+  // The personal ranking (Order well's scoring) behind "Start with these",
+  // the Ranked arrangement and the dish sheet's why line
+  const ranking = useCountryRanking(country, countryDishes, isOnWishlist, dishes.length > 0 || wishlist.length > 0);
   const allEntries = useMemo<Entry[]>(() => {
     if (!country) return [];
     const triedByName = new Map(countryDishes.map(d => [d.name.toLowerCase(), d]));
@@ -630,6 +654,16 @@ export function Explore() {
   const [foodVisible, drinksVisible] = useMemo(() => [visible.filter(e => !isDrinkEntry(e)), visible.filter(isDrinkEntry)], [visible]);
   const drinksOnly = foodVisible.length === 0 && drinksVisible.length > 0;
   const groups = useMemo(() => (country ? groupEntries(drinksOnly ? drinksVisible : foodVisible, 'region', { regions, countryId: country.id, countryName: country.name, orphansAcross: true }) : []), [country, drinksOnly, drinksVisible, foodVisible, regions]);
+  // Ranked: the visible food as one flat run in rank order (your own dishes,
+  // which have no rank, last); drinks keep their strip after it. Grouping
+  // never changes which dishes show, only how they're arranged.
+  const rankOfEntry = (entry: Entry) => (entry.kind === 'dish' ? ranking.rankOf(entry.dish)?.rank : undefined);
+  const rankedGroups = useMemo<Group[]>(() => {
+    if (drinksOnly) return groups;
+    const entries = [...foodVisible].sort((a, b) => (rankOfEntry(a) ?? Infinity) - (rankOfEntry(b) ?? Infinity));
+    return [{ id: 'ranked', label: '', entries }];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drinksOnly, groups, foodVisible, ranking]);
   const whereFor = (entry: Entry) => (country ? entryWhere(entry, regions, country.id) : 'Everywhere');
   const counts = useMemo(() => (country ? regionCounts(allEntries, regions, country.id) : {}), [country, allEntries, regions]);
   // Every entry by region, unfiltered: what the map's dish plates draw from
@@ -766,13 +800,36 @@ export function Explore() {
   // (Nikita, 2026-10-01: never a name over a picture). Offsets in the cap's
   // own units (the labelScale group), picked once per render from the plates
   // actually on the map.
-  const capLift = useMemo(() => {
-    const out: Record<string, [number, number]> = {};
-    if (!areas || !mapPlates.length) return out;
+  // A cap that can find no clear spot fades out instead of sitting under
+  // something (Nikita, 2026-10-02: the one in the background goes
+  // transparent). The "Across {country}" label at sea counts as a neighbour
+  // too, since it is drawn by the plates layer and not by this loop.
+  const { lift: capLift, hidden: capHidden } = useMemo(() => {
+    const lift: Record<string, [number, number]> = {};
+    const hidden = new Set<string>();
+    if (!areas || !mapPlates.length) return { lift, hidden };
     const R = (COUNTRY_R + 2.5) * labelScale;
-    const plates = mapPlates.map(p => { const [x, y] = baseProjection(p.at) as [number, number]; return [x * liveZoom + p.lift[0] * labelScale, y * liveZoom + p.lift[1] * labelScale] as [number, number]; });
+    // Where each plate really is. On touch the nationwide dishes sit on a
+    // ring around the "Across" pill (MapPlates draws them there, not at
+    // their stacked lift), so the ring is what the caps have to avoid.
+    const hover = canHover();
+    const acrossN = mapPlates.find(p => p.across)?.across?.n ?? 0;
+    const ring = !hover && acrossN > 1 ? acrossRing(acrossN) : undefined;
+    const plates = mapPlates.map(p => {
+      const [x, y] = baseProjection(p.at) as [number, number];
+      const lift = p.across && ring ? ring.at(p.across.i) : p.lift;
+      return [x * liveZoom + lift[0] * labelScale, y * liveZoom + lift[1] * labelScale] as [number, number];
+    });
     // Caps placed so far, as boxes, so a cap that steps aside doesn't land on a neighbour's
     const placedCaps: [number, number, number, number][] = [];
+    const hub = mapPlates.find(p => p.across?.i === 0);
+    if (hub && bubbleCountry) {
+      // With hover the label hangs under the hub; on touch it is the hub's pill
+      const [hx, hy] = baseProjection(hub.at) as [number, number];
+      const cx = hx * liveZoom, cy = hy * liveZoom + (hover ? (COUNTRY_R + 18) * labelScale : 0);
+      const halfW = (acrossRegion(bubbleCountry).name.length * 9.5 * 0.68 * labelScale) / 2 + 4, halfH = 7 * labelScale;
+      placedCaps.push([cx - halfW, cy - halfH, cx + halfW, cy + halfH]);
+    }
     for (const { region, anchorPx } of areas.areas) {
       const cx = anchorPx[0] * liveZoom, cy = anchorPx[1] * liveZoom;
       const halfW = (regionLabelName(region.name).length * 9.5 * 0.68 * labelScale) / 2 + 4, halfH = 7 * labelScale;
@@ -781,12 +838,15 @@ export function Explore() {
         placedCaps.every(([x0, y0, x1, y1]) => cx + dx + halfW + 6 < x0 || cx + dx - halfW - 6 > x1 || cy + dy + halfH + 4 < y0 || cy + dy - halfH - 4 > y1);
       const step = R + halfH + 6, side = halfW + R + 6;
       const tries: [number, number][] = [[0, 0], [0, -step], [0, step], [-side, 0], [side, 0], [0, -2 * step], [0, 2 * step], [-side, -step], [side, -step], [-side, step], [side, step]];
-      const move = tries.find(clear) ?? [0, 0];
-      placedCaps.push([cx + move[0] - halfW, cy + move[1] - halfH, cx + move[0] + halfW, cy + move[1] + halfH]);
-      if (move[0] || move[1]) out[region.name] = [move[0] / labelScale, move[1] / labelScale];
+      const found = tries.find(clear);
+      const move = found ?? [0, 0];
+      // A hidden cap claims no space, so the next one isn't pushed off by a ghost
+      if (found) placedCaps.push([cx + move[0] - halfW, cy + move[1] - halfH, cx + move[0] + halfW, cy + move[1] + halfH]);
+      else hidden.add(region.name);
+      if (move[0] || move[1]) lift[region.name] = [move[0] / labelScale, move[1] / labelScale];
     }
-    return out;
-  }, [areas, mapPlates, labelScale, liveZoom]);
+    return { lift, hidden };
+  }, [areas, mapPlates, labelScale, liveZoom, bubbleCountry]);
   // Region names are small quiet caps at every zoom and for every country
   // (Nikita, 2026-10-01), whether or not it has plates yet, so the style
   // never flips between countries or levels; the open region's cap keeps
@@ -804,14 +864,6 @@ export function Explore() {
     <div className="h-dvh flex flex-col" style={{ backgroundColor: systemColors.seaSalt }}>
       {/* One row on a phone: one short restaurant label, icon-only profile, 44px targets */}
       <AppBar fullBleed actions={<span className="flex items-center gap-1.5 md:gap-4">
-        <Link
-          to="/restaurant"
-          aria-label="Order well"
-          className="btn-press text-sm font-semibold text-white px-3 md:px-3.5 max-md:h-11 max-md:inline-flex max-md:items-center py-2 rounded-lg whitespace-nowrap"
-          style={{ backgroundColor: systemColors.tomato }}
-        >
-          🍽 Order well
-        </Link>
         <Link
           to="/wishlist"
           aria-label={`Want to try (${wishlist.length})`}
@@ -847,11 +899,24 @@ export function Explore() {
           onPointerUp={e => e.currentTarget.classList.remove('is-dragging')}
           onMouseLeave={e => { e.currentTarget.classList.remove('is-dragging'); setHovered(null); setTooltip(null); }}
         >
-          {/* breadcrumb */}
-          <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm shadow-sm" style={{ backgroundColor: `${systemColors.surface}F0`, borderColor: systemColors.border }}>
+          {/* breadcrumb, and the search beside it: the way to any cuisine in two taps */}
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            aria-label="Search cuisines"
+            aria-haspopup="dialog"
+            className="btn-press w-11 h-11 md:w-9 md:h-9 rounded-lg border shadow-sm flex items-center justify-center"
+            style={{ backgroundColor: `${systemColors.surface}F0`, borderColor: systemColors.border, color: systemColors.navy }}
+            data-map-search
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+          </button>
+          <div className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm shadow-sm min-h-11 md:min-h-9" style={{ backgroundColor: `${systemColors.surface}F0`, borderColor: systemColors.border }}>
             <button onClick={() => (scope.level === 'world' ? openSheet() : flyToWorld())} className="font-semibold" style={{ color: scope.level === 'world' ? systemColors.navy : systemColors.navyMuted }}>World</button>
             {scope.level !== 'world' && <><span style={{ color: systemColors.navyMuted }}>›</span><button onClick={() => (scope.level === 'country' ? openSheet() : flyToCountry(scope.country.id))} className="font-semibold" style={{ color: scope.level === 'country' ? systemColors.navy : systemColors.navyMuted }}>{scope.country.name}</button></>}
             {scope.level === 'region' && <><span style={{ color: systemColors.navyMuted }}>›</span><button onClick={openSheet} className="font-semibold" style={{ color: systemColors.navy }}>{regionLabelName(scope.region.name)}</button></>}
+          </div>
           </div>
           {/* layer toggle, world level only */}
           {SHOW_LAYER_TOGGLE && scope.level === 'world' && (
@@ -966,7 +1031,7 @@ export function Explore() {
                       const n = platesShowing ? 0 : counts[region.name] ?? 0;
                       return (
                         <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
-                          <g transform={`scale(${labelScale / liveZoom})`} opacity={quietNames ? capFade : labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
+                          <g transform={`scale(${labelScale / liveZoom})`} opacity={capHidden.has(region.name) && !(scope.level === 'region' && scope.region.name === region.name) ? 0 : quietNames ? capFade : labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
                             {/* With plates showing, the names are wayfinding, not content: small quiet caps so the food leads (decided 2026-10-01) */}
                             {quietNames ? (
                               <>
@@ -1206,13 +1271,15 @@ export function Explore() {
 
               {/* The dish detail: one level below whichever of these it opened from */}
               {detailEntry && (
-                <DishDetail key={detailEntry.key} entry={detailEntry} country={country} actions={actions} backLabel={detailBackLabel} onBack={closeDetail} />
+                <DishDetail key={detailEntry.key} entry={detailEntry} country={country} actions={actions} backLabel={detailBackLabel} onBack={closeDetail} rank={detailEntry.kind === 'dish' ? ranking.rankOf(detailEntry.dish) : undefined} />
               )}
 
               {!detailEntry && panelLevel === 'country' && countryView === 'overview' && (
                 <div className="pt-2 md:pt-1">
                   <CountryOverview
                     country={country}
+                    startWith={ranking.startWith}
+                    personalized={ranking.personalized}
                     totalCount={allEntries.length}
                     onSeeAll={seeAll}
                     onOpenDish={dish => openDish(`d:${dish.name}`)}
@@ -1238,12 +1305,35 @@ export function Explore() {
                       resultCount={visible.length}
                     />
                   </div>
+                  <ArrangeToggle value={arrangement} onChange={setArrangement} personalized={ranking.personalized} />
                   {visible.length === 0 ? (
-                    <div className="rounded-xl border border-dashed p-6 text-center text-sm" style={{ borderColor: systemColors.border, color: systemColors.navyMuted }}>
-                      Nothing matches these filters. <button onClick={filters.reset} className="tap font-semibold" style={{ color: systemColors.tomato }}>Clear filters</button>
-                    </div>
+                    filters.query.trim() ? (
+                      // Menus have sixty things and we know twenty: a name we
+                      // don't match may still be real, so offer the lookup
+                      <div className="rounded-xl border border-dashed p-5 text-sm" style={{ borderColor: systemColors.border, color: systemColors.navyMuted }} data-menu-miss>
+                        Nothing we know matches “{filters.query.trim()}”. It may still be on the menu; we only know {allEntries.length} {country.name} dishes and drinks so far.
+                        {filters.refinementActive && <> <button onClick={filters.reset} className="tap font-semibold" style={{ color: systemColors.tomato }}>Clear filters</button></>}
+                        <MenuLookup
+                          query={filters.query}
+                          countryId={country.id}
+                          countryName={country.name}
+                          onSave={r => addDish({
+                            countryId: country.id,
+                            name: r.name,
+                            kind: r.category === 'beverage' ? 'drink' : 'food',
+                            source: 'lookup',
+                            notes: `${r.description}${r.keyIngredients.length ? ` Likely ingredients: ${r.keyIngredients.join(', ')}.` : ''} (AI-generated)`,
+                            restaurantTries: [],
+                          })}
+                        />
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-dashed p-6 text-center text-sm" style={{ borderColor: systemColors.border, color: systemColors.navyMuted }}>
+                        Nothing matches these filters. <button onClick={filters.reset} className="tap font-semibold" style={{ color: systemColors.tomato }}>Clear filters</button>
+                      </div>
+                    )
                   ) : (
-                    <AllDishesList groups={groups} drinks={drinksOnly ? [] : drinksVisible} whereFor={whereFor} countryLabel={countryInSentence(country.name)} colors={colors} isWanted={isWanted} onOpen={e => openDish(e.key)} onOpenRegion={r => flyToRegion(country, r)} />
+                    <AllDishesList groups={arrangement === 'ranked' ? rankedGroups : groups} rankOf={arrangement === 'ranked' ? rankOfEntry : undefined} drinks={drinksOnly ? [] : drinksVisible} whereFor={whereFor} countryLabel={countryInSentence(country.name)} colors={colors} isWanted={isWanted} onOpen={e => openDish(e.key)} onOpenRegion={r => flyToRegion(country, r)} />
                   )}
                 </div>
               )}
@@ -1273,6 +1363,7 @@ export function Explore() {
           )}
         </div>
       </div>
+      <CuisinePicker open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={openFound} />
     </div>
   );
 }

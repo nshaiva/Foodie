@@ -112,7 +112,7 @@ export function rankDishesForOrdering(
           reasons.push(`Not ${label}`);
         } else if (level === 'prefer' && matches) {
           score += 1;
-          reasons.push(`${label.charAt(0).toUpperCase() + label.slice(1)} — your preference`);
+          reasons.push(`${label.charAt(0).toUpperCase() + label.slice(1)}, your preference`);
         }
       };
 
@@ -124,10 +124,10 @@ export function rankDishesForOrdering(
 
       if (prefs.redMeat === 'prefer' && redMeat) {
         score += 1;
-        reasons.push('Red meat — your preference');
+        reasons.push('Red meat, your preference');
       } else if (prefs.redMeat === 'avoid' && redMeat) {
         score -= 1.5;
-        reasons.push('Red meat — you avoid it');
+        reasons.push('Red meat, you avoid it');
       }
     }
 

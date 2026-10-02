@@ -4,6 +4,10 @@ const POP_SCORE: Record<string, number> = { both: 3, 'local-favorite': 2, 'touri
 const HEADLINE_CATEGORY = new Set(['main', 'soup', 'street-food']);
 
 /**
+ * The impersonal pick, kept for callers with no user data in reach (the old
+ * country page). The Explore panel's strip now comes from `useCountryRanking`,
+ * which applies the same category cap on top of the personal ranking.
+ *
  * Four food dishes to start with: known and loved first (`both`), then local
  * favorites, with mains, soups and street food ahead of sides and sweets. At
  * most two from one category, so the strip shows the range of the cuisine

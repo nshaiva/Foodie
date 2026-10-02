@@ -10,6 +10,8 @@ import type { EntryGridActions } from '../country-detail/EntryGrid';
 import { BookmarkIcon, CheckIcon, DishImage } from './DishTile';
 import { BackLink } from './PanelLevels';
 import { entryView } from '../../utils/entryView';
+import type { DishRank } from '../../hooks/useCountryRanking';
+import { ExpandableText } from '../ExpandableText';
 
 /**
  * The dish detail level (#39): every action on a dish in one place. The tile
@@ -79,18 +81,28 @@ function Stars({ value, size = 'text-xl' }: { value: number; size?: string }) {
 const fmtDate = (s: string) => new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 const iconBtn = 'w-11 h-11 flex items-center justify-center rounded-full transition-colors';
+/** The why line stays one or two lines: the strongest reasons only. */
+const WHY_REASONS = 3;
+const OWN_VERDICT = /^(You rated it|You've tried this|You weren't a fan)/;
 
 /**
  * `backLabel` names the level the dish was opened from ("All dishes", the
  * region, or the country for a signature tile or map plate); `onBack` returns
  * there. Key this on the entry so the rating prompt resets between dishes.
+ *
+ * `rank` is the dish's place in the personal ranking with its reasons. It
+ * renders as one short line, "Why it's #3 for you", the only place the
+ * ranking explains itself (the strip and the tiles don't). On a phone the
+ * whole sheet should fit without scrolling for a typical dish, so the
+ * description is clamped to three lines with the usual "Show more".
  */
-export function DishDetail({ entry, country, actions: a, backLabel, onBack }: {
+export function DishDetail({ entry, country, actions: a, backLabel, onBack, rank }: {
   entry: Entry;
   country: Country;
   actions: EntryGridActions;
   backLabel: string;
   onBack: () => void;
+  rank?: DishRank;
 }) {
   const v = entryView(entry);
   const source = entry.kind === 'dish' ? entry.dish : entry.kind === 'drink' ? entry.drink : undefined;
@@ -120,6 +132,10 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack }: {
   })();
   const meta = [entry.kind === 'custom' ? 'My dish' : label(source?.category), regionLine].filter(Boolean).join(' · ');
   const chips = entry.kind === 'dish' ? dishChips(entry.dish) : entry.kind === 'drink' ? drinkChips(entry.drink) : [];
+
+  // The why line adds only what the sheet doesn't already say: once the
+  // verdict box is showing, "You rated it" and "You've tried this" are noise
+  const whyReasons = (rank?.reasons ?? []).filter(r => !tried || !OWN_VERDICT.test(r)).slice(0, WHY_REASONS);
 
   const verdict = tried ? dishVerdictRating(tried) : undefined;
   const stars = verdict !== undefined ? Math.round(verdict) : undefined;
@@ -270,7 +286,19 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack }: {
           </div>
         )}
 
-        {source?.description && <p className="text-sm md:text-[15px] leading-normal md:leading-relaxed" style={{ color: systemColors.navyLight }}>{source.description}</p>}
+        {whyReasons.length > 0 && (
+          <p className="text-[13px] leading-snug" style={{ color: systemColors.navyLight }} data-why>
+            <span className="font-bold" style={{ color: systemColors.tomato }}>Why it's #{rank!.rank} for you</span>
+            <span aria-hidden> · </span>
+            {whyReasons.join(' · ')}
+          </p>
+        )}
+
+        {source?.description && (
+          <div style={{ color: systemColors.navyLight }}>
+            <ExpandableText text={source.description} clamp="line-clamp-3 md:line-clamp-none" className="text-sm md:text-[15px] leading-normal md:leading-relaxed" />
+          </div>
+        )}
 
         {/* Visits, for a tried dish */}
         {tried && visits.length > 0 && (
