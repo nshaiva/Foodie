@@ -29,11 +29,7 @@ country on the map, see what its food is like, browse its dishes by region,
 save what you want to try, log what you tried. Rows below carry a **🚩 MVP**
 tag.
 
-**The restaurant flow ships decluttered, otherwise frozen.** Its declutter was pulled into MVP 2026-09-30 and shipped as "Order well" (see Built). The at-the-restaurant view and
-menu lookup are already built and stay in the app for MVP, but get no
-redesign: their only MVP changes are #40's heart removal and a visible entry
-to them from the new Explore home (#41). Rethinking that whole flow is the
-first thing after MVP (#42). This narrows focus *for MVP only*; the restaurant
+**The restaurant flow ships decluttered, otherwise frozen.** Its declutter was pulled into MVP 2026-09-30 and shipped as "Order well" (see Built). *Superseded 2026-10-02:* Order well folded into Explore (a cuisine picker, then the country's All dishes ranked for you; see Built), so there is no separate restaurant view any more. What remains of #42 is the "at a table" context. The restaurant
 moment is still the product's primary goal in the thesis (CLAUDE.md).
 
 ### Build order (decided 2026-09-28 with Nikita)
@@ -126,7 +122,7 @@ gate). Next tier starts below.
 
 | # | Feature | Why | Effort |
 |---|---------|-----|--------|
-| 42 | **Rethink the restaurant flow** (first after MVP) | Added 2026-09-28 from Nikita: the at-the-restaurant view needs its own end-to-end user-flow pass, separate from regional exploration. **The declutter half shipped 2026-09-30 as "Order well" (see Built)**, pulled into MVP by Nikita; the flow pass stays after MVP. Still to do in that pass: the end-to-end flow itself (entry, cuisine, menu search, log), whether the in-place expansion should become #39's shared dish detail, and text loading first with images lazy on weak cellular so the view never waits on an image. | Discuss first |
+| 42 | **Rethink the restaurant flow** (first after MVP) | Added 2026-09-28 from Nikita: the at-the-restaurant view needs its own end-to-end user-flow pass, separate from regional exploration. **The declutter half shipped 2026-09-30 as "Order well" (see Built)**, pulled into MVP by Nikita; the flow pass stays after MVP. Still to do in that pass: the end-to-end flow itself (entry, cuisine, menu search, log), whether the in-place expansion should become #39's shared dish detail, and text loading first with images lazy on weak cellular so the view never waits on an image. **Direction set 2026-10-02 (Nikita): collapse Order well into Explore.** Brainstorm, six options and prototypes in [`designs/order-well-into-explore.md`](designs/order-well-into-explore.md). **Shipped the same day** (see Built): the personal strip, the Ranked / Region toggle, the "Where are you eating?" picker, the redirects, and the restaurant page deleted. **What's left of this item:** the "at a table" context from option 3 (a lit country, region narrowing of the ranked list, where the menu-photo result lands), to judge on a real phone; and text loading before images on weak cellular. The in-place expansion question is moot: the dish sheet is the one detail now. | M |
 
 ## Tier 3 — Later (bigger or lower-leverage)
 
@@ -356,6 +352,54 @@ Unverified on a real phone: whether the filter rail's edge fade reads as
 Shipped features, newest first. Tier 1 is fully shipped; current work starts
 at Tier 2.
 
+- **Order well folds into Explore: the strip is personal, All dishes toggles
+  Ranked / Region, and a search on the map replaces the Order well button
+  and page (#42)** (2026-10-02, G1) — from Nikita's question "can Order well collapse
+  into Explore?", brainstormed on the [Order well into Explore canvas](https://claude.ai/artifact/LXK84YzzCVr3xNYGevh6i4)
+  (six options, then prototypes of her pick on its second page; notes in
+  [`designs/order-well-into-explore.md`](designs/order-well-into-explore.md)).
+  **What changed:** the overview's "Start with these" is now the top four
+  of the personal ranking, the same scoring Order well uses (popularity, your
+  verdicts, want-to-try, spice fit, diet preferences; `hooks/useCountryRanking.ts`
+  wraps `orderRanking.ts`), with at most two from one category so the four
+  still show the cuisine's range. Nothing on the tiles says so: no rank, no
+  label, no reasons. One subtitle, **"Picked for your palate"**, is the only
+  trace, and it reads "The dishes Mexico is known for" until something
+  personal (a logged dish, a bookmark, a diet preference) has shaped the
+  order. **All dishes** opens on **Ranked**, one flat grid of the same tiles
+  with a small muted number before each name, and a two-way **Ranked /
+  Region** toggle (`ArrangeToggle`) flips to today's region sections; drinks
+  keep their strip either way and the dishes never change, only the order.
+  **The dish sheet** gained one line, **"Why it's #3 for you · what locals
+  actually order · matches your spice comfort"** (the top three reasons; the
+  "you rated it" ones are dropped once the verdict box is showing), and its
+  description is clamped to three lines on a phone with "Show more", so a
+  typical dish fits a 390×844 screen without scrolling (measured: the sheet
+  ends at 697–781px). Beside the toggle one quiet caption says what the
+  order means: "picked for your palate" under Ranked (or "most loved first"
+  for a cold user), "where each comes from" under Region. Ranking reasons
+  lost their em dashes on the way. **Then, the same day, Order well itself
+  (Nikita: "go to the replacing", then "remove the Order well button, we
+  need a search in the map instead"):** the header button is gone; a
+  **search button sits on the map beside the breadcrumb** and opens
+  **"Find a cuisine"** (`components/explore/CuisinePicker.tsx`, in a Tray):
+  a search field, your cuisines most recent first, then every cuisine by
+  the map's eight regions. Picking one flies to the country with the sheet
+  at half, so the four ranked dishes are in view as the map lands: two taps
+  from cold. A menu name we don't match in All dishes shows "Nothing we
+  know matches X, it may still be on the menu" with the existing AI lookup
+  under it, so the lookup moved rather than died. `/restaurant` redirects
+  to `/?find=1` (the search) and `/restaurant/:id` to `/?c=<id>`; old links
+  keep working. **Deleted:** `pages/AtRestaurant.tsx`,
+  `utils/orderGrouping.ts`, `components/DishBlurb.tsx`. **Map caps, same
+  session (Nikita's screenshot of "Across Mexico" over "Oaxaca"):** the
+  region caps never knew where the "Across {country}" pill or, on touch,
+  the ring of nationwide plates around it were, so a cap could land under
+  them. They are now neighbours like any plate: a cap steps aside from
+  them, and a cap that can find no clear spot fades to transparent instead
+  of sitting under something (the open region's own cap never fades). Verified at 390×844 touch and 1440×900 in
+  headless Chromium with and without seeded personal data; on-device check
+  by Nikita.
 - **Explore map: dishes where they are from, calmer at every zoom**
   (2026-10-01, G2, PR #54) — a day of phone walkthroughs with Nikita, each
   decided on a canvas before it was built. **Country zoom** follows boards

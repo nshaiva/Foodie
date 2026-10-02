@@ -18,10 +18,57 @@ export function BackLink({ label, onClick }: { label: string; onClick: () => voi
 
 const brand = { fontFamily: 'var(--font-brand)' } as const;
 
+/** How All dishes is arranged: ranked for you, or grouped by region. */
+export type Arrangement = 'ranked' | 'region';
+
+/**
+ * The one control over All dishes (Nikita, 2026-10-02): a two-way toggle,
+ * Ranked / Region. Ranked is the personal order Order well computes, laid out
+ * as the same tiles the region view uses, so flipping it reads as re-sorting
+ * one list rather than changing screens. Not a filter: the dishes never
+ * change, only their arrangement, which is why it isn't a chip in the rail.
+ */
+export function ArrangeToggle({ value, onChange, personalized }: {
+  value: Arrangement;
+  onChange: (next: Arrangement) => void;
+  /** Whether anything personal shaped the ranking; sets the caption's wording. */
+  personalized: boolean;
+}) {
+  const options: [Arrangement, string][] = [['ranked', 'Ranked'], ['region', 'Region']];
+  // One quiet caption says what the arrangement means (Nikita, 2026-10-02):
+  // the strip's own phrase under Ranked, so the two read as the same thing
+  const caption = value === 'ranked' ? (personalized ? 'picked for your palate' : 'most loved first') : 'where each comes from';
+  return (
+    <div className="flex items-center gap-3">
+    <div role="radiogroup" aria-label="Arrange dishes" className="inline-flex self-start rounded-full border p-0.5" style={{ borderColor: systemColors.navy }} data-arrange={value}>
+      {options.map(([key, label]) => {
+        const on = key === value;
+        return (
+          <button
+            key={key}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            onClick={() => onChange(key)}
+            className={`h-10 md:h-8 px-4 rounded-full text-[13px] transition-colors ${on ? 'font-extrabold' : 'font-semibold'}`}
+            style={on ? { backgroundColor: systemColors.navy, color: systemColors.surface } : { color: systemColors.navy }}
+          >
+            {label}
+          </button>
+        );
+      })}
+    </div>
+    <span className="text-xs" style={{ color: systemColors.navyMuted }} data-arrange-caption>{caption}</span>
+    </div>
+  );
+}
+
 interface TileProps {
   colors: Country['colorPalette'];
   isWanted: (entry: Entry) => boolean;
   onOpen: (entry: Entry) => void;
+  /** Under the Ranked arrangement: each tile's number. */
+  rankOf?: (entry: Entry) => number | undefined;
 }
 interface DrinkProps {
   /** Drinks shown as the end strip; empty when there are none, or when the
@@ -31,7 +78,8 @@ interface DrinkProps {
 }
 
 /**
- * All dishes, always grouped by region. Section headers are titles, not
+ * All dishes: grouped by region, or one unlabelled group in rank order under
+ * the Ranked arrangement. Section headers are titles, not
  * cards: the region's name in the map's italic serif, a count, and the way
  * into that region. Buckets that aren't a region ("Across Mexico") get the
  * title without the link. Empty sections are left out; every region is still

@@ -109,7 +109,7 @@ export function StatusMarker({ tried, wanted, small = false }: { tried?: UserDis
 }
 
 export function DishTile({
-  entry, colors, wanted, onOpen, wide = false,
+  entry, colors, wanted, onOpen, wide = false, rank,
 }: {
   entry: Entry;
   colors: ColorPalette;
@@ -117,6 +117,8 @@ export function DishTile({
   onOpen: () => void;
   /** A region's only dish spans the row rather than leaving a half-empty one. */
   wide?: boolean;
+  /** Under the Ranked arrangement: a small muted number before the name. */
+  rank?: number;
 }) {
   const v = entryView(entry);
   return (
@@ -140,7 +142,10 @@ export function DishTile({
       >
         <StatusMarker tried={v.tried} wanted={wanted} />
       </DishImage>
-      <span className="text-[15px] font-bold leading-tight line-clamp-2" style={{ color: systemColors.navy, fontFamily: 'var(--font-heading)' }}>{v.name}</span>
+      <span className="text-[15px] font-bold leading-tight line-clamp-2" style={{ color: systemColors.navy, fontFamily: 'var(--font-heading)' }}>
+        {rank !== undefined && <span className="mr-1.5 text-[13px] font-bold tabular-nums" style={{ color: systemColors.navyMuted }} data-rank>{rank}</span>}
+        {v.name}
+      </span>
       <span data-line className="mt-0.5 text-[13px] leading-snug line-clamp-2" style={{ color: systemColors.navyMuted }}>{v.line}</span>
     </button>
   );
@@ -148,19 +153,21 @@ export function DishTile({
 
 /** Two across on a phone and in the desktop panel. */
 export function TileGrid({
-  entries, colors, isWanted, onOpen,
+  entries, colors, isWanted, onOpen, rankOf,
 }: {
   entries: Entry[];
   colors: ColorPalette;
   isWanted: (entry: Entry) => boolean;
   onOpen: (entry: Entry) => void;
+  /** Set under the Ranked arrangement; tiles then carry their number. */
+  rankOf?: (entry: Entry) => number | undefined;
 }) {
   // A region's only dish keeps the standard tile: stretching it to 3:1 would
   // crop its image far harder than every other tile's.
   return (
     <div className="grid grid-cols-2 gap-x-3 gap-y-5 [grid-auto-rows:auto]">
       {entries.map(entry => (
-        <DishTile key={entry.key} entry={entry} colors={colors} wanted={isWanted(entry)} onOpen={() => onOpen(entry)} />
+        <DishTile key={entry.key} entry={entry} colors={colors} wanted={isWanted(entry)} onOpen={() => onOpen(entry)} rank={rankOf?.(entry)} />
       ))}
     </div>
   );
