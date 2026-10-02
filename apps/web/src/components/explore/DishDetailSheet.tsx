@@ -5,7 +5,6 @@ import { resolveRegion } from '../../utils/dishRegion';
 import { regionLabelName } from '../../utils/regionAreas';
 import { dishVerdictRating, isDerivedRating, ratedTryCount } from '../../utils/ratings';
 import { countryInSentence, type Entry } from '../../utils/groupDishes';
-import { RestaurantTryForm } from '../RestaurantTryForm';
 import type { EntryGridActions } from '../country-detail/EntryGrid';
 import { BookmarkIcon, CheckIcon, DishImage } from './DishTile';
 import { BackLink } from './PanelLevels';
@@ -114,9 +113,8 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack, rank
   const [prompt, setPrompt] = useState<null | { initial: boolean }>(null);
   const [rating, setRating] = useState(0);
   const [notes, setNotes] = useState('');
+  const [where, setWhere] = useState('');
   const [name, setName] = useState('');
-  const [addingVisit, setAddingVisit] = useState(false);
-  const [editingVisit, setEditingVisit] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
 
   // "From Puebla · Central Mexico": the locality first when the dish has one,
@@ -140,12 +138,12 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack, rank
   const verdict = tried ? dishVerdictRating(tried) : undefined;
   const stars = verdict !== undefined ? Math.round(verdict) : undefined;
   const derived = tried ? isDerivedRating(tried) : false;
-  const visits = tried?.restaurantTries ?? [];
 
   const startEdit = (initial: boolean, dish?: UserDish) => {
     const d = dish ?? tried;
     setRating(d?.tasteRating ?? 0);
     setNotes(d?.notes ?? '');
+    setWhere(d?.where ?? '');
     setName(d?.name ?? '');
     setPrompt({ initial });
   };
@@ -164,6 +162,7 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack, rank
     a.onUpdateDish(targetId, {
       ...(entry.kind === 'custom' && name.trim() ? { name: name.trim() } : {}),
       notes: notes.trim() || undefined,
+      where: where.trim() || undefined,
       tasteRating: rating || undefined,
     });
     setPrompt(null);
@@ -217,7 +216,7 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack, rank
           <div className="rounded-2xl px-4 py-3" style={{ backgroundColor: '#EEF3EA' }} data-verdict>
             <div className="flex items-center gap-2 text-[15px] font-bold" style={{ color: '#2F5536' }}>
               <CheckIcon size={18} />
-              You've tried this{visits.length ? ` · ${visits.length} ${visits.length === 1 ? 'visit' : 'visits'}` : ''}
+              You've tried this
               <span className="ml-auto -mr-2 flex">
                 <button type="button" onClick={() => startEdit(false)} className={iconBtn} style={{ color: systemColors.navyMuted }} aria-label="Edit rating and notes" title="Edit">
                   <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
@@ -240,6 +239,12 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack, rank
               <p className="text-xs mt-1.5" style={{ color: systemColors.navyMuted }}>From your taste survey</p>
             )}
             {tried.notes && <p className="text-sm mt-1.5" style={{ color: systemColors.navyLight }}>{tried.notes}</p>}
+            {/* One verdict per dish (Nikita, 2026-10-02): when and where you last had it, not a list of visits */}
+            {tried.source !== 'survey' || stars ? (
+              <p className="text-xs mt-1.5" style={{ color: systemColors.navyMuted }} data-last-had>
+                Last had it {fmtDate(tried.updatedAt)}{tried.where ? ` · ${tried.where}` : ''}
+              </p>
+            ) : null}
           </div>
         )}
 
@@ -268,6 +273,7 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack, rank
               {rating > 0 && <span className="self-center ml-1 text-sm font-semibold" style={{ color: systemColors.tomato }}>{VERDICT_WORD[rating]}</span>}
             </div>
             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="Your thoughts on this dish..." className="w-full px-3 py-2 text-sm rounded-lg border" style={{ borderColor: systemColors.border }} />
+            <input type="text" value={where} onChange={e => setWhere(e.target.value)} placeholder="Where did you have it? (optional)" aria-label="Where you had it" className="w-full px-3 py-2 text-sm rounded-lg border" style={{ borderColor: systemColors.border }} />
             <div className="flex gap-2">
               <button type="button" onClick={save} className="btn-press h-11 px-5 rounded-lg text-sm font-bold text-white" style={{ backgroundColor: systemColors.herb }}>Save</button>
               <button type="button" onClick={cancel} className="h-11 px-4 rounded-lg text-sm font-semibold border" style={{ borderColor: systemColors.border, color: systemColors.navyLight }}>
@@ -300,43 +306,14 @@ export function DishDetail({ entry, country, actions: a, backLabel, onBack, rank
           </div>
         )}
 
-        {/* Visits, for a tried dish */}
-        {tried && visits.length > 0 && (
-          <div className="flex flex-col gap-1.5">
-            <div className="text-xs font-bold uppercase tracking-wider" style={{ color: systemColors.navyMuted }}>Visits</div>
-            {visits.map(t => (
-              editingVisit === t.id ? (
-                <RestaurantTryForm key={t.id} existingTry={t} onSubmit={data => { a.onUpdateRestaurantTry(tried.id, t.id, data); setEditingVisit(null); }} onCancel={() => setEditingVisit(null)} />
-              ) : (
-                <div key={t.id} className="rounded-lg pl-3 pr-1 py-1 flex items-center gap-2 text-sm" style={{ backgroundColor: systemColors.saffronLight }}>
-                  <div className="min-w-0 flex-1 py-1">
-                    <span className="font-semibold" style={{ color: systemColors.navy }}>{t.restaurantName || 'Tried'}</span>
-                    <span className="ml-2 text-xs" style={{ color: systemColors.navyMuted }}>{fmtDate(t.date)}</span>
-                    {t.rating ? <span className="ml-2"><Stars value={t.rating} size="text-sm" /></span> : null}
-                    {t.notes && <p className="text-xs mt-0.5" style={{ color: systemColors.navyLight }}>{t.notes}</p>}
-                  </div>
-                  <button type="button" onClick={() => setEditingVisit(t.id)} className={iconBtn} style={{ color: systemColors.navyMuted }} aria-label="Edit visit">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                  </button>
-                  <button type="button" onClick={() => a.onDeleteRestaurantTry(tried.id, t.id)} className={`${iconBtn} hover:text-red-600`} style={{ color: systemColors.navyMuted }} aria-label="Delete visit">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
-                </div>
-              )
-            ))}
-          </div>
-        )}
-
         {/* Actions: one place for all of them */}
         <div className="flex flex-col gap-2.5 pt-1">
           {prompt ? null : tried ? (
-            addingVisit ? (
-              <RestaurantTryForm onSubmit={data => { a.onAddRestaurantTry(tried.id, data); setAddingVisit(false); }} onCancel={() => setAddingVisit(false)} />
-            ) : (
-              <button type="button" onClick={() => setAddingVisit(true)} className={`${primaryBtn} w-full border-[1.5px]`} style={{ ...heading, borderColor: systemColors.tomato, color: systemColors.tomato, backgroundColor: systemColors.surface }}>
-                Log another visit
-              </button>
-            )
+            // The same prompt as the first time, pre-filled: a new verdict
+            // replaces the old one, nothing accumulates (Nikita, 2026-10-02)
+            <button type="button" onClick={() => startEdit(false)} data-action="again" className={`${primaryBtn} w-full border-[1.5px]`} style={{ ...heading, borderColor: systemColors.tomato, color: systemColors.tomato, backgroundColor: systemColors.surface }}>
+              Ate it again
+            </button>
           ) : source ? (
             <>
               <div className="flex gap-2.5">

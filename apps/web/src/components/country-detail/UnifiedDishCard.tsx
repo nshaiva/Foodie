@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { RestaurantTryForm } from '../RestaurantTryForm';
 import { systemColors } from '../../data/systemColors';
 import { dishVerdictRating, isDerivedRating, ratedTryCount } from '../../utils/ratings';
 import type { UserDish, RestaurantTry } from '../../data/types';
@@ -49,16 +48,11 @@ export function UnifiedDishCard({
   bare = false,
   onUpdateDish,
   onDeleteDish,
-  onAddRestaurantTry,
-  onUpdateRestaurantTry,
-  onDeleteRestaurantTry,
 }: UnifiedDishCardProps) {
-  const [showTries, setShowTries] = useState(false);
-  const [showAddTry, setShowAddTry] = useState(false);
-  const [editingTryId, setEditingTryId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editNotes, setEditNotes] = useState('');
+  const [editWhere, setEditWhere] = useState('');
   const [editRating, setEditRating] = useState(0);
   const [justTried, setJustTried] = useState(false);
   // True while the edit panel is the auto-opened first-log prompt; canceling
@@ -68,8 +62,11 @@ export function UnifiedDishCard({
   // "+ I tried this" flows straight into the rating prompt once the entry exists
   useEffect(() => {
     if (justTried && tried) {
+      // The entry arrives from the parent a render later; this is a one-time handoff, not a state sync
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditName(tried.name);
       setEditNotes(tried.notes || '');
+      setEditWhere(tried.where || '');
       setEditRating(tried.tasteRating || 0);
       setIsEditing(true);
       setIsInitialPrompt(true);
@@ -85,7 +82,6 @@ export function UnifiedDishCard({
     setIsEditing(false);
   };
 
-  const tries = tried?.restaurantTries || [];
   const verdict = tried ? dishVerdictRating(tried) : undefined;
   const rating = verdict !== undefined ? Math.round(verdict) : undefined;
   const derived = tried ? isDerivedRating(tried) : false;
@@ -94,6 +90,7 @@ export function UnifiedDishCard({
     if (!tried) return;
     setEditName(tried.name);
     setEditNotes(tried.notes || '');
+    setEditWhere(tried.where || '');
     setEditRating(tried.tasteRating || 0);
     setIsEditing(true);
   };
@@ -103,6 +100,7 @@ export function UnifiedDishCard({
     onUpdateDish(tried.id, {
       ...(isCustom && editName.trim() ? { name: editName.trim() } : {}),
       notes: editNotes.trim() || undefined,
+      where: editWhere.trim() || undefined,
       tasteRating: editRating || undefined,
     });
     setIsInitialPrompt(false);
@@ -160,6 +158,15 @@ export function UnifiedDishCard({
                 style={{ '--tw-ring-color': systemColors.herb } as React.CSSProperties}
                 placeholder="Your thoughts on this dish..."
               />
+              <input
+                type="text"
+                value={editWhere}
+                onChange={(e) => setEditWhere(e.target.value)}
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2"
+                style={{ '--tw-ring-color': systemColors.herb } as React.CSSProperties}
+                placeholder="Where did you have it? (optional)"
+                aria-label="Where you had it"
+              />
               <div className="flex gap-2">
                 <button
                   onClick={saveEdit}
@@ -196,10 +203,11 @@ export function UnifiedDishCard({
                   </button>
                 )}
                 <button
-                  onClick={() => setShowTries(!showTries)}
-                  className="tap card-cta text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                  onClick={startEdit}
+                  className="tap card-cta text-xs font-medium transition-colors hover:opacity-80"
+                  style={{ color: systemColors.tomato }}
                 >
-                  {showTries ? '▾' : '▸'} {tries.length} {tries.length === 1 ? 'try' : 'tries'}
+                  Ate it again
                 </button>
                 <span className="ml-auto flex gap-1">
                   <button
@@ -233,73 +241,11 @@ export function UnifiedDishCard({
 
               {tried.notes && <p className="text-sm text-gray-600 mt-1.5">{tried.notes}</p>}
 
-              {showTries && (
-                <div className="mt-1.5 space-y-1.5">
-                  {tries.map((tryItem) => (
-                    <div key={tryItem.id}>
-                      {editingTryId === tryItem.id ? (
-                        <RestaurantTryForm
-                          existingTry={tryItem}
-                          onSubmit={(data) => { onUpdateRestaurantTry(tried.id, tryItem.id, data); setEditingTryId(null); }}
-                          onCancel={() => setEditingTryId(null)}
-                        />
-                      ) : (
-                        <div className="rounded-md p-2 text-sm" style={{ backgroundColor: systemColors.saffronLight }}>
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <span className="font-medium text-gray-800">
-                                {tryItem.restaurantName || 'Tried'}
-                              </span>
-                              <span className="text-gray-500 ml-2 text-xs">{formatDate(tryItem.date)}</span>
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() => setEditingTryId(tryItem.id)}
-                                className="text-gray-400 p-3 md:p-0.5 transition-colors"
-                                onMouseEnter={(e) => (e.currentTarget.style.color = systemColors.saffron)}
-                                onMouseLeave={(e) => (e.currentTarget.style.color = '')}
-                                title="Edit"
-                              >
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                </svg>
-                              </button>
-                              <button
-                                onClick={() => onDeleteRestaurantTry(tried.id, tryItem.id)}
-                                className="text-gray-400 hover:text-red-500 p-3 md:p-0.5 transition-colors"
-                                title="Delete"
-                              >
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                          {tryItem.rating && (
-                            <div className="mt-0.5"><RatingStars rating={tryItem.rating} /></div>
-                          )}
-                          {tryItem.notes && <p className="text-gray-600 mt-0.5">{tryItem.notes}</p>}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {showAddTry ? (
-                    <RestaurantTryForm
-                      onSubmit={(data) => { onAddRestaurantTry(tried.id, data); setShowAddTry(false); }}
-                      onCancel={() => setShowAddTry(false)}
-                    />
-                  ) : (
-                    <button
-                      onClick={() => setShowAddTry(true)}
-                      className="tap text-xs font-medium transition-colors hover:opacity-80"
-                      style={{ color: systemColors.saffron }}
-                    >
-                      + Add try
-                    </button>
-                  )}
-                </div>
-              )}
+              {(tried.source !== 'survey' || rating) ? (
+                <p className="text-xs mt-1.5" style={{ color: systemColors.navyMuted }}>
+                  Last had it {formatDate(tried.updatedAt)}{tried.where ? ` · ${tried.where}` : ''}
+                </p>
+              ) : null}
             </>
           )}
         </div>

@@ -223,6 +223,11 @@ export interface UserDish {
   source?: 'lookup' | 'survey';
   notes?: string;
   tasteRating?: number;  // 1-5: How much you enjoyed eating this dish
+  /** Where you had it, free text, optional (one line, not a restaurant record). */
+  where?: string;
+  /** Per-visit logs from before 2026-10-02. No longer written or shown: a
+   *  dish has one verdict, re-edited each time you eat it ("Ate it again").
+   *  Kept so old logs load and `dishVerdictRating` can still average them. */
   restaurantTries?: RestaurantTry[];
   createdAt: string;
   updatedAt: string;
