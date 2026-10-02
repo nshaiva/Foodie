@@ -765,6 +765,9 @@ export function Explore() {
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
   // The SVG group above the region names where a hovered plate's caption renders
   const [plateCaptionLayer, setPlateCaptionLayer] = useState<SVGGElement | null>(null);
+  // Boxes an open fan covers (from MapPlates): the caps under them fade so
+  // the thing you opened is the thing on top (Nikita, 2026-10-02)
+  const [fanBoxes, setFanBoxes] = useState<[number, number, number, number][] | null>(null);
   // Names render as large as still fit cleanly: full size where the country
   // has room, stepping down to a readable floor on tight ones (a wide country
   // on a tall phone can't zoom further without cropping). Below the floor
@@ -847,6 +850,20 @@ export function Explore() {
     }
     return { lift, hidden };
   }, [areas, mapPlates, labelScale, liveZoom, bubbleCountry]);
+  // A cap sitting under an open fan (the Across stack or a city pile fanned
+  // out) steps back to 30%, so the thing you opened is the thing on top
+  // (Nikita, 2026-10-02). Boxes come from MapPlates, in screen px.
+  const capUnderFan = useMemo(() => {
+    const out = new Set<string>();
+    if (!areas || !fanBoxes?.length) return out;
+    for (const { region, anchorPx } of areas.areas) {
+      const [mx, my] = capLift[region.name] ?? [0, 0];
+      const cx = anchorPx[0] * liveZoom + mx * labelScale, cy = anchorPx[1] * liveZoom + my * labelScale;
+      const halfW = (regionLabelName(region.name).length * 9.5 * 0.68 * labelScale) / 2 + 4, halfH = 7 * labelScale;
+      if (fanBoxes.some(([x0, y0, x1, y1]) => cx + halfW > x0 && cx - halfW < x1 && cy + halfH > y0 && cy - halfH < y1)) out.add(region.name);
+    }
+    return out;
+  }, [areas, fanBoxes, capLift, labelScale, liveZoom]);
   // Region names are small quiet caps at every zoom and for every country
   // (Nikita, 2026-10-01), whether or not it has plates yet, so the style
   // never flips between countries or levels; the open region's cap keeps
@@ -1024,6 +1041,7 @@ export function Explore() {
                         onOpenDish={entry => openDish(entry.key)}
                         onOpenAcross={() => flyToRegion(bubbleCountry, acrossRegion(bubbleCountry))}
                         acrossSelected={scope.level === 'region' && isAcrossRegion(scope.region)}
+                        onOpenBoxes={setFanBoxes}
                       />
                     )}
                     {areas.areas.map(({ region, anchor }) => {
@@ -1032,7 +1050,7 @@ export function Explore() {
                       const n = platesShowing ? 0 : counts[region.name] ?? 0;
                       return (
                         <Marker key={region.name} coordinates={anchor} style={{ default: { pointerEvents: 'none' }, hover: { pointerEvents: 'none' }, pressed: { pointerEvents: 'none' } }}>
-                          <g transform={`scale(${labelScale / liveZoom})`} opacity={capHidden.has(region.name) && !(scope.level === 'region' && scope.region.name === region.name) ? 0 : quietNames ? capFade : labelsFit ? 1 : 0} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
+                          <g transform={`scale(${labelScale / liveZoom})`} opacity={capHidden.has(region.name) && !(scope.level === 'region' && scope.region.name === region.name) ? 0 : (quietNames ? capFade : labelsFit ? 1 : 0) * (capUnderFan.has(region.name) ? 0.3 : 1)} style={{ pointerEvents: 'none', transition: 'opacity 180ms' }}>
                             {/* With plates showing, the names are wayfinding, not content: small quiet caps so the food leads (decided 2026-10-01) */}
                             {quietNames ? (
                               <>
